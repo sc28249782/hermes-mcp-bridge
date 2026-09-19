@@ -1,7 +1,7 @@
 # Roadmap
 
 > แนวทางพัฒนา Hermes MCP Bridge จากรากฐานเดิมจนถึง production baseline  
-> จุดเริ่มต้น: [ChatGPT conversation](https://chatgpt.com/share/6aae9c83-db48-83ec-ba0c-4ab5e3b088a7)  
+> จุดเริ่มต้น: [Project origin](PROJECT-ORIGIN.md) · ลำดับการพัฒนา: [Project history](PROJECT-HISTORY.md)  
 > ไม่มีวันที่กำหนดตายตัว: เริ่ม milestone ถัดไปเมื่อ acceptance ของ milestone ก่อนหน้าผ่านแล้ว
 
 ## หลักการที่ไม่เปลี่ยน
