@@ -1,5 +1,7 @@
 # Changelog
 
+Project context: [Project origin](PROJECT-ORIGIN.md) · [Project history](PROJECT-HISTORY.md)
+
 ## v0.4.0 — 2026-09-19
 
 - รักษา Hermes MCP tools เดิม 10 ตัวจาก v0.3.2
