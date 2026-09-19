@@ -22,7 +22,7 @@
 | v0.2.1 | Hotfix การแทน tunnel profile ด้วย `--force` | เสร็จ |
 | v0.3.0 | Usage summary/export โดยไม่เดาราคา | เสร็จ |
 | v0.3.2 | Live acceptance ของ Hermes tools 10 ตัว | เสร็จ |
-| v0.4.0 | Safe Codex/WSL2 operations โดยไม่เปลี่ยน schema/pฤติกรรม Hermes เดิม | Automated validation เสร็จ; รอ live acceptance |
+| v0.4.0 | Safe Codex/WSL2 operations โดยไม่เปลี่ยน schema/พฤติกรรม Hermes เดิม | Automated validation เสร็จ; รอ live acceptance |
 
 ## Current — v0.4.0
 
