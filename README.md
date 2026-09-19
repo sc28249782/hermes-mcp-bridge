@@ -85,6 +85,7 @@ See the Thai documentation for the full setup and live acceptance procedure:
 - [Live acceptance checklist](LIVE-ACCEPTANCE-TH.md)
 - [Security policy](SECURITY.md)
 - [Contributing guide](CONTRIBUTING.md)
+- [Project roadmap](ROADMAP.md)
 
 ## Status
 
