@@ -7,7 +7,7 @@
 
 **Hermes MCP Bridge** is a local, stdio-based MCP bridge for controlled work on a user's own WSL2 machine. It exposes Hermes task operations and a permission-gated Codex execution layer through an OpenAI Secure MCP Tunnel.
 
-Project origin: [ChatGPT conversation](https://chatgpt.com/share/6aae9c83-db48-83ec-ba0c-4ab5e3b088a7)
+Read [Project origin](PROJECT-ORIGIN.md) and [Project history](PROJECT-HISTORY.md).
 
 ## What it provides
 
@@ -85,6 +85,8 @@ See the Thai documentation for the full setup and live acceptance procedure:
 - [Live acceptance checklist](LIVE-ACCEPTANCE-TH.md)
 - [Security policy](SECURITY.md)
 - [Contributing guide](CONTRIBUTING.md)
+- [Project origin](PROJECT-ORIGIN.md)
+- [Project history](PROJECT-HISTORY.md)
 - [Project roadmap](ROADMAP.md)
 
 ## Status
