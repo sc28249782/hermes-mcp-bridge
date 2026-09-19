@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 Repository: https://github.com/sc28249782/hermes-mcp-bridge  
-จุดเริ่มต้นของโครงการ: https://chatgpt.com/share/6aae9c83-db48-83ec-ba0c-4ab5e3b088a7
+[Project origin](PROJECT-ORIGIN.md) · [Project history](PROJECT-HISTORY.md)
 
 จัดทำสำหรับ Hermes Agent v0.21.1, commit `8d79c2ff` ที่ผู้ใช้ยืนยัน
 วันที่ปรับปรุง: 13 กันยายน 2026
