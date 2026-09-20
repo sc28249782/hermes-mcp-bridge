@@ -15,8 +15,10 @@
 - restart Secure MCP Tunnel และ discovery Hermes 10 + Codex 6 tools
 - Codex CLI `0.155.1` กับ workspace allowlist `/mnt/e/Projects/OpenHDK-validation`
 
-## ยังต้องทำสำหรับ v0.5.0
+## Live acceptance ที่ผ่านสำหรับ v0.5.0 — 2026-09-20
 
-- ตรวจ `bridge_diagnostics` ผ่าน Secure MCP Tunnel
-- ตรวจ audit log หลัง read-only, workspace-write approval และ cancel
-- ทดสอบ recovery marker หลัง restart bridge ระหว่าง job ที่ไม่มีผลกระทบต่อไฟล์
+- `bridge_diagnostics` ผ่าน Secure MCP Tunnel: Hermes auth verified, Codex CLI `0.155.1`, state mode `700` และ audit enabled
+- Codex `read-only` job ใน `/mnt/e/Projects/OpenHDK-validation` จบสำเร็จโดยไม่แก้ไขไฟล์ และทำให้ `audit.jsonl` ถูกสร้าง
+- Codex `workspace-write` job ผ่าน local terminal approval: สร้าง/ตรวจ/ลบไฟล์ทดสอบชื่อเฉพาะไฟล์เดียวและยืนยันว่าไม่มีไฟล์คงเหลือ
+- สถานะของ write job แสดง `recovered_after_restart: true` ตาม semantics ที่ประกาศไว้ เพราะ terminal approval process เป็นผู้เริ่ม job แล้ว tunnel process อ่านสถานะต่อจาก persisted state
+- Codex read-only cancellation job ถูกยกเลิกขณะรัน; สถานะสุดท้าย `cancelled` และไม่มีการแก้ไขไฟล์
