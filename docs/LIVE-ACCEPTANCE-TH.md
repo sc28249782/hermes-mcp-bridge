@@ -43,3 +43,7 @@
 - `bridge_audit_recent` แสดง lifecycle `submit → start → finish` พร้อม model/effort ที่ร้องขอ โดยไม่มี prompt, output หรือ credential
 
 ระหว่าง acceptance พบว่า display name `GPT-5.6 Sol` ใช้เป็น model ID ไม่ได้และถูก Codex CLI ปฏิเสธ; แก้เป็น `gpt-5.6-sol` แล้วผ่าน จึงต้องใช้ model ID จริงใน `allowed_models` เสมอ
+
+## v0.8.0 — รอ live acceptance
+
+Build verification ผ่าน 44 tests แล้ว แต่ต้องทดสอบบน WSL2 เพิ่มสำหรับ watchdog timeout, SIGTERM/SIGKILL cancellation และ `unknown_exit` หลัง recovery ก่อนปิด release นี้.
