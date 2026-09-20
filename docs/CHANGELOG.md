@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.8.0 — 2026-09-20
+
+- Hardened Codex lifecycle handling: failed starts become `failed`, unobserved exits after restart become `unknown_exit`, and concurrency reservation is atomic.
+- Added a persistent timeout watchdog (`codex.watchdog_interval_seconds`, default 15 seconds) so runtime policy is enforced without status polling.
+- Cancellation now waits for process exit, escalates from SIGTERM to SIGKILL after a bounded grace period, and never records a terminal result while the process remains alive.
+- Added public `approval_preview` for the local CLI, lifecycle/race/watchdog regression tests, and shellcheck in CI.
+- Automated suite: 44 tests passing locally with `ResourceWarning` treated as errors; shellcheck runs in GitHub Actions.
+
 ## v0.7.0 — 2026-09-20
 
 - เพิ่ม optional `model` และ `reasoning_effort` ให้ `codex_submit_task` โดยส่ง override ให้ Codex CLI เฉพาะเมื่อผ่าน allowlist
