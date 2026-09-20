@@ -37,6 +37,7 @@ if not p.exists():
                             'codex': {'binary':'codex', 'allowed_workspaces':[],
                                       'max_prompt_chars':32000,
                                       'max_runtime_seconds':1800,
+                                      'watchdog_interval_seconds':15,
                                       'approval_ttl_seconds':3600,
                                       'allowed_models':[],
                                       'allowed_reasoning_efforts':[]}}, indent=2)+'\n')
@@ -46,6 +47,7 @@ else:
     if 'codex' not in data:
         data['codex'] = {'binary':'codex', 'allowed_workspaces':[],
                          'max_prompt_chars':32000, 'max_runtime_seconds':1800,
+                         'watchdog_interval_seconds':15,
                          'approval_ttl_seconds':3600,
                          'allowed_models':[], 'allowed_reasoning_efforts':[]}
         p.write_text(json.dumps(data, indent=2)+'\n')
@@ -55,9 +57,10 @@ else:
         p.write_text(json.dumps(data, indent=2)+'\n')
         p.chmod(0o600)
     changed = False
-    for key in ('allowed_models', 'allowed_reasoning_efforts'):
+    for key, value in (('allowed_models', []), ('allowed_reasoning_efforts', []),
+                       ('watchdog_interval_seconds', 15)):
         if key not in data['codex']:
-            data['codex'][key] = []
+            data['codex'][key] = value
             changed = True
     if changed:
         p.write_text(json.dumps(data, indent=2)+'\n')
