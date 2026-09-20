@@ -37,18 +37,29 @@ if not p.exists():
                             'codex': {'binary':'codex', 'allowed_workspaces':[],
                                       'max_prompt_chars':32000,
                                       'max_runtime_seconds':1800,
-                                      'approval_ttl_seconds':3600}}, indent=2)+'\n')
+                                      'approval_ttl_seconds':3600,
+                                      'allowed_models':[],
+                                      'allowed_reasoning_efforts':[]}}, indent=2)+'\n')
     p.chmod(0o600)
 else:
     data = json.loads(p.read_text())
     if 'codex' not in data:
         data['codex'] = {'binary':'codex', 'allowed_workspaces':[],
                          'max_prompt_chars':32000, 'max_runtime_seconds':1800,
-                         'approval_ttl_seconds':3600}
+                         'approval_ttl_seconds':3600,
+                         'allowed_models':[], 'allowed_reasoning_efforts':[]}
         p.write_text(json.dumps(data, indent=2)+'\n')
         p.chmod(0o600)
     elif 'approval_ttl_seconds' not in data['codex']:
         data['codex']['approval_ttl_seconds'] = 3600
+        p.write_text(json.dumps(data, indent=2)+'\n')
+        p.chmod(0o600)
+    changed = False
+    for key in ('allowed_models', 'allowed_reasoning_efforts'):
+        if key not in data['codex']:
+            data['codex'][key] = []
+            changed = True
+    if changed:
         p.write_text(json.dumps(data, indent=2)+'\n')
         p.chmod(0o600)
     if 'audit' not in data:
