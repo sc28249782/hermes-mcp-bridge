@@ -36,13 +36,19 @@ if not p.exists():
                             'audit': {'enabled':True, 'max_bytes':1000000, 'retention_files':7},
                             'codex': {'binary':'codex', 'allowed_workspaces':[],
                                       'max_prompt_chars':32000,
-                                      'max_runtime_seconds':1800}}, indent=2)+'\n')
+                                      'max_runtime_seconds':1800,
+                                      'approval_ttl_seconds':3600}}, indent=2)+'\n')
     p.chmod(0o600)
 else:
     data = json.loads(p.read_text())
     if 'codex' not in data:
         data['codex'] = {'binary':'codex', 'allowed_workspaces':[],
-                         'max_prompt_chars':32000, 'max_runtime_seconds':1800}
+                         'max_prompt_chars':32000, 'max_runtime_seconds':1800,
+                         'approval_ttl_seconds':3600}
+        p.write_text(json.dumps(data, indent=2)+'\n')
+        p.chmod(0o600)
+    elif 'approval_ttl_seconds' not in data['codex']:
+        data['codex']['approval_ttl_seconds'] = 3600
         p.write_text(json.dumps(data, indent=2)+'\n')
         p.chmod(0o600)
     if 'audit' not in data:
