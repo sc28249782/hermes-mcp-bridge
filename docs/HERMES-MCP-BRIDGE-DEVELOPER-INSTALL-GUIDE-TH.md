@@ -293,7 +293,7 @@ bash tunnel.sh service-status
 - retry หลัง response หายทำได้เมื่อ Hermes ประกาศ durable idempotency และยังอยู่ใน safe replay window
 - เปลี่ยน schema/API ต้องเพิ่ม fake-server test และ MCP stdio integration test
 
-ชุดทดสอบครอบคลุม Hermes lifecycle/recovery/model/usage เดิม, Codex allowlist/symlink/sandbox/write approval/audit/recovery และ MCP SDK stdio integration ที่ค้นพบ 17 tools
+ชุดทดสอบครอบคลุม Hermes lifecycle/recovery/model/usage เดิม, Codex workspace/model/reasoning allowlist, symlink, sandbox, write approval, audit/recovery และ MCP SDK stdio integration ที่ค้นพบ 18 tools
 
 การทดสอบดังกล่าวเป็น contract test กับ Hermes จำลอง ไม่ใช่การรัน live model หรือการยืนยัน UI ของ WordPress/Elementor
 
