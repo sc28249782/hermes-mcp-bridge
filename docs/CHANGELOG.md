@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.7.0 — 2026-09-20
+
+- เพิ่ม optional `model` และ `reasoning_effort` ให้ `codex_submit_task` โดยส่ง override ให้ Codex CLI เฉพาะเมื่อผ่าน allowlist
+- เพิ่ม `allowed_models` และ `allowed_reasoning_efforts` ระดับ Codex หรือแยกต่อ workspace; ค่าเริ่มต้นปิด override เพื่อคง local Codex defaults
+- แสดง policy model/reasoning ที่บังคับใช้ใน `codex_health`; เก็บชื่อค่าที่ร้องขอใน job state, status/recent และ redacted audit (ไม่เก็บ prompt/output)
+- หน้าจอ local approval แสดง model/reasoning ที่ร้องขอ และยังต้องอนุมัติงานเขียนเหมือนเดิม
+- เพิ่ม tests สำหรับ allowlist, forwarding argv และ health export; MCP discovery ยังคง 18 tools
+
 ## v0.6.0 — 2026-09-20
 
 - เพิ่ม workspace policy แบบ backward-compatible: sandbox modes, prompt/runtime limit และ concurrency ต่อ workspace
