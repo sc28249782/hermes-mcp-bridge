@@ -1,4 +1,4 @@
-# Codex/WSL2 แบบควบคุมสิทธิ์ — v0.7.0
+# Codex/WSL2 แบบควบคุมสิทธิ์ — v0.8.0
 
 รุ่นนี้คง Hermes tools เดิม 10 ตัว เพิ่ม Codex tools 6 ตัว, `bridge_diagnostics` และ `bridge_audit_recent` รวม 18 tools โดย `codex_submit_task` เลือก model และ reasoning effort รายงานได้ภายใต้นโยบายที่กำหนด
 
@@ -23,6 +23,7 @@
 "codex": {
   "binary": "codex",
   "approval_ttl_seconds": 3600,
+  "watchdog_interval_seconds": 15,
   "workspaces": [
     {
       "path": "/mnt/e/Projects/OpenHDK-validation",
@@ -46,6 +47,8 @@
 `allowed_workspaces` แบบเดิมยังใช้ได้เพื่อความเข้ากันได้ แต่ `workspaces` ช่วยกำหนด policy แยกต่อ repository ได้ละเอียดกว่า ค่า `approval_ttl_seconds` ใช้กับ write job ที่รอการอนุมัติ; เมื่อหมดอายุ job จะเป็น `expired` และเริ่มใหม่ไม่ได้
 
 `allowed_models` และ `allowed_reasoning_efforts` ใส่ได้ทั้งระดับ `codex` (เป็นค่าเริ่มต้น) หรือในแต่ละ workspace (override ค่าเริ่มต้น) หากเป็น array ว่างหรือไม่ระบุ จะ **ไม่อนุญาต override** และ Codex CLI จะใช้ค่า default local ของผู้ใช้แทน bridge ไม่ค้นหรือเดาชื่อโมเดลที่บัญชีใช้ได้เอง; ตรวจ allowlist ที่มีผลจริงด้วย `codex_health`
+
+`watchdog_interval_seconds` (5–300, ค่าเริ่มต้น 15) เป็นช่วงที่ bridge server ตรวจ job ที่กำลังรันและบังคับ `max_runtime_seconds` ของ workspace แม้ไม่มีใครเรียก `codex_task_status`. เมื่อ timeout/cancel bridge ส่ง SIGTERM, รอช่วงสั้น, ส่ง SIGKILL หากยังไม่จบ และจะไม่เขียนสถานะ terminal จนยืนยันว่า process ตาย. Job ที่ bridge restart แล้วพบว่า process จบแต่ไม่ทราบ exit code จะเป็น `unknown_exit` ไม่ใช่ `completed`.
 
 ส่ง `model` และ/หรือ `reasoning_effort` ไปที่ `codex_submit_task` เฉพาะค่าที่อยู่ใน allowlist ของ workspace เท่านั้น ค่า reasoning ที่ bridge รู้จักคือ `low`, `medium`, `high`, `xhigh`, `max`, `ultra` แต่จะใช้ได้จริงก็ต่อเมื่อโมเดลและบัญชี Codex รองรับด้วย หากละพารามิเตอร์ใด Bridge จะไม่ส่ง override นั้นไปยัง Codex CLI
 
