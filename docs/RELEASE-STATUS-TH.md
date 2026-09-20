@@ -1,19 +1,25 @@
-# Release status — v0.6.0
+# Release status — v0.7.0
 
 ## ผ่านแล้วใน build environment
 
 - Python syntax compilation
 - Hermes regression tests 16 รายการ
-- Codex policy/process/audit/recovery tests 14 รายการ
+- Codex policy/process/audit/recovery/model-policy tests 17 รายการ
 - MCP stdio discovery/integration 1 รายการ: พบ 18 tools
 - tunnel script tests 2 รายการ
-- รวม 33 tests ผ่านทั้งหมด
+- รวม 36 tests ผ่านทั้งหมด
 
 ## Live acceptance ที่ผ่านบน WSL2
 
 - `./bridge.sh doctor` และ `./bridge.sh codex-doctor`
 - restart Secure MCP Tunnel และ discovery Hermes 10 + Codex 6 tools
 - Codex CLI `0.155.1` กับ workspace allowlist `/mnt/e/Projects/OpenHDK-validation`
+
+## v0.7.0 — build verification
+
+- `codex_submit_task` รองรับ optional `model` และ `reasoning_effort` โดยไม่เพิ่ม MCP tool ใหม่ (discovery ยังคง 18 tools)
+- policy test ยืนยันการปฏิเสธ model/effort นอก allowlist ก่อนเริ่มงาน และตรวจ argv ที่ส่ง override ที่อนุญาต
+- ยังต้องทำ live acceptance บน WSL2 หลังผู้ดูแลกำหนด allowlist ที่ตรงกับโมเดลที่บัญชี Codex ใช้ได้จริง
 
 ## Live acceptance ที่ผ่านสำหรับ v0.5.0 — 2026-09-20
 
