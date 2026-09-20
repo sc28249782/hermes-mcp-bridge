@@ -1,4 +1,4 @@
-# คู่มือปฏิบัติการ — v0.5.0
+# คู่มือปฏิบัติการ — v0.7.0
 
 ## ตรวจสุขภาพ
 
@@ -39,3 +39,9 @@
 งาน `workspace-write` จะมีเวลาอนุมัติตาม `codex.approval_ttl_seconds` (ค่าเริ่มต้น 3,600 วินาที) เมื่อหมดอายุสถานะเปลี่ยนเป็น `expired`; ให้สร้าง job ใหม่และตรวจ prompt อีกครั้ง ห้ามพยายามเปลี่ยน state database ด้วยตนเอง
 
 ใช้ `bridge_audit_recent` หรือ `./bridge.sh audit-recent` เพื่ออ่าน event ที่ redacted ล่าสุด การตั้ง deny prompt patterns เป็นเพียง guard ก่อนเริ่มงาน; workspace allowlist, Codex sandbox และ local approval ยังคงเป็นชั้นควบคุมหลัก
+
+## Codex model และ reasoning effort
+
+ก่อนส่ง override ให้เรียก `codex_health` และใช้เฉพาะ model ID/effort ที่แสดงใน `workspace_policies` ของ workspace นั้น หากไม่ส่ง `model` หรือ `reasoning_effort` Codex CLI จะใช้ค่า default local. การเลือก override ไม่ข้าม sandbox หรือ local approval สำหรับ `workspace-write`.
+
+หาก Codex CLI ตอบว่า model ไม่รองรับ ให้แก้ `allowed_models` เป็น model ID จริงที่บัญชีใช้งานได้—not display name—แล้ว restart tunnel และตรวจ `codex_health` ใหม่.
