@@ -92,6 +92,40 @@ class TestCodexRunner(unittest.TestCase):
         restarted = CodexRunner({"allowed_workspaces": [str(self.root)]}, Path(self.tmp.name) / "state")
         self.assertTrue(restarted.status(job["job_id"])["recovered_after_restart"])
 
+    def test_workspace_policy_rejects_disallowed_mode_and_pattern(self):
+        runner = CodexRunner({"workspaces": [{"path": str(self.root), "modes": ["read-only"],
+                                                "deny_prompt_patterns": ["deploy production"]}]},
+                             Path(self.tmp.name) / "policy-state")
+        with self.assertRaises(CodexError):
+            runner.submit("inspect", str(self.root), "workspace-write")
+        with self.assertRaises(CodexError):
+            runner.submit("deploy production now", str(self.root), "read-only")
+
+    def test_workspace_policy_concurrency_is_enforced(self):
+        runner = CodexRunner({"workspaces": [{"path": str(self.root), "max_concurrency": 1}]},
+                             Path(self.tmp.name) / "concurrency-state")
+        with patch.object(runner, "_start"):
+            runner.submit("inspect one", str(self.root), "read-only")
+            with self.assertRaises(CodexError):
+                runner.submit("inspect two", str(self.root), "read-only")
+
+    def test_pending_write_expiry_is_enforced(self):
+        runner = CodexRunner({"allowed_workspaces": [str(self.root)], "approval_ttl_seconds": 60},
+                             Path(self.tmp.name) / "expiry-state")
+        job = runner.submit("edit", str(self.root), "workspace-write")
+        with runner.db() as db:
+            db.execute("UPDATE jobs SET approval_expires=0 WHERE job_id=?", (job["job_id"],))
+        status = runner.status(job["job_id"])
+        self.assertEqual(status["status"], "expired")
+        with self.assertRaises(CodexError):
+            runner.approve_local(job["job_id"])
+
+    def test_audit_recent_is_redacted(self):
+        job = self.runner.submit("sensitive detail", str(self.root), "workspace-write")
+        events = self.runner.audit.recent()["events"]
+        self.assertEqual(events[-1]["subject"], job["job_id"])
+        self.assertNotIn("sensitive detail", json.dumps(events))
+
 
 if __name__ == "__main__":
     unittest.main()
