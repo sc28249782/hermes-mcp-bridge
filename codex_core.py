@@ -22,6 +22,7 @@ class CodexError(RuntimeError):
 class CodexRunner:
     MODES = {"read-only", "workspace-write"}
     TERMINAL = {"completed", "failed", "cancelled", "denied", "expired", "timed_out"}
+    REASONING_EFFORTS = {"low", "medium", "high", "xhigh", "max", "ultra"}
 
     def __init__(self, config: dict, state: Path):
         self.binary = str(config.get("binary", "codex"))
@@ -45,9 +46,11 @@ class CodexRunner:
               finished REAL, workspace TEXT NOT NULL, mode TEXT NOT NULL,
               prompt TEXT NOT NULL, status TEXT NOT NULL, pid INTEGER,
               exit_code INTEGER, log_path TEXT NOT NULL,
-              policy_root TEXT, approval_expires REAL)""")
+              policy_root TEXT, approval_expires REAL,
+              model TEXT, reasoning_effort TEXT)""")
             existing = {row[1] for row in db.execute("PRAGMA table_info(jobs)")}
-            for name, definition in (("policy_root", "TEXT"), ("approval_expires", "REAL")):
+            for name, definition in (("policy_root", "TEXT"), ("approval_expires", "REAL"),
+                                     ("model", "TEXT"), ("reasoning_effort", "TEXT")):
                 if name not in existing:
                     db.execute(f"ALTER TABLE jobs ADD COLUMN {name} {definition}")
         self.dbpath.chmod(0o600)
@@ -86,6 +89,8 @@ class CodexRunner:
             max_runtime = entry.get("max_runtime_seconds", config.get("max_runtime_seconds", 1800))
             concurrency = entry.get("max_concurrency", 1)
             patterns = entry.get("deny_prompt_patterns", [])
+            models = entry.get("allowed_models", config.get("allowed_models", []))
+            efforts = entry.get("allowed_reasoning_efforts", config.get("allowed_reasoning_efforts", []))
             if not isinstance(max_prompt, int) or not 1 <= max_prompt <= 32000:
                 raise CodexError("workspace max_prompt_chars must be 1-32000")
             if not isinstance(max_runtime, int) or not 1 <= max_runtime <= 86400:
@@ -95,9 +100,16 @@ class CodexRunner:
             if (not isinstance(patterns, list) or any(not isinstance(value, str) or not 1 <= len(value) <= 128
                                                       for value in patterns)):
                 raise CodexError("workspace deny_prompt_patterns must contain strings of 1-128 characters")
+            if (not isinstance(models, list) or any(not isinstance(value, str) or not value or len(value) > 128
+                                                    for value in models)):
+                raise CodexError("workspace allowed_models must contain non-empty strings up to 128 characters")
+            if (not isinstance(efforts, list) or set(efforts) - cls.REASONING_EFFORTS):
+                raise CodexError("workspace allowed_reasoning_efforts contains an unsupported value")
             policies.append({"root": root, "modes": set(modes), "max_prompt_chars": max_prompt,
                              "max_runtime_seconds": max_runtime, "max_concurrency": concurrency,
-                             "deny_prompt_patterns": tuple(value.casefold() for value in patterns)})
+                             "deny_prompt_patterns": tuple(value.casefold() for value in patterns),
+                             "allowed_models": tuple(models),
+                             "allowed_reasoning_efforts": tuple(efforts)})
         return policies
 
     def _workspace(self, value: str) -> Path:
@@ -132,7 +144,9 @@ class CodexRunner:
                                         "max_prompt_chars": policy["max_prompt_chars"],
                                         "max_runtime_seconds": policy["max_runtime_seconds"],
                                         "max_concurrency": policy["max_concurrency"],
-                                        "deny_prompt_patterns": len(policy["deny_prompt_patterns"])} for policy in self.policies],
+                                        "deny_prompt_patterns": len(policy["deny_prompt_patterns"]),
+                                        "allowed_models": list(policy["allowed_models"]),
+                                        "allowed_reasoning_efforts": list(policy["allowed_reasoning_efforts"])} for policy in self.policies],
                 "approval_ttl_seconds": self.approval_ttl,
                 "write_approval": "local interactive approval required",
                 "network": "governed by the Codex sandbox; bridge grants no extra network access"}
@@ -145,7 +159,8 @@ class CodexRunner:
         return {"codex": codex, "audit": self.audit.status(),
                 "state": {"directory": str(self.state), "mode": oct(self.state.stat().st_mode & 0o777)}}
 
-    def submit(self, prompt: str, workspace: str, mode: str = "read-only"):
+    def submit(self, prompt: str, workspace: str, mode: str = "read-only",
+               model: str | None = None, reasoning_effort: str | None = None):
         if mode not in self.MODES:
             raise CodexError("mode must be read-only or workspace-write")
         if not isinstance(prompt, str) or not prompt.strip():
@@ -157,6 +172,13 @@ class CodexRunner:
             raise CodexError(f"prompt exceeds workspace limit of {policy['max_prompt_chars']} characters")
         if any(pattern in prompt.casefold() for pattern in policy["deny_prompt_patterns"]):
             raise CodexError("workspace policy blocked this prompt pattern")
+        if model is not None:
+            if not isinstance(model, str) or model not in policy["allowed_models"]:
+                raise CodexError("requested model is not allowed by this workspace policy")
+        if reasoning_effort is not None:
+            if (not isinstance(reasoning_effort, str)
+                    or reasoning_effort not in policy["allowed_reasoning_efforts"]):
+                raise CodexError("requested reasoning_effort is not allowed by this workspace policy")
         with self.db() as db:
             active = db.execute("SELECT COUNT(*) FROM jobs WHERE policy_root=? AND status IN ('queued','running')",
                                 (str(policy["root"]),)).fetchone()[0]
@@ -167,10 +189,12 @@ class CodexRunner:
         status = "pending_local_approval" if mode == "workspace-write" else "queued"
         expires = time.time() + self.approval_ttl if mode == "workspace-write" else None
         with self.db() as db:
-            db.execute("INSERT INTO jobs(job_id,created,workspace,mode,prompt,status,log_path,policy_root,approval_expires) VALUES(?,?,?,?,?,?,?,?,?)",
-                       (job_id, time.time(), str(work), mode, prompt, status, str(log), str(policy["root"]), expires))
+            db.execute("INSERT INTO jobs(job_id,created,workspace,mode,prompt,status,log_path,policy_root,approval_expires,model,reasoning_effort) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+                       (job_id, time.time(), str(work), mode, prompt, status, str(log), str(policy["root"]), expires,
+                        model, reasoning_effort))
         self.audit.record("codex", "submit", job_id, status,
-                          {"workspace": str(work), "policy_root": str(policy["root"]), "mode": mode, "prompt_chars": len(prompt)})
+                          {"workspace": str(work), "policy_root": str(policy["root"]), "mode": mode,
+                           "prompt_chars": len(prompt), "model": model, "reasoning_effort": reasoning_effort})
         if mode == "read-only":
             self._start(job_id)
             status = "running"
@@ -192,8 +216,12 @@ class CodexRunner:
         row = self._row(job_id)
         if row["status"] not in ("queued", "pending_local_approval"):
             raise CodexError("job is not startable")
-        argv = [self.binary, "exec", "--json", "--sandbox", row["mode"],
-                "-C", row["workspace"], "-"]
+        argv = [self.binary, "exec", "--json", "--sandbox", row["mode"], "-C", row["workspace"]]
+        if row["model"]:
+            argv.extend(["--model", row["model"]])
+        if row["reasoning_effort"]:
+            argv.extend(["-c", "model_reasoning_effort=" + row["reasoning_effort"]])
+        argv.append("-")
         with open(row["log_path"], "ab", buffering=0) as log:
             try:
                 proc = subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=log,
@@ -214,7 +242,8 @@ class CodexRunner:
             raise CodexError("job state changed before start")
         self._children[job_id] = proc
         self.audit.record("codex", "start", job_id, "running",
-                          {"workspace": row["workspace"], "policy_root": row["policy_root"], "mode": row["mode"]})
+                          {"workspace": row["workspace"], "policy_root": row["policy_root"], "mode": row["mode"],
+                           "model": row["model"], "reasoning_effort": row["reasoning_effort"]})
         return {"job_id": job_id, "status": "running", "pid": proc.pid}
 
     def approve_local(self, job_id):
@@ -274,7 +303,8 @@ class CodexRunner:
                 if not ended:
                     return {"job_id": job_id, "status": status, "workspace": row["workspace"],
                             "mode": row["mode"], "created": row["created"], "started": row["started"],
-                            "exit_code": None, "recovered_after_restart": recovered_after_restart}
+                            "exit_code": None, "recovered_after_restart": recovered_after_restart,
+                            "model": row["model"], "reasoning_effort": row["reasoning_effort"]}
                 self._children.pop(job_id, None)
                 status = "completed" if exit_code in (0, None) else "failed"
                 with self.db() as db:
@@ -285,6 +315,7 @@ class CodexRunner:
         return {"job_id": job_id, "status": status, "workspace": row["workspace"],
                 "mode": row["mode"], "created": row["created"], "started": row["started"],
                 "exit_code": exit_code, "recovered_after_restart": recovered_after_restart,
+                "model": row["model"], "reasoning_effort": row["reasoning_effort"],
                 "approval": ({"required": True, "expires_at": row["approval_expires"], "policy_root": row["policy_root"]}
                              if status == "pending_local_approval" else None)}
 
@@ -323,5 +354,5 @@ class CodexRunner:
 
     def recent(self):
         with self.db() as db:
-            rows = db.execute("SELECT job_id,created,workspace,mode,status,policy_root,approval_expires FROM jobs ORDER BY created DESC LIMIT 30").fetchall()
+            rows = db.execute("SELECT job_id,created,workspace,mode,status,policy_root,approval_expires,model,reasoning_effort FROM jobs ORDER BY created DESC LIMIT 30").fetchall()
         return {"jobs": [dict(x) for x in rows]}
