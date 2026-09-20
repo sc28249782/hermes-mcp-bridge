@@ -1,19 +1,25 @@
-# Release status — v0.7.0
+# Release status — v0.8.0
 
 ## ผ่านแล้วใน build environment
 
 - Python syntax compilation
 - Hermes regression tests 16 รายการ
-- Codex policy/process/audit/recovery/model-policy tests 17 รายการ
+- Codex policy/process/audit/recovery/model-policy/lifecycle tests 24 รายการ
 - MCP stdio discovery/integration 1 รายการ: พบ 18 tools
 - tunnel script tests 2 รายการ
-- รวม 36 tests ผ่านทั้งหมด
+- รวม 44 tests ผ่านทั้งหมด (`-W error::ResourceWarning`)
 
 ## Live acceptance ที่ผ่านบน WSL2
 
 - `./bridge.sh doctor` และ `./bridge.sh codex-doctor`
 - restart Secure MCP Tunnel และ discovery Hermes 10 + Codex 6 tools
 - Codex CLI `0.155.1` กับ workspace allowlist `/mnt/e/Projects/OpenHDK-validation`
+
+## v0.8.0 — build verification
+
+- lifecycle hardening, atomic concurrency reservation และ watchdog regression tests ผ่าน
+- CI เพิ่ม shellcheck พร้อมคง `bash -n`
+- ยังต้องทำ live acceptance บน WSL2 สำหรับ watchdog timeout, cancellation escalation และ `unknown_exit` recovery semantics ก่อนประกาศ v0.8.0 ว่าผ่าน production acceptance
 
 ## v0.7.0 — build verification
 
