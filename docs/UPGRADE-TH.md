@@ -1,4 +1,12 @@
-# อัปเกรดเป็น v0.7.0
+# อัปเกรดเป็น v0.8.0
+
+## จาก v0.7.0 เป็น v0.8.0
+
+1. หยุด `tunnel.sh run` เดิม แล้วแตกแพ็กเกจ v0.8.0 ไปยังโฟลเดอร์ใหม่
+2. คัดลอก `bridge-config.json` และ `state/` จาก v0.7.0 มายังโฟลเดอร์ใหม่ แล้วรัน `bash install.sh`
+3. Installer จะเพิ่ม `codex.watchdog_interval_seconds: 15` หากยังไม่มี; ตรวจด้วย `./bridge.sh codex-doctor`
+4. รัน `.venv/bin/python -W error::ResourceWarning -m unittest discover -s tests -v` แล้วใช้ `bash tunnel.sh init tunnel_IDเดิม --force`
+5. ทดสอบ read-only, cancellation และ timeout recovery ตาม `OPERATIONS-TH.md` ก่อนใช้งาน write job
 
 ## จาก v0.6.0 เป็น v0.7.0
 
