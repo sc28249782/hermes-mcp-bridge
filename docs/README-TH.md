@@ -1,4 +1,4 @@
-# Hermes MCP Bridge v0.7.0 — Hermes + Codex/WSL2 / ChatGPT
+# Hermes MCP Bridge v0.8.0 — Hermes + Codex/WSL2 / ChatGPT
 
 [![Tests](https://github.com/sc28249782/hermes-mcp-bridge/actions/workflows/tests.yml/badge.svg)](https://github.com/sc28249782/hermes-mcp-bridge/actions/workflows/tests.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](../LICENSE)
@@ -30,7 +30,7 @@ Repository: https://github.com/sc28249782/hermes-mcp-bridge
 ดาวน์โหลด ZIP แล้วแตกในโฟลเดอร์ Linux ของผู้ใช้ `somchaip` เช่น:
 
 ```text
-/home/somchaip/hermes-mcp-bridge-v0.7.0/
+/home/somchaip/hermes-mcp-bridge-v0.8.0/
 ```
 
 ถ้าดาวน์โหลดผ่าน Windows สามารถเปิดโฟลเดอร์บ้าน WSL ใน File Explorer ด้วย `explorer.exe ~`
@@ -38,8 +38,8 @@ Repository: https://github.com/sc28249782/hermes-mcp-bridge
 
 ```bash
 cd /home/somchaip
-unzip hermes-mcp-bridge-v0.7.0.zip
-cd /home/somchaip/hermes-mcp-bridge-v0.7.0
+unzip hermes-mcp-bridge-v0.8.0.zip
+cd /home/somchaip/hermes-mcp-bridge-v0.8.0
 bash install.sh
 ```
 
@@ -59,7 +59,7 @@ bash install.sh
 หาก `.venv` มี Python แต่ยังไม่มี pip ให้ซ่อม environment เดิม:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v0.7.0
+cd /home/somchaip/hermes-mcp-bridge-v0.8.0
 .venv/bin/python -m ensurepip --upgrade
 bash install.sh
 ```
@@ -154,7 +154,7 @@ tunnel-client help quickstart
 คง Hermes gateway ให้รันอยู่ แล้วเปิด terminal อีกหน้าหนึ่ง:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v0.7.0
+cd /home/somchaip/hermes-mcp-bridge-v0.8.0
 bash tunnel.sh init tunnel_แทนด้วยIDจริง [--force]
 ```
 
@@ -175,7 +175,7 @@ Tunnel จะเรียก `bridge.sh` ผ่าน stdio เอง ไม่�
 การเริ่มใหม่ในครั้งต่อไปใช้:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v0.7.0
+cd /home/somchaip/hermes-mcp-bridge-v0.8.0
 bash tunnel.sh run
 ```
 
