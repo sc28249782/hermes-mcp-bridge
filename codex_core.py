@@ -9,6 +9,7 @@ import signal
 import sqlite3
 import subprocess
 import sys
+import threading
 import time
 import uuid
 
@@ -21,7 +22,7 @@ class CodexError(RuntimeError):
 
 class CodexRunner:
     MODES = {"read-only", "workspace-write"}
-    TERMINAL = {"completed", "failed", "cancelled", "denied", "expired", "timed_out"}
+    TERMINAL = {"completed", "failed", "cancelled", "denied", "expired", "timed_out", "unknown_exit"}
     REASONING_EFFORTS = {"low", "medium", "high", "xhigh", "max", "ultra"}
 
     def __init__(self, config: dict, state: Path):
@@ -31,9 +32,15 @@ class CodexRunner:
         self.max_prompt = int(config.get("max_prompt_chars", 32000))
         self.max_runtime = int(config.get("max_runtime_seconds", 1800))
         self.approval_ttl = int(config.get("approval_ttl_seconds", 3600))
+        self.watchdog_interval = int(config.get("watchdog_interval_seconds", 15))
         if not 60 <= self.approval_ttl <= 86400:
             raise CodexError("codex.approval_ttl_seconds must be 60-86400")
+        if not 5 <= self.watchdog_interval <= 300:
+            raise CodexError("codex.watchdog_interval_seconds must be 5-300")
         self._children = {}
+        self._watchdog_lock = threading.Lock()
+        self._watchdog_stop = threading.Event()
+        self._watchdog_thread = None
         self.state = Path(state)
         self.state.mkdir(parents=True, exist_ok=True, mode=0o700)
         self.audit = AuditLog(self.state, config.get("audit"))
@@ -112,7 +119,7 @@ class CodexRunner:
                              "allowed_reasoning_efforts": tuple(efforts)})
         return policies
 
-    def _workspace(self, value: str) -> Path:
+    def _workspace(self, value: str) -> tuple[Path, dict]:
         if not isinstance(value, str) or not value:
             raise CodexError("workspace is required")
         try:
@@ -148,6 +155,8 @@ class CodexRunner:
                                         "allowed_models": list(policy["allowed_models"]),
                                         "allowed_reasoning_efforts": list(policy["allowed_reasoning_efforts"])} for policy in self.policies],
                 "approval_ttl_seconds": self.approval_ttl,
+                "watchdog_interval_seconds": self.watchdog_interval,
+                "watchdog": {"running": bool(self._watchdog_thread and self._watchdog_thread.is_alive())},
                 "write_approval": "local interactive approval required",
                 "network": "governed by the Codex sandbox; bridge grants no extra network access"}
 
@@ -158,6 +167,42 @@ class CodexRunner:
             codex = {"ok": False, "error": str(exc)}
         return {"codex": codex, "audit": self.audit.status(),
                 "state": {"directory": str(self.state), "mode": oct(self.state.stat().st_mode & 0o777)}}
+
+    def start_watchdog(self):
+        """Start the persistent-server timeout watchdog exactly once."""
+        with self._watchdog_lock:
+            if self._watchdog_thread and self._watchdog_thread.is_alive():
+                return False
+            self._watchdog_stop.clear()
+            self._watchdog_thread = threading.Thread(target=self._watchdog_loop,
+                                                     name="codex-timeout-watchdog", daemon=True)
+            self._watchdog_thread.start()
+            return True
+
+    def _watchdog_loop(self):
+        while not self._watchdog_stop.wait(self.watchdog_interval):
+            try:
+                self.enforce_timeouts()
+            except (CodexError, OSError, sqlite3.Error):
+                self.audit.record("codex", "watchdog_error", "watchdog", "error", {})
+
+    def _policy_for_row(self, row):
+        return next((policy for policy in self.policies if str(policy["root"]) == row["policy_root"]), None)
+
+    def _runtime_for_row(self, row):
+        policy = self._policy_for_row(row)
+        return policy["max_runtime_seconds"] if policy else self.max_runtime
+
+    def enforce_timeouts(self):
+        """Enforce policy runtime independently of caller polling."""
+        now = time.time()
+        with self.db() as db:
+            rows = db.execute("SELECT * FROM jobs WHERE status='running' AND started IS NOT NULL").fetchall()
+        outcomes = []
+        for row in rows:
+            if now - row["started"] > self._runtime_for_row(row):
+                outcomes.append(self.cancel(row["job_id"], final_status="timed_out"))
+        return {"checked": len(rows), "outcomes": outcomes}
 
     def submit(self, prompt: str, workspace: str, mode: str = "read-only",
                model: str | None = None, reasoning_effort: str | None = None):
@@ -179,16 +224,16 @@ class CodexRunner:
             if (not isinstance(reasoning_effort, str)
                     or reasoning_effort not in policy["allowed_reasoning_efforts"]):
                 raise CodexError("requested reasoning_effort is not allowed by this workspace policy")
-        with self.db() as db:
-            active = db.execute("SELECT COUNT(*) FROM jobs WHERE policy_root=? AND status IN ('queued','running')",
-                                (str(policy["root"]),)).fetchone()[0]
-        if active >= policy["max_concurrency"]:
-            raise CodexError("workspace policy concurrency limit is reached")
         job_id = "codex_" + uuid.uuid4().hex
         log = self.logs / f"{job_id}.jsonl"
         status = "pending_local_approval" if mode == "workspace-write" else "queued"
         expires = time.time() + self.approval_ttl if mode == "workspace-write" else None
         with self.db() as db:
+            db.execute("BEGIN IMMEDIATE")
+            active = db.execute("SELECT COUNT(*) FROM jobs WHERE policy_root=? AND status IN ('queued','running')",
+                                (str(policy["root"]),)).fetchone()[0]
+            if active >= policy["max_concurrency"]:
+                raise CodexError("workspace policy concurrency limit is reached")
             db.execute("INSERT INTO jobs(job_id,created,workspace,mode,prompt,status,log_path,policy_root,approval_expires,model,reasoning_effort) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
                        (job_id, time.time(), str(work), mode, prompt, status, str(log), str(policy["root"]), expires,
                         model, reasoning_effort))
@@ -196,7 +241,11 @@ class CodexRunner:
                           {"workspace": str(work), "policy_root": str(policy["root"]), "mode": mode,
                            "prompt_chars": len(prompt), "model": model, "reasoning_effort": reasoning_effort})
         if mode == "read-only":
-            self._start(job_id)
+            try:
+                self._start(job_id)
+            except CodexError:
+                self._mark_start_failed(job_id)
+                raise
             status = "running"
         return {"job_id": job_id, "status": status,
                 "approval": {"expires_at": expires, "policy_root": str(policy["root"])} if expires else None,
@@ -246,6 +295,17 @@ class CodexRunner:
                            "model": row["model"], "reasoning_effort": row["reasoning_effort"]})
         return {"job_id": job_id, "status": "running", "pid": proc.pid}
 
+    def _mark_start_failed(self, job_id):
+        with self.db() as db:
+            changed = db.execute("UPDATE jobs SET status='failed',finished=? WHERE job_id=? AND status IN ('queued','pending_local_approval')",
+                                 (time.time(), job_id)).rowcount
+        if changed:
+            self.audit.record("codex", "start_failed", job_id, "failed", {})
+
+    def approval_preview(self, job_id):
+        row = self._expire_pending(self._row(job_id))
+        return {key: row[key] for key in ("job_id", "workspace", "mode", "model", "reasoning_effort", "prompt")}
+
     def approve_local(self, job_id):
         row = self._row(job_id)
         row = self._expire_pending(row)
@@ -292,9 +352,16 @@ class CodexRunner:
         exit_code = row["exit_code"]
         recovered_after_restart = False
         if status == "running":
-            if time.time() - row["started"] > self.max_runtime:
+            if time.time() - row["started"] > self._runtime_for_row(row):
                 self.cancel(job_id, final_status="timed_out")
-                status = "timed_out"
+                row = self._row(job_id)
+                status = row["status"]
+                if status == "running":
+                    return {"job_id": job_id, "status": status, "workspace": row["workspace"],
+                            "mode": row["mode"], "created": row["created"], "started": row["started"],
+                            "exit_code": None, "recovered_after_restart": False,
+                            "timeout_enforcement_pending": True, "model": row["model"],
+                            "reasoning_effort": row["reasoning_effort"]}
             else:
                 child = self._children.get(job_id)
                 recovered_after_restart = child is None
@@ -306,7 +373,7 @@ class CodexRunner:
                             "exit_code": None, "recovered_after_restart": recovered_after_restart,
                             "model": row["model"], "reasoning_effort": row["reasoning_effort"]}
                 self._children.pop(job_id, None)
-                status = "completed" if exit_code in (0, None) else "failed"
+                status = "completed" if exit_code == 0 else "failed" if exit_code is not None else "unknown_exit"
                 with self.db() as db:
                     db.execute("UPDATE jobs SET status=?,finished=?,exit_code=? WHERE job_id=?",
                                (status, time.time(), exit_code, job_id))
@@ -329,26 +396,45 @@ class CodexRunner:
         return {**self.status(job_id), "output": data[offset:end], "total_chars": len(data),
                 "next_offset": end if end < len(data) else None}
 
+    def _terminate(self, pid, child):
+        if self._alive(pid):
+            try:
+                os.killpg(pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+        deadline = time.monotonic() + 2
+        while self._alive(pid) and time.monotonic() < deadline:
+            if child:
+                child.poll()
+            time.sleep(0.05)
+        if self._alive(pid):
+            try:
+                os.killpg(pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            deadline = time.monotonic() + 2
+            while self._alive(pid) and time.monotonic() < deadline:
+                if child:
+                    child.poll()
+                time.sleep(0.05)
+        return not self._alive(pid)
+
     def cancel(self, job_id, final_status="cancelled"):
         row = self._expire_pending(self._row(job_id))
         if row["status"] == "pending_local_approval":
             return self.deny_local(job_id)
         if row["status"] != "running" or not row["pid"]:
             return {"job_id": job_id, "status": row["status"]}
-        if self._alive(row["pid"]):
-            try:
-                os.killpg(row["pid"], signal.SIGTERM)
-            except ProcessLookupError:
-                pass
-        child = self._children.pop(job_id, None)
-        if child:
-            try:
-                child.wait(timeout=2)
-            except subprocess.TimeoutExpired:
-                pass
+        child = self._children.get(job_id)
+        if not self._terminate(row["pid"], child):
+            self.audit.record("codex", "cancel_pending", job_id, "running", {"mode": row["mode"]})
+            return {"job_id": job_id, "status": "running", "cancellation_pending": True}
         with self.db() as db:
-            db.execute("UPDATE jobs SET status=?,finished=? WHERE job_id=?",
-                       (final_status, time.time(), job_id))
+            changed = db.execute("UPDATE jobs SET status=?,finished=? WHERE job_id=? AND status='running' AND pid=?",
+                                 (final_status, time.time(), job_id, row["pid"])).rowcount
+        if not changed:
+            return {"job_id": job_id, "status": self._row(job_id)["status"]}
+        self._children.pop(job_id, None)
         self.audit.record("codex", "cancel", job_id, final_status, {"mode": row["mode"]})
         return {"job_id": job_id, "status": final_status}
 
