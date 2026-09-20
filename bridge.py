@@ -12,6 +12,7 @@ from codex_core import CodexRunner, CodexError
 def server(b, c):
     from mcp.server.fastmcp import FastMCP
     from mcp.types import ToolAnnotations
+    c.start_watchdog()
     m = FastMCP("Hermes Local Bridge", instructions=(
         "Operate the user's local Hermes only within the user's task authorization. "
         "Start with hermes_health. Submit returns an acknowledgement, not completion. "
@@ -146,8 +147,7 @@ def main():
         elif args.action in ("codex-approve", "codex-deny"):
             if not sys.stdin.isatty():
                 raise CodexError("Codex write approval requires a local interactive terminal.")
-            row = c._row(args.run_id)
-            print(json.dumps({k: row[k] for k in ("job_id", "workspace", "mode", "model", "reasoning_effort", "prompt")},
+            print(json.dumps(c.approval_preview(args.run_id),
                              indent=2, ensure_ascii=False))
             word = "APPROVE" if args.action == "codex-approve" else "DENY"
             if input(f"Type {word} to resolve only this job: ") != word:
