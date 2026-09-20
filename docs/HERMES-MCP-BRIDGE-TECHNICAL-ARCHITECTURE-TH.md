@@ -288,7 +288,7 @@ Bridge ไม่รับประกัน rollback ของคำสั่ง
 - redirect rejection
 - model catalog/info, per-run model override และ schema migration
 
-`tests/test_mcp.py` เปิด fake MCP server ผ่าน stdio แล้วตรวจ initialize, discovery 17 tools, diagnostics, annotations, model discovery, model-aware submit, usage tools, health, status, result และ foreign run rejection ส่วน `tests/test_codex.py` ตรวจ allowlist, symlink escape, sandbox mode, write approval, audit และ recovery marker
+`tests/test_mcp.py` เปิด fake MCP server ผ่าน stdio แล้วตรวจ initialize, discovery 18 tools, diagnostics, annotations, model discovery, model-aware submit, usage tools, health, status, result และ foreign run rejection ส่วน `tests/test_codex.py` ตรวจ workspace/model/reasoning allowlist, symlink escape, sandbox mode, write approval, audit และ recovery marker
 
 ชุดนี้เป็น contract/integration test ของ adapter ไม่ใช่ live end-to-end test ของ OpenAI Tunnel และไม่ใช่ visual/runtime test ของ WordPress, Elementor หรือ Hermes model จริง
 
