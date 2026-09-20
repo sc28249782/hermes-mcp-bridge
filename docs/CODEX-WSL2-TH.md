@@ -31,7 +31,7 @@
       "max_runtime_seconds": 1800,
       "max_concurrency": 1,
       "deny_prompt_patterns": ["deploy production"],
-      "allowed_models": ["gpt-5.6", "gpt-5.6-terra"],
+      "allowed_models": ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"],
       "allowed_reasoning_efforts": ["low", "medium", "high"]
     }
   ],
@@ -79,12 +79,14 @@ codex_submit_task(
   prompt="Inspect the current git status only. Do not modify files or use network.",
   workspace="/mnt/e/Projects/OpenHDK-validation",
   mode="read-only",
-  model="gpt-5.6",
+  model="gpt-5.6-sol",
   reasoning_effort="high"
 )
 ```
 
 สำหรับ `workspace-write` ชื่อ model/effort จะปรากฏในหน้าจอ `codex-approve` เพื่อให้ผู้ใช้ตรวจพร้อม prompt แต่ยังต้องพิมพ์ `APPROVE` เช่นเดิม
+
+การทดสอบ live acceptance ของรุ่นนี้ผ่านด้วย `gpt-5.6-sol` และ `high`; ต้องใช้ model ID เช่นนี้ ไม่ใช่ชื่อที่แสดงใน UI เช่น `GPT-5.6 Sol`.
 
 ## Diagnostics, audit และ recovery
 
