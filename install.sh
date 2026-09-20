@@ -33,6 +33,7 @@ if not p.exists():
     p.write_text(json.dumps({'api_url':'http://127.0.0.1:8642',
                             'hermes_env':str(hermes_root/'.env'),
                             'hermes_config':str(hermes_root/'config.yaml'),
+                            'audit': {'enabled':True, 'max_bytes':1000000, 'retention_files':7},
                             'codex': {'binary':'codex', 'allowed_workspaces':[],
                                       'max_prompt_chars':32000,
                                       'max_runtime_seconds':1800}}, indent=2)+'\n')
@@ -44,8 +45,12 @@ else:
                          'max_prompt_chars':32000, 'max_runtime_seconds':1800}
         p.write_text(json.dumps(data, indent=2)+'\n')
         p.chmod(0o600)
+    if 'audit' not in data:
+        data['audit'] = {'enabled':True, 'max_bytes':1000000, 'retention_files':7}
+        p.write_text(json.dumps(data, indent=2)+'\n')
+        p.chmod(0o600)
 PY
 chmod 700 bridge.sh
 ./bridge.sh doctor
-echo 'Local bridge check passed. Next: configure Secure MCP Tunnel (README-TH.md).'
+echo 'Local bridge check passed. Next: configure Secure MCP Tunnel (docs/README-TH.md).'
 echo 'For Codex/WSL2, edit codex.allowed_workspaces then run: ./bridge.sh codex-doctor'
