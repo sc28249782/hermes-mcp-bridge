@@ -67,6 +67,48 @@ class TestCodexRunner(unittest.TestCase):
         self.assertEqual(payload["prompt"], "inspect safely")
         self.assertEqual(payload["argv"][:4], ["exec", "--json", "--sandbox", "read-only"])
 
+    def test_model_and_reasoning_override_are_policy_gated_and_forwarded(self):
+        fake = Path(self.tmp.name) / "fake-codex-model"
+        fake.write_text("#!/usr/bin/env python3\nimport json,sys\nprint(json.dumps({'argv':sys.argv[1:]}))\n")
+        fake.chmod(0o700)
+        runner = CodexRunner({"binary": str(fake), "workspaces": [{
+            "path": str(self.root), "allowed_models": ["gpt-5.6"],
+            "allowed_reasoning_efforts": ["medium", "high"]}]},
+            Path(self.tmp.name) / "model-state")
+        job = runner.submit("inspect", str(self.root), "read-only", "gpt-5.6", "high")
+        for _ in range(100):
+            status = runner.status(job["job_id"])
+            if status["status"] != "running":
+                break
+            time.sleep(0.01)
+        self.assertEqual(status["status"], "completed")
+        self.assertEqual(status["model"], "gpt-5.6")
+        self.assertEqual(status["reasoning_effort"], "high")
+        argv = json.loads(runner.result(job["job_id"])["output"])["argv"]
+        self.assertIn("--model", argv)
+        self.assertIn("gpt-5.6", argv)
+        self.assertIn("model_reasoning_effort=high", argv)
+        with self.assertRaises(CodexError):
+            runner.submit("inspect", str(self.root), "read-only", "other-model", "high")
+        with self.assertRaises(CodexError):
+            runner.submit("inspect", str(self.root), "read-only", "gpt-5.6", "ultra")
+
+    def test_model_override_is_disabled_without_an_allowlist(self):
+        with self.assertRaises(CodexError):
+            self.runner.submit("inspect", str(self.root), "read-only", "gpt-5.6", None)
+
+    def test_health_exposes_model_policy_without_guessing_available_models(self):
+        runner = CodexRunner({"workspaces": [{"path": str(self.root),
+                                                "allowed_models": ["gpt-5.6"],
+                                                "allowed_reasoning_efforts": ["high"]}]},
+                             Path(self.tmp.name) / "model-health")
+        with patch("codex_core.subprocess.run") as run:
+            run.return_value.returncode = 0
+            run.return_value.stdout = "codex 0.test"
+            policy = runner.health()["workspace_policies"][0]
+        self.assertEqual(policy["allowed_models"], ["gpt-5.6"])
+        self.assertEqual(policy["allowed_reasoning_efforts"], ["high"])
+
     def test_audit_is_redacted_and_records_lifecycle(self):
         job = self.runner.submit("very sensitive prompt", str(self.root), "workspace-write")
         self.runner.deny_local(job["job_id"])
