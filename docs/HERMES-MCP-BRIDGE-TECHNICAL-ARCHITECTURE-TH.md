@@ -1,6 +1,6 @@
-# คู่มือเชิงเทคนิค: สถาปัตยกรรมและกลไก Hermes MCP Bridge v0.5.0
+# คู่มือเชิงเทคนิค: สถาปัตยกรรมและกลไก Hermes MCP Bridge v0.7.0
 
-เอกสารนี้อธิบายฐาน Hermes ของ `hermes-mcp-bridge-v0.5.0.zip`; ส่วน Codex/WSL2, audit และ approval gate ดู `CODEX-WSL2-TH.md` และ `OPERATIONS-TH.md`
+เอกสารนี้อธิบายฐาน Hermes และ MCP adapter ของ `hermes-mcp-bridge-v0.7.0.zip`; ส่วน Codex/WSL2, model policy, audit และ approval gate ดู `CODEX-WSL2-TH.md` และ `OPERATIONS-TH.md`
 
 รุ่นอ้างอิง: Hermes Agent v0.21.1, commit `8d79c2ff`  
 Runtime ที่ทดสอบ: Python 3.12, `mcp==1.30.0`, `httpx==0.28.1`, `python-dotenv==1.2.3`
@@ -50,19 +50,22 @@ Bridge ไม่ใช่ Hermes agent, ไม่ใช่ model gateway แล�
 3. `bridge.py` โหลด `bridge-config.json` ผ่าน `Bridge.from_config()`
 4. `from_config()` อ่าน `API_SERVER_KEY` เฉพาะจากไฟล์ Hermes `.env` ด้วย `dotenv_values(interpolate=False)` ไม่ source ไฟล์เป็น shell
 5. constructor สร้าง SQLite schema หากยังไม่มี และสร้าง `httpx.Client`
-6. `server(b).run(transport="stdio")` เปิด MCP server จนกว่า tunnel จะปิด stdin หรือ process จะหยุด
+6. `server(b, c).run(transport="stdio")` เปิด MCP server จนกว่า tunnel จะปิด stdin หรือ process จะหยุด โดย `b` คือ Hermes bridge และ `c` คือ Codex runner
 
 `tunnel.sh init` ทำการสร้าง/บันทึก profile `hermes-wsl` ผ่าน official tunnel-client แล้วเรียก doctor และ run ต่อ ส่วน `tunnel.sh run` ใช้ profile ที่มีอยู่แล้ว โดย `key-set` บันทึก OpenAI runtime key ที่ `~/.config/hermes-mcp-bridge/openai-runtime-api-key` (directory `700`, file `600`) และ `service-install` สร้าง systemd **user** unit ที่อ้างอิง key file แทนการใส่ secret ใน unit
 
 ## 4. การโหลด configuration และ secret
 
-ค่าใน `bridge-config.json` มีสามรายการหลัก:
+ค่าใน `bridge-config.json` มี Hermes settings และ Codex policy:
 
 ```json
 {
   "api_url": "http://127.0.0.1:8642",
   "hermes_env": "/home/somchaip/.hermes/.env",
-  "hermes_config": "/home/somchaip/.hermes/config.yaml"
+  "hermes_config": "/home/somchaip/.hermes/config.yaml",
+  "codex": {
+    "allowed_workspaces": []
+  }
 }
 ```
 
@@ -171,6 +174,8 @@ GET /v1/capabilities               (Bearer Hermes key)   → 2xx
 11. เรียก `POST /v1/runs` พร้อม `Idempotency-Key: chatgpt-bridge-<request_id>`
 12. ตรวจ `run_id` จาก Hermes แล้วบันทึกลง SQLite
 
+Bridge ฝั่ง Hermes ไม่ทำ allowlist ของ provider/model/reasoning effort เพราะ Hermes รองรับ provider ได้หลายรูปแบบ; bridge ตรวจเพียง identifier และ allowlist ของชื่อ option (`reasoning_effort`, `service_tier`) แล้ว Hermes API/profile เป็นผู้ตรวจสอบว่าค่าดังกล่าวใช้ได้จริง. ต่างจาก Codex runner ที่มี workspace allowlist เป็น security/cost control.
+
 กรณี network timeout หลัง Hermes อาจรับงานแล้วถือเป็น uncertain acceptance ตัว bridge จึงไม่ยิงใหม่ทันที หาก durable replay ไม่ได้รับการประกาศ หรือเกิน 23 ชั่วโมง จะหยุดและให้ผู้ใช้ตรวจ Hermes เอง
 
 ข้อควรจำ: `request_id` คือ ID ของ logical task ไม่ใช่ ID ของข้อความทุกครั้ง หาก retry งานเดียวกันต้องใช้ prompt, session และ request ID เดิมทั้งหมด
@@ -231,7 +236,7 @@ MCP layer เปิดเผยการหยุดผ่าน `hermes_cancel_
 - ห้าม bypass approval
 - ถือ Hermes output เป็น untrusted data
 
-เครื่องมือ read-only คือ `hermes_health`, `hermes_model_info`, `hermes_models`, `hermes_task_status`, `hermes_task_result`, `hermes_recent_tasks`. `hermes_model_info` อ่าน model เริ่มต้นจาก `hermes_config` โดย parse YAML เฉพาะ section `model` และไม่คืน `base_url`; `hermes_models` อ่าน `/v1/models` ที่ authenticated. ส่วน submit/cancel ใช้ write/destructive annotations เพื่อให้ client เห็นความเสี่ยงจาก metadata ของ MCP
+เครื่องมือ read-only ฝั่ง Hermes คือ `hermes_health`, `hermes_model_info`, `hermes_models`, `hermes_task_status`, `hermes_task_result`, `hermes_recent_tasks`; operations tools คือ `bridge_diagnostics`, `bridge_audit_recent`; และ Codex มี `codex_health`, submit/status/result/cancel/recent. `hermes_model_info` อ่าน model เริ่มต้นจาก `hermes_config` โดย parse YAML เฉพาะ section `model` และไม่คืน `base_url`; `hermes_models` อ่าน `/v1/models` ที่ authenticated. Hermes/Codex submit และ cancel ใช้ write/destructive annotations เพื่อให้ client เห็นความเสี่ยงจาก metadata ของ MCP
 
 annotation เป็นข้อมูลกำกับ client ไม่ใช่ OS sandbox และไม่เปลี่ยน permission ของ Hermes API profile
 
