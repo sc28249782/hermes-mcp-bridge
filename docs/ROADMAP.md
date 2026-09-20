@@ -5,13 +5,13 @@
 - [x] v0.4.1 — WSL2 live acceptance for the Hermes and Codex paths
 - [x] v0.5.0 — redacted audit logging, diagnostics, rotation/retention, and recovery visibility
 
-## v0.6.0 — Policy and workflow controls (implementation complete; live acceptance pending)
+## v0.6.0 — Policy and workflow controls
 
-- [ ] Per-workspace sandbox, timeout, prompt-size, and concurrency policy
-- [ ] Approval TTL and expiry for pending write jobs
-- [ ] Approval context with workspace, task summary, and expected impact
-- [ ] Optional command/category denylist
-- [ ] Redacted audit export and threat-model review
+- [x] Per-workspace sandbox, timeout, prompt-size, and concurrency policy
+- [x] Approval TTL and expiry for pending write jobs
+- [x] Approval context with workspace and policy root
+- [x] Optional pre-flight prompt guardrails (documented as non-sandbox)
+- [x] Redacted audit export and security constraints documentation
 
 ## v1.0.0 — Production baseline
 
