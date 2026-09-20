@@ -12,6 +12,8 @@ import sys
 import time
 import uuid
 
+from audit import AuditLog
+
 
 class CodexError(RuntimeError):
     pass
@@ -29,6 +31,7 @@ class CodexRunner:
         self._children = {}
         self.state = Path(state)
         self.state.mkdir(parents=True, exist_ok=True, mode=0o700)
+        self.audit = AuditLog(self.state, config.get("audit"))
         self.logs = self.state / "codex-logs"
         self.logs.mkdir(exist_ok=True, mode=0o700)
         self.dbpath = self.state / "codex.sqlite3"
@@ -85,6 +88,14 @@ class CodexRunner:
                 "write_approval": "local interactive approval required",
                 "network": "governed by the Codex sandbox; bridge grants no extra network access"}
 
+    def diagnostics(self):
+        try:
+            codex = self.health()
+        except CodexError as exc:
+            codex = {"ok": False, "error": str(exc)}
+        return {"codex": codex, "audit": self.audit.status(),
+                "state": {"directory": str(self.state), "mode": oct(self.state.stat().st_mode & 0o777)}}
+
     def submit(self, prompt: str, workspace: str, mode: str = "read-only"):
         if mode not in self.MODES:
             raise CodexError("mode must be read-only or workspace-write")
@@ -97,6 +108,8 @@ class CodexRunner:
         with self.db() as db:
             db.execute("INSERT INTO jobs(job_id,created,workspace,mode,prompt,status,log_path) VALUES(?,?,?,?,?,?,?)",
                        (job_id, time.time(), str(work), mode, prompt, status, str(log)))
+        self.audit.record("codex", "submit", job_id, status,
+                          {"workspace": str(work), "mode": mode, "prompt_chars": len(prompt)})
         if mode == "read-only":
             self._start(job_id)
             status = "running"
@@ -138,12 +151,15 @@ class CodexRunner:
                 pass
             raise CodexError("job state changed before start")
         self._children[job_id] = proc
+        self.audit.record("codex", "start", job_id, "running",
+                          {"workspace": row["workspace"], "mode": row["mode"]})
         return {"job_id": job_id, "status": "running", "pid": proc.pid}
 
     def approve_local(self, job_id):
         row = self._row(job_id)
         if row["status"] != "pending_local_approval" or row["mode"] != "workspace-write":
             raise CodexError("job is not waiting for local write approval")
+        self.audit.record("codex", "approve", job_id, "accepted", {"mode": row["mode"]})
         return self._start(job_id)
 
     def deny_local(self, job_id):
@@ -152,6 +168,7 @@ class CodexRunner:
             raise CodexError("job is not waiting for approval")
         with self.db() as db:
             db.execute("UPDATE jobs SET status='denied',finished=? WHERE job_id=?", (time.time(), job_id))
+        self.audit.record("codex", "deny", job_id, "denied", {"mode": row["mode"]})
         return {"job_id": job_id, "status": "denied"}
 
     @staticmethod
@@ -171,26 +188,30 @@ class CodexRunner:
         row = self._row(job_id)
         status = row["status"]
         exit_code = row["exit_code"]
+        recovered_after_restart = False
         if status == "running":
             if time.time() - row["started"] > self.max_runtime:
                 self.cancel(job_id, final_status="timed_out")
                 status = "timed_out"
             else:
                 child = self._children.get(job_id)
+                recovered_after_restart = child is None
                 exit_code = child.poll() if child else None
                 ended = exit_code is not None or not self._alive(row["pid"])
                 if not ended:
                     return {"job_id": job_id, "status": status, "workspace": row["workspace"],
                             "mode": row["mode"], "created": row["created"], "started": row["started"],
-                            "exit_code": None}
+                            "exit_code": None, "recovered_after_restart": recovered_after_restart}
                 self._children.pop(job_id, None)
                 status = "completed" if exit_code in (0, None) else "failed"
                 with self.db() as db:
                     db.execute("UPDATE jobs SET status=?,finished=?,exit_code=? WHERE job_id=?",
                                (status, time.time(), exit_code, job_id))
+                self.audit.record("codex", "finish", job_id, status,
+                                  {"exit_code": exit_code, "recovered_after_restart": child is None})
         return {"job_id": job_id, "status": status, "workspace": row["workspace"],
                 "mode": row["mode"], "created": row["created"], "started": row["started"],
-                "exit_code": exit_code}
+                "exit_code": exit_code, "recovered_after_restart": recovered_after_restart}
 
     def result(self, job_id, offset=0, max_chars=12000):
         if offset < 0 or not 1 <= max_chars <= 24000:
@@ -222,6 +243,7 @@ class CodexRunner:
         with self.db() as db:
             db.execute("UPDATE jobs SET status=?,finished=? WHERE job_id=?",
                        (final_status, time.time(), job_id))
+        self.audit.record("codex", "cancel", job_id, final_status, {"mode": row["mode"]})
         return {"job_id": job_id, "status": final_status}
 
     def recent(self):
