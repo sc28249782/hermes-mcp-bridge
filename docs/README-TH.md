@@ -1,13 +1,13 @@
-# Hermes MCP Bridge v0.5.0 — Hermes + Codex/WSL2 / ChatGPT
+# Hermes MCP Bridge v0.7.0 — Hermes + Codex/WSL2 / ChatGPT
 
 [![Tests](https://github.com/sc28249782/hermes-mcp-bridge/actions/workflows/tests.yml/badge.svg)](https://github.com/sc28249782/hermes-mcp-bridge/actions/workflows/tests.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](../LICENSE)
 
 Repository: https://github.com/sc28249782/hermes-mcp-bridge  
-จุดเริ่มต้นของโครงการ: https://chatgpt.com/share/6aae9c83-db48-83ec-ba0c-4ab5e3b088a7
+จุดเริ่มต้นของโครงการ: [Project origin](PROJECT-ORIGIN.md)
 
 จัดทำสำหรับ Hermes Agent v0.21.1, commit `8d79c2ff` ที่ผู้ใช้ยืนยัน
-วันที่ปรับปรุง: 13 กันยายน 2026
+วันที่ปรับปรุง: 20 กันยายน 2026
 
 ตัวกลางนี้ทำให้ ChatGPT ส่งงานให้ Hermes ที่รันอยู่บนเครื่องคุณ แล้วตรวจสถานะ อ่านผล และขอหยุดงานได้
 ใช้ Runs API เดียวกับที่ `hermes peer run/status/stop` เรียก แต่เรียก HTTP โดยตรง
@@ -21,7 +21,7 @@ Repository: https://github.com/sc28249782/hermes-mcp-bridge
 - ผู้ใช้ทดสอบ `/v1/models` แล้ว: ไม่มี key ได้ 401; key ถูกต้องได้ 200
 - มีเมนู Developer mode และ Connection → Tunnel
 - ยังต้องสร้าง tunnel ใน OpenAI Platform, ติดตั้ง tunnel-client และเชื่อม Plugin
-- ตัวกลางผ่าน unit tests และการเชื่อม MCP SDK กับ Hermes จำลองแล้ว ยังไม่ได้ทดสอบ end-to-end กับเครื่องผู้ใช้หรือ OpenAI Tunnel จริง
+- ผ่าน automated tests 36 รายการ และ live acceptance ผ่าน Secure MCP Tunnel สำหรับ Hermes และ Codex รวมถึง Codex model-policy
 
 อัปเกรดจาก bridge รุ่นก่อนใช้ [UPGRADE-TH.md](UPGRADE-TH.md) ก่อนเริ่ม tunnel รุ่นใหม่ โดยเฉพาะหากต้องการเก็บ session/state เดิม
 
@@ -30,7 +30,7 @@ Repository: https://github.com/sc28249782/hermes-mcp-bridge
 ดาวน์โหลด ZIP แล้วแตกในโฟลเดอร์ Linux ของผู้ใช้ `somchaip` เช่น:
 
 ```text
-/home/somchaip/hermes-mcp-bridge-v0.5.0/
+/home/somchaip/hermes-mcp-bridge-v0.7.0/
 ```
 
 ถ้าดาวน์โหลดผ่าน Windows สามารถเปิดโฟลเดอร์บ้าน WSL ใน File Explorer ด้วย `explorer.exe ~`
@@ -38,8 +38,8 @@ Repository: https://github.com/sc28249782/hermes-mcp-bridge
 
 ```bash
 cd /home/somchaip
-unzip hermes-mcp-bridge-v0.5.0.zip
-cd /home/somchaip/hermes-mcp-bridge-v0.5.0
+unzip hermes-mcp-bridge-v0.7.0.zip
+cd /home/somchaip/hermes-mcp-bridge-v0.7.0
 bash install.sh
 ```
 
@@ -59,7 +59,7 @@ bash install.sh
 หาก `.venv` มี Python แต่ยังไม่มี pip ให้ซ่อม environment เดิม:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v0.2.0
+cd /home/somchaip/hermes-mcp-bridge-v0.7.0
 .venv/bin/python -m ensurepip --upgrade
 bash install.sh
 ```
@@ -81,7 +81,10 @@ bash install.sh
 {
   "api_url": "http://127.0.0.1:8642",
   "hermes_env": "/home/somchaip/.hermes/.env",
-  "hermes_config": "/home/somchaip/.hermes/config.yaml"
+  "hermes_config": "/home/somchaip/.hermes/config.yaml",
+  "codex": {
+    "allowed_workspaces": []
+  }
 }
 ```
 
@@ -151,7 +154,7 @@ tunnel-client help quickstart
 คง Hermes gateway ให้รันอยู่ แล้วเปิด terminal อีกหน้าหนึ่ง:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v0.2.0
+cd /home/somchaip/hermes-mcp-bridge-v0.7.0
 bash tunnel.sh init tunnel_แทนด้วยIDจริง [--force]
 ```
 
@@ -172,7 +175,7 @@ Tunnel จะเรียก `bridge.sh` ผ่าน stdio เอง ไม่�
 การเริ่มใหม่ในครั้งต่อไปใช้:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v0.2.0
+cd /home/somchaip/hermes-mcp-bridge-v0.7.0
 bash tunnel.sh run
 ```
 
@@ -229,6 +232,8 @@ bash tunnel.sh service-status
 ## เลือก model ต่อ task
 
 เรียก `hermes_model_info` และ `hermes_models` ก่อนเลือก model จากนั้นส่ง `model`, `provider` และ `model_options` พร้อม `hermes_submit_task` ได้เฉพาะงานใหม่ ตัวอย่าง `model_options` ที่รองรับในรุ่นนี้คือ `reasoning_effort` และ `service_tier`
+
+Hermes bridge ไม่ทำ allowlist ของ provider/model/reasoning เพื่อรองรับ provider ที่ Hermes มีได้หลากหลาย; Hermes API/profile เป็นผู้ตรวจว่าค่าที่ส่งใช้ได้จริง. ต่างจาก Codex ที่กำหนด allowlist ต่อ workspace เพื่อควบคุมการเรียก Codex CLI.
 
 งานต่อจาก `session_id` ต้องไม่ส่ง model fields เพื่อให้คง model ของ session เดิม และค่า model/provider/options ถูกนำไปรวมใน request fingerprint: retry ด้วย `request_id` เดิมแต่เลือก model ต่างกันจะถูกปฏิเสธ
 
