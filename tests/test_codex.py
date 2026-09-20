@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -65,6 +66,31 @@ class TestCodexRunner(unittest.TestCase):
         payload = json.loads(runner.result(job["job_id"])["output"])
         self.assertEqual(payload["prompt"], "inspect safely")
         self.assertEqual(payload["argv"][:4], ["exec", "--json", "--sandbox", "read-only"])
+
+    def test_audit_is_redacted_and_records_lifecycle(self):
+        job = self.runner.submit("very sensitive prompt", str(self.root), "workspace-write")
+        self.runner.deny_local(job["job_id"])
+        text = (Path(self.tmp.name) / "state" / "audit.jsonl").read_text()
+        self.assertIn('"action":"submit"', text)
+        self.assertIn('"action":"deny"', text)
+        self.assertIn('"prompt_chars":21', text)
+        self.assertNotIn("very sensitive prompt", text)
+
+    def test_audit_rotates(self):
+        runner = CodexRunner({"allowed_workspaces": [str(self.root)],
+                              "audit": {"max_bytes": 32768, "retention_files": 2}},
+                             Path(self.tmp.name) / "state3")
+        for _ in range(350):
+            runner.audit.record("codex", "test", "job", "ok", {"padding": "x" * 128})
+        self.assertTrue((Path(self.tmp.name) / "state3" / "audit.jsonl.1").exists())
+
+    def test_running_job_reports_recovery_after_runner_restart(self):
+        job = self.runner.submit("edit", str(self.root), "workspace-write")
+        with self.runner.db() as db:
+            db.execute("UPDATE jobs SET status='running',started=?,pid=? WHERE job_id=?",
+                       (time.time(), os.getpid(), job["job_id"]))
+        restarted = CodexRunner({"allowed_workspaces": [str(self.root)]}, Path(self.tmp.name) / "state")
+        self.assertTrue(restarted.status(job["job_id"])["recovered_after_restart"])
 
 
 if __name__ == "__main__":
