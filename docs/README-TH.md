@@ -199,7 +199,7 @@ bash tunnel.sh service-status
 6. เลือก Tunnel ที่สร้าง หรือใส่ `tunnel_id`
 7. สร้างการเชื่อมต่อและตรวจรายชื่อเครื่องมือ
 
-ควรค้นพบ 17 เครื่องมือ (Hermes 10 + Codex 6 + diagnostics 1):
+ควรค้นพบ 18 เครื่องมือ (Hermes 10 + Codex 6 + operations 2):
 
 | เครื่องมือ | หน้าที่ |
 |---|---|
@@ -214,8 +214,8 @@ bash tunnel.sh service-status
 | `hermes_usage_summary` | รวม token usage เฉพาะ run ของ bridge ตาม model โดยไม่ประมาณราคา |
 | `hermes_usage_export` | ส่งออก JSON usage ต่อ run โดยไม่มี prompt, output หรือ secret |
 | `hermes_cancel_task` | ขอหยุดเฉพาะ run ที่ bridge นี้สร้าง |
-| `codex_health` | ตรวจ Codex CLI, sandbox modes และ workspace allowlist |
-| `codex_submit_task` | เริ่ม read-only หรือสร้าง write job ที่รอ local approval |
+| `codex_health` | ตรวจ Codex CLI, sandbox modes, workspace และ model/reasoning allowlist |
+| `codex_submit_task` | เริ่ม read-only หรือสร้าง write job ที่รอ local approval; เลือก model/reasoning ได้เมื่อ policy อนุญาต |
 | `codex_task_status` | อ่านสถานะ job ของ Codex |
 | `codex_task_result` | อ่าน JSONL output แบบแบ่งหน้า |
 | `codex_cancel_task` | หยุดงานที่กำลังรันหรือปฏิเสธ write job ที่ยังรออนุมัติ |
@@ -224,7 +224,7 @@ bash tunnel.sh service-status
 เปิดแชทใหม่แล้วเลือก Plugin นี้ ถ้าเครื่องมือไม่ปรากฏในแชทเดิม ให้แนบ Plugin หรือเปิดแชทใหม่ตาม UI
 การเพิ่ม Plugin ในบัญชีไม่ได้ยืนยันว่าบทสนทนาเดิมเห็นเครื่องมือแล้ว
 
-การตั้งค่า Codex/WSL2 และ local write approval ดู `CODEX-WSL2-TH.md`
+การตั้งค่า Codex/WSL2, model/reasoning policy และ local write approval ดู `CODEX-WSL2-TH.md`
 
 ## เลือก model ต่อ task
 
