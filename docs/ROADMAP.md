@@ -5,7 +5,7 @@
 - [x] v0.4.1 — WSL2 live acceptance for the Hermes and Codex paths
 - [x] v0.5.0 — redacted audit logging, diagnostics, rotation/retention, and recovery visibility
 
-## v0.6.0 — Policy and workflow controls
+## v0.6.0 — Policy and workflow controls (implementation complete; live acceptance pending)
 
 - [ ] Per-workspace sandbox, timeout, prompt-size, and concurrency policy
 - [ ] Approval TTL and expiry for pending write jobs
