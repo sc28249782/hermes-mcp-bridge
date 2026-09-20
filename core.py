@@ -14,6 +14,7 @@ from urllib.parse import urlsplit
 import httpx
 from dotenv import dotenv_values
 from yaml import YAMLError, safe_load
+from audit import AuditLog
 
 TERMINAL = {"completed", "failed", "cancelled"}
 IDENT = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$")
@@ -28,7 +29,7 @@ class BridgeError(RuntimeError):
 
 
 class Bridge:
-    def __init__(self, base: str, key: str, state: Path, transport=None, model_config=None):
+    def __init__(self, base: str, key: str, state: Path, transport=None, model_config=None, audit_config=None):
         u = urlsplit(base)
         if (u.scheme != "http" or u.hostname != "127.0.0.1" or
                 u.username or u.password or u.path not in ("", "/") or u.query or u.fragment):
@@ -38,6 +39,7 @@ class Bridge:
         self.base, self.key, self.state = base.rstrip("/"), key, Path(state)
         self.model_config = Path(model_config).expanduser() if model_config else None
         self.state.mkdir(parents=True, exist_ok=True, mode=0o700)
+        self.audit = AuditLog(self.state, audit_config)
         self.dbpath = self.state / "runs.sqlite3"
         self.client = httpx.Client(base_url=self.base, timeout=httpx.Timeout(25, connect=5),
                                    trust_env=False, follow_redirects=False, transport=transport)
@@ -62,7 +64,8 @@ class Bridge:
         # Read only this key; never source the file as shell code or export other secrets.
         key = dotenv_values(env_path, interpolate=False).get("API_SERVER_KEY") or ""
         model_config = Path(config.get("hermes_config", env_path.parent / "config.yaml")).expanduser()
-        return cls(config["api_url"], key, root / "state", model_config=model_config)
+        return cls(config["api_url"], key, root / "state", model_config=model_config,
+                   audit_config=config.get("audit"))
 
     @contextmanager
     def db(self):
@@ -207,6 +210,14 @@ class Bridge:
                 "approval_handling": "Pending Hermes approvals require the local approve/deny command.",
                 "execution_scope": "Uses the configured Hermes API profile and its OS/tool permissions; no filesystem sandbox is added."}
 
+    def diagnostics(self):
+        try:
+            hermes = self.health()
+        except BridgeError as exc:
+            hermes = {"ok": False, "error": str(exc)}
+        return {"hermes": hermes, "audit": self.audit.status(),
+                "state": {"directory": str(self.state), "mode": oct(self.state.stat().st_mode & 0o777)}}
+
     @staticmethod
     def ident(value, label):
         if not isinstance(value, str) or not IDENT.fullmatch(value):
@@ -266,6 +277,9 @@ class Bridge:
         run_id = self.ident(result.get("run_id"), "Hermes response run ID")
         with self.db() as db:
             db.execute("UPDATE runs SET run_id=? WHERE request_id=?", (run_id, request_id))
+        self.audit.record("hermes", "submit", run_id, str(result.get("status", "started")),
+                          {"request_id": request_id, "prompt_chars": len(prompt),
+                           "model_override": bool(model), "provider_override": bool(provider)})
         return {"run_id": run_id, "request_id": request_id, "status": result.get("status", "started"),
                 "replayed": bool(result.get("replayed", False)),
                 "requested_model": model, "requested_provider": provider,
@@ -321,6 +335,7 @@ class Bridge:
     def stop(self, run_id):
         self.owned(run_id)
         result = self.request("POST", f"/v1/runs/{run_id}/stop", {})
+        self.audit.record("hermes", "cancel", run_id, str(result.get("status", "stopping")), {})
         return {"run_id": run_id, "status": result.get("status", "stopping"),
                 "note": "Stop is cooperative. Poll status until cancelled/completed/failed; previous effects are not undone."}
 
