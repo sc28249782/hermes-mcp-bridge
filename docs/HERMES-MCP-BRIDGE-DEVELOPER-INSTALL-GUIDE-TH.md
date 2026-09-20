@@ -3,7 +3,7 @@
 เอกสารนี้อธิบาย bridge ที่เชื่อม ChatGPT ผ่าน Secure MCP Tunnel ไปยัง Hermes Agent ที่ทำงานอยู่ใน WSL2 โดยใช้ Hermes Runs API แบบ HTTP
 
 รุ่นอ้างอิง: Hermes Agent v0.21.1, commit `8d79c2ff`  
-Bridge: `hermes-mcp-bridge-v0.7.0`  
+Bridge: `hermes-mcp-bridge-v0.8.0`  
 ปรับปรุงล่าสุด: 20 กันยายน 2026
 
 ## 1. ภาพรวมและขอบเขต
@@ -94,8 +94,8 @@ curl --max-time 10 -sS -o /dev/null -w 'HTTP %{http_code}\n' \
 
 ```bash
 cd /home/somchaip
-unzip hermes-mcp-bridge-v0.7.0.zip
-cd /home/somchaip/hermes-mcp-bridge-v0.7.0
+unzip hermes-mcp-bridge-v0.8.0.zip
+cd /home/somchaip/hermes-mcp-bridge-v0.8.0
 bash install.sh
 ```
 
@@ -185,7 +185,7 @@ tunnel-client help quickstart
 ก่อนเริ่มครั้งแรก ให้บันทึก OpenAI Platform runtime key (คนละตัวกับ Hermes `API_SERVER_KEY`) โดยไม่แสดงค่าในหน้าจอ:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v0.7.0
+cd /home/somchaip/hermes-mcp-bridge-v0.8.0
 bash tunnel.sh key-set
 bash tunnel.sh key-status
 ```
@@ -195,14 +195,14 @@ key ถูกเก็บใน `~/.config/hermes-mcp-bridge/openai-runtime-api-
 เริ่มครั้งแรก:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v0.7.0
+cd /home/somchaip/hermes-mcp-bridge-v0.8.0
 bash tunnel.sh init tunnel_IDจริง --force
 ```
 
 เริ่มครั้งถัดไป:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v0.7.0
+cd /home/somchaip/hermes-mcp-bridge-v0.8.0
 bash tunnel.sh run
 ```
 
