@@ -13,6 +13,13 @@
 - [x] Optional pre-flight prompt guardrails (documented as non-sandbox)
 - [x] Redacted audit export and security constraints documentation
 
+## v0.7.0 — Codex model policy
+
+- [x] Per-task model and reasoning-effort request through the Codex bridge
+- [x] Allowlist at Codex default or workspace scope; secure default disables overrides
+- [x] Persist and audit requested execution preferences without recording prompts or outputs
+- [x] Retain separate local approval for every workspace-write task
+
 ## v1.0.0 — Production baseline
 
 - [ ] Compatibility matrix for Hermes, Codex CLI, Python, WSL2, and tunnel-client
