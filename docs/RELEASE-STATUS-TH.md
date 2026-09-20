@@ -19,7 +19,14 @@
 
 - `codex_submit_task` รองรับ optional `model` และ `reasoning_effort` โดยไม่เพิ่ม MCP tool ใหม่ (discovery ยังคง 18 tools)
 - policy test ยืนยันการปฏิเสธ model/effort นอก allowlist ก่อนเริ่มงาน และตรวจ argv ที่ส่ง override ที่อนุญาต
-- ยังต้องทำ live acceptance บน WSL2 หลังผู้ดูแลกำหนด allowlist ที่ตรงกับโมเดลที่บัญชี Codex ใช้ได้จริง
+
+## Live acceptance ที่ผ่านสำหรับ v0.7.0 — 2026-09-20
+
+- bridge `/home/somchaip/hermes-mcp-bridge-v0.7.0` ทำงานผ่าน Secure MCP Tunnel; Hermes authentication และ Codex health ผ่าน
+- `codex_health` ยืนยัน policy model IDs `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna` และ effort `low/medium/high`
+- งาน default `read-only` ตอบ `V070_DEFAULT_OK`; งาน override `gpt-5.6-sol` + `high` ตอบ `V070_MODEL_POLICY_OK`; ทั้งคู่ exit code `0` และไม่ต้อง local write approval
+- audit export เก็บ model/effort และ lifecycle แบบ redacted ตามนโยบาย
+- display name `GPT-5.6 Sol` ถูกปฏิเสธ จึงยืนยันว่าค่า allowlist ต้องเป็น Codex model ID จริง ไม่ใช่ชื่อที่แสดงใน UI
 
 ## Live acceptance ที่ผ่านสำหรับ v0.5.0 — 2026-09-20
 
