@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.6.0 — 2026-09-20
+
+- เพิ่ม workspace policy แบบ backward-compatible: sandbox modes, prompt/runtime limit และ concurrency ต่อ workspace
+- เพิ่ม approval TTL สำหรับ write job ที่รอ local approval; job หมดอายุเป็น `expired`
+- เพิ่ม approval context ที่คืน expiry และ policy root โดยไม่เปิดเผย prompt ผ่าน MCP
+- เพิ่ม optional literal `deny_prompt_patterns` เป็น pre-flight guard พร้อมเอกสารข้อจำกัดว่าไม่ใช่ sandbox
+- เพิ่ม `bridge_audit_recent` และ `./bridge.sh audit-recent` เพื่ออ่าน redacted audit records
+- เพิ่ม policy/expiry/audit export tests; MCP discovery เป็น 18 tools
+
 ## v0.5.0 — 2026-09-20
 
 - เพิ่ม `bridge_diagnostics` แบบ read-only; ตรวจ Hermes/Codex health, state directory permissions และ audit configuration โดยไม่แสดง secret
