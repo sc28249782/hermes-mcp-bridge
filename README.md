@@ -1,97 +1,39 @@
 # Hermes MCP Bridge
 
-> Securely connect ChatGPT to a local Hermes Agent and Codex CLI running in WSL2.
+Securely connect ChatGPT to a local Hermes Agent and Codex CLI running in WSL2, through an OpenAI Secure MCP Tunnel.
 
-[![Tests](https://github.com/sc28249782/hermes-mcp-bridge/actions/workflows/tests.yml/badge.svg)](https://github.com/sc28249782/hermes-mcp-bridge/actions/workflows/tests.yml)
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+The bridge provides a controlled local execution boundary rather than a general remote shell. v0.5.0 exposes 17 MCP tools: 10 Hermes tools, 6 Codex tools, and one read-only diagnostics tool.
 
-**Hermes MCP Bridge** is a local, stdio-based MCP bridge for controlled work on a user's own WSL2 machine. It exposes Hermes task operations and a permission-gated Codex execution layer through an OpenAI Secure MCP Tunnel.
+## Safety model
 
-Read [Project origin](PROJECT-ORIGIN.md) and [Project history](PROJECT-HISTORY.md).
+- Hermes uses its authenticated local Runs API and its own approval policy.
+- Codex can use only explicitly allowlisted workspaces.
+- Codex permits only `read-only` and `workspace-write`; `danger-full-access` is rejected.
+- Every write job requires interactive approval in the local WSL2 terminal.
+- Audit logs are redacted, local-only, rotating JSONL files. Secrets, prompts, and outputs are not written to them.
 
-## What it provides
-
-| Area | Capabilities |
-|---|---|
-| Hermes | Health checks, model catalog, task submit/status/result/cancel, recent tasks, usage summary and export |
-| Codex / WSL2 | Health, submit, status, paginated result, cancel, and recent jobs |
-| Security | Workspace allowlist, symlink-escape protection, explicit local approval for write jobs, fixed argv invocation, timeout and prompt-size limits |
-
-The v0.4.0 design exposes **16 MCP tools**: 10 Hermes tools and 6 Codex tools.
-
-## Security model
-
-Codex jobs are deliberately restricted:
-
-- Allowed sandboxes: `read-only` and `workspace-write` only.
-- `danger-full-access` is rejected.
-- Every workspace must be explicitly listed in `codex.allowed_workspaces`.
-- A `workspace-write` job remains pending until a person approves it locally with `codex-approve`.
-- An MCP client cannot approve its own job.
-- Codex is started without a shell, using fixed argument handling.
-
-Never commit `bridge-config.json`, `state/`, logs, virtual environments, runtime API keys, or Hermes secrets.
-
-## Architecture
-
-```text
-ChatGPT
-  → OpenAI Secure MCP Tunnel
-  → bridge.sh (stdio MCP)
-  → Hermes API on 127.0.0.1:8642
-  → Codex CLI / approved WSL2 workspaces
-```
-
-## Quick start
-
-> Run these commands as your normal WSL2 user; do not use `sudo`.
+## Start here
 
 ```bash
-unzip hermes-mcp-bridge-v0.4.0.zip
-cd hermes-mcp-bridge-v0.4.0
 bash install.sh
-
 ./bridge.sh doctor
 ./bridge.sh codex-doctor
+./bridge.sh diagnostics
 ```
 
-Then configure the allowed project roots in `bridge-config.json`:
+Run `bash tunnel.sh init tunnel_YOUR_ID --force` when changing the bridge directory or version; it updates the `hermes-wsl` profile and starts the tunnel. Later starts use `bash tunnel.sh run`.
 
-```json
-{
-  "api_url": "http://127.0.0.1:8642",
-  "hermes_env": "/home/USER/.hermes/.env",
-  "hermes_config": "/home/USER/.hermes/config.yaml",
-  "codex": {
-    "allowed_workspaces": [
-      "/home/USER/projects/example"
-    ]
-  }
-}
-```
+## Documentation
 
-Start the Secure MCP Tunnel after completing its one-time configuration:
-
-```bash
-bash tunnel.sh run
-```
-
-See the Thai documentation for the full setup and live acceptance procedure:
-
-- [Installation guide](README-TH.md)
-- [Codex / WSL2 configuration](CODEX-WSL2-TH.md)
-- [Upgrade guide](UPGRADE-TH.md)
-- [Technical architecture](HERMES-MCP-BRIDGE-TECHNICAL-ARCHITECTURE-TH.md)
-- [Live acceptance checklist](LIVE-ACCEPTANCE-TH.md)
-- [Security policy](SECURITY.md)
-- [Contributing guide](CONTRIBUTING.md)
-- [Project origin](PROJECT-ORIGIN.md)
-- [Project history](PROJECT-HISTORY.md)
-- [Project roadmap](ROADMAP.md)
-
-## Status
-
-The automated v0.4.0 validation covers Hermes regression, Codex permission/process behavior, MCP discovery, and tunnel security. Perform the live WSL2 acceptance checklist before treating Codex execution as production-ready.
+- [Project origin](docs/PROJECT-ORIGIN.md) and [project history](docs/PROJECT-HISTORY.md)
+- [Thai installation guide](docs/README-TH.md)
+- [Codex / WSL2 policy](docs/CODEX-WSL2-TH.md)
+- [Operations guide](docs/OPERATIONS-TH.md)
+- [Upgrade guide](docs/UPGRADE-TH.md)
+- [Technical architecture](docs/HERMES-MCP-BRIDGE-TECHNICAL-ARCHITECTURE-TH.md)
+- [Testing](docs/TESTING.md), [release status](docs/RELEASE-STATUS-TH.md), and [changelog](docs/CHANGELOG.md)
+- [Security](docs/SECURITY.md) and [contributing](docs/CONTRIBUTING.md)
+- [Roadmap](docs/ROADMAP.md)
 
 ## License
 
