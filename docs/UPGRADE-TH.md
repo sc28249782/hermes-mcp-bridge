@@ -4,7 +4,7 @@
 
 1. หยุด `tunnel.sh run` เดิม แล้วแตกแพ็กเกจ v0.7.0 ไปยังโฟลเดอร์ใหม่
 2. คัดลอก `bridge-config.json` และ `state/` จาก v0.6.0 มายังโฟลเดอร์ใหม่ แล้วรัน `bash install.sh`
-3. กำหนด `allowed_models` และ `allowed_reasoning_efforts` ที่ระดับ `codex` หรือ workspace ที่ต้องการ หากไม่ต้องการให้เลือกค่า override ให้คง `[]` ไว้
+3. กำหนด `allowed_models` และ `allowed_reasoning_efforts` ที่ระดับ `codex` หรือ workspace ที่ต้องการ หากไม่ต้องการให้เลือกค่า override ให้คง `[]` ไว้; deployment นี้ผ่านด้วย model IDs `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna` และ effort `low`, `medium`, `high`
 4. รัน `./bridge.sh codex-doctor` แล้วตรวจว่า policy ที่แสดงตรงกับที่ตั้งใจ
 5. รัน `.venv/bin/python -m unittest discover -s tests -v` แล้วใช้ `bash tunnel.sh init tunnel_IDเดิม --force`
 6. เปิดแชทใหม่ ตรวจ discovery 18 tools และทดสอบ read-only job ด้วย model/effort ที่อยู่ใน allowlist ก่อนใช้งาน write job
