@@ -32,6 +32,14 @@
 - workspace-write job ที่ยังไม่อนุมัติคืน expiry/policy context; `codex_cancel_task` เปลี่ยนเป็น `denied` โดยไม่เริ่มงาน
 - policy probe ที่ workspace `/mnt/e` ถูกปฏิเสธก่อนเริ่มด้วย allowlist guard
 
-## v0.7.0 — รอ live acceptance
+## v0.7.0 — 20 กันยายน 2026
 
-Build tests ยืนยัน model/reasoning allowlist และการส่งค่าไปยัง Codex CLI แล้ว แต่ยังไม่มีผล live acceptance เพราะต้องกำหนดชื่อโมเดลที่พร้อมใช้จริงใน WSL2 ก่อน จึงไม่ควรอ้างว่า override ใช้งานได้จนกว่าจะทดสอบผ่าน tunnel.
+ผ่าน Secure MCP Tunnel ไปยัง bridge `/home/somchaip/hermes-mcp-bridge-v0.7.0`:
+
+- `bridge_diagnostics` ยืนยัน Hermes authenticated, Codex CLI `0.155.1`, workspace policy และ audit state mode `700`
+- `codex_health` แสดง allowlist ต่อ workspace: `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`; reasoning effort `low`, `medium`, `high`
+- งาน `read-only` ที่ไม่ส่ง override จบด้วย `V070_DEFAULT_OK` และ exit code `0`
+- งาน `read-only` ที่ร้องขอ `model: gpt-5.6-sol` และ `reasoning_effort: high` จบด้วย `V070_MODEL_POLICY_OK` และ exit code `0`
+- `bridge_audit_recent` แสดง lifecycle `submit → start → finish` พร้อม model/effort ที่ร้องขอ โดยไม่มี prompt, output หรือ credential
+
+ระหว่าง acceptance พบว่า display name `GPT-5.6 Sol` ใช้เป็น model ID ไม่ได้และถูก Codex CLI ปฏิเสธ; แก้เป็น `gpt-5.6-sol` แล้วผ่าน จึงต้องใช้ model ID จริงใน `allowed_models` เสมอ
