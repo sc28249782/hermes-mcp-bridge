@@ -31,3 +31,7 @@
 - read-only acceptance จบสำเร็จ; audit export แสดง lifecycle `submit`, `start`, `finish` แบบ redacted
 - workspace-write job ที่ยังไม่อนุมัติคืน expiry/policy context; `codex_cancel_task` เปลี่ยนเป็น `denied` โดยไม่เริ่มงาน
 - policy probe ที่ workspace `/mnt/e` ถูกปฏิเสธก่อนเริ่มด้วย allowlist guard
+
+## v0.7.0 — รอ live acceptance
+
+Build tests ยืนยัน model/reasoning allowlist และการส่งค่าไปยัง Codex CLI แล้ว แต่ยังไม่มีผล live acceptance เพราะต้องกำหนดชื่อโมเดลที่พร้อมใช้จริงใน WSL2 ก่อน จึงไม่ควรอ้างว่า override ใช้งานได้จนกว่าจะทดสอบผ่าน tunnel.
