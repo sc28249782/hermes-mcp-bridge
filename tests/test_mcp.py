@@ -14,11 +14,12 @@ class TestProtocol(unittest.TestCase):
                     await session.initialize()
                     listed=await session.list_tools()
                     byname={t.name:t for t in listed.tools}
-                    self.assertEqual(len(byname),17)
+                    self.assertEqual(len(byname),18)
                     self.assertFalse(byname['hermes_submit_task'].annotations.readOnlyHint)
                     self.assertNotIn('hermes_approve',byname)
                     self.assertIn('codex_submit_task',byname)
                     self.assertIn('bridge_diagnostics',byname)
+                    self.assertIn('bridge_audit_recent',byname)
                     self.assertFalse(byname['codex_submit_task'].annotations.readOnlyHint)
                     model_info=await session.call_tool('hermes_model_info',{})
                     self.assertFalse(model_info.isError)
@@ -29,6 +30,8 @@ class TestProtocol(unittest.TestCase):
                     diagnostics=await session.call_tool('bridge_diagnostics',{})
                     self.assertFalse(diagnostics.isError)
                     self.assertIn('audit', diagnostics.structuredContent['codex'])
+                    audit=await session.call_tool('bridge_audit_recent',{})
+                    self.assertFalse(audit.isError)
                     start=await session.call_tool('hermes_submit_task',{'prompt':'ทดสอบ','request_id':'protocol-test','model':'deepseek/test','provider':'nous','model_options':{'reasoning_effort':'high'}})
                     self.assertFalse(start.isError)
                     rid=start.structuredContent['run_id']
