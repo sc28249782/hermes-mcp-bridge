@@ -9,3 +9,15 @@
 - cancel semantic: run `run_8980a67a66a94135a46f8b9d87dc4389` รัน `sleep 60` แบบไม่มี file/network operation แล้วเปลี่ยน `stopping` เป็น `cancelled`
 
 ข้อจำกัด: model catalog ของ Hermes Runs API ประกาศ virtual model `hermes-agent` เพียงรายการเดียว แม้ config ปัจจุบันใช้ `deepseek/deepseek-v4-flash-0731` กับ provider `nous`
+
+## v0.5.0 — 20 กันยายน 2026
+
+ผ่าน Secure MCP Tunnel ไปยัง bridge `/home/somchaip/hermes-mcp-bridge-v0.5.0`:
+
+- discovery 17 tools: Hermes 10, Codex 6 และ `bridge_diagnostics`
+- `bridge_diagnostics`: Hermes authenticated, Codex CLI `0.155.1`, allowed workspace `/mnt/e/Projects/OpenHDK-validation`, state mode `700`, audit enabled
+- Codex read-only: `git status --short` สำเร็จโดยไม่มีการแก้ไขไฟล์ และ `state/audit.jsonl` ถูกสร้าง
+- Codex workspace-write: ผู้ใช้ตรวจ prompt และพิมพ์ `APPROVE` ใน WSL terminal; job สร้าง/ตรวจ/ลบ `.hermes-mcp-bridge-v050-acceptance.txt` สำเร็จและยืนยันว่าไฟล์หายไป
+- Codex cancel: job read-only ที่รอ 60 วินาทีถูก cancel ขณะรันและจบด้วย `cancelled`
+
+หมายเหตุ: write job แสดง `recovered_after_restart: true` เพราะ terminal helper เริ่ม process แล้ว tunnel-backed bridge process อ่านสถานะต่อจาก SQLite; bridge ไม่ส่ง job ซ้ำและไม่อ้าง exit code ที่ไม่ได้สังเกตเอง
