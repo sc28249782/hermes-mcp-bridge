@@ -32,7 +32,7 @@ EOF
 
 require_tunnel_client() {
   if ! command -v tunnel-client >/dev/null 2>&1; then
-    echo 'Install the official OpenAI tunnel-client first; see README-TH.md.' >&2
+    echo 'Install the official OpenAI tunnel-client first; see docs/README-TH.md.' >&2
     exit 1
   fi
 }
