@@ -1,6 +1,8 @@
 from pathlib import Path
 import os
+import signal
 import tempfile
+from concurrent.futures import ThreadPoolExecutor
 import unittest
 from unittest.mock import patch
 import json
@@ -133,6 +135,90 @@ class TestCodexRunner(unittest.TestCase):
                        (time.time(), os.getpid(), job["job_id"]))
         restarted = CodexRunner({"allowed_workspaces": [str(self.root)]}, Path(self.tmp.name) / "state")
         self.assertTrue(restarted.status(job["job_id"])["recovered_after_restart"])
+
+    def test_dead_recovered_job_is_unknown_not_completed(self):
+        job = self.runner.submit("edit", str(self.root), "workspace-write")
+        with self.runner.db() as db:
+            db.execute("UPDATE jobs SET status='running',started=?,pid=? WHERE job_id=?",
+                       (time.time(), 999999, job["job_id"]))
+        status = self.runner.status(job["job_id"])
+        self.assertEqual(status["status"], "unknown_exit")
+        self.assertIsNone(status["exit_code"])
+        self.assertTrue(status["recovered_after_restart"])
+
+    def test_start_failure_is_persisted_as_failed(self):
+        runner = CodexRunner({"binary": "/missing/codex", "allowed_workspaces": [str(self.root)]},
+                             Path(self.tmp.name) / "start-failure")
+        with self.assertRaises(CodexError):
+            runner.submit("inspect", str(self.root), "read-only")
+        with runner.db() as db:
+            row = db.execute("SELECT status FROM jobs").fetchone()
+        self.assertEqual(row["status"], "failed")
+        self.assertIn('"action":"start_failed"', (Path(self.tmp.name) / "start-failure" / "audit.jsonl").read_text())
+
+    def test_cancel_does_not_claim_terminal_while_process_lives(self):
+        job = self.runner.submit("edit", str(self.root), "workspace-write")
+        with self.runner.db() as db:
+            db.execute("UPDATE jobs SET status='running',started=?,pid=? WHERE job_id=?",
+                       (time.time(), 12345, job["job_id"]))
+        with patch.object(self.runner, "_terminate", return_value=False):
+            result = self.runner.cancel(job["job_id"])
+        self.assertEqual(result["status"], "running")
+        self.assertTrue(result["cancellation_pending"])
+        self.assertEqual(self.runner._row(job["job_id"])["status"], "running")
+
+    def test_terminate_escalates_to_sigkill_after_grace_period(self):
+        with patch.object(self.runner, "_alive", side_effect=[True, True, True, False, False]), \
+             patch("codex_core.os.killpg") as killpg, \
+             patch("codex_core.time.monotonic", side_effect=[0, 3, 4]), \
+             patch("codex_core.time.sleep"):
+            self.assertTrue(self.runner._terminate(12345, None))
+        self.assertEqual(killpg.call_args_list[0].args[1], signal.SIGTERM)
+        self.assertEqual(killpg.call_args_list[1].args[1], signal.SIGKILL)
+
+    def test_timeout_race_stays_running_until_termination_is_confirmed(self):
+        runner = CodexRunner({"workspaces": [{"path": str(self.root), "max_runtime_seconds": 1}]},
+                             Path(self.tmp.name) / "timeout-race")
+        job = runner.submit("edit", str(self.root), "workspace-write")
+        with runner.db() as db:
+            db.execute("UPDATE jobs SET status='running',started=?,pid=? WHERE job_id=?",
+                       (0, 12345, job["job_id"]))
+        with patch.object(runner, "cancel", return_value={"status": "running"}):
+            status = runner.status(job["job_id"])
+        self.assertEqual(status["status"], "running")
+        self.assertTrue(status["timeout_enforcement_pending"])
+
+    def test_watchdog_enforces_workspace_runtime_without_status_poll(self):
+        runner = CodexRunner({"workspaces": [{"path": str(self.root), "max_runtime_seconds": 1}]},
+                             Path(self.tmp.name) / "watchdog")
+        job = runner.submit("edit", str(self.root), "workspace-write")
+        with runner.db() as db:
+            db.execute("UPDATE jobs SET status='running',started=?,pid=? WHERE job_id=?",
+                       (0, 12345, job["job_id"]))
+        with patch.object(runner, "cancel", return_value={"status": "timed_out"}) as cancel:
+            report = runner.enforce_timeouts()
+        cancel.assert_called_once_with(job["job_id"], final_status="timed_out")
+        self.assertEqual(report["outcomes"][0]["status"], "timed_out")
+
+    def test_concurrency_reservation_is_atomic(self):
+        runner = CodexRunner({"workspaces": [{"path": str(self.root), "max_concurrency": 1}]},
+                             Path(self.tmp.name) / "atomic")
+        def submit():
+            try:
+                return runner.submit("inspect", str(self.root), "read-only")["status"]
+            except CodexError as exc:
+                return str(exc)
+        with patch.object(runner, "_start"):
+            with ThreadPoolExecutor(max_workers=2) as pool:
+                results = list(pool.map(lambda _: submit(), range(2)))
+        self.assertEqual(results.count("running"), 1)
+        self.assertEqual(results.count("workspace policy concurrency limit is reached"), 1)
+
+    def test_approval_preview_is_public_cli_contract(self):
+        job = self.runner.submit("edit README", str(self.root), "workspace-write")
+        preview = self.runner.approval_preview(job["job_id"])
+        self.assertEqual(preview["job_id"], job["job_id"])
+        self.assertEqual(preview["prompt"], "edit README")
 
     def test_workspace_policy_rejects_disallowed_mode_and_pattern(self):
         runner = CodexRunner({"workspaces": [{"path": str(self.root), "modes": ["read-only"],
