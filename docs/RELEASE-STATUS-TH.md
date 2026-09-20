@@ -23,8 +23,10 @@
 - สถานะของ write job แสดง `recovered_after_restart: true` ตาม semantics ที่ประกาศไว้ เพราะ terminal approval process เป็นผู้เริ่ม job แล้ว tunnel process อ่านสถานะต่อจาก persisted state
 - Codex read-only cancellation job ถูกยกเลิกขณะรัน; สถานะสุดท้าย `cancelled` และไม่มีการแก้ไขไฟล์
 
-## ยังต้องทำสำหรับ v0.6.0
+## Live acceptance ที่ผ่านสำหรับ v0.6.0 — 2026-09-20
 
-- ตรวจ `codex_health` ว่าแสดง workspace policy และ approval TTL ตาม config
-- ส่ง write job แล้วตรวจ approval context/expiry และ `bridge_audit_recent`
-- ทดสอบ policy อย่างน้อยหนึ่งข้อใน workspace ที่ตั้งใจให้ถูกปฏิเสธ โดยไม่ลด allowlist/sandbox/local approval
+- discovery 18 tools รวม `bridge_audit_recent`
+- `codex_health` แสดง workspace policy ของ `/mnt/e/Projects/OpenHDK-validation`: modes, prompt/runtime limit, concurrency 1 และ approval TTL 3,600 วินาที
+- read-only job จบสำเร็จ; `bridge_audit_recent` แสดง `submit → start → finish` โดยมี workspace/policy root/prompt length เท่านั้น ไม่มี prompt, output หรือ credential
+- write job คืน `pending_local_approval` พร้อม `expires_at` และ policy root; cancel job ที่ยัง pending เปลี่ยนเป็น `denied` โดยไม่เริ่ม process
+- probe workspace `/mnt/e` ถูกปฏิเสธด้วย `workspace is outside allowed_workspaces`
