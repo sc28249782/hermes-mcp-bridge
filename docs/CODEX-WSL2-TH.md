@@ -1,6 +1,6 @@
-# Codex/WSL2 แบบควบคุมสิทธิ์ — v0.5.0
+# Codex/WSL2 แบบควบคุมสิทธิ์ — v0.6.0
 
-รุ่นนี้คง Hermes tools เดิม 10 ตัว เพิ่ม Codex tools 6 ตัว และ `bridge_diagnostics` 1 ตัว รวม 17 tools
+รุ่นนี้คง Hermes tools เดิม 10 ตัว เพิ่ม Codex tools 6 ตัว, `bridge_diagnostics` และ `bridge_audit_recent` รวม 18 tools
 
 ## ขอบเขตความปลอดภัย
 
@@ -21,12 +21,17 @@
 ```json
 "codex": {
   "binary": "codex",
-  "allowed_workspaces": [
-    "/mnt/e/Projects/OpenHDK",
-    "/mnt/e/Projects/HandyKaraoke"
+  "approval_ttl_seconds": 3600,
+  "workspaces": [
+    {
+      "path": "/mnt/e/Projects/OpenHDK-validation",
+      "modes": ["read-only", "workspace-write"],
+      "max_prompt_chars": 32000,
+      "max_runtime_seconds": 1800,
+      "max_concurrency": 1,
+      "deny_prompt_patterns": ["deploy production"]
+    }
   ],
-  "max_prompt_chars": 32000,
-  "max_runtime_seconds": 1800
 },
 "audit": {
   "enabled": true,
@@ -34,6 +39,10 @@
   "retention_files": 7
 }
 ```
+
+`allowed_workspaces` แบบเดิมยังใช้ได้เพื่อความเข้ากันได้ แต่ `workspaces` ช่วยกำหนด policy แยกต่อ repository ได้ละเอียดกว่า ค่า `approval_ttl_seconds` ใช้กับ write job ที่รอการอนุมัติ; เมื่อหมดอายุ job จะเป็น `expired` และเริ่มใหม่ไม่ได้
+
+`deny_prompt_patterns` เป็น pre-flight guard แบบ literal case-insensitive สำหรับปฏิเสธ prompt ที่ตรง pattern ก่อนเริ่มงาน **ไม่ใช่ sandbox และไม่ใช่สิ่งทดแทน local approval** จึงห้ามใช้เป็นมาตรการความปลอดภัยเพียงชั้นเดียว
 
 ตรวจ policy ด้วย `./bridge.sh codex-doctor` แล้ว restart `tunnel.sh run` และเปิดแชทใหม่
 
@@ -62,11 +71,14 @@
 
 ```bash
 ./bridge.sh diagnostics
+./bridge.sh audit-recent
 ```
 
 Audit log อยู่ที่ `state/audit.jsonl` ด้วย mode `600` และเป็น JSON Lines แบบหมุนไฟล์ตาม `max_bytes` เก็บย้อนหลังตาม `retention_files` (1–30 ไฟล์) บันทึกเฉพาะ lifecycle เช่น submit/start/approve/deny/finish/cancel, job/run ID, workspace, sandbox mode และจำนวนตัวอักษรของ prompt
 
 Audit log **ไม่บันทึก prompt, output, Hermes API key หรือ OpenAI runtime key**
+
+`bridge_audit_recent` ส่งออกเฉพาะ redacted audit events ล่าสุดจาก MCP (limit 1–500); ใช้สำหรับตรวจสอบ ไม่ใช่ช่องทางอ่าน prompt/output
 
 หลัง bridge หรือ WSL2 restart, job ที่กำลังรันจะไม่ถูกส่งซ้ำโดยอัตโนมัติ `codex_task_status` จะรายงาน `recovered_after_restart: true` เมื่อกำลังอ่านสถานะจาก persisted state แทน process handle เดิม หาก process จบระหว่าง bridge ปิดอยู่ exit code อาจไม่ทราบ; ตรวจ JSONL result และผลกระทบใน workspace ก่อนเริ่มงานใหม่
 
