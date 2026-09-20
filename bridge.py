@@ -30,6 +30,11 @@ def server(b, c):
         return b.health()
 
     @m.tool(annotations=read, structured_output=True)
+    def bridge_diagnostics() -> dict[str, Any]:
+        """Report redacted Hermes/Codex health, state permissions, and audit-log configuration."""
+        return {"hermes": b.diagnostics(), "codex": c.diagnostics()}
+
+    @m.tool(annotations=read, structured_output=True)
     def hermes_model_info() -> dict[str, Any]:
         """Read configured default model metadata and per-run override support without exposing credentials."""
         return b.model_info()
@@ -116,7 +121,7 @@ def server(b, c):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("action", choices=["serve", "doctor", "status", "result", "recent", "usage", "usage-export", "models", "model-info", "approve", "deny", "codex-doctor", "codex-approve", "codex-deny"], nargs="?", default="serve")
+    p.add_argument("action", choices=["serve", "doctor", "diagnostics", "status", "result", "recent", "usage", "usage-export", "models", "model-info", "approve", "deny", "codex-doctor", "codex-approve", "codex-deny"], nargs="?", default="serve")
     p.add_argument("run_id", nargs="?")
     args = p.parse_args()
     try:
@@ -125,7 +130,9 @@ def main():
         if args.action == "serve":
             server(b, c).run(transport="stdio")
             return
-        if args.action == "codex-doctor":
+        if args.action == "diagnostics":
+            output = {"hermes": b.diagnostics(), "codex": c.diagnostics()}
+        elif args.action == "codex-doctor":
             output = c.health()
         elif args.action in ("codex-approve", "codex-deny"):
             if not sys.stdin.isatty():
