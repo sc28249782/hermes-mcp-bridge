@@ -1,6 +1,6 @@
-# Codex/WSL2 แบบควบคุมสิทธิ์ — v0.6.0
+# Codex/WSL2 แบบควบคุมสิทธิ์ — v0.7.0
 
-รุ่นนี้คง Hermes tools เดิม 10 ตัว เพิ่ม Codex tools 6 ตัว, `bridge_diagnostics` และ `bridge_audit_recent` รวม 18 tools
+รุ่นนี้คง Hermes tools เดิม 10 ตัว เพิ่ม Codex tools 6 ตัว, `bridge_diagnostics` และ `bridge_audit_recent` รวม 18 tools โดย `codex_submit_task` เลือก model และ reasoning effort รายงานได้ภายใต้นโยบายที่กำหนด
 
 ## ขอบเขตความปลอดภัย
 
@@ -13,6 +13,7 @@
 - log และฐานข้อมูลงานอยู่ใน `state/` และตั้ง permission แบบ private
 - จำกัด prompt 32,000 ตัวอักษรและ runtime เริ่มต้น 1,800 วินาที
 - Codex sandbox ควบคุม filesystem/network ชั้นสุดท้าย; bridge ไม่เพิ่มสิทธิ์ network
+- การเลือก model/reasoning effort เป็นเพียง execution preference ไม่ได้ขยาย sandbox, network หรือสิทธิ์เขียนไฟล์
 
 ## ตั้งค่า
 
@@ -29,7 +30,9 @@
       "max_prompt_chars": 32000,
       "max_runtime_seconds": 1800,
       "max_concurrency": 1,
-      "deny_prompt_patterns": ["deploy production"]
+      "deny_prompt_patterns": ["deploy production"],
+      "allowed_models": ["gpt-5.6", "gpt-5.6-terra"],
+      "allowed_reasoning_efforts": ["low", "medium", "high"]
     }
   ],
 },
@@ -41,6 +44,10 @@
 ```
 
 `allowed_workspaces` แบบเดิมยังใช้ได้เพื่อความเข้ากันได้ แต่ `workspaces` ช่วยกำหนด policy แยกต่อ repository ได้ละเอียดกว่า ค่า `approval_ttl_seconds` ใช้กับ write job ที่รอการอนุมัติ; เมื่อหมดอายุ job จะเป็น `expired` และเริ่มใหม่ไม่ได้
+
+`allowed_models` และ `allowed_reasoning_efforts` ใส่ได้ทั้งระดับ `codex` (เป็นค่าเริ่มต้น) หรือในแต่ละ workspace (override ค่าเริ่มต้น) หากเป็น array ว่างหรือไม่ระบุ จะ **ไม่อนุญาต override** และ Codex CLI จะใช้ค่า default local ของผู้ใช้แทน bridge ไม่ค้นหรือเดาชื่อโมเดลที่บัญชีใช้ได้เอง; ตรวจ allowlist ที่มีผลจริงด้วย `codex_health`
+
+ส่ง `model` และ/หรือ `reasoning_effort` ไปที่ `codex_submit_task` เฉพาะค่าที่อยู่ใน allowlist ของ workspace เท่านั้น ค่า reasoning ที่ bridge รู้จักคือ `low`, `medium`, `high`, `xhigh`, `max`, `ultra` แต่จะใช้ได้จริงก็ต่อเมื่อโมเดลและบัญชี Codex รองรับด้วย หากละพารามิเตอร์ใด Bridge จะไม่ส่ง override นั้นไปยัง Codex CLI
 
 `deny_prompt_patterns` เป็น pre-flight guard แบบ literal case-insensitive สำหรับปฏิเสธ prompt ที่ตรง pattern ก่อนเริ่มงาน **ไม่ใช่ sandbox และไม่ใช่สิ่งทดแทน local approval** จึงห้ามใช้เป็นมาตรการความปลอดภัยเพียงชั้นเดียว
 
@@ -65,6 +72,20 @@
 
 การกดยืนยัน tool call ใน ChatGPT ไม่ทดแทนการอนุมัติใน terminal นี้
 
+ตัวอย่างงานอ่านที่ขอ model/effort ตาม allowlist:
+
+```text
+codex_submit_task(
+  prompt="Inspect the current git status only. Do not modify files or use network.",
+  workspace="/mnt/e/Projects/OpenHDK-validation",
+  mode="read-only",
+  model="gpt-5.6",
+  reasoning_effort="high"
+)
+```
+
+สำหรับ `workspace-write` ชื่อ model/effort จะปรากฏในหน้าจอ `codex-approve` เพื่อให้ผู้ใช้ตรวจพร้อม prompt แต่ยังต้องพิมพ์ `APPROVE` เช่นเดิม
+
 ## Diagnostics, audit และ recovery
 
 เรียก `bridge_diagnostics` หรือรันคำสั่ง local ต่อไปนี้เพื่อตรวจ Hermes, Codex, permission ของ state และสถานะ audit log:
@@ -74,7 +95,7 @@
 ./bridge.sh audit-recent
 ```
 
-Audit log อยู่ที่ `state/audit.jsonl` ด้วย mode `600` และเป็น JSON Lines แบบหมุนไฟล์ตาม `max_bytes` เก็บย้อนหลังตาม `retention_files` (1–30 ไฟล์) บันทึกเฉพาะ lifecycle เช่น submit/start/approve/deny/finish/cancel, job/run ID, workspace, sandbox mode และจำนวนตัวอักษรของ prompt
+Audit log อยู่ที่ `state/audit.jsonl` ด้วย mode `600` และเป็น JSON Lines แบบหมุนไฟล์ตาม `max_bytes` เก็บย้อนหลังตาม `retention_files` (1–30 ไฟล์) บันทึกเฉพาะ lifecycle เช่น submit/start/approve/deny/finish/cancel, job/run ID, workspace, sandbox mode, ชื่อ model/reasoning effort ที่ร้องขอ และจำนวนตัวอักษรของ prompt
 
 Audit log **ไม่บันทึก prompt, output, Hermes API key หรือ OpenAI runtime key**
 
@@ -84,11 +105,12 @@ Audit log **ไม่บันทึก prompt, output, Hermes API key หรื
 
 ## Acceptance test ที่แนะนำ
 
-1. เรียก `codex_health` และตรวจ version/allowlist
+1. เรียก `codex_health` และตรวจ version/allowlist รวมถึง model/reasoning allowlist
 2. ส่ง `read-only` ให้ตรวจ `git status` และยืนยันว่าไม่มีไฟล์เปลี่ยน
 3. ทดลอง workspace นอก allowlist และ symlink escape ต้องถูกปฏิเสธ
 4. ส่ง `workspace-write`; ก่อน local approval ต้องไม่มี process Codex เริ่มทำงาน
 5. deny หนึ่งงานและ approve หนึ่งงานที่แก้ไฟล์ทดสอบแบบย้อนกลับได้
 6. ตรวจ status/result/cancel/recent และยืนยันว่า job ต่าง bridge ถูกปฏิเสธ
+7. ทดลอง model หรือ effort ที่อยู่นอก allowlist ต้องถูกปฏิเสธก่อนเริ่ม; ทดลองค่าที่อยู่ใน allowlist แล้วตรวจ status/recent/audit ว่าตรงกัน
 
 อ้างอิง: https://developers.openai.com/codex/cli
