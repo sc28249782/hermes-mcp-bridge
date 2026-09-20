@@ -22,13 +22,13 @@
 
 ## v0.8.0 — Process-lifecycle hardening
 
-- [ ] Do not report an unobserved post-restart Codex exit as `completed`; expose a distinct `unknown_exit` outcome or verified JSONL terminal evidence
-- [ ] Make Codex cancellation race-safe: SIGTERM, bounded grace period, SIGKILL fallback, process-death verification, and atomic terminal-state transition
-- [ ] Prevent `_start()` failures from leaving permanent `queued` jobs; record a failed lifecycle/audit outcome
-- [ ] Make workspace concurrency reservation atomic
-- [ ] Add a Codex runtime watchdog that enforces `max_runtime_seconds` without requiring status polling
-- [ ] Correct type annotations, remove CLI-to-private-method coupling, and add regression tests for lifecycle races
-- [ ] Add shellcheck to CI while retaining `bash -n`
+- [x] Do not report an unobserved post-restart Codex exit as `completed`; expose `unknown_exit`
+- [x] Make Codex cancellation race-safe: SIGTERM, bounded grace period, SIGKILL fallback, process-death verification, and atomic terminal-state transition
+- [x] Prevent `_start()` failures from leaving permanent `queued` jobs; record a failed lifecycle/audit outcome
+- [x] Make workspace concurrency reservation atomic
+- [x] Add a Codex runtime watchdog that enforces `max_runtime_seconds` without requiring status polling
+- [x] Correct type annotations, remove CLI-to-private-method coupling, and add regression tests for lifecycle races
+- [x] Add shellcheck to CI while retaining `bash -n`
 
 ## v0.9.0 — Operational state and configuration hardening
 
