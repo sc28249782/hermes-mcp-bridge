@@ -79,3 +79,21 @@ class AuditLog:
             os.write(fd, encoded)
         finally:
             os.close(fd)
+
+    def recent(self, limit: int = 100) -> dict[str, Any]:
+        """Return redacted records only; prompts and outputs are never audit fields."""
+        if not isinstance(limit, int) or not 1 <= limit <= 500:
+            raise AuditError("audit limit must be 1-500")
+        if not self.path.is_file():
+            return {"events": [], "truncated": False, "note": "No current audit log."}
+        raw = self.path.read_text(errors="replace")[-1_000_000:]
+        events = []
+        for line in raw.splitlines()[-limit:]:
+            try:
+                event = json.loads(line)
+            except ValueError:
+                continue
+            if isinstance(event, dict) and set(("schema", "time", "component", "action", "subject", "outcome", "details")) <= set(event):
+                events.append(event)
+        return {"events": events, "truncated": self.path.stat().st_size > len(raw),
+                "note": "Redacted audit events; prompts, outputs, and credentials are excluded."}
