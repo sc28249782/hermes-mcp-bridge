@@ -1,6 +1,6 @@
-# คู่มือเชิงเทคนิค: สถาปัตยกรรมและกลไก Hermes MCP Bridge v0.7.0
+# คู่มือเชิงเทคนิค: สถาปัตยกรรมและกลไก Hermes MCP Bridge v0.8.0
 
-เอกสารนี้อธิบายฐาน Hermes และ MCP adapter ของ `hermes-mcp-bridge-v0.7.0.zip`; ส่วน Codex/WSL2, model policy, audit และ approval gate ดู `CODEX-WSL2-TH.md` และ `OPERATIONS-TH.md`
+เอกสารนี้อธิบายฐาน Hermes และ MCP adapter ของ `hermes-mcp-bridge-v0.8.0.zip`; ส่วน Codex/WSL2, model policy, audit และ approval gate ดู `CODEX-WSL2-TH.md` และ `OPERATIONS-TH.md`
 
 รุ่นอ้างอิง: Hermes Agent v0.21.1, commit `8d79c2ff`  
 Runtime ที่ทดสอบ: Python 3.12, `mcp==1.30.0`, `httpx==0.28.1`, `python-dotenv==1.2.3`
@@ -139,6 +139,8 @@ CREATE TABLE IF NOT EXISTS runs (
 - `reported_model`: model ที่ Hermes รายงานจาก run ล่าสุด (หาก API ส่งมา)
 
 directory `state/` ถูกสร้าง mode `700`, database mode `600` และ connection ใช้ transaction context ของ SQLite. ฐานข้อมูล v0.1.0 ที่มีอยู่ถูกเพิ่มคอลัมน์ใหม่ด้วย `ALTER TABLE` แบบ additive จึงคง request/run/session เดิมได้
+
+Codex jobs ใช้ `BEGIN IMMEDIATE` เพื่อ reserve concurrency และ insert job ใน transaction เดียว. Persistent MCP server เริ่ม daemon watchdog หนึ่งตัว ตรวจตาม `codex.watchdog_interval_seconds` แล้วบังคับ runtime ของ policy แม้ไม่มี client poll. หลัง restart หาก PID หายและไม่มี exit code ที่สังเกตได้ bridge บันทึก `unknown_exit`; ไม่สรุปว่า `completed`.
 
 ## 7. Health check และ capability contract
 
