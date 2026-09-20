@@ -98,9 +98,11 @@ def server(b, c):
         return c.health()
 
     @m.tool(annotations=write, structured_output=True)
-    def codex_submit_task(prompt: str, workspace: str, mode: str = "read-only") -> dict[str, Any]:
-        """Start an allowlisted read-only task, or stage a workspace-write task for local approval."""
-        return c.submit(prompt, workspace, mode)
+    def codex_submit_task(prompt: str, workspace: str, mode: str = "read-only",
+                          model: str | None = None,
+                          reasoning_effort: str | None = None) -> dict[str, Any]:
+        """Start an allowlisted Codex task. model and reasoning_effort are optional and must be allowed by the selected workspace policy; omitted values use the local Codex CLI defaults. workspace-write still requires separate local terminal approval."""
+        return c.submit(prompt, workspace, mode, model, reasoning_effort)
 
     @m.tool(annotations=read, structured_output=True)
     def codex_task_status(job_id: str) -> dict[str, Any]:
@@ -145,7 +147,7 @@ def main():
             if not sys.stdin.isatty():
                 raise CodexError("Codex write approval requires a local interactive terminal.")
             row = c._row(args.run_id)
-            print(json.dumps({k: row[k] for k in ("job_id", "workspace", "mode", "prompt")},
+            print(json.dumps({k: row[k] for k in ("job_id", "workspace", "mode", "model", "reasoning_effort", "prompt")},
                              indent=2, ensure_ascii=False))
             word = "APPROVE" if args.action == "codex-approve" else "DENY"
             if input(f"Type {word} to resolve only this job: ") != word:
