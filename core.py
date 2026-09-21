@@ -15,6 +15,7 @@ import httpx
 from dotenv import dotenv_values
 from yaml import YAMLError, safe_load
 from audit import AuditLog
+from config_schema import ConfigError, load_bridge_config
 
 TERMINAL = {"completed", "failed", "cancelled"}
 IDENT = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$")
@@ -29,7 +30,8 @@ class BridgeError(RuntimeError):
 
 
 class Bridge:
-    def __init__(self, base: str, key: str, state: Path, transport=None, model_config=None, audit_config=None):
+    def __init__(self, base: str, key: str, state: Path, transport=None, model_config=None, audit_config=None,
+                 operational_config=None):
         u = urlsplit(base)
         if (u.scheme != "http" or u.hostname != "127.0.0.1" or
                 u.username or u.password or u.path not in ("", "/") or u.query or u.fragment):
@@ -38,6 +40,14 @@ class Bridge:
             raise BridgeError("Missing or invalid Hermes API key.")
         self.base, self.key, self.state = base.rstrip("/"), key, Path(state)
         self.model_config = Path(model_config).expanduser() if model_config else None
+        self.config_warnings = []
+        operational_config = operational_config or {}
+        self.stale_run_seconds = operational_config.get("stale_run_seconds", 3600)
+        self.approval_stale_seconds = operational_config.get("approval_stale_seconds", 1800)
+        for label, value in (("hermes.stale_run_seconds", self.stale_run_seconds),
+                             ("hermes.approval_stale_seconds", self.approval_stale_seconds)):
+            if not isinstance(value, int) or not 1 <= value <= 86400:
+                raise BridgeError(f"{label} must be 1-86400")
         self.state.mkdir(parents=True, exist_ok=True, mode=0o700)
         self.audit = AuditLog(self.state, audit_config)
         self.dbpath = self.state / "runs.sqlite3"
@@ -59,13 +69,18 @@ class Bridge:
     @classmethod
     def from_config(cls):
         root = Path(__file__).resolve().parent
-        config = json.loads((root / "bridge-config.json").read_text())
+        try:
+            config, warnings = load_bridge_config(root)
+        except ConfigError as exc:
+            raise BridgeError(str(exc)) from exc
         env_path = Path(config["hermes_env"]).expanduser()
         # Read only this key; never source the file as shell code or export other secrets.
         key = dotenv_values(env_path, interpolate=False).get("API_SERVER_KEY") or ""
         model_config = Path(config.get("hermes_config", env_path.parent / "config.yaml")).expanduser()
-        return cls(config["api_url"], key, root / "state", model_config=model_config,
-                   audit_config=config.get("audit"))
+        bridge = cls(config["api_url"], key, root / "state", model_config=model_config,
+                     audit_config=config.get("audit"), operational_config=config.get("hermes"))
+        bridge.config_warnings = warnings
+        return bridge
 
     @contextmanager
     def db(self):
@@ -215,7 +230,17 @@ class Bridge:
             hermes = self.health()
         except BridgeError as exc:
             hermes = {"ok": False, "error": str(exc)}
-        return {"hermes": hermes, "audit": self.audit.status(),
+        return {"hermes": hermes, "config_warnings": self.config_warnings, "audit": self.audit.status(),
+                "state": {"directory": str(self.state), "mode": oct(self.state.stat().st_mode & 0o777)}}
+
+    def local_status(self):
+        """Fast local heartbeat. This deliberately makes no Hermes HTTP request."""
+        with self.db() as db:
+            run_count = db.execute("SELECT COUNT(*) FROM runs").fetchone()[0]
+        return {"ok": True, "upstream_checked": False, "registered_runs": run_count,
+                "stale_run_seconds": self.stale_run_seconds,
+                "approval_stale_seconds": self.approval_stale_seconds, "config_warnings": self.config_warnings,
+                "audit": self.audit.status(),
                 "state": {"directory": str(self.state), "mode": oct(self.state.stat().st_mode & 0o777)}}
 
     @staticmethod
@@ -312,10 +337,16 @@ class Bridge:
         if row["reported_model"]:
             out["reported_model"] = row["reported_model"]
         out["output_chars"] = len(str(result.get("output") or ""))
+        age_seconds = max(0, int(time.time() - row["created"]))
+        out["age_seconds"] = age_seconds
+        if result.get("status") not in TERMINAL and age_seconds >= self.stale_run_seconds:
+            out["stale"] = True
         if result.get("error"):
             out["error"] = str(result["error"])[:2000]
         if result.get("status") == "waiting_for_approval":
             out["approval"] = result.get("approval")
+            if age_seconds >= self.approval_stale_seconds:
+                out["approval_stale"] = True
             out["next"] = f"Ask the user to review locally: ./bridge.sh approve {run_id} (or deny). Do not bypass the pending approval."
         return out
 
