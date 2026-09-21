@@ -39,6 +39,8 @@ Run `bash tunnel.sh init tunnel_YOUR_ID --force` when changing the bridge direct
 - [v1.x acceptance checklist](docs/V1-ACCEPTANCE-TH.md), [compatibility matrix](docs/COMPATIBILITY-MATRIX-TH.md), and [release runbook](docs/RELEASE-RUNBOOK-TH.md)
 - [Security](docs/SECURITY.md) and [contributing](docs/CONTRIBUTING.md)
 - [Roadmap](docs/ROADMAP.md)
+- [Local Hands architecture and security](docs/LOCAL-HANDS-ARCHITECTURE-TH.md)
+- [Local Hands implementation and acceptance plan](docs/LOCAL-HANDS-IMPLEMENTATION-PLAN-TH.md)
 
 ## License
 
