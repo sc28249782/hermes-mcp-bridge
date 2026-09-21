@@ -1,36 +1,41 @@
 # Hermes Local Hands — แผนพัฒนาและเกณฑ์ยอมรับ
 
-สถานะ: implementation handoff สำหรับ roadmap `v1.2.0`–`v1.5.0`  
+สถานะ: implementation handoff สำหรับ roadmap `v1.2.0`–`v1.6.0`  
 เอกสารออกแบบหลัก: `LOCAL-HANDS-ARCHITECTURE-TH.md`
 
 ## 1. ลำดับการพัฒนา
 
 ### Stage 0 — Contract และ test harness
 
-1. บันทึก ADR ว่า Hands เป็น sibling backend และห้ามเรียก Hermes/Codex
-2. กำหนด schema migration, workspace ID, action ID, process state และ normalized error codes
+1. ใช้ [ADR-0001](adr/0001-local-hands-foundation.md) กำหนด Hands เป็น sibling backend, additive schema v1, stable discovery, canonical digest และ output storage
+2. กำหนด workspace ID, action ID, process state และ normalized error codes
 3. สร้าง fake filesystem/process/Windows adapters เพื่อทดสอบ policy โดยไม่แตะเครื่องจริง
 4. เพิ่ม dependency-direction test หรือ static assertion เพื่อป้องกัน Hands import/call Hermes client และ Codex runner
-5. กำหนด golden redaction tests ก่อนสร้าง mutation tools
+5. กำหนด golden redaction tests และ non-removable protected-filename baseline ก่อนสร้าง file tools
+6. เพิ่ม strict-resolver probe สำหรับ `openat2` และ filesystem แต่ละ workspace; unsupported/failed workspace ต้อง unavailable โดยไม่มี check-then-open fallback
 
 Exit criteria:
 
-- config เก่าที่ยังไม่มี `hands` โหลดได้เหมือนเดิมและ Hands เป็น disabled
+- config schema v1 เก่าที่ยังไม่มี `hands` โหลดได้เหมือนเดิมและ Hands เป็น disabled
 - invalid Hands config fail closed พร้อมข้อความที่ไม่เผย secret
 - test พิสูจน์ว่า Hands core ไม่มี dependency ต่อ Hermes/Codex execution objects
 
 ### Stage 1 — Read-only WSL2 vertical slice
 
-Implement `hands_health`, `hands_list`, `hands_read`, canonical workspace resolution, protected paths, byte limits และ audit metadata
+Implement `hands_health`, `hands_list`, `hands_read`, descriptor-relative workspace resolution, protected paths, protected filename patterns, byte limits และ audit metadata
 
 Exit criteria:
 
 - อ่านได้เฉพาะ regular text file ใน read-enabled workspace
-- traversal, symlink escape, protected path, binary/oversize และ special file ถูกปฏิเสธ
+- traversal, symlink escape, protected path/name, DrvFS case ambiguity, binary/oversize และ special file ถูกปฏิเสธ
+- strict `openat2` self-test ผ่านก่อน workspace พร้อมใช้งาน; failure ไม่ fallback
 - Hermes ปิด + Codex binary ไม่มี: health/list/read ยังผ่าน
 - audit ไม่มี content/path secret และไฟล์ permission/rotation ถูกต้อง
+- property-based path containment invariant ผ่านบน ext4 fixture และ DrvFS test matrix
 
-### Stage 2 — Approval-bound mutations
+`v1.2.0` จบที่ Stage 1 เพื่อรับ feedback จาก read-only usage ก่อน
+
+### Stage 2 — Approval-bound mutations (v1.3.0)
 
 Implement pending action store, local CLI preview/approve/deny, TTL, one-time digest, `hands_write` และ `hands_patch`
 
@@ -41,8 +46,10 @@ Exit criteria:
 - เปลี่ยน target/content/base digest หลัง approval ไม่ได้
 - expired/denied/replayed approval ไม่เขียนไฟล์
 - atomic write/patch ไม่ทิ้ง partial target เมื่อเกิด failure
+- pending-action cap ต่อ workspace/global ปฏิเสธ action ใหม่เมื่อเต็มและ recovery ไม่ทำให้ cap หาย
+- canonical digest ตรงกับ [ADR-0001](adr/0001-local-hands-foundation.md) golden vectors ทุก implementation ที่รองรับ
 
-### Stage 3 — Bounded execution/process control
+### Stage 3 — Bounded execution/process control (v1.3.0)
 
 Implement executable profiles, fixed argv, minimal environment, process state, paginated output, watchdog และ cancellation
 
@@ -53,8 +60,11 @@ Exit criteria:
 - runtime/output/concurrency limit บังคับใช้แม้ client ไม่ poll
 - cancel race, timeout, bridge restart และ PID reuse ไม่รายงาน completed ผิด
 - network-capable/interpreter execution ปิดเมื่อไม่มี explicit policy
+- Git/CMake/test runners ถูกจัดเป็น trusted-workspace-code; Git profile ใช้ minimal environment และปิด global/system config, hooks, pager และ external diff ตาม action schema
+- no-approval profile คืนเฉพาะ metadata; `git diff`/build/test/interpreter ต้อง approval
+- docs/approval preview เตือนว่า stdout/stderr อาจมี secret และจะถูกส่งเข้า ChatGPT
 
-### Stage 4 — Windows host adapter
+### Stage 4 — Windows host adapter (v1.4.0)
 
 1. นิยาม versioned action protocol และ authentication
 2. เริ่ม read-only process/service/event-log actions
@@ -62,15 +72,18 @@ Exit criteria:
 4. เพิ่ม mutation ทีละ action พร้อม local approval
 5. ทดสอบ helper install/upgrade/rollback/signature/version mismatch
 
-### Stage 5 — Computer use
+### Stage 5 — Computer use (v1.5.0, hard-gated)
+
+ห้ามเริ่ม stage นี้จน Stage 4 ผ่าน Windows live acceptance และ security review ที่บันทึกผลแล้ว
 
 1. observe-only capture/accessibility tree
 2. observation identity/TTL/foreground verification
-3. allowlisted click/key/scroll ใน disposable app
-4. typing พร้อม protected-field refusal
-5. emergency stop, visible indicator, queue cancellation และ prompt-injection tests
+3. allowlisted click เฉพาะ disposable app
+4. security review/acceptance gate รอบใหม่ก่อนเปิด key/scroll/typing
+5. typing พร้อม protected-field refusal
+6. emergency stop, visible indicator, queue cancellation และ prompt-injection tests
 
-### Stage 6 — Routing and release hardening
+### Stage 6 — Routing and release hardening (v1.6.0)
 
 เพิ่ม independent backend status, fallback documentation, operations/runbook, compatibility matrix, upgrade/rollback, signed release checklist และ live acceptance record
 
@@ -83,7 +96,7 @@ Exit criteria:
 | `hands_core.py` | HandsRuntime, domain errors, tool-facing operations |
 | `hands_policy.py` | schema-derived immutable policy, canonical authorization |
 | `hands_paths.py` | containment, protected paths, translation helpers |
-| `hands_actions.py` | pending action, digest, approval TTL, one-time transition |
+| `hands_actions.py` | pending action, canonical digest, caps, approval TTL, one-time transition |
 | `hands_process.py` | spawn/watchdog/status/output/cancel/recovery |
 | `config_schema.py` | additive or migrated `hands` validation |
 | `bridge.py` | MCP tools and local operator CLI only; no policy logic |
@@ -97,17 +110,18 @@ Exit criteria:
 
 Checklist:
 
-- [ ] ตัดสินใจ schema v2 หรือ additive v1 และบันทึก ADR
+- [x] ใช้ additive `hands` block ใน schema v1 ตาม [ADR-0001](adr/0001-local-hands-foundation.md)
 - [ ] unknown keys เป็น warnings; invalid known keys เป็น errors
 - [ ] `hands.enabled` default `false`
 - [ ] canonical workspace name/path ไม่ซ้ำ
 - [ ] capability enum ไม่มีค่าที่ runtime ไม่บังคับใช้
-- [ ] protected paths มี baseline deny ที่ผู้ใช้ลดไม่ได้สำหรับ credential classes สำคัญ
+- [ ] protected paths และ protected filename patterns มี baseline deny ที่ผู้ใช้เพิ่มได้แต่ลดไม่ได้สำหรับ credential classes สำคัญ
 - [ ] limits มี min/max ที่สอดคล้อง runtime
 - [ ] executable ใช้ absolute canonical path และ profile schema
 - [ ] config/doctor output ไม่เผย protected path pattern หรือ secret โดยไม่จำเป็น
 - [ ] installer upgrade ไม่ทับ config เดิมและไม่สร้างสิทธิ write/exec
 - [ ] rollback ไป v1.0.1 อธิบายผลของ schema/state ใหม่ชัดเจน
+- [ ] pending action มี per-workspace/global cap ที่ validate ชัดเจน
 
 ## 4. MCP contract checklist
 
@@ -125,7 +139,7 @@ Mutation flow:
 ```text
 MCP request
   → validate + canonicalize + authorize
-  → create immutable pending action + digest + expiry
+  → create immutable pending action + canonical digest + expiry ภายใต้ capacity cap
   → return approval_required/action_id/summary
   → user previews in local terminal
   → local exact confirmation
@@ -142,7 +156,7 @@ MCP request
 | ON | ON | ON | ทั้งสาม backend รายงาน/ทำงานแยกกัน |
 | OFF | ON | ON | Hands ผ่าน; Hermes failure ไม่กระทบ |
 | ON | OFF | ON | Hands ผ่าน; Codex failure ไม่กระทบ |
-| OFF | OFF | ON | `hands_health/list/read/allowed exec` ผ่าน — critical gate |
+| OFF | OFF | ON | v1.2.0 `hands_health/list/read` ผ่าน — critical gate |
 | ON | ON | OFF | v1.0.1 behavior เดิม; Hands tools ตอบ disabled ตาม contract |
 
 ต้องทดสอบทั้ง disabled โดย config, binary หาย, connection refused, timeout และ backend-specific quota/usage-limit response ที่ mock ตาม contract จริง
@@ -153,9 +167,12 @@ MCP request
 - symlink ใน root ชี้ออกนอก root; symlink swap ระหว่าง check/use
 - hard link policy, bind mount/documented limitation, special files, `/proc`, `/sys`, device/FIFO/socket
 - protected path ที่อยู่ใต้ workspace โดยบังเอิญต้องยังถูก deny
+- protected filename baseline ทุก case variant และ path component; additional patterns เพิ่มได้แต่ลด baseline ไม่ได้
 - file โตเกิน limit, binary/NUL, invalid encoding, short read, concurrent replacement
 - patch base digest mismatch, duplicate patch, atomic replace failure, disk full
-- Windows drive-letter case, reserved names, ADS, UNC, reparse/junction และ `/mnt/<drive>` translation ใน v1.3.0
+- property-based/fuzz invariant: ทุก accepted target เปิดผ่าน root fd, อยู่ใต้ root และไม่ตรง protected path/name
+- DrvFS case-fold collision และ mount option/case-sensitivity variants ตั้งแต่ v1.2.0
+- Windows drive-letter case, reserved names, ADS, UNC, reparse/junction และ `/mnt/<drive>` translation ใน v1.4.0
 
 ### 5.3 Execution/process tests
 
@@ -166,12 +183,16 @@ MCP request
 - output flood, long line, invalid UTF-8, timeout, concurrency exhaustion
 - child/grandchild process, SIGTERM ignored, SIGKILL fallback, cancel/exit race
 - bridge restart ก่อน/หลัง spawn, orphan, stale PID/PID reuse, unknown exit
+- Git config/env/hooks/pager/ext-diff bypass และ content-bearing `git diff` classification
+- stdout/stderr fixture ที่มี fake secret เพื่อยืนยัน warning, bounds, audit non-leakage และข้อจำกัดว่า content ยังส่งถึง caller
 
 Executable แต่ละตัวต้องมี adversarial tests ตาม semantics ของมัน ไม่ควรอนุญาต generic executable เพียงเพราะ fixed argv ป้องกัน shell injection เพราะ executable เองอาจมี flag สำหรับรันคำสั่งหรือโหลด config/script
 
 ### 5.4 Approval tests
 
 - no TTY, wrong confirmation, expiry, deny, double approve, replay after restart
+- per-workspace/global pending cap, expiry frees capacity, restart preserves cap
+- canonical serialization golden vectors: key order, whitespace, Unicode, integer boundaries, rejected float/NaN และ schema prefix
 - digest mismatch จาก path/content/argv/policy change
 - action ownership mismatch และ malformed ID
 - MCP ไม่มี approval tool และไม่สามารถเปลี่ยน pending action
@@ -188,20 +209,28 @@ Executable แต่ละตัวต้องมี adversarial tests ตา�
 
 ## 6. Live acceptance gates
 
-### v1.2.0 WSL2
+### v1.2.0 WSL2 read-only
 
 ใช้ dedicated disposable workspace และ fixture เท่านั้น:
 
 1. อัปเกรดจาก signed `v1.0.1`; ยืนยัน 19 tools เดิมไม่ regression ก่อนเปิด Hands
-2. เปิด Hands read-only; discovery และ health ต้องตรง documented tool count
+2. เปิด Hands read-only; discovery ต้องเป็น 22 tools (เดิม 19 + Hands 3) และ health ต้องตรง documented contract
 3. list/read fixture, ทดสอบ traversal/symlink/protected denial
-4. สร้าง write/patch pending action, approve/deny/expire ผ่าน local TTY
-5. รัน executable profile ที่ไม่มี network, poll output, timeout และ cancel
-6. หยุด Hermes API และทำให้ Codex unavailable แล้วทำข้อ 2–5 ซ้ำในส่วนที่ policy อนุญาต
-7. restart bridge ระหว่าง pending/running state และยืนยัน recovery semantics
-8. ตรวจ audit/config/state permissions และค้นหา secret/content leakage
+4. ทดสอบ baseline protected filenames รวม `.env`, key/certificate และ credential JSON ภายใน workspace
+5. ทดสอบ ext4 และ DrvFS case behavior, strict resolver probe และ case-collision denial
+6. หยุด Hermes API และทำให้ Codex unavailable แล้วทำ health/list/read ซ้ำ
+7. ตรวจ audit/config/state permissions และค้นหา secret/content leakage
 
-### v1.3.0 Windows
+### v1.3.0 WSL2 mutation/execution
+
+1. สร้าง write/patch pending action, approve/deny/expire และ capacity cap ผ่าน local TTY
+2. ตรวจ canonical digest ด้วย golden vectors และ tamper/replay tests
+3. รัน constrained metadata profile และ approved trusted-workspace-code profile
+4. poll bounded JSONL output, timeout, cancel และ restart recovery
+5. ทดสอบ fake-secret output และยืนยันว่า audit ไม่เก็บ content พร้อมแสดง warning ต่อผู้ใช้
+6. ทำซ้ำขณะ Hermes/Codex unavailable
+
+### v1.4.0 Windows
 
 ใช้ Windows 11 + WSL2 และ disposable fixture/service/application:
 
@@ -212,15 +241,16 @@ Executable แต่ละตัวต้องมี adversarial tests ตา�
 5. Hermes/Codex unavailable ขณะเรียก Windows Hands
 6. ทดสอบกับ `virtioproxy`; networking mode อื่นเป็น compatibility record แยก ไม่ใช่เหตุให้บังคับเปลี่ยน
 
-### v1.4.0 Computer Use
+### v1.5.0 Computer Use
 
 ใช้ test application ที่ไม่มีข้อมูลจริง:
 
-1. observe → click/type/key/scroll โดยอ้าง observation ID
-2. stale/window-change/DPI/coordinate denial
-3. protected-field refusal และ emergency stop
-4. cancellation ตัด queued actions
-5. screenshot retention/audit inspection
+1. ยืนยัน v1.4.0 live acceptance + security review gate ก่อนเริ่ม
+2. observe-only โดยอ้าง observation ID
+3. stale/window-change/DPI/coordinate denial
+4. click ใน disposable app, protected-field refusal และ emergency stop
+5. review gate แยกก่อน typing/key/scroll
+6. cancellation ตัด queued actions และตรวจ screenshot retention/audit
 
 ## 7. Documentation and release checklist
 
@@ -241,24 +271,24 @@ Executable แต่ละตัวต้องมี adversarial tests ตา�
 
 `v1.2.0` พร้อม release เมื่อครบทุกข้อ:
 
-- Hands native tools ทำงานโดยไม่ invoke/import execution path ของ Hermes/Codex
+- `hands_health/list/read` ทำงานโดยไม่ invoke/import execution path ของ Hermes/Codex
 - critical OFF/OFF/ON fallback ผ่านทั้ง automated test และ WSL2 live acceptance
-- workspace/protected path/executable policy fail closed และมี adversarial coverage
-- write/patch/execute ตาม risk ต้องผ่าน local immutable approval ไม่มี MCP approve
-- process timeout/cancel/restart semantics ไม่รายงานผลเกินหลักฐาน
-- audit ไม่มี prompt/output/content/secret และผ่าน rotation/permission tests
+- workspace/protected path/protected filename policy fail closed และมี property-based/adversarial coverage
+- strict descriptor-relative resolver ผ่านทั้ง ext4/DrvFS acceptance; ไม่มี check-then-open fallback
+- audit ไม่มี prompt/content/secret และผ่าน rotation/permission tests
 - upgrade default ปิด Hands และไม่เพิ่ม privilege
 - เอกสาร/tool count/version/config/release assets ตรงกันทั้งหมด
 
-## 9. ประเด็นที่ต้องตัดสินใจก่อนเริ่ม code
+## 9. Decisions และประเด็นที่ยังเปิด
 
-1. schema version 2 หรือ additive version 1
-2. Hands tools จะถูก discover เมื่อ disabled แล้วตอบ `disabled` หรือ register เฉพาะเมื่อ enabled — แนะนำ discover เสมอเพื่อ contract/tool count คงที่
-3. read-only executable profiles ใดปลอดภัยพอไม่ต้อง approve; เริ่ม conservative และ require approval หากไม่แน่ใจ
-4. baseline protected paths ที่ผู้ใช้เพิ่มได้แต่ลดไม่ได้
-5. รองรับ bind mounts/hard links ระดับใดใน v1.2.0
-6. เก็บ output เป็นไฟล์หรือ SQLite; ต้องมี truncation/rotation/recovery ชัดเจน
-7. local approval ใช้ CLI เดิมก่อน หรือเพิ่ม companion UI ในรุ่น Windows
-8. Windows helper transport/auth/signing/distribution model
+1. **Decided:** additive `hands` block ใน schema version 1
+2. **Decided:** tools ของแต่ละ release discover เสมอและตอบ `disabled` เมื่อปิด
+3. **Decided:** output เป็น bounded JSONL ต่อ process
+4. **Decided:** canonical action digest ตาม [ADR-0001](adr/0001-local-hands-foundation.md)
+5. read-only executable profiles ใดปลอดภัยพอไม่ต้อง approve; เริ่มจาก metadata-only exact profiles และไม่รวม `git diff`
+6. baseline protected paths/names ชุดสุดท้ายที่ผู้ใช้เพิ่มได้แต่ลดไม่ได้
+7. รองรับ bind mounts/hard links ระดับใดใน v1.2.0
+8. local approval ใช้ CLI เดิมก่อน หรือเพิ่ม companion UI ในรุ่น Windows
+9. Windows helper transport/auth/signing/distribution model
 
 คำตอบของข้อเหล่านี้ควรถูกบันทึกเป็น ADR ก่อน merge implementation PR แรก
