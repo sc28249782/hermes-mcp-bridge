@@ -16,6 +16,7 @@
 - งาน `workspace-write` ต้องผ่าน local terminal approval
 - agent ไม่มี MCP tool สำหรับอนุมัติตัวเอง
 - ห้าม commit `bridge-config.json`, `.env`, `state/`, logs และ tunnel key
+- Release production ต้องเผยแพร่ checksum และ signed tag ที่ตรวจสอบได้; private signing key อยู่กับ maintainer เท่านั้น
 
 รายละเอียด threat model และข้อจำกัดดู `HERMES-MCP-BRIDGE-TECHNICAL-ARCHITECTURE-TH.md` และ `CODEX-WSL2-TH.md`
 
