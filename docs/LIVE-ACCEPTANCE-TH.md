@@ -8,6 +8,14 @@
 - `codex_health` ยืนยัน Codex CLI `0.155.1`, workspace policy `/mnt/e/Projects/OpenHDK-validation`, model allowlist `gpt-5.6-sol`/`gpt-5.6-terra`/`gpt-5.6-luna` และ reasoning `low`/`medium`/`high`
 - tag `v1.0.0` ถูก GitHub ยืนยัน signature แล้ว; SHA-256 ของ archive คือ `04421690f877807975810dfeffb29ec6412d8313103409cfd5713300e32de793`
 
+## v1.1.0 approval-event SSE POC — deferred (21 กันยายน 2026)
+
+- `GET /v1/runs/{run_id}/events` ผ่าน authentication ด้วย `HTTP 200 text/event-stream`; event ทุกตัวมี `run_id` ที่ตรงกับ run ที่ subscribe.
+- POC read-only เห็น `message.delta`, `reasoning.available` และ `run.completed`; POC terminal `true` เห็น `tool.started`, `tool.completed`, `message.interim` และ `run.completed`.
+- stream มี message/output/reasoning payload ด้วย จึงไม่เหมาะให้ relay ผ่าน MCP; bridge ต้องไม่ทำ general output streaming.
+- หลังตั้ง `approvals.mode: manual` และ restart Hermes, terminal `true` ยังจบทันทีโดยไม่มี approval event หรือ `request_id`.
+- ข้อสรุป: SSE transport ใช้ได้ แต่ approval-event contract สำหรับ API profile ยังพิสูจน์ไม่ได้; deferred integration ตาม `ROADMAP.md` และไม่เพิ่ม approval MCP tool.
+
 ## v1.0.0-rc.2 — full acceptance (21 กันยายน 2026)
 
 - `bridge_status` ยืนยัน local-only heartbeat, schema ไม่มี warning, discovery มี 19 tools และ Hermes/Codex health ผ่าน
