@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.9.1
+
+- Fixed Hermes approval capability detection: the canonical Hermes Runs flag is `run_approval_response`; the legacy `run_approval` alias remains accepted for compatibility.
+- `hermes_health` now reports whether local approval resolution is advertised instead of implying it unconditionally.
+
 ## v0.9.0
 
 - Added `bridge_status`, a local-only heartbeat that reports bridge state without calling Hermes or Codex upstream APIs.
