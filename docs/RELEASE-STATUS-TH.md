@@ -1,4 +1,10 @@
-# Release status — v1.0.0
+# Release status — v1.0.1
+
+## v1.0.1 — maintenance release candidate
+
+- schema ของ `codex.approval_ttl_seconds` ตรงกับ runtime ที่ 60–86,400 วินาที พร้อม regression test ที่ขอบเขต 59/60
+- เพิ่มเอกสารข้อจำกัด watchdog: enforcement อัตโนมัติอยู่ใน persistent MCP server ไม่ใช่ process ของ local approval CLI
+- ต้อง build, regression test และ WSL2 smoke acceptance ก่อน publish
 
 ## v1.0.0 — released (21 กันยายน 2026)
 
