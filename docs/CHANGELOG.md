@@ -2,7 +2,8 @@
 
 ## v1.0.0
 
-- Established the production baseline: compatibility matrix, repeatable WSL2 acceptance, release-integrity runbook, SHA-256 verification and signed-tag procedure.
+- Released as signed, GitHub-verified tag `v1.0.0`, targeting commit `2b280b2d3a763f69afa417bc76bdca6b801553fc`.
+- Established the production baseline: compatibility matrix, repeatable WSL2 acceptance, release-integrity runbook, and published SHA-256 verification material.
 - RC2 live acceptance passed for local-only heartbeat, Hermes idempotent read-only execution, configured Codex read-only execution, local workspace-write approval, and cancellation.
 - Hardened nested bridge configuration validation so audit limits and unknown workspace keys match runtime policy.
 
