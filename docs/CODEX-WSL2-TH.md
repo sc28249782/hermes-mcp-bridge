@@ -17,6 +17,8 @@
 
 ## ตั้งค่า
 
+ตั้งแต่ v0.9.0 `bridge-config.json` รองรับ `schema_version: 1`; `bash install.sh` จะเติมค่านี้ให้ config เก่าอย่าง deterministic. หาก doctor/diagnostics แสดง `config_warnings` ให้แก้ key ที่ไม่รู้จักก่อนใช้งานจริง.
+
 ตรวจว่า Codex CLI ติดตั้งและ login ใน WSL2 แล้วด้วย `codex --version` จากนั้นเพิ่มใน `bridge-config.json` โดยรักษาค่า Hermes เดิมไว้:
 
 ```json
