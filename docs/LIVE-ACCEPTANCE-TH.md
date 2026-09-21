@@ -44,12 +44,14 @@
 
 ระหว่าง acceptance พบว่า display name `GPT-5.6 Sol` ใช้เป็น model ID ไม่ได้และถูก Codex CLI ปฏิเสธ; แก้เป็น `gpt-5.6-sol` แล้วผ่าน จึงต้องใช้ model ID จริงใน `allowed_models` เสมอ
 
-## v0.8.0 — partial live acceptance (21 กันยายน 2026)
+## v0.8.0 — full live acceptance (21 กันยายน 2026)
 
 ผ่าน Secure MCP Tunnel ไปยัง bridge `/home/somchaip/hermes-mcp-bridge-v0.8.0`:
 
 - `bridge_diagnostics` และ `codex_health` ยืนยัน Hermes authenticated, Codex CLI `0.155.1`, workspace allowlist, model/effort allowlist และ watchdog ทำงานอยู่ทุก 15 วินาที
 - งาน `read-only` ที่ตั้งใจรอ 120 วินาทีเริ่มทำงานจริง (Codex เรียก `sleep 120`) แล้ว `codex_cancel_task` ยุติงานเป็น `cancelled`
 - `codex_task_status` และ `codex_task_result` ยืนยันสถานะปลายทาง `cancelled`; audit แสดง `submit → start → cancel` แบบ redacted และไม่มีการแก้ไขไฟล์หรือเรียกเครือข่าย
+- ลด `max_runtime_seconds` ชั่วคราวเหลือ 5 วินาทีแล้วส่งงานที่รอ 120 วินาทีโดยไม่ poll; watchdog ยุติงานเองเป็น `timed_out` และ audit บันทึก `cancel` outcome เดียวกัน
+- คืน runtime policy เป็น 1,800 วินาที, restart tunnel ระหว่างงาน read-only `sleep 30`, แล้วเชื่อมต่อใหม่หลังงานจบ: status เป็น `unknown_exit`, result มี `recovered_after_restart: true` และ audit บันทึก `finish` outcome `unknown_exit` พร้อม `exit_code: null`
 
-ยังไม่ทำ two scenarios ที่ต้องเปลี่ยน/รีสตาร์ต production bridge: watchdog timeout (policy ปัจจุบัน 1,800 วินาที) และ `unknown_exit` หลัง restart recovery. ทั้งสองกรณีมี regression test ครอบคลุมใน build verification แล้ว แต่ต้องทำใน maintenance window ก่อนประกาศว่าผ่าน full production acceptance.
+ทั้ง timeout watchdog และ restart recovery ผ่านแล้ว; คืน policy production เป็น `max_runtime_seconds: 1800` ก่อนจบ acceptance.
