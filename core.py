@@ -220,9 +220,14 @@ class Bridge:
         missing = [x for x in needed if not features.get(x)]
         if missing:
             raise BridgeError("Hermes does not advertise: " + ", ".join(missing))
+        approval_supported = bool(features.get("run_approval_response") or features.get("run_approval"))
         return {"ok": True, "authentication": "verified", "api_url": self.base,
-                "features": {k: features.get(k) for k in (*needed, "run_approval", "runs_idempotency")},
-                "approval_handling": "Pending Hermes approvals require the local approve/deny command.",
+                "features": {**{k: features.get(k) for k in needed},
+                             "run_approval_response": approval_supported,
+                             "runs_idempotency": features.get("runs_idempotency")},
+                "approval_handling": ("Pending Hermes approvals require the local approve/deny command."
+                                      if approval_supported else
+                                      "Hermes does not advertise run approval for this API profile."),
                 "execution_scope": "Uses the configured Hermes API profile and its OS/tool permissions; no filesystem sandbox is added."}
 
     def diagnostics(self):
