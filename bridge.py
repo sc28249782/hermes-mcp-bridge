@@ -36,6 +36,11 @@ def server(b, c):
         return {"hermes": b.diagnostics(), "codex": c.diagnostics()}
 
     @m.tool(annotations=read, structured_output=True)
+    def bridge_status() -> dict[str, Any]:
+        """Fast local-only bridge heartbeat; does not call Hermes or Codex upstream APIs."""
+        return {"ok": True, "hermes": b.local_status(), "codex": c.local_status()}
+
+    @m.tool(annotations=read, structured_output=True)
     def bridge_audit_recent(limit: int = 100) -> dict[str, Any]:
         """Read recent redacted local audit records; prompts, outputs, and credentials are excluded."""
         return b.audit.recent(limit)
