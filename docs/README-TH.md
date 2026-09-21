@@ -283,6 +283,8 @@ helper ตรวจ request_id ซ้ำหลังตัดสินใจเ�
 
 ไม่มี MCP tool สำหรับอนุมัติแทนผู้ใช้ การยืนยัน tool call ฝั่ง ChatGPT กับ approval รายคำสั่งฝั่ง Hermes เป็นคนละชั้น
 
+ข้อจำกัดของ API profile ที่ยืนยันใน v1.1.0 POC: แม้ `hermes_health` ประกาศ `run_approval_response` แต่ Hermes Runs API ที่ติดตั้งอาจเป็น unattended context และไม่สร้าง interactive approval event จาก `approvals.mode: manual`. คำสั่ง local `approve`/`deny` จะทำงานได้เฉพาะเมื่อ `hermes_task_status` คืน exact pending approval จริงเท่านั้น; ห้ามถือว่า endpoint ที่ประกาศอยู่เพียงอย่างเดียวเป็นหลักฐานว่า API approval ใช้งานได้. ดู `LIVE-ACCEPTANCE-TH.md` และ `ROADMAP.md`.
+
 ## การส่งซ้ำ ผลลัพธ์ และการหยุด
 
 - แต่ละงานต้องมี `request_id` ใหม่ เช่น UUID; retry งานเดิมต้องใช้ request_id และ prompt/session_id เดิม
