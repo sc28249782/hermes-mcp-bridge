@@ -1,10 +1,11 @@
 # Release status — v1.0.1
 
-## v1.0.1 — maintenance release candidate
+## v1.0.1 — released (21 กันยายน 2026)
 
 - schema ของ `codex.approval_ttl_seconds` ตรงกับ runtime ที่ 60–86,400 วินาที พร้อม regression test ที่ขอบเขต 59/60
-- เพิ่มเอกสารข้อจำกัด watchdog: enforcement อัตโนมัติอยู่ใน persistent MCP server ไม่ใช่ process ของ local approval CLI
-- ต้อง build, regression test และ WSL2 smoke acceptance ก่อน publish
+- เอกสารระบุข้อจำกัด watchdog: enforcement อัตโนมัติอยู่ใน persistent MCP server ไม่ใช่ process ของ local approval CLI
+- regression suite 48/48, shellcheck และ WSL2 read-only live acceptance ผ่าน
+- signed tag `v1.0.1` ถูก GitHub ตรวจเป็น `Verified` และ release archive ผ่าน `sha256sum -c`: `a20a07aaeb0baeb885c85223dab9eba61c8a0ce1be20bb83d0e422faaa45c9d3  hermes-mcp-bridge-v1.0.1.zip`
 
 ## v1.0.0 — released (21 กันยายน 2026)
 
