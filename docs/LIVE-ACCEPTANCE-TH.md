@@ -1,8 +1,12 @@
 # ผล Live Acceptance — v0.3.2
 
-## v0.9.0 — รอ live acceptance
+## v0.9.0 — partial live acceptance (21 กันยายน 2026)
 
-ต้องตรวจบน WSL2 ว่า `bridge_status` ทำงานโดยไม่ยิง Hermes/Codex upstream และ `hermes_task_status` รายงาน stale labels ตาม threshold ใน config โดยไม่ stop หรือ deny upstream run.
+- `bridge_status` ผ่าน Secure MCP Tunnel โดยรายงาน `upstream_checked: false` สำหรับทั้ง Hermes และ Codex; schema migration ไม่มี `config_warnings` และ discovery พบ 19 tools.
+- ตั้ง `hermes.stale_run_seconds` ชั่วคราวเป็น 1 วินาที แล้วส่ง Hermes task read-only ที่รอ 30 วินาที: ระหว่างรัน status มี `age_seconds: 10` และ `stale: true`.
+- Bridge ไม่ส่ง stop; Hermes จบเองเป็น `completed` พร้อมยืนยันว่าไม่แตะไฟล์/เครือข่าย. Audit เก็บ submit แบบ redacted เท่านั้น.
+
+`approval_stale` มี regression coverage แต่ยังไม่ได้สร้าง Hermes approval workflow จริงในการ acceptance เพื่อหลีกเลี่ยงผลกระทบจาก upstream approval; คืน threshold production ก่อนใช้งานต่อ.
 
 วันที่ 14 กันยายน 2026 ทดสอบผ่าน Secure MCP Tunnel ไปยัง Hermes API `127.0.0.1:8642` ที่มี Bearer authentication โดยไม่เปิดพอร์ตสู่ public network
 
