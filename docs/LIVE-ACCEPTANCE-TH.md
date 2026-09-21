@@ -44,6 +44,12 @@
 
 ระหว่าง acceptance พบว่า display name `GPT-5.6 Sol` ใช้เป็น model ID ไม่ได้และถูก Codex CLI ปฏิเสธ; แก้เป็น `gpt-5.6-sol` แล้วผ่าน จึงต้องใช้ model ID จริงใน `allowed_models` เสมอ
 
-## v0.8.0 — รอ live acceptance
+## v0.8.0 — partial live acceptance (21 กันยายน 2026)
 
-Build verification ผ่าน 44 tests แล้ว แต่ต้องทดสอบบน WSL2 เพิ่มสำหรับ watchdog timeout, SIGTERM/SIGKILL cancellation และ `unknown_exit` หลัง recovery ก่อนปิด release นี้.
+ผ่าน Secure MCP Tunnel ไปยัง bridge `/home/somchaip/hermes-mcp-bridge-v0.8.0`:
+
+- `bridge_diagnostics` และ `codex_health` ยืนยัน Hermes authenticated, Codex CLI `0.155.1`, workspace allowlist, model/effort allowlist และ watchdog ทำงานอยู่ทุก 15 วินาที
+- งาน `read-only` ที่ตั้งใจรอ 120 วินาทีเริ่มทำงานจริง (Codex เรียก `sleep 120`) แล้ว `codex_cancel_task` ยุติงานเป็น `cancelled`
+- `codex_task_status` และ `codex_task_result` ยืนยันสถานะปลายทาง `cancelled`; audit แสดง `submit → start → cancel` แบบ redacted และไม่มีการแก้ไขไฟล์หรือเรียกเครือข่าย
+
+ยังไม่ทำ two scenarios ที่ต้องเปลี่ยน/รีสตาร์ต production bridge: watchdog timeout (policy ปัจจุบัน 1,800 วินาที) และ `unknown_exit` หลัง restart recovery. ทั้งสองกรณีมี regression test ครอบคลุมใน build verification แล้ว แต่ต้องทำใน maintenance window ก่อนประกาศว่าผ่าน full production acceptance.
