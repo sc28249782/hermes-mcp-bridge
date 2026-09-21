@@ -30,7 +30,7 @@ class FakeHermes:
         if path == '/v1/capabilities':
             return httpx.Response(200, json={'features':{
                 'run_submission':True, 'run_status':True, 'run_stop':True,
-                'run_approval':True, 'run_model_override':True,
+                'run_approval_response':True, 'run_model_override':True,
                 'runs_idempotency':{'supported':True,'durable':self.durable}}})
         if path == '/v1/runs' and req.method == 'POST':
             self.posts += 1
@@ -74,7 +74,9 @@ class TestBridge(unittest.TestCase):
         self.b.client.close()
         self.tmp.cleanup()
     def test_auth_and_lifecycle_followup_pagination(self):
-        self.assertTrue(self.b.health()['ok'])
+        health=self.b.health()
+        self.assertTrue(health['ok'])
+        self.assertTrue(health['features']['run_approval_response'])
         rid=self.b.submit('hello','req1')['run_id']
         status=self.b.status(rid)
         self.assertEqual(status['status'],'completed')
