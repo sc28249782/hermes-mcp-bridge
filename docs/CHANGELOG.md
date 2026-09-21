@@ -7,6 +7,9 @@
 
 ## Unreleased
 
+- Added the post-v1.0.1 Local Hands roadmap, architecture/security design, and implementation acceptance plan. Local Hands is specified as a native sibling backend that remains usable when Hermes or Codex is unavailable or quota-limited.
+- Reserved the deferred `v1.1.0` line for Hermes approval-event integration; the active Local Hands delivery path begins at `v1.2.0`.
+
 - Deferred the proposed v1.1.0 Hermes approval-event SSE integration after live POC confirmed SSE transport but did not observe an interactive API approval event or exact approval request ID under `approvals.mode: manual`.
 
 ## v1.0.0
