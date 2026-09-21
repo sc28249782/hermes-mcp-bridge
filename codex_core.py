@@ -14,6 +14,7 @@ import time
 import uuid
 
 from audit import AuditLog
+from config_schema import ConfigError, load_bridge_config
 
 
 class CodexError(RuntimeError):
@@ -74,8 +75,13 @@ class CodexRunner:
 
     @classmethod
     def from_config(cls, root: Path):
-        config = json.loads((root / "bridge-config.json").read_text())
-        return cls(config.get("codex", {}), root / "state")
+        try:
+            config, warnings = load_bridge_config(root)
+        except ConfigError as exc:
+            raise CodexError(str(exc)) from exc
+        runner = cls(config.get("codex", {}), root / "state")
+        runner.config_warnings = warnings
+        return runner
 
     @classmethod
     def _policies(cls, config: dict):
@@ -165,7 +171,17 @@ class CodexRunner:
             codex = self.health()
         except CodexError as exc:
             codex = {"ok": False, "error": str(exc)}
-        return {"codex": codex, "audit": self.audit.status(),
+        return {"codex": codex, "config_warnings": getattr(self, "config_warnings", []), "audit": self.audit.status(),
+                "state": {"directory": str(self.state), "mode": oct(self.state.stat().st_mode & 0o777)}}
+
+    def local_status(self):
+        """Fast local heartbeat; does not invoke the Codex CLI."""
+        with self.db() as db:
+            jobs = db.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
+        return {"ok": True, "upstream_checked": False, "registered_jobs": jobs,
+                "watchdog": {"running": bool(self._watchdog_thread and self._watchdog_thread.is_alive()),
+                             "interval_seconds": self.watchdog_interval},
+                "audit": self.audit.status(),
                 "state": {"directory": str(self.state), "mode": oct(self.state.stat().st_mode & 0o777)}}
 
     def start_watchdog(self):
