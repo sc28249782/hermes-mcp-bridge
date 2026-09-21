@@ -8,6 +8,8 @@
 
 `approval_stale` มี regression coverage แต่ยังไม่ได้สร้าง Hermes approval workflow จริงในการ acceptance เพื่อหลีกเลี่ยงผลกระทบจาก upstream approval; คืน threshold production ก่อนใช้งานต่อ.
 
+ตรวจ capability ต่อมาแล้วพบ `run_approval: null` จาก Hermes API profile ปัจจุบัน จึงไม่สามารถสร้าง `waiting_for_approval` เพื่อทดสอบ live ได้อย่างปลอดภัย ไม่ใช่ข้อขัดข้องของ bridge. การทดสอบนี้จะกลับมาทำเมื่อ Hermes profile ประกาศ run approval.
+
 วันที่ 14 กันยายน 2026 ทดสอบผ่าน Secure MCP Tunnel ไปยัง Hermes API `127.0.0.1:8642` ที่มี Bearer authentication โดยไม่เปิดพอร์ตสู่ public network
 
 ผ่านครบ 10 tools: health, model info/catalog, recent tasks, usage summary/export, submit, status, result และ cancel
