@@ -1,4 +1,10 @@
-# Release status — v0.9.0
+# Release status — v1.0.0
+
+## v1.0.0 — ready for signed tag
+
+- security review และ regression 48 tests ผ่าน; แก้ schema validation ให้สอดคล้อง audit/runtime policy
+- RC2 WSL2 full acceptance ผ่านสำหรับ Hermes/Codex, idempotency, write approval, cancellation และ audit/recovery semantics
+- final archive และ SHA-256 manifest ถูกสร้างแล้ว; ก่อนประกาศ release ต้องลงนามและ push tag `v1.0.0` ตาม `RELEASE-RUNBOOK-TH.md`
 
 ## v0.9.0 — build verification
 
