@@ -41,6 +41,7 @@ Run `bash tunnel.sh init tunnel_YOUR_ID --force` when changing the bridge direct
 - [Roadmap](docs/ROADMAP.md)
 - [Local Hands architecture and security](docs/LOCAL-HANDS-ARCHITECTURE-TH.md)
 - [Local Hands implementation and acceptance plan](docs/LOCAL-HANDS-IMPLEMENTATION-PLAN-TH.md)
+- [ADR-0001: Local Hands foundation contracts](docs/adr/0001-local-hands-foundation.md)
 
 ## License
 
