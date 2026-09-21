@@ -14,6 +14,10 @@
 
 ไฟล์หลักคือ `state/audit.jsonl`; ไฟล์เก่าจะเป็น `audit.jsonl.1`, `.2` ตาม retention ที่กำหนดใน `bridge-config.json`
 
+## Heartbeat และ Hermes stale labels
+
+ใช้ `bridge_status` เพื่อตรวจว่า bridge/state/audit พร้อมใช้งานโดยไม่ยิง request ไป Hermes หรือ Codex. ใน `hermes_task_status`, `age_seconds` คืออายุของ local registration; เมื่อเกิน `hermes.stale_run_seconds` จะมี `stale: true`. งานที่ `waiting_for_approval` และเกิน `hermes.approval_stale_seconds` จะมี `approval_stale: true`. ทั้งสองค่าเป็น local warning เท่านั้น—bridge จะไม่ stop หรือ deny Hermes run เอง.
+
 ```json
 "audit": {
   "enabled": true,
