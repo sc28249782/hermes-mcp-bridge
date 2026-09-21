@@ -1,6 +1,6 @@
-# Codex/WSL2 แบบควบคุมสิทธิ์ — v1.0.0
+# Codex/WSL2 แบบควบคุมสิทธิ์ — v1.0.1
 
-v1.0.0 มี Hermes tools 10 ตัว, Codex tools 6 ตัว และ operations tools แบบ read-only 3 ตัว (`bridge_diagnostics`, `bridge_audit_recent`, `bridge_status`) รวม 19 tools โดย `codex_submit_task` เลือก model และ reasoning effort ได้ภายใต้นโยบายที่กำหนด
+v1.0.1 มี Hermes tools 10 ตัว, Codex tools 6 ตัว และ operations tools แบบ read-only 3 ตัว (`bridge_diagnostics`, `bridge_audit_recent`, `bridge_status`) รวม 19 tools โดย `codex_submit_task` เลือก model และ reasoning effort ได้ภายใต้นโยบายที่กำหนด
 
 ## ขอบเขตความปลอดภัย
 
