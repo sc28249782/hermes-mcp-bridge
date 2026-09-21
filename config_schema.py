@@ -64,7 +64,7 @@ def load_bridge_config(root: Path) -> tuple[dict, list[str]]:
     if "binary" in codex and (not isinstance(codex["binary"], str) or not codex["binary"]):
         raise ConfigError("codex.binary must be a non-empty string")
     for key, low, high in (("max_prompt_chars", 1, 32000), ("max_runtime_seconds", 1, 86400),
-                           ("watchdog_interval_seconds", 5, 300), ("approval_ttl_seconds", 1, 86400)):
+                           ("watchdog_interval_seconds", 5, 300), ("approval_ttl_seconds", 60, 86400)):
         if key in codex:
             _integer(codex[key], f"codex.{key}", low, high)
     for key in ("allowed_workspaces", "workspaces", "allowed_models", "allowed_reasoning_efforts"):
