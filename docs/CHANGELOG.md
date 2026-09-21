@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.0
+
+- Established the production baseline: compatibility matrix, repeatable WSL2 acceptance, release-integrity runbook, SHA-256 verification and signed-tag procedure.
+- RC2 live acceptance passed for local-only heartbeat, Hermes idempotent read-only execution, configured Codex read-only execution, local workspace-write approval, and cancellation.
+- Hardened nested bridge configuration validation so audit limits and unknown workspace keys match runtime policy.
+
 ## v0.9.1
 
 - Fixed Hermes approval capability detection: the canonical Hermes Runs flag is `run_approval_response`; the legacy `run_approval` alias remains accepted for compatibility.
