@@ -1,5 +1,16 @@
 # ผล Live Acceptance — v0.3.2
 
+## v1.0.0-rc.2 — full acceptance (21 กันยายน 2026)
+
+- `bridge_status` ยืนยัน local-only heartbeat, schema ไม่มี warning, discovery มี 19 tools และ Hermes/Codex health ผ่าน
+- Hermes read-only ตอบ `V100RC2_HERMES_OK`; ส่ง request ID เดิมซ้ำแล้ว replay locally โดยไม่สร้าง run ซ้ำ
+- Codex read-only ที่ `gpt-5.6-sol` + `low` จบ exit code `0` และตอบ `V100RC2_CODEX_OK`
+- Codex workspace-write ผ่าน local terminal approval: สร้าง/ตรวจ/ลบ `.hermes-mcp-bridge-v100rc2-acceptance.txt` แล้วตรวจว่าไม่มีไฟล์เหลือ
+- write job ถูกรายงาน `unknown_exit` เนื่องจาก bridge restart/recovery ระหว่าง process; JSONL output และ audit ยืนยัน create/verify/delete/verify ครบ จึงไม่เดา exit code เป็น `completed`
+- Codex read-only cancellation ระหว่าง `sleep 120` จบเป็น `cancelled`
+
+watchdog timeout และ `unknown_exit` recovery ได้ผ่าน WSL2 live acceptance แล้วใน v0.8.0 บน policy/runtime เดียวกัน. Hermes upstream approval-event integration เป็นงาน v1.1.0 แยกต่างหาก.
+
 ## v0.9.0 — partial live acceptance (21 กันยายน 2026)
 
 - `bridge_status` ผ่าน Secure MCP Tunnel โดยรายงาน `upstream_checked: false` สำหรับทั้ง Hermes และ Codex; schema migration ไม่มี `config_warnings` และ discovery พบ 19 tools.
