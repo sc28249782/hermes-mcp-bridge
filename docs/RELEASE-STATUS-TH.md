@@ -7,7 +7,7 @@
 - `bridge_status` ไม่เรียก Hermes HTTP หรือ Codex CLI upstream
 - Config schema version 1 ปฏิเสธ known type ที่ผิดและรายงาน unknown key เป็น warning
 - heartbeat และ `stale` label ผ่าน live acceptance บน WSL2; `approval_stale` มี regression coverage แต่ยังไม่ได้สร้าง upstream approval workflow จริง
-- Hermes profile ปัจจุบันรายงาน `run_approval: null`; จึงบันทึก live `approval_stale` เป็น capability-blocked และไม่ส่ง task เพื่อพยายาม bypass approval
+- v0.9.1 แก้การอ่าน capability เป็น `run_approval_response`; ต้องทดสอบ upstream approval live ใหม่ก่อนสรุป `approval_stale`
 
 ## ผ่านแล้วใน build environment
 
