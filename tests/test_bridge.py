@@ -7,6 +7,7 @@ import httpx
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from core import Bridge, BridgeError
+from config_schema import ConfigError, load_bridge_config
 
 
 class FakeHermes:
@@ -120,6 +121,31 @@ class TestBridge(unittest.TestCase):
         self.assertEqual(self.fake.approvals,[])
         self.b.resolve_local(rid,'once',lambda a,c:True)
         self.assertEqual(self.fake.approvals,[{'choice':'once','request_id':'approval-123','resolve_all':False}])
+
+    def test_deny_approval_is_exact_once(self):
+        rid=self.b.submit('hello','req-deny')['run_id']
+        self.fake.pending='approval-deny'
+        self.b.resolve_local(rid,'deny',lambda a,c:True)
+        self.assertEqual(self.fake.approvals,[{'choice':'deny','request_id':'approval-deny','resolve_all':False}])
+
+    def test_stale_and_approval_stale_are_local_labels(self):
+        self.b.client.close()
+        self.b=Bridge('http://127.0.0.1:8642','test-secret-123',Path(self.tmp.name),httpx.MockTransport(self.fake),
+                      self.model_config, operational_config={'stale_run_seconds':2,'approval_stale_seconds':1})
+        rid=self.b.submit('hello','req-stale')['run_id']
+        self.fake.pending='approval-stale'
+        with self.b.db() as d: d.execute('UPDATE runs SET created=0 WHERE run_id=?',(rid,))
+        status=self.b.status(rid)
+        self.assertTrue(status['stale'])
+        self.assertTrue(status['approval_stale'])
+        self.assertEqual(self.fake.approvals,[])
+
+    def test_local_status_does_not_call_upstream(self):
+        before=self.fake.posts
+        status=self.b.local_status()
+        self.assertTrue(status['ok'])
+        self.assertFalse(status['upstream_checked'])
+        self.assertEqual(self.fake.posts,before)
     def test_changed_approval_not_resolved(self):
         rid=self.b.submit('hello','req1')['run_id']
         self.fake.pending='approval-123'
@@ -199,6 +225,17 @@ class TestBridge(unittest.TestCase):
         self.assertEqual(exported['run_id'], rid)
         self.assertNotIn('output', exported)
         self.assertNotIn('prompt', exported)
+        for bad in (0,1001,'1'):
+            with self.assertRaises(BridgeError): self.b.usage_summary(bad)
+
+    def test_config_schema_rejects_bad_types_and_warns_legacy_unknown_keys(self):
+        root=Path(self.tmp.name)
+        (root/'bridge-config.json').write_text(json.dumps({'api_url':'http://127.0.0.1:8642','hermes_env':'x','unexpected':1}))
+        _, warnings=load_bridge_config(root)
+        self.assertTrue(any('legacy' in value for value in warnings))
+        self.assertTrue(any('unexpected' in value for value in warnings))
+        (root/'bridge-config.json').write_text(json.dumps({'schema_version':1,'api_url':'x','hermes_env':'x','hermes':{'stale_run_seconds':'bad'}}))
+        with self.assertRaises(ConfigError): load_bridge_config(root)
 
 
 if __name__=='__main__': unittest.main()
