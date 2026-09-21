@@ -1,4 +1,12 @@
-# ผล Live Acceptance — v0.3.2
+# ผล Live Acceptance — v1.0.0
+
+## v1.0.0 — release deployment health check (21 กันยายน 2026)
+
+- เชื่อมผ่าน `Hermes Local Bridge` จาก deployment ที่ checkout signed tag `v1.0.0` ได้สำเร็จ
+- `bridge_status` ยืนยัน state mode `0700`, watchdog ทำงานทุก 15 วินาที, audit เปิดใช้งาน และไม่มี `config_warnings`
+- `hermes_health` ยืนยัน authentication ที่ `127.0.0.1:8642`, capabilities `run_submission`, `run_status`, `run_stop`, `run_approval_response` และ durable idempotency 86,400 วินาที
+- `codex_health` ยืนยัน Codex CLI `0.155.1`, workspace policy `/mnt/e/Projects/OpenHDK-validation`, model allowlist `gpt-5.6-sol`/`gpt-5.6-terra`/`gpt-5.6-luna` และ reasoning `low`/`medium`/`high`
+- tag `v1.0.0` ถูก GitHub ยืนยัน signature แล้ว; SHA-256 ของ archive คือ `04421690f877807975810dfeffb29ec6412d8313103409cfd5713300e32de793`
 
 ## v1.0.0-rc.2 — full acceptance (21 กันยายน 2026)
 
@@ -19,7 +27,7 @@ watchdog timeout และ `unknown_exit` recovery ได้ผ่าน WSL2 li
 
 `approval_stale` มี regression coverage แต่ยังไม่ได้สร้าง Hermes approval workflow จริงในการ acceptance เพื่อหลีกเลี่ยงผลกระทบจาก upstream approval; คืน threshold production ก่อนใช้งานต่อ.
 
-ข้อสรุปเดิมจาก `run_approval: null` ถูกแก้ใน v0.9.1: Hermes ใช้ capability canonical ชื่อ `run_approval_response`. ต้องติดตั้ง v0.9.1 แล้วทำ upstream approval live acceptance ใหม่.
+ข้อสรุปเดิมจาก `run_approval: null` ถูกแก้ใน v0.9.1: Hermes ใช้ capability canonical ชื่อ `run_approval_response`. v1.0.0 ตรวจพบ capability แล้ว แต่ upstream approval-event SSE acceptance เป็นงาน v1.1.0.
 
 วันที่ 14 กันยายน 2026 ทดสอบผ่าน Secure MCP Tunnel ไปยัง Hermes API `127.0.0.1:8642` ที่มี Bearer authentication โดยไม่เปิดพอร์ตสู่ public network
 
