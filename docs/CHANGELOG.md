@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.9.0
+
+- Added `bridge_status`, a local-only heartbeat that reports bridge state without calling Hermes or Codex upstream APIs.
+- Hermes status now includes `age_seconds`, local `stale` and `approval_stale` labels; these never stop or deny upstream work.
+- Added schema version 1 validation for `bridge-config.json`; unknown keys appear as doctor/diagnostic warnings and invalid known values fail early.
+- Installer migrates legacy config by adding `schema_version` and default Hermes stale thresholds.
+
 ## v0.8.0 — 2026-09-20
 
 - Hardened Codex lifecycle handling: failed starts become `failed`, unobserved exits after restart become `unknown_exit`, and concurrency reservation is atomic.
