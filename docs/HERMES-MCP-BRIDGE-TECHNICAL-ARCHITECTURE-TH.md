@@ -1,6 +1,6 @@
-# คู่มือเชิงเทคนิค: สถาปัตยกรรมและกลไก Hermes MCP Bridge v1.0.0
+# คู่มือเชิงเทคนิค: สถาปัตยกรรมและกลไก Hermes MCP Bridge v1.0.1
 
-เอกสารนี้อธิบายฐาน Hermes และ MCP adapter ของ `hermes-mcp-bridge-v1.0.0.zip`; ส่วน Codex/WSL2, model policy, audit และ approval gate ดู `CODEX-WSL2-TH.md` และ `OPERATIONS-TH.md`
+เอกสารนี้อธิบายฐาน Hermes และ MCP adapter ของ `hermes-mcp-bridge-v1.0.1.zip`; ส่วน Codex/WSL2, model policy, audit และ approval gate ดู `CODEX-WSL2-TH.md` และ `OPERATIONS-TH.md`
 
 รุ่นอ้างอิง: Hermes Agent v0.21.1, commit `8d79c2ff`  
 Runtime ที่ทดสอบ: Python 3.12, `mcp==1.30.0`, `httpx==0.28.1`, `python-dotenv==1.2.3`
@@ -155,7 +155,7 @@ GET /v1/capabilities               (Bearer Hermes key)   → 2xx
 ตรวจ features.run_stop
 ```
 
-หาก capability ที่จำเป็นขาด จะหยุดทันทีและบอกชื่อ feature ที่ขาด `run_approval_response` เป็น capability เสริมสำหรับ Hermes; v1.0.0 ยังไม่มี SSE approval-event integration และไม่มี MCP approval tool
+หาก capability ที่จำเป็นขาด จะหยุดทันทีและบอกชื่อ feature ที่ขาด `run_approval_response` เป็น capability เสริมสำหรับ Hermes; v1.0.1 ยังไม่มี SSE approval-event integration และไม่มี MCP approval tool
 
 POC หลัง v1.0.0 ยืนยันว่า endpoint SSE ใช้ได้ แต่ API profile ที่ทดสอบไม่ส่ง approval event แม้ตั้ง `approvals.mode: manual`; upstream จัด API server เป็น unattended approval context. ดังนั้น bridge ห้ามตีความ `run_approval_response=true` ว่ามี interactive approval session และ v1.1.0 ถูก defer จนกว่าจะมี upstream contract ที่พิสูจน์ได้.
 
