@@ -1,4 +1,4 @@
-# Compatibility matrix — v1.0.0 baseline
+# Compatibility matrix — v1.0.1 baseline
 
 | Component | Baseline ที่ยืนยัน | วิธีตรวจ | หมายเหตุ |
 | --- | --- | --- | --- |
