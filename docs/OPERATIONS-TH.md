@@ -42,7 +42,7 @@
 
 งาน `workspace-write` จะมีเวลาอนุมัติตาม `codex.approval_ttl_seconds` (ค่าเริ่มต้น 3,600 วินาที) เมื่อหมดอายุสถานะเปลี่ยนเป็น `expired`; ให้สร้าง job ใหม่และตรวจ prompt อีกครั้ง ห้ามพยายามเปลี่ยน state database ด้วยตนเอง
 
-Codex server มี watchdog ตาม `codex.watchdog_interval_seconds` (ค่าเริ่มต้น 15 วินาที) จึงบังคับ runtime limit ได้แม้ไม่มีการ poll. ระหว่าง cancellation หาก process ยังไม่จบ status จะยังเป็น `running` พร้อม `cancellation_pending: true` หรือ `timeout_enforcement_pending: true`; อย่าส่งงานใหม่จนกว่าจะได้ terminal status.
+Codex watchdog ตาม `codex.watchdog_interval_seconds` (ค่าเริ่มต้น 15 วินาที) ทำงานใน persistent MCP server process จึงบังคับ runtime limit ได้แม้ไม่มีการ poll ตราบใดที่ tunnel/bridge server ยังทำงานอยู่. การสั่ง `codex-approve` จาก CLI เป็นเพียง local approval helper; หาก server หยุดหลังเริ่ม job จะไม่มี background watchdog เหลืออยู่จนกว่าจะเปิด server ใหม่หรือมีการเรียก status. ระหว่าง cancellation หาก process ยังไม่จบ status จะยังเป็น `running` พร้อม `cancellation_pending: true` หรือ `timeout_enforcement_pending: true`; อย่าส่งงานใหม่จนกว่าจะได้ terminal status.
 
 ใช้ `bridge_audit_recent` หรือ `./bridge.sh audit-recent` เพื่ออ่าน event ที่ redacted ล่าสุด การตั้ง deny prompt patterns เป็นเพียง guard ก่อนเริ่มงาน; workspace allowlist, Codex sandbox และ local approval ยังคงเป็นชั้นควบคุมหลัก
 
