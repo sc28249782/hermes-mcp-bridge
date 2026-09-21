@@ -3,7 +3,7 @@
 เอกสารนี้อธิบาย bridge ที่เชื่อม ChatGPT ผ่าน Secure MCP Tunnel ไปยัง Hermes Agent ที่ทำงานอยู่ใน WSL2 โดยใช้ Hermes Runs API แบบ HTTP
 
 รุ่นอ้างอิง: Hermes Agent v0.21.1, commit `8d79c2ff`  
-Bridge: `hermes-mcp-bridge-v1.0.0` (signed and GitHub-verified)  
+Bridge: `hermes-mcp-bridge-v1.0.1` (signed and GitHub-verified)  
 ปรับปรุงล่าสุด: 21 กันยายน 2026
 
 ## 1. ภาพรวมและขอบเขต
@@ -35,7 +35,7 @@ Bridge นี้ทำหน้าที่เป็น adapter และ state 
 - ยอมให้หยุดงานแบบ cooperative stop
 - ไม่สร้าง filesystem sandbox เพิ่ม และไม่เปลี่ยน permission/tool policy ของ Hermes
 
-เครื่องมือ MCP รวม 18 รายการ: Hermes 10 รายการด้านล่าง, Codex 6 รายการ และ read-only operations 2 รายการ (`bridge_diagnostics`, `bridge_audit_recent`). รายละเอียด policy และ approval ของ Codex อยู่ใน `CODEX-WSL2-TH.md`.
+เครื่องมือ MCP รวม 19 รายการ: Hermes 10 รายการ, Codex 6 รายการ และ read-only operations 3 รายการ (`bridge_diagnostics`, `bridge_audit_recent`, `bridge_status`). รายละเอียด policy และ approval ของ Codex อยู่ใน `CODEX-WSL2-TH.md`.
 
 | Tool | หน้าที่ |
 |---|---|
@@ -95,8 +95,8 @@ curl --max-time 10 -sS -o /dev/null -w 'HTTP %{http_code}\n' \
 ```bash
 cd /home/somchaip
 sha256sum -c SHA256SUMS
-unzip hermes-mcp-bridge-v1.0.0.zip
-cd /home/somchaip/hermes-mcp-bridge-v1.0.0
+unzip hermes-mcp-bridge-v1.0.1.zip
+cd /home/somchaip/hermes-mcp-bridge-v1.0.1
 bash install.sh
 ```
 
@@ -187,7 +187,7 @@ tunnel-client help quickstart
 ก่อนเริ่มครั้งแรก ให้บันทึก OpenAI Platform runtime key (คนละตัวกับ Hermes `API_SERVER_KEY`) โดยไม่แสดงค่าในหน้าจอ:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v1.0.0
+cd /home/somchaip/hermes-mcp-bridge-v1.0.1
 bash tunnel.sh key-set
 bash tunnel.sh key-status
 ```
@@ -197,14 +197,14 @@ key ถูกเก็บใน `~/.config/hermes-mcp-bridge/openai-runtime-api-
 เริ่มครั้งแรก:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v1.0.0
+cd /home/somchaip/hermes-mcp-bridge-v1.0.1
 bash tunnel.sh init tunnel_IDจริง --force
 ```
 
 เริ่มครั้งถัดไป:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v1.0.0
+cd /home/somchaip/hermes-mcp-bridge-v1.0.1
 bash tunnel.sh run
 ```
 
@@ -229,7 +229,7 @@ bash tunnel.sh service-status
 1. Name: `Hermes Local Bridge`
 2. Description: `ส่งงานให้ Hermes บน WSL2 ตรวจสถานะ อ่านผล และขอหยุดงาน`
 3. เลือก Tunnel ที่สร้าง หรือระบุ `tunnel_id`
-4. สร้าง connection และตรวจว่าพบ MCP tools ทั้ง 18 รายการ (Hermes 10 + Codex 6 + operations 2)
+4. สร้าง connection และตรวจว่าพบ MCP tools ทั้ง 19 รายการ (Hermes 10 + Codex 6 + operations 3)
 
 ถ้า plugin ถูกเพิ่มแล้วแต่เครื่องมือไม่ปรากฏในแชทเดิม ให้เปิดแชทใหม่และเลือก plugin อีกครั้ง
 
@@ -323,7 +323,7 @@ bash tunnel.sh service-status
 - Hermes API ตอบ `200` เมื่อใช้ key และปฏิเสธ request ที่ไม่มี key
 - `./bridge.sh doctor` ได้ `ok: true`
 - `tunnel-client doctor` ผ่านและ `tunnel.sh run` คง connection ได้
-- ChatGPT ค้นพบเครื่องมือ MCP ครบ 18 รายการ รวม Hermes 10, Codex 6, `bridge_diagnostics` และ `bridge_audit_recent`
+- ChatGPT ค้นพบเครื่องมือ MCP ครบ 19 รายการ รวม Hermes 10, Codex 6, `bridge_diagnostics`, `bridge_audit_recent` และ `bridge_status`
 - health, response-only task และ read-only task ผ่าน
 - `codex_health` แสดง workspace policy ที่ตั้งใจ; หากเปิด model override ให้ทดสอบ model ID/effort ที่อยู่ใน allowlist ก่อนใช้งานจริง
 - retry ด้วย request เดิมไม่สร้าง run ซ้ำ
