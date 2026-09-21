@@ -7,6 +7,7 @@ The bridge provides a controlled local execution boundary rather than a general 
 ## Safety model
 
 - Hermes uses its authenticated local Runs API and its own approval policy.
+- An advertised Hermes approval-response endpoint does not by itself prove that the API profile can create an interactive approval session; v1.1.0 SSE approval integration is deferred pending an upstream contract.
 - Codex can use only explicitly allowlisted workspaces.
 - Codex permits only `read-only` and `workspace-write`; `danger-full-access` is rejected.
 - Every write job requires interactive approval in the local WSL2 terminal.
