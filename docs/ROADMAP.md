@@ -32,11 +32,11 @@
 
 ## v0.9.0 — Operational state and configuration hardening
 
-- [ ] Report Hermes run age and configurable stale status without claiming that an upstream run was stopped
-- [ ] Report waiting Hermes approvals past a configurable local threshold as `approval_stale`; do not auto-deny upstream work
-- [ ] Add versioned `bridge-config.json` schema validation and deterministic migration guidance; surface unknown keys as doctor warnings
-- [ ] Add a fast local-only `bridge_status` heartbeat tool that does not call Hermes or Codex upstream APIs
-- [ ] Add coverage for Hermes deny resolution and usage-limit validation
+- [x] Report Hermes run age and configurable stale status without claiming that an upstream run was stopped
+- [x] Report waiting Hermes approvals past a configurable local threshold as `approval_stale`; do not auto-deny upstream work
+- [x] Add versioned `bridge-config.json` schema validation and deterministic migration guidance; surface unknown keys as doctor warnings
+- [x] Add a fast local-only `bridge_status` heartbeat tool that does not call Hermes or Codex upstream APIs
+- [x] Add coverage for Hermes deny resolution and usage-limit validation
 
 ## v1.0.0 — Production baseline and release integrity
 
