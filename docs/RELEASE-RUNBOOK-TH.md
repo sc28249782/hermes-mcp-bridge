@@ -2,10 +2,12 @@
 
 ## ผู้สร้าง release
 
-1. รัน test และ acceptance checklist ตาม `V1-ACCEPTANCE-TH.md`.
-2. สร้าง archive โดยมี root directory เดียวชื่อ `hermes-mcp-bridge-vX.Y.Z/`; ต้อง exclude `.git/`, `.venv/`, `__pycache__/`, `state/`, `.env` และ `bridge-config.json*`.
-3. สร้าง `SHA256SUMS` ด้วย `sha256sum hermes-mcp-bridge-vX.Y.Z.zip > SHA256SUMS` แล้วตรวจไฟล์ด้วย `sha256sum -c SHA256SUMS`.
-4. commit source และ `SHA256SUMS`, แล้วลง signed tag ด้วย GPG key ของ maintainer:
+1. **Documentation gate (ต้องผ่านก่อน tag/release):** ทบทวนเอกสารทั้งหมดที่อธิบายรุ่นปัจจุบัน—อย่างน้อย README, installation/developer guide, architecture, operations, Codex policy, upgrade, testing, acceptance, compatibility matrix, changelog, release status/runbook, roadmap และ project history—ให้ตรงกับ source, tool discovery, live acceptance, version, package name และ checksum ที่จะเผยแพร่. คงข้อความของ release เก่าไว้เฉพาะส่วนที่ระบุชัดว่าเป็นประวัติหรือเส้นทาง upgrade.
+2. Commit การอัปเดตเอกสารและตรวจ `git diff --check`; **ห้าม** สร้าง archive, signed tag หรือ GitHub Release หาก documentation gate ยังไม่ผ่าน.
+3. รัน test และ acceptance checklist ตาม `V1-ACCEPTANCE-TH.md`.
+4. สร้าง archive โดยมี root directory เดียวชื่อ `hermes-mcp-bridge-vX.Y.Z/`; ต้อง exclude `.git/`, `.venv/`, `__pycache__/`, `state/`, `.env` และ `bridge-config.json*`.
+5. สร้าง `SHA256SUMS` ด้วย `sha256sum hermes-mcp-bridge-vX.Y.Z.zip > SHA256SUMS` แล้วตรวจไฟล์ด้วย `sha256sum -c SHA256SUMS`.
+6. commit source และ `SHA256SUMS`, แล้วลง signed tag ด้วย GPG key ของ maintainer:
 
 ```bash
 git tag -s vX.Y.Z -m "hermes-mcp-bridge vX.Y.Z"
