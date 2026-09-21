@@ -1,5 +1,9 @@
 # ผล Live Acceptance — v0.3.2
 
+## v0.9.0 — รอ live acceptance
+
+ต้องตรวจบน WSL2 ว่า `bridge_status` ทำงานโดยไม่ยิง Hermes/Codex upstream และ `hermes_task_status` รายงาน stale labels ตาม threshold ใน config โดยไม่ stop หรือ deny upstream run.
+
 วันที่ 14 กันยายน 2026 ทดสอบผ่าน Secure MCP Tunnel ไปยัง Hermes API `127.0.0.1:8642` ที่มี Bearer authentication โดยไม่เปิดพอร์ตสู่ public network
 
 ผ่านครบ 10 tools: health, model info/catalog, recent tasks, usage summary/export, submit, status, result และ cancel
