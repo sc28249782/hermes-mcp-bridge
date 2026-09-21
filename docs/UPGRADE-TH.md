@@ -1,4 +1,10 @@
-# อัปเกรดเป็น v1.0.0
+# อัปเกรดเป็น v1.0.1
+
+## จาก v1.0.0 เป็น v1.0.1
+
+1. แตก package v1.0.1 ไปยังโฟลเดอร์ใหม่ แล้วคัดลอกเฉพาะ `bridge-config.json` และ `state/` ที่ตรวจแล้วจาก v1.0.0.
+2. ถ้าตั้ง `codex.approval_ttl_seconds` ไว้น้อยกว่า 60 ให้ปรับเป็นอย่างน้อย 60 ก่อนรัน `bash install.sh`; v1.0.1 ปฏิเสธค่าที่ขัดกับ runtime ตั้งแต่ schema validation.
+3. ตรวจ `./bridge.sh codex-doctor`, restart tunnel และตรวจ `bridge_status`. คง persistent tunnel/bridge server ไว้ระหว่าง Codex jobs ที่ต้องการ watchdog timeout enforcement.
 
 ## จาก v0.9.1 หรือ v1.0.0-rc.2 เป็น v1.0.0
 
