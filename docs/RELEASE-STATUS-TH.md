@@ -6,7 +6,7 @@
 - MCP stdio discovery ยืนยัน 19 tools รวม `bridge_status`
 - `bridge_status` ไม่เรียก Hermes HTTP หรือ Codex CLI upstream
 - Config schema version 1 ปฏิเสธ known type ที่ผิดและรายงาน unknown key เป็น warning
-- ยังต้องทำ live acceptance บน WSL2 สำหรับ heartbeat และ stale-label reporting ก่อนประกาศ production acceptance
+- heartbeat และ `stale` label ผ่าน live acceptance บน WSL2; `approval_stale` มี regression coverage แต่ยังไม่ได้สร้าง upstream approval workflow จริง
 
 ## ผ่านแล้วใน build environment
 
