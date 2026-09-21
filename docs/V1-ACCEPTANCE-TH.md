@@ -7,4 +7,4 @@
 5. เรียก `bridge_status`: ทั้ง Hermes/Codex ต้องมี `upstream_checked: false`; จากนั้นเรียก `bridge_diagnostics` เพื่อตรวจ upstream health แยกต่างหาก.
 6. ทดสอบ Hermes read-only, result pagination และ durable idempotency โดยไม่ส่ง secret ใน prompt.
 7. ทดสอบ Codex read-only และ workspace-write approval (ต้อง approve จาก terminal) รวม cancellation/watchdog ตาม policy.
-8. หาก Hermes ประกาศ `run_approval: true`, ทดสอบ local approval/deny และ `approval_stale`; หากไม่ประกาศ ให้บันทึก capability-blocked โดยไม่ bypass.
+8. บันทึก capability `run_approval_response` หาก Hermes ประกาศไว้; v1.0.0 ยังไม่ subscribe SSE approval event และไม่มี bridge approval tool. ห้าม bypass หรืออ้างว่า upstream approval ผ่าน acceptance; งานนี้เป็น v1.1.0.
