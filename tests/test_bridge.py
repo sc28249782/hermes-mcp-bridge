@@ -238,6 +238,13 @@ class TestBridge(unittest.TestCase):
         self.assertTrue(any('unexpected' in value for value in warnings))
         (root/'bridge-config.json').write_text(json.dumps({'schema_version':1,'api_url':'x','hermes_env':'x','hermes':{'stale_run_seconds':'bad'}}))
         with self.assertRaises(ConfigError): load_bridge_config(root)
+        (root/'bridge-config.json').write_text(json.dumps({'schema_version':1,'api_url':'x','hermes_env':'x',
+            'audit':{'max_bytes':1},'codex':{'workspaces':[{'path':'/tmp','typo':True}]}}))
+        with self.assertRaises(ConfigError): load_bridge_config(root)
+        (root/'bridge-config.json').write_text(json.dumps({'schema_version':1,'api_url':'x','hermes_env':'x',
+            'codex':{'workspaces':[{'path':'/tmp','typo':True}]}}))
+        _, warnings=load_bridge_config(root)
+        self.assertTrue(any('workspaces[0].typo' in value for value in warnings))
 
 
 if __name__=='__main__': unittest.main()
