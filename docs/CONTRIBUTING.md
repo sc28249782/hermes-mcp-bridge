@@ -22,4 +22,4 @@ python3 -m venv .venv
 2. ตรวจ `bash -n install.sh bridge.sh tunnel.sh`
 3. ตรวจว่า archive ไม่มี secrets/state/logs
 4. ทำ live acceptance ตาม `RELEASE-STATUS-TH.md`
-5. อัปเดต CHANGELOG และสร้าง signed/annotated tag ตามนโยบายผู้ดูแล
+5. อัปเดต CHANGELOG, README, UPGRADE และเอกสาร release ที่เกี่ยวข้อง; production release ต้องใช้ signed tag ที่ maintainer ตรวจสอบได้
