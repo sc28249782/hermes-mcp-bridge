@@ -46,9 +46,19 @@
 - [x] Incident/runbook and reproducible-release documentation
 - [ ] Publish SHA-256SUMS and a signed release tag; document verification of the release archive before extraction
 
+## v1.1.0 — Hermes approval-event integration
+
+- [ ] Run a protocol POC against the installed Hermes API-server: confirm the required run-event SSE subscription, approval event shape, reconnect behavior, and exact response contract
+- [ ] Subscribe only to approval/status events for bridge-owned runs; do not add general output streaming through MCP
+- [ ] Persist redacted approval state and exact request ID locally; expose safe waiting/delivery status through `hermes_task_status`
+- [ ] Keep approval and denial in the local interactive CLI only; re-read the exact request ID immediately before `POST /v1/runs/{run_id}/approval` to prevent TOCTOU
+- [ ] Fail closed on missing capability, event-delivery failure, stale event, or reconnect uncertainty; never auto-approve or expose a ChatGPT MCP approval tool
+- [ ] Add fake-server SSE/approval contract tests and WSL2 live approval, deny, reconnect, and expiry acceptance
+
 ## Non-goals
 
 - Public inbound service, unrestricted remote shell, or unrestricted filesystem/network access
 - Transmitting Hermes/OpenAI credentials through MCP
 - Allowing an agent to approve its own Codex write job
 - Multi-user credential management, streaming transport, or provider-cost estimates
+- Streaming Hermes output over MCP; v1.1.0 SSE is approval/status delivery only
