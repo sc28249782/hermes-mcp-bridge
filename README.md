@@ -2,7 +2,7 @@
 
 Securely connect ChatGPT to a local Hermes Agent and Codex CLI running in WSL2, through an OpenAI Secure MCP Tunnel.
 
-The bridge provides a controlled local execution boundary rather than a general remote shell. v0.9.0 exposes 19 MCP tools: 10 Hermes tools, 6 Codex tools, and three read-only operations tools.
+The bridge provides a controlled local execution boundary rather than a general remote shell. v1.0.0 is a signed, GitHub-verified production baseline with 19 MCP tools: 10 Hermes tools, 6 Codex tools, and three read-only operations tools.
 
 ## Safety model
 
@@ -35,6 +35,7 @@ Run `bash tunnel.sh init tunnel_YOUR_ID --force` when changing the bridge direct
 - [Upgrade guide](docs/UPGRADE-TH.md)
 - [Technical architecture](docs/HERMES-MCP-BRIDGE-TECHNICAL-ARCHITECTURE-TH.md)
 - [Testing](docs/TESTING.md), [release status](docs/RELEASE-STATUS-TH.md), and [changelog](docs/CHANGELOG.md)
+- [v1.0.0 acceptance checklist](docs/V1-ACCEPTANCE-TH.md), [compatibility matrix](docs/COMPATIBILITY-MATRIX-TH.md), and [release runbook](docs/RELEASE-RUNBOOK-TH.md)
 - [Security](docs/SECURITY.md) and [contributing](docs/CONTRIBUTING.md)
 - [Roadmap](docs/ROADMAP.md)
 
