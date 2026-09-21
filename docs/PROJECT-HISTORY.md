@@ -15,5 +15,6 @@ For the project purpose and architectural choices, see [Project origin](PROJECT-
 | v0.8.0 | Process-lifecycle hardening | Added watchdog-enforced runtime limits, atomic concurrency reservation, safer cancellation, and explicit unknown recovered exits. |
 | v0.9.0–v0.9.1 | Operational state and Hermes capability hardening | Added local heartbeat, stale labels, versioned configuration validation, and canonical `run_approval_response` capability detection. |
 | v1.0.0 | Production baseline | Completed compatibility/release documentation and full WSL2 acceptance; published archive checksum and signed, GitHub-verified release tag. |
+| v1.0.1 | Maintenance validation | Aligned approval-TTL schema validation with runtime policy; published a signed, checksum-verified archive and completed WSL2 read-only acceptance. |
 
 This repository is the source of record for implementation, tests, issues, releases, and project documentation.
