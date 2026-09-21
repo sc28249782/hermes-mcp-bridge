@@ -42,7 +42,7 @@
 
 - [x] Compatibility matrix for Hermes, Codex CLI, Python, WSL2, and tunnel-client
 - [x] Repeatable end-to-end acceptance checklist for all tools, including configured Codex model/effort policy
-- [ ] Security review and verified upgrade/migration paths
+- [x] Security review and verified upgrade/migration paths
 - [x] Incident/runbook and reproducible-release documentation
 - [ ] Publish SHA-256SUMS and a signed release tag; document verification of the release archive before extraction
 
