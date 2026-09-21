@@ -46,14 +46,13 @@
 - [x] Incident/runbook and reproducible-release documentation
 - [x] Publish SHA-256SUMS and a signed, GitHub-verified release tag; document verification of the release archive before extraction
 
-## v1.1.0 — Hermes approval-event integration
+## v1.1.0 — Deferred: Hermes API approval-event integration
 
-- [ ] Run a protocol POC against the installed Hermes API-server: confirm the required run-event SSE subscription, approval event shape, reconnect behavior, and exact response contract
-- [ ] Subscribe only to approval/status events for bridge-owned runs; do not add general output streaming through MCP
-- [ ] Persist redacted approval state and exact request ID locally; expose safe waiting/delivery status through `hermes_task_status`
-- [ ] Keep approval and denial in the local interactive CLI only; re-read the exact request ID immediately before `POST /v1/runs/{run_id}/approval` to prevent TOCTOU
-- [ ] Fail closed on missing capability, event-delivery failure, stale event, or reconnect uncertainty; never auto-approve or expose a ChatGPT MCP approval tool
-- [ ] Add fake-server SSE/approval contract tests and WSL2 live approval, deny, reconnect, and expiry acceptance
+- [x] SSE transport POC against the installed API-server: `GET /v1/runs/{run_id}/events` returned authenticated `text/event-stream` frames for `message.delta`, `reasoning.available`, `tool.started`, `tool.completed`, and `run.completed`.
+- [x] Tested a terminal `true` run before and after setting `approvals.mode: manual`; neither run emitted an approval event or an exact approval request ID.
+- [x] Identified the upstream blocker: API-server is an unattended approval context; its policy is governed by `approvals.unattended_mode`, not the interactive `approvals.mode` flow. The advertised `run_approval_response` endpoint alone is therefore insufficient evidence of an interactive API approval session.
+- [ ] Do not implement SSE approval delivery, an approval MCP tool, or an automatic response while this contract is unavailable. Keep the existing local CLI/status behavior, which already fails closed when no exact pending approval exists.
+- [ ] Re-open only after Hermes upstream documents and demonstrates an interactive API approval session with an approval event, stable exact request ID, reconnect semantics, and response contract. Then repeat fake-server and WSL2 approval/deny/reconnect/expiry acceptance.
 
 ## Non-goals
 
@@ -61,4 +60,4 @@
 - Transmitting Hermes/OpenAI credentials through MCP
 - Allowing an agent to approve its own Codex write job
 - Multi-user credential management, streaming transport, or provider-cost estimates
-- Streaming Hermes output over MCP; v1.1.0 SSE is approval/status delivery only
+- Streaming Hermes output over MCP; the SSE POC confirmed that the upstream stream also carries output/reasoning, which the bridge must not relay
