@@ -1,6 +1,6 @@
-# Codex/WSL2 แบบควบคุมสิทธิ์ — v0.8.0
+# Codex/WSL2 แบบควบคุมสิทธิ์ — v1.0.0
 
-รุ่นนี้คง Hermes tools เดิม 10 ตัว เพิ่ม Codex tools 6 ตัว, `bridge_diagnostics` และ `bridge_audit_recent` รวม 18 tools โดย `codex_submit_task` เลือก model และ reasoning effort รายงานได้ภายใต้นโยบายที่กำหนด
+v1.0.0 มี Hermes tools 10 ตัว, Codex tools 6 ตัว และ operations tools แบบ read-only 3 ตัว (`bridge_diagnostics`, `bridge_audit_recent`, `bridge_status`) รวม 19 tools โดย `codex_submit_task` เลือก model และ reasoning effort ได้ภายใต้นโยบายที่กำหนด
 
 ## ขอบเขตความปลอดภัย
 
@@ -22,6 +22,7 @@
 ตรวจว่า Codex CLI ติดตั้งและ login ใน WSL2 แล้วด้วย `codex --version` จากนั้นเพิ่มใน `bridge-config.json` โดยรักษาค่า Hermes เดิมไว้:
 
 ```json
+"schema_version": 1,
 "codex": {
   "binary": "codex",
   "approval_ttl_seconds": 3600,
@@ -37,7 +38,7 @@
       "allowed_models": ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"],
       "allowed_reasoning_efforts": ["low", "medium", "high"]
     }
-  ],
+  ]
 },
 "audit": {
   "enabled": true,
