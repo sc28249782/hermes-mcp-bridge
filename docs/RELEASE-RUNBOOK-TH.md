@@ -15,6 +15,10 @@ git push origin main vX.Y.Z
 
 ห้ามแทน `-s` ด้วย unsigned tag ใน release ที่อ้างว่า production baseline. การลงนามเป็นสิทธิ์ของ maintainer เท่านั้น; bridge ไม่เก็บหรือใช้ private signing key.
 
+## บันทึก v1.0.0
+
+`v1.0.0` ถูกลงนามและ GitHub ยืนยัน signature แล้ว โดยชี้ commit `2b280b2d3a763f69afa417bc76bdca6b801553fc`. Archive `hermes-mcp-bridge-v1.0.0.zip` มี SHA-256 `04421690f877807975810dfeffb29ec6412d8313103409cfd5713300e32de793`.
+
 ## ผู้ติดตั้ง
 
 ```bash
