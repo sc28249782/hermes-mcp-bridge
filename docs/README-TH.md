@@ -1,4 +1,4 @@
-# Hermes MCP Bridge v1.0.0 — Hermes + Codex/WSL2 / ChatGPT
+# Hermes MCP Bridge v1.0.1 — Hermes + Codex/WSL2 / ChatGPT
 
 [![Tests](https://github.com/sc28249782/hermes-mcp-bridge/actions/workflows/tests.yml/badge.svg)](https://github.com/sc28249782/hermes-mcp-bridge/actions/workflows/tests.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](../LICENSE)
@@ -7,7 +7,7 @@ Repository: https://github.com/sc28249782/hermes-mcp-bridge
 จุดเริ่มต้นของโครงการ: [Project origin](PROJECT-ORIGIN.md)
 
 จัดทำสำหรับ Hermes Agent v0.21.1, commit `8d79c2ff` ที่ผู้ใช้ยืนยัน
-วันที่ปรับปรุง: 21 กันยายน 2026 — signed tag `v1.0.0` ได้รับการยืนยันโดย GitHub
+วันที่ปรับปรุง: 21 กันยายน 2026 — signed tag `v1.0.1` ได้รับการยืนยันโดย GitHub และ release archive ตรวจ SHA-256 ผ่าน
 
 ตัวกลางนี้ทำให้ ChatGPT ส่งงานให้ Hermes ที่รันอยู่บนเครื่องคุณ แล้วตรวจสถานะ อ่านผล และขอหยุดงานได้
 ใช้ Runs API เดียวกับที่ `hermes peer run/status/stop` เรียก แต่เรียก HTTP โดยตรง
@@ -21,7 +21,7 @@ Repository: https://github.com/sc28249782/hermes-mcp-bridge
 - ผู้ใช้ทดสอบ `/v1/models` แล้ว: ไม่มี key ได้ 401; key ถูกต้องได้ 200
 - มีเมนู Developer mode และ Connection → Tunnel
 - ยังต้องสร้าง tunnel ใน OpenAI Platform, ติดตั้ง tunnel-client และเชื่อม Plugin
-- ผ่าน regression tests 48 รายการ และ v1.0.0 full acceptance ผ่าน Secure MCP Tunnel สำหรับ Hermes, Codex, model policy, local write approval และ cancellation
+- ผ่าน regression tests 48 รายการ; v1.0.0 full acceptance ผ่าน Secure MCP Tunnel สำหรับ Hermes, Codex, model policy, local write approval และ cancellation และ v1.0.1 read-only live acceptance ผ่านบน WSL2
 
 อัปเกรดจาก bridge รุ่นก่อนใช้ [UPGRADE-TH.md](UPGRADE-TH.md) ก่อนเริ่ม tunnel รุ่นใหม่ โดยเฉพาะหากต้องการเก็บ session/state เดิม
 
@@ -30,7 +30,7 @@ Repository: https://github.com/sc28249782/hermes-mcp-bridge
 ดาวน์โหลด ZIP แล้วแตกในโฟลเดอร์ Linux ของผู้ใช้ `somchaip` เช่น:
 
 ```text
-/home/somchaip/hermes-mcp-bridge-v1.0.0/
+/home/somchaip/hermes-mcp-bridge-v1.0.1/
 ```
 
 ถ้าดาวน์โหลดผ่าน Windows สามารถเปิดโฟลเดอร์บ้าน WSL ใน File Explorer ด้วย `explorer.exe ~`
@@ -39,8 +39,8 @@ Repository: https://github.com/sc28249782/hermes-mcp-bridge
 ```bash
 cd /home/somchaip
 sha256sum -c SHA256SUMS
-unzip hermes-mcp-bridge-v1.0.0.zip
-cd /home/somchaip/hermes-mcp-bridge-v1.0.0
+unzip hermes-mcp-bridge-v1.0.1.zip
+cd /home/somchaip/hermes-mcp-bridge-v1.0.1
 bash install.sh
 ```
 
@@ -60,7 +60,7 @@ bash install.sh
 หาก `.venv` มี Python แต่ยังไม่มี pip ให้ซ่อม environment เดิม:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v1.0.0
+cd /home/somchaip/hermes-mcp-bridge-v1.0.1
 .venv/bin/python -m ensurepip --upgrade
 bash install.sh
 ```
@@ -155,7 +155,7 @@ tunnel-client help quickstart
 คง Hermes gateway ให้รันอยู่ แล้วเปิด terminal อีกหน้าหนึ่ง:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v1.0.0
+cd /home/somchaip/hermes-mcp-bridge-v1.0.1
 bash tunnel.sh init tunnel_แทนด้วยIDจริง [--force]
 ```
 
@@ -176,7 +176,7 @@ Tunnel จะเรียก `bridge.sh` ผ่าน stdio เอง ไม่�
 การเริ่มใหม่ในครั้งต่อไปใช้:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v1.0.0
+cd /home/somchaip/hermes-mcp-bridge-v1.0.1
 bash tunnel.sh run
 ```
 
@@ -322,7 +322,7 @@ helper ตรวจ request_id ซ้ำหลังตัดสินใจเ�
 .venv/bin/python -m unittest discover -s tests -v
 ```
 
-v1.0.0 ผ่าน regression 48 tests โดยใช้ `-W error::ResourceWarning`; ครอบคลุม Hermes lifecycle/idempotency, Codex policy/process/watchdog/audit และ MCP stdio discovery 19 tools. ไม่มี test ใดใช้ model จริง
+v1.0.1 ผ่าน regression 48 tests โดยใช้ `-W error::ResourceWarning`; ครอบคลุม Hermes lifecycle/idempotency, Codex policy/process/watchdog/audit และ MCP stdio discovery 19 tools. ไม่มี test ใดใช้ model จริง
 ไม่เชื่อม OpenAI หรือเครื่องผู้ใช้ในการทดสอบชุดนี้
 
 `core.py` = Hermes HTTP/ownership/replay/SQLite; `codex_core.py` = Codex policy/job runner; `bridge.py` = MCP/CLI;
