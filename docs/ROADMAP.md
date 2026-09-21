@@ -31,21 +31,34 @@ Critical availability requirement:
 
 The design, trust boundaries, proposed configuration, and tool contracts are in [LOCAL-HANDS-ARCHITECTURE-TH.md](LOCAL-HANDS-ARCHITECTURE-TH.md). The delivery sequence and acceptance matrix are in [LOCAL-HANDS-IMPLEMENTATION-PLAN-TH.md](LOCAL-HANDS-IMPLEMENTATION-PLAN-TH.md).
 
-## v1.2.0 — Independent WSL2 Hands Core
+## v1.2.0 — Independent read-only WSL2 Hands
 
 - [ ] Add an optional `hands` backend that initializes independently of Hermes health and Codex availability.
-- [ ] Add schema-versioned Hands configuration with a canonical workspace allowlist, per-workspace read/write/execute capabilities, protected-path deny rules, size/runtime/output limits, and executable allowlists.
-- [ ] Add native MCP tools: `hands_health`, `hands_list`, `hands_read`, `hands_write`, `hands_patch`, `hands_exec`, and `hands_process`.
-- [ ] Keep command execution fixed-argv with `shell=False`; do not accept an unrestricted shell command string in v1.2.0.
-- [ ] Reuse redacted rotating audit infrastructure without recording file content, command output, secrets, or complete user payloads.
-- [ ] Require local human approval for writes, patches, and policy-classified execution; expose no MCP approval tool.
-- [ ] Persist pending actions and background-process state with TTL, ownership, bounded output, timeout enforcement, cancellation, and safe restart recovery.
-- [ ] Add Windows-to-WSL and WSL-to-Windows path translation as an internal helper; path translation must not weaken canonical containment checks.
+- [ ] Keep the additive `hands` configuration block in schema version 1; Hands is disabled when the block is absent or `enabled=false`.
+- [ ] Add a canonical read-only workspace allowlist, protected-path rules, non-removable protected-filename patterns, and bounded list/read responses.
+- [ ] Add only three native MCP tools: `hands_health`, `hands_list`, and `hands_read`; discover them even while disabled and return a stable `disabled` result. The planned v1.2.0 discovery count is 22 tools (existing 19 + Hands 3).
+- [ ] Use descriptor-relative `openat2` with `RESOLVE_BENEATH | RESOLVE_NO_SYMLINKS | RESOLVE_NO_MAGICLINKS` whenever the kernel/filesystem supports it. A configured workspace whose strict resolver self-test fails is unavailable; do not silently fall back to check-then-open.
+- [ ] Define conservative DrvFS behavior in v1.2.0: descriptor-based containment, case-folded protected-name matching, filesystem/mount reporting, and rejection of ambiguous case-colliding entries.
+- [ ] Reuse redacted rotating audit infrastructure without recording file content, secrets, or complete user payloads.
+- [ ] Add property-based path tests plus adversarial traversal, symlink-swap, protected-name, DrvFS case, binary, special-file, and size-limit tests.
 - [ ] Extend `bridge_status` and diagnostics with independent `hermes`, `codex`, and `local_hands` availability, without contacting a model for the Hands result.
-- [ ] Prove the critical fallback scenario in automated and WSL2 live acceptance: Hermes unavailable + Codex unavailable + Local Hands functional.
-- [ ] Keep Hands disabled by default during upgrade; the installer must not invent writable workspaces or executable policy.
+- [ ] Prove the critical fallback scenario in automated and WSL2 live acceptance: Hermes unavailable + Codex unavailable + Local Hands health/list/read functional.
+- [ ] Keep Hands disabled by default during upgrade; the installer must not invent readable workspaces.
 
-## v1.3.0 — Windows Host Adapter
+## v1.3.0 — Approval-bound mutation and execution
+
+- [ ] Add `hands_write`, `hands_patch`, `hands_exec`, and `hands_process` after v1.2.0 read-only live acceptance and feedback.
+- [ ] Implement canonical action digests exactly as [ADR-0001](adr/0001-local-hands-foundation.md) specifies: versioned deterministic JSON bytes plus SHA-256, immutable persisted payload/blob reference, TTL, one-time use, and revalidation at execution.
+- [ ] Require local human approval for writes, patches, content-bearing execution, and all trusted-workspace-code execution; expose no MCP approval tool.
+- [ ] Bound pending actions globally and per workspace; reject new actions at the cap and audit only redacted metadata.
+- [ ] Keep execution fixed-argv with `shell=False`; do not accept unrestricted shell/PowerShell command strings.
+- [ ] Treat Git, CMake, test runners, interpreters, hooks, build rules, response files, and config-file indirection as trusted-workspace-code execution, not as safe merely because the executable is allowlisted.
+- [ ] Permit no-approval profiles only when output is metadata-only and argv is exact/constrained; `git diff` is content-bearing and is not read-safe.
+- [ ] Persist process output as bounded JSONL per process and persist lifecycle state with ownership, timeout enforcement, cancellation, and safe restart recovery.
+- [ ] State explicitly that executable output is workspace-controlled content sent to ChatGPT and may contain secrets; filename protection cannot make command output secret-safe.
+- [ ] Add Windows-to-WSL and WSL-to-Windows path translation as an internal helper; translation must not weaken canonical containment checks.
+
+## v1.4.0 — Windows Host Adapter
 
 - [ ] Add `hands_windows` as an optional adapter invoked from WSL2 through a fixed executable path and fixed argv, with PowerShell script policy disabled by default.
 - [ ] Support bounded, policy-scoped read operations for processes, services, event logs, networking, filesystem metadata, and clipboard metadata before enabling mutations.
@@ -55,9 +68,11 @@ The design, trust boundaries, proposed configuration, and tool contracts are in 
 - [ ] Add Windows-specific audit fields without recording clipboard contents, script bodies, credentials, or command output.
 - [ ] Validate with Windows 11 + WSL2 under both `virtioproxy` and documented compatible networking modes; Hands must not require mirrored networking.
 
-## v1.4.0 — Windows Computer Use
+## v1.5.0 — Windows Computer Use
 
-- [ ] Add one compact `hands_computer` tool with explicit actions such as `observe`, `click`, `double_click`, `type`, `key`, `scroll`, `drag`, `open`, and `wait`.
+- [ ] Hard gate: do not start computer-use implementation until v1.4.0 Windows Host passes live acceptance and a recorded security review.
+- [ ] Ship an observe-only vertical slice first, then bounded click in a disposable test application; typing remains disabled until a separate review and acceptance gate passes.
+- [ ] Add one compact `hands_computer` tool with staged actions such as `observe`, then `click`; later actions such as `type`, `key`, `scroll`, `drag`, `open`, and `wait` require their own policy/review.
 - [ ] Implement a signed/versioned Windows helper using supported Windows capture and UI Automation APIs; keep it bound to the local machine and authenticate WSL2 requests.
 - [ ] Enforce a window/application allowlist, foreground-window verification, coordinate bounds, stale-observation rejection, and per-action timeouts.
 - [ ] Refuse password, PIN, MFA, credential-manager, secure-desktop, UAC, payment, and other protected-field interaction.
@@ -66,7 +81,7 @@ The design, trust boundaries, proposed configuration, and tool contracts are in 
 - [ ] Provide an emergency stop and visible local activity indicator; cancellation must prevent queued follow-up UI actions.
 - [ ] Run live acceptance first against disposable applications and fixtures, never a maintainer's real credential or payment workflow.
 
-## v1.5.0 — Routing, fallback, and operational hardening
+## v1.6.0 — Routing, fallback, and operational hardening
 
 - [ ] Publish a capability contract that lets ChatGPT choose Hermes, Codex, or Local Hands without circular orchestration.
 - [ ] Report normalized backend reasons such as `available`, `disabled`, `unreachable`, `usage_limit`, `quota_exhausted`, and `policy_blocked` without exposing secrets.

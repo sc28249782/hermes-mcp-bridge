@@ -7,6 +7,10 @@
 
 ## Unreleased
 
+- Hardened the Local Hands design after review: v1.2.0 is now a three-tool read-only vertical slice, while mutation/execution moves to v1.3.0 and later Windows/computer-use milestones shift to v1.4.0-v1.6.0.
+- Added non-removable workspace-internal protected filename patterns, strict `openat2`/DrvFS policy, property-based path tests, pending-action caps, trusted-workspace-code classification, and a computer-use security gate.
+- Added ADR-0001 defining additive schema-v1 configuration, stable disabled-tool discovery, canonical SHA-256 action serialization, bounded JSONL process output, and metadata-only initial no-approval profiles.
+
 - Added the post-v1.0.1 Local Hands roadmap, architecture/security design, and implementation acceptance plan. Local Hands is specified as a native sibling backend that remains usable when Hermes or Codex is unavailable or quota-limited.
 - Reserved the deferred `v1.1.0` line for Hermes approval-event integration; the active Local Hands delivery path begins at `v1.2.0`.
 
