@@ -1,4 +1,15 @@
-# อัปเกรดเป็น v0.8.0
+# อัปเกรดเป็น v1.0.0
+
+## จาก v0.9.1 หรือ v1.0.0-rc.2 เป็น v1.0.0
+
+1. ตรวจ archive ก่อนแตกด้วย `sha256sum -c SHA256SUMS`; สำหรับ v1.0.0 ค่า archive คือ `04421690f877807975810dfeffb29ec6412d8313103409cfd5713300e32de793`.
+2. หยุด `tunnel.sh run` หรือ user service เดิม รอให้ job สำคัญเป็น terminal status แล้วแตก `hermes-mcp-bridge-v1.0.0.zip` ไปยังโฟลเดอร์ใหม่ ห้ามเขียนทับ deployment เดิม.
+3. คัดลอกเฉพาะ `bridge-config.json` และ `state/` ที่ตรวจแล้วจาก deployment เดิม, แล้วรัน `bash install.sh`. ห้ามคัดลอก `.venv`, `.env` หรือ tunnel key.
+4. รัน `./bridge.sh doctor`, `./bridge.sh codex-doctor` และ `./bridge.sh diagnostics`; ต้องไม่มี `config_warnings`.
+5. ใช้ `bash tunnel.sh init tunnel_IDเดิม --force` เพื่อให้ profile ชี้ `bridge.sh` ใน v1.0.0, restart tunnel และเปิดแชทใหม่เพื่อตรวจ discovery 19 tools.
+6. ตรวจ `bridge_status` และทำ read-only smoke test ก่อนอนุมัติ `workspace-write`. ดู acceptance ที่ยืนยันแล้วใน `V1-ACCEPTANCE-TH.md`.
+
+หากใช้ Git clone แทน archive ให้ checkout signed tag `v1.0.0` และตรวจ `git verify-tag v1.0.0` ก่อนติดตั้ง.
 
 ## จาก v0.7.0 เป็น v0.8.0
 
