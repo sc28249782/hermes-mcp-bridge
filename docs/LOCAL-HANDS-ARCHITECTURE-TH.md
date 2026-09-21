@@ -105,7 +105,7 @@ Hands database ควรแยก table namespace หรือไฟล์ state
 ข้อกำหนดสำคัญของ `hands_exec`:
 
 - request แยก `executable`, `args[]`, `workspace`, `cwd`, optional environment keys และ execution mode
-- resolve executable เป็น path จริงและเทียบกับ allowlist; ห้ามอาศัย PATH ที่ควบคุมจาก workspaceโดยไม่ตรวจ
+- resolve executable เป็น path จริงและเทียบกับ allowlist; ห้ามอาศัย PATH ที่ควบคุมจาก workspace โดยไม่ตรวจ
 - `shell=False`, ไม่มี `bash -c`, `sh -c`, `eval` หรือ PowerShell command string ใน baseline
 - executable ที่ตีความ script/โค้ด เช่น Python, Node, Bash ต้องมี policy เฉพาะ ไม่ถือว่าปลอดภัยเพราะ binary อยู่ใน allowlist
 - จำกัด runtime/output/concurrency และ process tree
