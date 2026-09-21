@@ -1,7 +1,7 @@
 # Hermes Local Hands — สถาปัตยกรรมและขอบเขตความปลอดภัย
 
 สถานะ: เอกสารออกแบบสำหรับ roadmap หลัง `v1.0.1`  
-เป้าหมายรุ่นแรก: `v1.2.0`  
+เป้าหมายรุ่นแรก: `v1.2.0` แบบ read-only (`health/list/read`)  
 เอกสารที่เกี่ยวข้อง: `ROADMAP.md`, `LOCAL-HANDS-IMPLEMENTATION-PLAN-TH.md`, `HERMES-MCP-BRIDGE-TECHNICAL-ARCHITECTURE-TH.md`, `CODEX-WSL2-TH.md`
 
 ## 1. เป้าหมาย
@@ -20,8 +20,8 @@ hermes-mcp-bridge
     ├── Codex backend        (อาจ unavailable/usage limited)
     └── Local Hands backend  (ยังทำงานได้โดยไม่เรียกสอง backend ข้างบน)
             ├── WSL2 adapter
-            ├── Windows adapter      [v1.3.0]
-            └── Computer-use helper  [v1.4.0]
+            ├── Windows adapter      [v1.4.0]
+            └── Computer-use helper  [v1.5.0]
 ```
 
 คำว่า “อิสระ” หมายถึงเส้นทาง `hands_*` ไม่เรียก Hermes Runs API, model provider หรือ Codex CLI ไม่ได้หมายความว่าจะใช้งานได้เมื่อ ChatGPT, Secure MCP Tunnel, bridge process หรือ WSL2 หยุดทำงาน
@@ -32,7 +32,7 @@ hermes-mcp-bridge
 2. **Deterministic executor** — Hands รับคำสั่งที่มีโครงสร้าง ตรวจ policy แล้วลงมือ ไม่วางแผน ไม่ตัดสินใจแทน agent และไม่ delegate กลับไปหา agent
 3. **Fail closed** — config ผิด, path กำกวม, approval หมดอายุ, helper version ไม่ตรง หรือไม่สามารถพิสูจน์ containment ได้ ต้องปฏิเสธ
 4. **Least privilege** — upgrade แล้ว Hands ปิดเป็นค่าเริ่มต้น ไม่มี workspace เขียนได้ ไม่มี executable หรือ Windows action ที่อนุญาตโดยอัตโนมัติ
-5. **Structured operations** — รับ executable และ argv แยกช่อง ใช้ `shell=False`; ไม่รับ shell command string แบบ unrestricted
+5. **Structured operations** — เริ่ม execution ใน v1.3.0 โดยรับ executable และ argv แยกช่อง ใช้ `shell=False`; ไม่รับ shell command string แบบ unrestricted
 6. **Local human approval** — การอนุมัติทำใน local TTY/companion UI เท่านั้น MCP ไม่มี tool สำหรับ approve
 7. **Content minimization** — audit บันทึก metadata ที่ redacted ไม่บันทึกเนื้อหาไฟล์ prompt/output screenshot/clipboard หรือ secret
 8. **Bounded everything** — จำกัดขนาดไฟล์ output runtime จำนวน process concurrency และ TTL ของ pending action
@@ -54,14 +54,14 @@ hermes-mcp-bridge
 | Path traversal / symlink escape | canonical allowlist, descriptor-based open เมื่อทำได้, no-follow policy, ตรวจซ้ำก่อน mutation |
 | Prompt injection จากไฟล์/หน้าจอ | ถือ content เป็น data, ไม่เปลี่ยน policy/approval ตามข้อความที่อ่านพบ |
 | Shell injection | argv array, `shell=False`, executable allowlist, environment allowlist |
-| Secret exfiltration | protected paths, output limits, redaction, network tools ปิดโดย default |
+| Secret exfiltration | protected paths, baseline protected filenames, output limits, redaction, network tools ปิดโดย default; exec output ยังถือว่า content-bearing |
 | Approval replay | action digest, exact parameters, TTL, one-time use, local confirmation |
 | PID reuse / process escape | process-group ownership, start-time identity, bounded children, cancellation verification |
 | TOCTOU | canonicalize และตรวจที่จุดใช้งาน, atomic replace, reject path type changes |
 | Windows boundary bypass | policy แยกจาก WSL, helper authentication, fixed helper path, deny UNC/reparse by default |
 | GUI ทำรายการอ่อนไหว | protected-field refusal, app/window allowlist, stale-frame rejection, emergency stop |
 
-`deny_prompt_patterns` หรือ command keyword blacklist ไม่ใช่ security boundary เพราะเปลี่ยนถ้อยคำเพื่อหลบได้ การบังคับใช้ต้องอยู่ที่ path, executable, argv schema, OS primitive และ approval policy
+`deny_prompt_patterns` หรือ command keyword blacklist ไม่ใช่ security boundary เพราะเปลี่ยนถ้อยคำเพื่อหลบได้ การบังคับใช้ต้องอยู่ที่ path, filename, executable, argv schema, OS primitive และ approval policy
 
 ## 4. Component model
 
@@ -78,8 +78,8 @@ bridge.py
     ├── processes    spawn, poll, output paging, timeout, cancel
     ├── audit        shared redacted AuditLogger interface
     ├── wsl          file and fixed-argv execution adapter
-    ├── windows      Windows helper adapter [v1.3.0]
-    └── computer     capture/UI Automation adapter [v1.4.0]
+    ├── windows      Windows helper adapter [v1.4.0]
+    └── computer     capture/UI Automation adapter [v1.5.0]
 ```
 
 Hands database ควรแยก table namespace หรือไฟล์ state จาก Hermes runs และ Codex jobs เพื่อให้ migration/cleanup ไม่กระทบกัน แต่ใช้ directory permission และ atomic migration discipline เดียวกัน
@@ -88,21 +88,21 @@ Hands database ควรแยก table namespace หรือไฟล์ state
 
 ## 5. MCP tool contract ที่เสนอ
 
-### 5.1 v1.2.0 WSL2 core
+### 5.1 v1.2.0 read-only WSL2 core
 
 | Tool | ลักษณะ | หน้าที่ |
 |---|---|---|
 | `hands_health` | read-only/local | รายงาน version, enabled state, adapter readiness และ policy summary ที่ไม่เผย path อ่อนไหว |
 | `hands_list` | read-only | list directory แบบจำกัดจำนวน/ชนิดข้อมูลภายใน workspace |
 | `hands_read` | read-only | อ่าน text ช่วงที่ระบุโดยมี byte/line limit; binary ปฏิเสธโดย default |
-| `hands_write` | mutation | สร้างหรือแทนไฟล์แบบ atomic ภายใต้ write policy และ approval |
-| `hands_patch` | mutation | apply exact patch พร้อม base digest เพื่อป้องกันเขียนทับไฟล์ที่เปลี่ยนแล้ว |
-| `hands_exec` | policy-dependent | รัน executable ที่อนุญาตด้วย argv/cwd/env ที่ตรวจแล้ว |
-| `hands_process` | policy-dependent | `status`, `output`, `cancel`, `recent` เฉพาะ process ที่ Hands เป็นผู้สร้าง |
+| `hands_write` | mutation, v1.3.0 | สร้างหรือแทนไฟล์แบบ atomic ภายใต้ write policy และ approval |
+| `hands_patch` | mutation, v1.3.0 | apply exact patch พร้อม base digest เพื่อป้องกันเขียนทับไฟล์ที่เปลี่ยนแล้ว |
+| `hands_exec` | execution, v1.3.0 | รัน executable ที่อนุญาตด้วย argv/cwd/env ที่ตรวจแล้ว |
+| `hands_process` | process, v1.3.0 | `status`, `output`, `cancel`, `recent` เฉพาะ process ที่ Hands เป็นผู้สร้าง |
 
-ไม่สร้าง `hands_python` หรือ `hands_git` ในรุ่นแรก เพราะ Python/Git ใช้ผ่าน `hands_exec` และ executable policy ได้ การลดจำนวน tool ช่วยลด ambiguity แต่ยังคง authorization ที่ executable/argv schema
+`v1.2.0` register เพียง `hands_health`, `hands_list`, `hands_read` เพื่อเก็บ feedback จาก read-only vertical slice ก่อนลงทุนกับ action store. ไม่สร้าง `hands_python` หรือ `hands_git`; เมื่อถึง v1.3.0 Python/Git ใช้ผ่าน `hands_exec` และ executable policy ได้
 
-ข้อกำหนดสำคัญของ `hands_exec`:
+ข้อกำหนดสำคัญของ `hands_exec` ใน v1.3.0:
 
 - request แยก `executable`, `args[]`, `workspace`, `cwd`, optional environment keys และ execution mode
 - resolve executable เป็น path จริงและเทียบกับ allowlist; ห้ามอาศัย PATH ที่ควบคุมจาก workspace โดยไม่ตรวจ
@@ -110,12 +110,16 @@ Hands database ควรแยก table namespace หรือไฟล์ state
 - executable ที่ตีความ script/โค้ด เช่น Python, Node, Bash ต้องมี policy เฉพาะ ไม่ถือว่าปลอดภัยเพราะ binary อยู่ใน allowlist
 - จำกัด runtime/output/concurrency และ process tree
 - network-capable executable ปิดโดย default และแยก capability จาก local build/test
+- executable profile ไม่ใช่ตรารับรองว่า safe: Git hooks/config, CMake build rules, test discovery, interpreter, response file และ config-file indirection อาจรันโค้ดหรืออ่าน secret ได้
+- environment ของ Git profile ต้องเริ่มจาก minimal environment และปิด global/system config injection อย่างน้อยด้วย `GIT_CONFIG_GLOBAL=/dev/null`, `GIT_CONFIG_SYSTEM=/dev/null`, ปิด hooks/pager/external diff ตาม action schema; executable อื่นต้องมี hardening เฉพาะตัว
+- profile ที่ไม่ต้อง approval ต้องคืนเฉพาะ metadata และใช้ exact constrained argv; `git diff` เป็น content-bearing จึงไม่อยู่ในกลุ่มนี้
+- stdout/stderr คือ trusted-workspace-content ที่จะไหลกลับเข้า ChatGPT และอาจมี secret การกรองตามชื่อไฟล์หรือ output redaction ไม่สามารถรับประกันการป้องกันได้
 
-### 5.2 v1.3.0 Windows host
+### 5.2 v1.4.0 Windows host
 
 เพิ่ม `hands_windows` เป็น tool เดียวที่ใช้ action schema เช่น `process_list`, `service_status`, `eventlog_query` และ action mutation ที่เปิดเป็นรายรายการ ไม่รับ PowerShell script อิสระเป็นค่าเริ่มต้น WSL policy ไม่ส่งต่อไป Windows โดยอัตโนมัติ
 
-### 5.3 v1.4.0 computer use
+### 5.3 v1.5.0 computer use
 
 เพิ่ม `hands_computer(action=...)` tool เดียว ภาพที่ observe ต้องมี `observation_id`, timestamp, window identity, dimensions และ TTL ทุก click/type ต้องอ้าง observation ล่าสุดและยืนยัน foreground window ก่อนลงมือ
 
@@ -125,7 +129,7 @@ Hands database ควรแยก table namespace หรือไฟล์ state
 
 ```json
 {
-  "schema_version": 2,
+  "schema_version": 1,
   "hands": {
     "enabled": false,
     "approval_ttl_seconds": 300,
@@ -140,56 +144,82 @@ Hands database ควรแยก table namespace หรือไฟล์ state
       "~/.config/openai",
       "/mnt/c/Users/*/.ssh"
     ],
+    "additional_protected_filename_patterns": [],
     "workspaces": [
       {
         "name": "openhdk",
         "path": "/mnt/e/Projects/OpenHDK",
-        "capabilities": ["list", "read", "write", "patch", "exec"],
-        "executables": [
-          {"path": "/usr/bin/git", "profiles": ["status", "diff"]},
-          {"path": "/usr/bin/cmake", "profiles": ["build"]},
-          {"path": "/usr/bin/ctest", "profiles": ["test"]}
-        ]
+        "capabilities": ["list", "read"]
       }
     ]
   }
 }
 ```
 
-ก่อน implement ต้องตัดสินใจว่า schema จะ bump เป็น version 2 หรือรองรับ additive `hands` block ใน version 1 การเปลี่ยนนี้ต้องมี deterministic migration, unknown-key warning และ rollback path ห้าม installer เขียน workspace/executable จากการเดา
+[ADR-0001](adr/0001-local-hands-foundation.md) ตัดสินใจใช้ additive `hands` block ใน schema version 1 เพื่อให้ config เดิมยังใช้ได้และ Hands disabled เมื่อไม่มี block การเพิ่มนี้ยังต้องมี unknown-key warning, invalid-known-key failure, deterministic upgrade/rollback และห้าม installer เขียน workspace/executable จากการเดา
 
-### 6.1 Risk/approval matrix
+### 6.1 Protected filenames ภายใน workspace
+
+Protected path อย่างเดียวไม่พอ เพราะ secret มักอยู่ภายใน repository เอง Baseline ต้องมี filename patterns ที่ผู้ใช้เพิ่มได้แต่ลดหรือ override ไม่ได้ และเทียบทุก path component/ชื่อไฟล์แบบ case-insensitive บน DrvFS อย่างน้อย:
+
+```text
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+credentials*.json
+secrets*.json
+.netrc
+.npmrc
+.pypirc
+```
+
+`hands_read`, `hands_write` และ `hands_patch` ต้อง deny ก่อนเปิดไฟล์เมื่อ match baseline หรือ additional patterns ส่วน `hands_list` คืน metadata ตาม policy แต่ไม่อ่าน content Pattern protection ลดความเสี่ยงกรณีทั่วไปเท่านั้น ไม่ตรวจเนื้อหาและไม่สามารถป้องกัน command ที่อ่าน secret แล้วพิมพ์ทาง stdout/stderr จึงต้องสื่อสาร execution risk และใช้ approval/executable profile แยกต่างหาก
+
+### 6.2 Risk/approval matrix
 
 | Operation | ค่าเริ่มต้น | Approval |
 |---|---|---|
 | health/list/read ภายใน read root | อนุญาตเมื่อเปิด workspace | ไม่ต้องอนุมัติรายครั้ง |
-| git status/diff หรือ build/test profile ที่ประกาศ read-safe | ตาม policy | policy กำหนดได้ |
+| metadata-only exact profile เช่น constrained `git status`, metadata-only log, `ctest -N` | ตาม policy ใน v1.3.0 | policy กำหนดได้ |
+| `git diff`, build/test, interpreter หรือ workspace code | ปิดจนมี v1.3.0 policy | ต้องอนุมัติ local |
 | create/replace/patch file | ปิดจนเปิด write capability | ต้องอนุมัติ local |
 | process cancel ที่ Hands เป็นเจ้าของ | อนุญาตตาม policy | แสดงผลกระทบ; mutation policy กำหนด |
 | interpreter/script execution | ปิด | ต้อง policy เฉพาะและ approval |
 | delete, chmod/chown, package install, service mutation | ปิด | explicit high-risk policy + local approval |
 | credential path, secure desktop, payment | ปฏิเสธ | approval ไม่สามารถ override baseline deny |
 
-Approval record ต้องผูกกับ digest ของ tool, canonical workspace/path, executable+argv, content/base digest, risk class และ expiry หากค่าใดเปลี่ยนต้องขอ approval ใหม่
+Approval record ต้องผูก canonical digest ตาม [ADR-0001](adr/0001-local-hands-foundation.md) หากค่าใดเปลี่ยนต้องขอ approval ใหม่ Runtime execute persisted immutable payload ที่ถูก digest เท่านั้น ไม่รับ payload รอบสองจาก MCP client
+
+### 6.3 Canonical action digest
+
+[ADR-0001](adr/0001-local-hands-foundation.md) กำหนด digest เป็น SHA-256 ของ ASCII `hermes-local-hands-action-v1`, ตามด้วย NUL byte `0x00`, แล้วต่อด้วย UTF-8 JSON ที่สร้างด้วย `ensure_ascii=false`, `sort_keys=true`, separators `(',', ':')`, `allow_nan=false` Payload ต้องมี `schema`, action type, canonical workspace/path, executable+argv/environment profile, content/base digest, risk class และ expiry เป็น integer Unix seconds; ห้ามมี float, secret หรือ raw content Content-bearing action อ้าง sealed immutable blob ด้วย SHA-256 และตรวจ digest ซ้ำก่อน execute
 
 ## 7. Filesystem semantics
 
 - ใช้ workspace ID ใน public contract แทนเปิดเผย/ยอมรับ arbitrary absolute path เมื่อทำได้
-- canonicalize root ตอนโหลด config และ canonicalize target ที่จุดใช้งาน
-- path ต้องอยู่ใต้ root ด้วย path-component comparison ไม่ใช้ string prefix
+- เปิด workspace root เป็น trusted directory fd ตอนโหลดหรือ refresh policy และ resolve target แบบ relative ต่อ fd
+- Linux file tools ต้องใช้ `openat2` กับ `RESOLVE_BENEATH | RESOLVE_NO_SYMLINKS | RESOLVE_NO_MAGICLINKS` เมื่อ syscall/filesystem รองรับ หาก strict self-test ของ workspace ล้มเหลวให้ workspace นั้น unavailable และห้าม fallback ไป `realpath()+open`
+- path ต้องอยู่ใต้ root ด้วย descriptor/path-component policy ไม่ใช้ string prefix
 - protected-path deny มีลำดับสูงกว่า workspace allow
 - write ใช้ temporary file ใน directory เดียวกัน, fsync ตาม policy, แล้ว atomic replace
 - patch ต้องระบุ hash ของ base file; mismatch แล้วหยุด ไม่ merge เดาเอง
 - จำกัด regular files เป็น baseline; device, socket, FIFO และ proc/sysfs ปฏิเสธ
+- protected filename baseline ตรวจทุก file operation ก่อนเปิดและผู้ใช้ลดไม่ได้
+- DrvFS `/mnt/<drive>` ใช้ descriptor containment เหมือนกัน แต่ protected names/path comparisons ใช้ conservative case-folding, ตรวจ mount type/options และ reject case-fold collision ที่กำกวม ห้ามสมมติว่า semantics เหมือน ext4
 - Windows path translation เป็น convenience เท่านั้น หลังแปลงต้องผ่าน canonical policy เหมือน path ปกติ
 
 ## 8. Process lifecycle
 
-Process ทุกตัวต้องมี ID ของ Hands ไม่คืน raw PID เป็น authority หลัก State ขั้นต่ำคือ `pending_approval`, `queued`, `running`, `completed`, `failed`, `cancelled`, `timed_out`, `expired`, `unknown_exit`
+Process ทุกตัวต้องมี ID ของ Hands ไม่คืน raw PID เป็น authority หลัก State ขั้นต่ำคือ `pending_approval`, `queued`, `running`, `completed`, `failed`, `cancelled`, `timed_out`, `expired`, `unknown_exit` Pending actions ต้องมี cap ต่อ workspace และ global; เมื่อเต็มให้ reject ก่อน persist พร้อม redacted audit
 
 ใช้ process group ใหม่, fixed cwd, minimal environment, bounded output file และ watchdog ใน persistent bridge process แนวทาง cancel ใช้ graceful termination, bounded wait, forced termination และยืนยันการตายก่อนบันทึก terminal state เช่นเดียวกับบทเรียนจาก Codex runner
 
-หลัง restart ห้ามสรุป process ที่ไม่เห็น exit code ว่า completed หากพิสูจน์ไม่ได้ให้ `unknown_exit` และไม่ attach ไปยัง PID ที่อาจถูก reuse
+Output เก็บเป็น bounded JSONL ต่อ process ตาม [ADR-0001](adr/0001-local-hands-foundation.md) พร้อม truncation/rotation หลัง restart ห้ามสรุป process ที่ไม่เห็น exit code ว่า completed หากพิสูจน์ไม่ได้ให้ `unknown_exit` และไม่ attach ไปยัง PID ที่อาจถูก reuse
 
 ## 9. Audit and privacy
 
@@ -217,7 +247,9 @@ Windows helper ควรเป็น process แยกที่มี protocol v
 
 ห้ามถือว่า `powershell.exe -Command` ปลอดภัยเพียงเพราะเริ่มจาก WSL2 สำหรับ baseline ให้ใช้ action RPC ที่มี schema หากอนาคตเปิด script execution ต้องเป็น capability แยก ใช้ signed/hashed script หรือ exact content approval และมี output/runtime limit
 
-## 11. Computer-use safety
+## 11. Computer-use safety และ hard gate
+
+ห้ามเริ่ม implementation จนกว่า v1.4.0 Windows Host จะผ่าน live acceptance และมี security review ที่บันทึกผลแล้ว รุ่นแรกของ computer use เป็น observe-only จากนั้นจึงเปิด click เฉพาะ disposable test application ส่วน typing ต้องผ่าน review/acceptance แยกอีกครั้ง
 
 - observe ก่อน action และ action อ้าง `observation_id`
 - ตรวจ window/process identity และ geometry ใหม่ก่อน click/type
