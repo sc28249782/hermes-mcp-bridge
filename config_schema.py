@@ -54,9 +54,9 @@ def load_bridge_config(root: Path) -> tuple[dict, list[str]]:
     _unknown(audit, {"enabled", "max_bytes", "retention_files"}, "audit", warnings)
     if "enabled" in audit and not isinstance(audit["enabled"], bool):
         raise ConfigError("audit.enabled must be boolean")
-    for key, high in (("max_bytes", 100_000_000), ("retention_files", 100)):
+    for key, low, high in (("max_bytes", 32_768, 10_000_000), ("retention_files", 1, 30)):
         if key in audit:
-            _integer(audit[key], f"audit.{key}", 1, high)
+            _integer(audit[key], f"audit.{key}", low, high)
     codex = _object(config.get("codex", {}), "codex")
     _unknown(codex, {"binary", "allowed_workspaces", "workspaces", "max_prompt_chars", "max_runtime_seconds",
                      "watchdog_interval_seconds", "approval_ttl_seconds", "allowed_models",
@@ -70,4 +70,11 @@ def load_bridge_config(root: Path) -> tuple[dict, list[str]]:
     for key in ("allowed_workspaces", "workspaces", "allowed_models", "allowed_reasoning_efforts"):
         if key in codex and not isinstance(codex[key], list):
             raise ConfigError(f"codex.{key} must be a list")
+    for index, workspace in enumerate(codex.get("workspaces", [])):
+        workspace = _object(workspace, f"codex.workspaces[{index}]")
+        _unknown(workspace, {"path", "modes", "max_prompt_chars", "max_runtime_seconds", "max_concurrency",
+                             "deny_prompt_patterns", "allowed_models", "allowed_reasoning_efforts"},
+                 f"codex.workspaces[{index}]", warnings)
+        if not isinstance(workspace.get("path"), str) or not workspace["path"]:
+            raise ConfigError(f"codex.workspaces[{index}].path must be a non-empty string")
     return config, warnings
