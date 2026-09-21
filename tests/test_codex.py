@@ -54,7 +54,7 @@ class TestCodexRunner(unittest.TestCase):
 
     def test_subprocess_uses_fixed_argv_and_captures_result(self):
         fake = Path(self.tmp.name) / "fake-codex"
-        fake.write_text("#!/usr/bin/env python3\nimport json,sys\nprint(json.dumps({'argv':sys.argv[1:],'prompt':sys.stdin.read()}))\n")
+        fake.write_text("#!/usr/bin/env python3\nimport json,sys,time\nprint(json.dumps({'argv':sys.argv[1:],'prompt':sys.stdin.read()}))\ntime.sleep(0.1)\n")
         fake.chmod(0o700)
         runner = CodexRunner({"binary": str(fake), "allowed_workspaces": [str(self.root)]},
                              Path(self.tmp.name) / "state2")
