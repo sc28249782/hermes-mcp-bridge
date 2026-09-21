@@ -1,4 +1,4 @@
-# Validation plan — v0.9.0 (2026-09-21)
+# Validation plan — v1.0.0 (2026-09-21)
 
 Target contract reviewed: Hermes v0.21.1, commit 8d79c2ff.
 
@@ -12,4 +12,4 @@ Installer coverage includes pip presence detection and ensurepip bootstrap for a
 
 The test server mocks the Hermes HTTP contract; it does not replace workstation/tunnel validation. Shell syntax checking does not prove runtime integration.
 
-Live acceptance is recorded in `LIVE-ACCEPTANCE-TH.md`: the Hermes 10-tool path was validated in v0.3.2; Codex workspace controls were validated in v0.4–v0.6; v0.7.0 validated default execution and `gpt-5.6-sol` + `high` through the Secure MCP Tunnel.
+Live acceptance is recorded in `LIVE-ACCEPTANCE-TH.md`: v1.0.0 RC2 validated 19-tool discovery, Hermes idempotent read-only execution, Codex `gpt-5.6-sol` + `low`, local workspace-write approval, and cancellation through the Secure MCP Tunnel. The final v1.0.0 deployment health check also passed with no configuration warnings.
