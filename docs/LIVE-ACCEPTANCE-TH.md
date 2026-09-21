@@ -1,4 +1,12 @@
-# ผล Live Acceptance — v1.0.0
+# ผล Live Acceptance — v1.0.1
+
+## v1.0.1 — maintenance release acceptance (21 กันยายน 2026)
+
+- เชื่อมผ่าน `Hermes Local Bridge` จาก deployment `/home/somchaip/hermes-mcp-bridge-v1.0.1` ได้สำเร็จ
+- `bridge_status` ยืนยัน state mode `0700`, audit เปิดใช้งาน, ไม่มี `config_warnings` และ Codex watchdog ทำงานทุก 15 วินาที
+- `hermes_health` ยืนยัน authentication ที่ `127.0.0.1:8642`; `codex_health` ยืนยัน Codex CLI `0.155.1`, workspace policy และ approval TTL 3,600 วินาที
+- Codex job แบบ `read-only` ที่ห้ามแก้ไขไฟล์และห้ามใช้เครือข่ายจบด้วย exit code `0` และตอบ `V101_READ_ONLY_ACCEPTANCE_OK`; audit บันทึก lifecycle แบบ redacted
+- signed tag `v1.0.1` ถูก GitHub ยืนยัน signature แล้ว; release archive ผ่าน `sha256sum -c` ด้วย SHA-256 `a20a07aaeb0baeb885c85223dab9eba61c8a0ce1be20bb83d0e422faaa45c9d3`
 
 ## v1.0.0 — release deployment health check (21 กันยายน 2026)
 
