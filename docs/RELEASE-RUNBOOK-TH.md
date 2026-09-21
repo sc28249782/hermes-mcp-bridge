@@ -1,4 +1,4 @@
-# Release integrity runbook — v1.0.0
+# Release integrity runbook — v1.0.1
 
 ## ผู้สร้าง release
 
@@ -14,6 +14,10 @@ git push origin main vX.Y.Z
 ```
 
 ห้ามแทน `-s` ด้วย unsigned tag ใน release ที่อ้างว่า production baseline. การลงนามเป็นสิทธิ์ของ maintainer เท่านั้น; bridge ไม่เก็บหรือใช้ private signing key.
+
+## บันทึก v1.0.1
+
+`v1.0.1` ถูกลงนามและ GitHub ยืนยัน signature แล้ว โดยชี้ commit `cbbdd4d6124e3673dccc7a5ae010c0054b2df832`. Release archive `hermes-mcp-bridge-v1.0.1.zip` ผ่าน `sha256sum -c` ด้วย SHA-256 `a20a07aaeb0baeb885c85223dab9eba61c8a0ce1be20bb83d0e422faaa45c9d3`.
 
 ## บันทึก v1.0.0
 
