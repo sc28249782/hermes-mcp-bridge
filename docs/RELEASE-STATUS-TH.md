@@ -1,10 +1,11 @@
 # Release status — v1.0.0
 
-## v1.0.0 — ready for signed tag
+## v1.0.0 — released (21 กันยายน 2026)
 
 - security review และ regression 48 tests ผ่าน; แก้ schema validation ให้สอดคล้อง audit/runtime policy
 - RC2 WSL2 full acceptance ผ่านสำหรับ Hermes/Codex, idempotency, write approval, cancellation และ audit/recovery semantics
-- final archive และ SHA-256 manifest ถูกสร้างแล้ว; ก่อนประกาศ release ต้องลงนามและ push tag `v1.0.0` ตาม `RELEASE-RUNBOOK-TH.md`
+- `SHA256SUMS` เผยแพร่แล้ว: `04421690f877807975810dfeffb29ec6412d8313103409cfd5713300e32de793  hermes-mcp-bridge-v1.0.0.zip`
+- signed tag `v1.0.0` ถูก GitHub ตรวจเป็น `Verified` และชี้ไปที่ commit `2b280b2d3a763f69afa417bc76bdca6b801553fc`
 
 ## v0.9.0 — build verification
 
@@ -13,7 +14,7 @@
 - `bridge_status` ไม่เรียก Hermes HTTP หรือ Codex CLI upstream
 - Config schema version 1 ปฏิเสธ known type ที่ผิดและรายงาน unknown key เป็น warning
 - heartbeat และ `stale` label ผ่าน live acceptance บน WSL2; `approval_stale` มี regression coverage แต่ยังไม่ได้สร้าง upstream approval workflow จริง
-- v0.9.1 แก้การอ่าน capability เป็น `run_approval_response`; ต้องทดสอบ upstream approval live ใหม่ก่อนสรุป `approval_stale`
+- v0.9.1 แก้การอ่าน capability เป็น `run_approval_response`; v1.0.0 ตรวจพบ capability แล้ว แต่ upstream approval-event live acceptance ถูกเลื่อนไป v1.1.0 ตาม roadmap
 
 ## ผ่านแล้วใน build environment
 
