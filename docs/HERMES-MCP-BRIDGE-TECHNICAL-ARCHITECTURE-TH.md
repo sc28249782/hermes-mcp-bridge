@@ -1,6 +1,6 @@
-# คู่มือเชิงเทคนิค: สถาปัตยกรรมและกลไก Hermes MCP Bridge v0.8.0
+# คู่มือเชิงเทคนิค: สถาปัตยกรรมและกลไก Hermes MCP Bridge v1.0.0
 
-เอกสารนี้อธิบายฐาน Hermes และ MCP adapter ของ `hermes-mcp-bridge-v0.8.0.zip`; ส่วน Codex/WSL2, model policy, audit และ approval gate ดู `CODEX-WSL2-TH.md` และ `OPERATIONS-TH.md`
+เอกสารนี้อธิบายฐาน Hermes และ MCP adapter ของ `hermes-mcp-bridge-v1.0.0.zip`; ส่วน Codex/WSL2, model policy, audit และ approval gate ดู `CODEX-WSL2-TH.md` และ `OPERATIONS-TH.md`
 
 รุ่นอ้างอิง: Hermes Agent v0.21.1, commit `8d79c2ff`  
 Runtime ที่ทดสอบ: Python 3.12, `mcp==1.30.0`, `httpx==0.28.1`, `python-dotenv==1.2.3`
@@ -155,7 +155,7 @@ GET /v1/capabilities               (Bearer Hermes key)   → 2xx
 ตรวจ features.run_stop
 ```
 
-หาก capability ที่จำเป็นขาด จะหยุดทันทีและบอกชื่อ feature ที่ขาด `run_approval` เป็นข้อมูลเสริม เพราะ approval ยังทำผ่าน local CLI ไม่ใช่ MCP tool
+หาก capability ที่จำเป็นขาด จะหยุดทันทีและบอกชื่อ feature ที่ขาด `run_approval_response` เป็น capability เสริมสำหรับ Hermes; v1.0.0 ยังไม่มี SSE approval-event integration และไม่มี MCP approval tool
 
 ผล health ไม่เริ่ม agent turn จึงเหมาะสำหรับ discovery และ smoke test
 
@@ -295,7 +295,7 @@ Bridge ไม่รับประกัน rollback ของคำสั่ง
 - redirect rejection
 - model catalog/info, per-run model override และ schema migration
 
-`tests/test_mcp.py` เปิด fake MCP server ผ่าน stdio แล้วตรวจ initialize, discovery 18 tools, diagnostics, annotations, model discovery, model-aware submit, usage tools, health, status, result และ foreign run rejection ส่วน `tests/test_codex.py` ตรวจ workspace/model/reasoning allowlist, symlink escape, sandbox mode, write approval, audit และ recovery marker
+`tests/test_mcp.py` เปิด fake MCP server ผ่าน stdio แล้วตรวจ initialize, discovery 19 tools, diagnostics, annotations, model discovery, model-aware submit, usage tools, health, status, result และ foreign run rejection ส่วน `tests/test_codex.py` ตรวจ workspace/model/reasoning allowlist, symlink escape, sandbox mode, write approval, audit และ recovery marker
 
 ชุดนี้เป็น contract/integration test ของ adapter ไม่ใช่ live end-to-end test ของ OpenAI Tunnel และไม่ใช่ visual/runtime test ของ WordPress, Elementor หรือ Hermes model จริง
 
