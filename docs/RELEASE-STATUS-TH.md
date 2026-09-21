@@ -15,18 +15,20 @@
 - restart Secure MCP Tunnel และ discovery Hermes 10 + Codex 6 tools
 - Codex CLI `0.155.1` กับ workspace allowlist `/mnt/e/Projects/OpenHDK-validation`
 
-## v0.8.0 — partial live acceptance (2026-09-21)
+## v0.8.0 — full live acceptance (2026-09-21)
 
 - `bridge_diagnostics` และ `codex_health` ผ่าน Secure MCP Tunnel: Hermes authenticated, Codex CLI `0.155.1`, watchdog interval 15 วินาที และ watchdog กำลังทำงาน
 - งาน read-only ที่เริ่ม `sleep 120` ถูกยกเลิกผ่าน MCP ขณะยังรันอยู่; `status`/`result` ปลายทางเป็น `cancelled` และ audit เป็น `submit → start → cancel`
 - ไม่พบการแก้ไข workspace หรือ network access ระหว่าง test
-- คงเหลือเฉพาะ full live scenarios ที่ต้องมี maintenance window: ลด runtime policy ชั่วคราวเพื่อพิสูจน์ watchdog timeout และ restart recovery เพื่อพิสูจน์ `unknown_exit`
+- ตั้ง runtime policy ชั่วคราว 5 วินาทีแล้วปล่อยงาน `sleep 120` โดยไม่ poll: watchdog ยุติงานเป็น `timed_out` และ audit บันทึก `cancel(timed_out)`
+- restart tunnel ระหว่างงาน `sleep 30` แล้ว reconnect หลังงานจบ: job ปลายทางเป็น `unknown_exit`, result รายงาน `recovered_after_restart: true`, audit เป็น `finish(unknown_exit)` พร้อม `exit_code: null`
+- คืน runtime policy production เป็น 1,800 วินาทีแล้ว
 
 ## v0.8.0 — build verification
 
 - lifecycle hardening, atomic concurrency reservation และ watchdog regression tests ผ่าน
 - CI เพิ่ม shellcheck พร้อมคง `bash -n`
-- cancellation live acceptance ผ่านแล้ว; ยังต้องทำ watchdog timeout และ `unknown_exit` recovery semantics ก่อนประกาศ v0.8.0 ว่าผ่าน full production acceptance
+- full production acceptance บน WSL2 ผ่าน: cancellation, watchdog timeout และ `unknown_exit` recovery semantics
 
 ## v0.7.0 — build verification
 
