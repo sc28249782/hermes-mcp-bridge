@@ -1,4 +1,12 @@
-# Release status — v0.8.0
+# Release status — v0.9.0
+
+## v0.9.0 — build verification
+
+- Python compilation, shell syntax และ regression suite 48 tests ผ่าน (`-W error::ResourceWarning`)
+- MCP stdio discovery ยืนยัน 19 tools รวม `bridge_status`
+- `bridge_status` ไม่เรียก Hermes HTTP หรือ Codex CLI upstream
+- Config schema version 1 ปฏิเสธ known type ที่ผิดและรายงาน unknown key เป็น warning
+- ยังต้องทำ live acceptance บน WSL2 สำหรับ heartbeat และ stale-label reporting ก่อนประกาศ production acceptance
 
 ## ผ่านแล้วใน build environment
 
