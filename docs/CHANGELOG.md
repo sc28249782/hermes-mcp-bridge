@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Deferred the proposed v1.1.0 Hermes approval-event SSE integration after live POC confirmed SSE transport but did not observe an interactive API approval event or exact approval request ID under `approvals.mode: manual`.
+
 ## v1.0.0
 
 - Released as signed, GitHub-verified tag `v1.0.0`, targeting commit `2b280b2d3a763f69afa417bc76bdca6b801553fc`.
