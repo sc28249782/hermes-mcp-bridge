@@ -30,9 +30,10 @@ from pathlib import Path
 p = Path('bridge-config.json')
 if not p.exists():
     hermes_root = Path.home()/'.hermes'
-    p.write_text(json.dumps({'api_url':'http://127.0.0.1:8642',
+    p.write_text(json.dumps({'schema_version':1, 'api_url':'http://127.0.0.1:8642',
                             'hermes_env':str(hermes_root/'.env'),
                             'hermes_config':str(hermes_root/'config.yaml'),
+                            'hermes': {'stale_run_seconds':3600, 'approval_stale_seconds':1800},
                             'audit': {'enabled':True, 'max_bytes':1000000, 'retention_files':7},
                             'codex': {'binary':'codex', 'allowed_workspaces':[],
                                       'max_prompt_chars':32000,
@@ -44,6 +45,13 @@ if not p.exists():
     p.chmod(0o600)
 else:
     data = json.loads(p.read_text())
+    changed = False
+    if 'schema_version' not in data:
+        data['schema_version'] = 1
+        changed = True
+    if 'hermes' not in data:
+        data['hermes'] = {'stale_run_seconds':3600, 'approval_stale_seconds':1800}
+        changed = True
     if 'codex' not in data:
         data['codex'] = {'binary':'codex', 'allowed_workspaces':[],
                          'max_prompt_chars':32000, 'max_runtime_seconds':1800,
@@ -56,7 +64,6 @@ else:
         data['codex']['approval_ttl_seconds'] = 3600
         p.write_text(json.dumps(data, indent=2)+'\n')
         p.chmod(0o600)
-    changed = False
     for key, value in (('allowed_models', []), ('allowed_reasoning_efforts', []),
                        ('watchdog_interval_seconds', 15)):
         if key not in data['codex']:
