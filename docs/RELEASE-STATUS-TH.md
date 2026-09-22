@@ -1,5 +1,13 @@
 # Release status — v1.0.1
 
+## v1.2.0 — functional acceptance passed, tag pending (22 กันยายน 2026)
+
+- WSL2 live acceptance ผ่านทั้ง ext4 และ DrvFS: discovery 22 tools, strict resolver, secret/path/binary/symlink denial, audit redaction และ case-collision fail-closed.
+- Critical fallback OFF/OFF/ON ผ่าน: เมื่อ Hermes ใช้ไม่ได้และ Codex binary หาย Local Hands health/list/read ยังคงใช้ได้; ไม่มี Hermes/Codex task ถูกส่งระหว่างทดสอบ.
+- คืน production state แล้ว Local Hands เป็น `disabled`, workspaces ว่าง และ diagnostics ไม่มี `config_warnings`.
+
+ก่อน release ต้องบันทึก release commit SHA, kernel/WSL/Windows versions และทำ signed tag กับ checksum ของ release archive ตาม runbook.
+
 ## v1.0.1 — released (21 กันยายน 2026)
 
 - schema ของ `codex.approval_ttl_seconds` ตรงกับ runtime ที่ 60–86,400 วินาที พร้อม regression test ที่ขอบเขต 59/60

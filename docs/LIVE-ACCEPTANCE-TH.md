@@ -1,8 +1,15 @@
 # ผล Live Acceptance — v1.0.1
 
-## v1.2.0 — Local Hands read-only (รอ live acceptance)
+## v1.2.0 — Local Hands read-only functional live acceptance ผ่าน (22 กันยายน 2026; tag pending)
 
-ยังไม่มีการรับรอง v1.2.0 release. Automated CI ครอบคลุม strict resolver, secret/path denial, generative path invariant และ Hermes unreachable + Codex binary absent fallback แล้ว แต่ต้องทำตาม [WSL2/DrvFS live-acceptance runbook](LOCAL-HANDS-V1.2-LIVE-ACCEPTANCE-TH.md) และบันทึกผล ext4/DrvFS รวมถึง OFF/OFF/ON ก่อน tag.
+- ทดสอบ deployment `/home/somchaip/hermes-mcp-bridge-v1.2.0-rc` ผ่าน Secure MCP Tunnel; discovery พบ 22 tools (base 19 + Hands 3) และ `bridge_diagnostics` ไม่มี `config_warnings`.
+- รอบ ext4: `hands_health` เป็น available; list แสดงเฉพาะไฟล์/ไดเรกทอรีที่อนุญาต, ซ่อน `.env` และ symlink `escape`; read `allowed.txt` และ `nested/allowed.txt` ได้ fixture ที่คาดไว้.
+- รอบ DrvFS ที่ `/mnt/e` (mount รายงาน `9p`/DrvFS): ได้ผล read/list/deny และ audit-redaction แบบเดียวกับ ext4. ไดเรกทอรี Windows ที่เปิด case-sensitive และมีทั้ง `A.txt`/`a.txt` ถูก `hands_list` ปฏิเสธแบบ fail-closed.
+- deny matrix ปฏิเสธ `.env`, `binary.txt`, `escape`, traversal, absolute path และ normalized path; audit ไม่บันทึก secret, fixture content, file name หรือ absolute fixture path.
+- ทดสอบ critical fallback โดย Hermes หยุดและตั้ง `codex.binary` เป็น `/definitely-missing-codex`: Hermes/Codex health ใช้ไม่ได้ตามคาด ขณะที่ Hands health/list/read ยังทำงานได้; ไม่ได้ submit task ไปยัง Hermes หรือ Codex.
+- คืน config และบริการแล้ว `./bridge.sh doctor`, `./bridge.sh codex-doctor` และ diagnostics ผ่าน; cleanup เสร็จและ production Local Hands กลับสู่ `disabled` โดย workspaces ว่าง.
+
+ยังไม่ประกาศ release/tag: ก่อน tag ต้องบันทึก SHA ของ release commit, `uname -r`, `wsl.exe --version`, และทำขั้นตอน signed tag/release archive ตาม runbook.
 
 ## v1.0.1 — maintenance release acceptance (21 กันยายน 2026)
 
