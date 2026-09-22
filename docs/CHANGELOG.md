@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.2.1 — unreleased
+
+- Added explicit metadata-only work contexts: opaque context IDs bind a bridge-owned Hermes session after observation or bind Codex workspace/job metadata without replaying prompts, outputs, credentials, or ChatGPT conversation state.
+- Added four MCP context tools and raised the canonical discovery contract to 26 tools.
+- Context continuation is explicit per call; no global active context or latest-session inference exists.
+- Release documentation gate is in progress; tag, archive, and release assets remain pending.
+
 ## v1.2.0 — released (22 September 2026)
 
 - Released the Local Hands read-only vertical slice after successful WSL2 ext4/DrvFS live acceptance, deny-matrix and audit-redaction checks, case-collision refusal, and Hermes-off/Codex-unavailable fallback.
@@ -14,8 +21,6 @@
 ## Unreleased
 
 - Clarified the two-phase release process: final archive checksums are external GitHub Release assets verified after the signed tag; a follow-up release-record commit documents that outcome without mutating the release tag.
-
-- Completed functional WSL2 live acceptance for v1.2.0 Local Hands: ext4 and DrvFS read-only flows, deny matrix, audit redaction, a case-sensitive `A.txt`/`a.txt` collision refusal, and Hermes OFF + Codex-unavailable fallback all passed. The temporary Hands workspace was removed and production Hands is disabled again; release provenance and signed tag remain pending.
 
 - Documented Secure MCP Tunnel recovery after a ChatGPT Plugin disconnect: use `tunnel.sh status` rather than direct `tunnel-client doctor` when the profile references `CONTROL_PLANE_API_KEY`, select **Tunnel** plus **No authentication** for the stdio bridge, and preserve a redacted escalation path for stale-link/`harpoon` transport errors. Confirmed a successful live reconnection after this recovery flow.
 
