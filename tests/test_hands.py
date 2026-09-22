@@ -35,6 +35,11 @@ class TestHandsRuntime(unittest.TestCase):
         self.assertEqual(disabled.list("anything")["error_code"], "disabled")
         self.assertEqual(disabled.read("anything", "file.txt")["error_code"], "disabled")
 
+    def test_hands_core_has_no_hermes_or_codex_runtime_dependency(self):
+        source = (Path(__file__).resolve().parents[1] / "hands_core.py").read_text()
+        self.assertNotIn("from core import", source)
+        self.assertNotIn("from codex_core import", source)
+
     def test_schema_keeps_hands_additive_and_validates_known_fields(self):
         config = {"schema_version": 1, "api_url": "http://127.0.0.1:8642", "hermes_env": "x",
                   "hands": {"enabled": True, "workspaces": [
