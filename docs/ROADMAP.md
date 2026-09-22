@@ -11,6 +11,20 @@
 - [x] v1.0.0 — production baseline, compatibility matrix, acceptance checklist, and release integrity
 - [x] v1.0.1 — configuration/runtime alignment and watchdog documentation maintenance
 
+### v1.2.0 — Independent read-only WSL2 Hands
+
+- [x] Add an optional `hands` backend that initializes independently of Hermes health and Codex availability.
+- [x] Keep the additive `hands` configuration block in schema version 1; Hands is disabled when the block is absent or `enabled=false`.
+- [x] Add a canonical read-only workspace allowlist, protected-path rules, non-removable protected-filename patterns, and bounded list/read responses.
+- [x] Add only three native MCP tools: `hands_health`, `hands_list`, and `hands_read`; discover them even while disabled and return a stable `disabled` result. The planned v1.2.0 discovery count is 22 tools (existing 19 + Hands 3).
+- [x] Use descriptor-relative `openat2` with `RESOLVE_BENEATH | RESOLVE_NO_SYMLINKS | RESOLVE_NO_MAGICLINKS` whenever the kernel/filesystem supports it. A configured workspace whose strict resolver self-test fails is unavailable; do not silently fall back to check-then-open.
+- [x] Define conservative DrvFS behavior in v1.2.0: descriptor-based containment, case-folded protected-name matching, filesystem/mount reporting, and rejection of ambiguous case-colliding entries.
+- [x] Reuse redacted rotating audit infrastructure without recording file content, secrets, or complete user payloads.
+- [x] Add property-based path tests plus adversarial traversal, symlink-swap, protected-name, DrvFS case, binary, special-file, and size-limit tests.
+- [x] Extend `bridge_status` and diagnostics with independent `hermes`, `codex`, and `local_hands` availability, without contacting a model for the Hands result.
+- [x] Prove the critical fallback scenario in automated and WSL2 live acceptance: Hermes unavailable + Codex unavailable + Local Hands health/list/read functional.
+- [x] Keep Hands disabled by default during upgrade; the installer must not invent readable workspaces.
+
 ## Deferred track — Hermes approval-event integration
 
 `v1.1.0` remains reserved for Hermes API approval-event integration and is not on the active delivery path.
@@ -31,19 +45,6 @@ Critical availability requirement:
 
 The design, trust boundaries, proposed configuration, and tool contracts are in [LOCAL-HANDS-ARCHITECTURE-TH.md](LOCAL-HANDS-ARCHITECTURE-TH.md). The delivery sequence and acceptance matrix are in [LOCAL-HANDS-IMPLEMENTATION-PLAN-TH.md](LOCAL-HANDS-IMPLEMENTATION-PLAN-TH.md).
 
-## v1.2.0 — Independent read-only WSL2 Hands
-
-- [ ] Add an optional `hands` backend that initializes independently of Hermes health and Codex availability.
-- [ ] Keep the additive `hands` configuration block in schema version 1; Hands is disabled when the block is absent or `enabled=false`.
-- [ ] Add a canonical read-only workspace allowlist, protected-path rules, non-removable protected-filename patterns, and bounded list/read responses.
-- [ ] Add only three native MCP tools: `hands_health`, `hands_list`, and `hands_read`; discover them even while disabled and return a stable `disabled` result. The planned v1.2.0 discovery count is 22 tools (existing 19 + Hands 3).
-- [ ] Use descriptor-relative `openat2` with `RESOLVE_BENEATH | RESOLVE_NO_SYMLINKS | RESOLVE_NO_MAGICLINKS` whenever the kernel/filesystem supports it. A configured workspace whose strict resolver self-test fails is unavailable; do not silently fall back to check-then-open.
-- [ ] Define conservative DrvFS behavior in v1.2.0: descriptor-based containment, case-folded protected-name matching, filesystem/mount reporting, and rejection of ambiguous case-colliding entries.
-- [ ] Reuse redacted rotating audit infrastructure without recording file content, secrets, or complete user payloads.
-- [ ] Add property-based path tests plus adversarial traversal, symlink-swap, protected-name, DrvFS case, binary, special-file, and size-limit tests.
-- [ ] Extend `bridge_status` and diagnostics with independent `hermes`, `codex`, and `local_hands` availability, without contacting a model for the Hands result.
-- [ ] Prove the critical fallback scenario in automated and WSL2 live acceptance: Hermes unavailable + Codex unavailable + Local Hands health/list/read functional.
-- [ ] Keep Hands disabled by default during upgrade; the installer must not invent readable workspaces.
 
 ## v1.3.0 — Approval-bound mutation and execution
 
