@@ -7,7 +7,7 @@ Repository: https://github.com/sc28249782/hermes-mcp-bridge
 จุดเริ่มต้นของโครงการ: [Project origin](PROJECT-ORIGIN.md)
 
 จัดทำสำหรับ Hermes Agent v0.21.1, commit `8d79c2ff` ที่ผู้ใช้ยืนยัน
-วันที่ปรับปรุง: 22 กันยายน 2026 — v1.2.1 candidate; release ยังไม่ถูก tag
+วันที่ปรับปรุง: 22 กันยายน 2026 — [v1.2.1 released](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.1); signed tag และ release archive เผยแพร่แล้ว
 
 ตัวกลางนี้ทำให้ ChatGPT ส่งงานให้ Hermes ที่รันอยู่บนเครื่องคุณ แล้วตรวจสถานะ อ่านผล และขอหยุดงานได้
 ใช้ Runs API เดียวกับที่ `hermes peer run/status/stop` เรียก แต่เรียก HTTP โดยตรง
@@ -27,20 +27,19 @@ Repository: https://github.com/sc28249782/hermes-mcp-bridge
 
 ## 1. ติดตั้งตัวกลางใน WSL2
 
-ดาวน์โหลด ZIP แล้วแตกในโฟลเดอร์ Linux ของผู้ใช้ `somchaip` เช่น:
+ดาวน์โหลดทั้ง `hermes-mcp-bridge-v1.2.1.zip` และ `SHA256SUMS` จาก [GitHub Release v1.2.1](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.1) แล้ววางทั้งสองไฟล์ไว้ในโฟลเดอร์ Linux ของผู้ใช้ `somchaip` เช่น:
 
 ```text
-/home/somchaip/hermes-mcp-bridge-v1.0.1/
+/home/somchaip/
 ```
 
-ถ้าดาวน์โหลดผ่าน Windows สามารถเปิดโฟลเดอร์บ้าน WSL ใน File Explorer ด้วย `explorer.exe ~`
-แล้วคัดลอก ZIP เข้าไป จากนั้นแตกไฟล์ใน WSL:
+`SHA256SUMS` เป็น external release asset จึงต้องอยู่ข้าง ZIP ก่อนตรวจสอบ หากดาวน์โหลดผ่าน Windows สามารถเปิดโฟลเดอร์บ้าน WSL ใน File Explorer ด้วย `explorer.exe ~` แล้วแตกไฟล์ใน WSL:
 
 ```bash
 cd /home/somchaip
 sha256sum -c SHA256SUMS
-unzip hermes-mcp-bridge-v1.0.1.zip
-cd /home/somchaip/hermes-mcp-bridge-v1.0.1
+unzip hermes-mcp-bridge-v1.2.1.zip
+cd /home/somchaip/hermes-mcp-bridge-v1.2.1
 bash install.sh
 ```
 
