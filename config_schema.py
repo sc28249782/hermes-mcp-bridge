@@ -96,6 +96,8 @@ def load_bridge_config(root: Path) -> tuple[dict, list[str]]:
         for index, value in enumerate(hands.get(key, [])):
             if not isinstance(value, str) or not value or len(value) > 1024:
                 raise ConfigError(f"hands.{key}[{index}] must be a non-empty string up to 1024 characters")
+            if key == "protected_paths" and not Path(value).expanduser().is_absolute():
+                raise ConfigError(f"hands.{key}[{index}] must be an absolute path")
             if key == "protected_name_patterns" and ("/" in value or "\\" in value or "\x00" in value):
                 raise ConfigError(f"hands.{key}[{index}] must be a filename pattern")
     names, paths = set(), set()
@@ -107,6 +109,8 @@ def load_bridge_config(root: Path) -> tuple[dict, list[str]]:
             raise ConfigError(f"hands.workspaces[{index}].name is invalid")
         if not isinstance(path_value, str) or not path_value or len(path_value) > 4096:
             raise ConfigError(f"hands.workspaces[{index}].path must be a non-empty string up to 4096 characters")
+        if not Path(path_value).expanduser().is_absolute():
+            raise ConfigError(f"hands.workspaces[{index}].path must be an absolute path")
         if name.casefold() in names:
             raise ConfigError("hands workspace names must be unique")
         names.add(name.casefold())
