@@ -1,4 +1,4 @@
-# Hermes MCP Bridge v1.0.1 — Hermes + Codex/WSL2 / ChatGPT
+# Hermes MCP Bridge v1.2.1 — Hermes + Codex/WSL2 / ChatGPT
 
 [![Tests](https://github.com/sc28249782/hermes-mcp-bridge/actions/workflows/tests.yml/badge.svg)](https://github.com/sc28249782/hermes-mcp-bridge/actions/workflows/tests.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](../LICENSE)
@@ -7,12 +7,12 @@ Repository: https://github.com/sc28249782/hermes-mcp-bridge
 จุดเริ่มต้นของโครงการ: [Project origin](PROJECT-ORIGIN.md)
 
 จัดทำสำหรับ Hermes Agent v0.21.1, commit `8d79c2ff` ที่ผู้ใช้ยืนยัน
-วันที่ปรับปรุง: 21 กันยายน 2026 — signed tag `v1.0.1` ได้รับการยืนยันโดย GitHub และ release archive ตรวจ SHA-256 ผ่าน
+วันที่ปรับปรุง: 22 กันยายน 2026 — v1.2.1 candidate; release ยังไม่ถูก tag
 
 ตัวกลางนี้ทำให้ ChatGPT ส่งงานให้ Hermes ที่รันอยู่บนเครื่องคุณ แล้วตรวจสถานะ อ่านผล และขอหยุดงานได้
 ใช้ Runs API เดียวกับที่ `hermes peer run/status/stop` เรียก แต่เรียก HTTP โดยตรง
 งานใหม่เริ่ม session ใหม่ ไม่ใช้ canonical “Bot Chat” ร่วมกับ peer อื่น
-งานต่อเนื่องระบุ session_id ที่ตัวกลางเคยคืนให้ได้
+งานต่อเนื่องสามารถใช้ `context_id` แบบ explicit เพื่อผูก Hermes session หรือ Codex workspace metadata ได้; ไม่มี global active context และไม่มีการ replay prompt/output
 
 เส้นทาง: ChatGPT → Secure MCP Tunnel → bridge.sh (stdio MCP) → Hermes API `127.0.0.1:8642`
 
