@@ -7,6 +7,12 @@
 
 ## Unreleased
 
+- Started the v1.2.0 Local Hands read-only implementation: opt-in additive `hands` schema, `hands_health`, `hands_list`, and `hands_read` bring MCP discovery to 22 tools when the branch is deployed.
+- Added a fail-closed descriptor-relative `openat2` resolver with beneath/no-symlink/no-magic-link constraints; workspaces whose strict resolver probe fails are unavailable rather than using check-then-open fallback.
+- Added case-folded baseline workspace secret-name protection, protected credential-path handling, bounded UTF-8 regular-file reads, hard-link/special-file denial, redacted Hands audit metadata, and a read-only setup guide.
+- Added unit and MCP integration coverage for disabled discovery, policy/secret denial, strict-resolver failure, path traversal/symlink escape, size/binary limits, hard links, case collisions, and 22-tool discovery.
+
+
 - Added Endeavor Hands design attribution and its MIT notice while recording that no upstream source or assets are currently incorporated.
 - Made generic deletion and unapproved truncation a non-overridable Local Hands baseline deny; execution must runtime-probe kernel enforcement such as Landlock, which starts with Linux 5.13 and must not be inferred from WSL2 alone.
 - Recorded rejected reference patterns: allow-by-default deny-list sandboxes, model-relayed nonce authorization, read-anywhere policy, broad multi-format tools, and nested MCP trust bypasses.
