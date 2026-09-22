@@ -46,6 +46,14 @@ Critical availability requirement:
 The design, trust boundaries, proposed configuration, and tool contracts are in [LOCAL-HANDS-ARCHITECTURE-TH.md](LOCAL-HANDS-ARCHITECTURE-TH.md). The delivery sequence and acceptance matrix are in [LOCAL-HANDS-IMPLEMENTATION-PLAN-TH.md](LOCAL-HANDS-IMPLEMENTATION-PLAN-TH.md).
 
 
+## v1.2.1 — Explicit work-context continuity
+
+- [x] Add a local metadata-only context registry with opaque `context_id`; it never stores or replays prompts, outputs, credentials, or ChatGPT conversation state.
+- [x] Bind a returned Hermes `session_id` to an explicit context after task status/result; a later `hermes_submit_task(context_id=...)` continues only that bridge-owned session.
+- [x] Bind Codex workspace/job metadata to an explicit context without pretending that independent Codex CLI jobs are a resumable chat session.
+- [x] Require `context_id` on every continued task; do not create a global active context or infer the latest session across chats.
+- [x] Provide create/status/recent/close context tools and metadata-only audit events.
+
 ## v1.3.0 — Approval-bound mutation and execution
 
 - [ ] Add `hands_write`, `hands_patch`, `hands_exec`, and `hands_process` after v1.2.0 read-only live acceptance and feedback.
