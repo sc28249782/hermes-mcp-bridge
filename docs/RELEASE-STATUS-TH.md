@@ -6,7 +6,7 @@
 - Critical fallback OFF/OFF/ON ผ่าน: เมื่อ Hermes ใช้ไม่ได้และ Codex binary หาย Local Hands health/list/read ยังคงใช้ได้; ไม่มี Hermes/Codex task ถูกส่งระหว่างทดสอบ.
 - คืน production state แล้ว Local Hands เป็น `disabled`, workspaces ว่าง และ diagnostics ไม่มี `config_warnings`.
 
-ก่อน release ต้องบันทึก release commit SHA, kernel/WSL/Windows versions และทำ signed tag กับ checksum ของ release archive ตาม runbook.
+บันทึก provenance แล้ว: checkout ที่สะอาด `9d00431975a61dc7fd67b521180f4e8669d84479`; `uname -r` = `6.18.33.2-microsoft-standard-WSL2`; WSL `2.7.14.0` (kernel package `6.18.33.2-2`) และ Windows `10.0.26300.9539`. เหลือสร้าง release archive, ตรวจ SHA-256 และสร้าง signed tag ตาม runbook.
 
 ## v1.0.1 — released (21 กันยายน 2026)
 
