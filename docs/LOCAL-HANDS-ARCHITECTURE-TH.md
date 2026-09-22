@@ -26,6 +26,12 @@ hermes-mcp-bridge
 
 คำว่า “อิสระ” หมายถึงเส้นทาง `hands_*` ไม่เรียก Hermes Runs API, model provider หรือ Codex CLI ไม่ได้หมายความว่าจะใช้งานได้เมื่อ ChatGPT, Secure MCP Tunnel, bridge process หรือ WSL2 หยุดทำงาน
 
+### 1.1 ที่มาของแนวคิดและการให้เครดิต
+
+แนวคิด “ChatGPT เป็นสมอง ส่วน local MCP server เป็นมือ” และบทเรียนเรื่อง tool surface, deletion refusal, working-copy redirect, computer post-action verification และข้อจำกัดของ consent friction ได้แรงบันดาลใจจาก [halochamp/Endeavor_Hands](https://github.com/halochamp/Endeavor_Hands) ซึ่งเผยแพร่ภายใต้ MIT License, Copyright (c) 2026 Poomwat Jarussri
+
+Local Hands เป็นงานออกแบบใหม่สำหรับ Windows/WSL2 ภายใต้ trust model ของ `hermes-mcp-bridge`; ณ ขั้นเอกสารนี้ไม่มีการคัดลอก source code หรือ asset จาก Endeavor Hands หากอนาคตมีการนำโค้ดมาดัดแปลง ต้องคง copyright/MIT notice ของ upstream ไว้ใน source/distribution ตามเงื่อนไข MIT และบันทึกใน `THIRD_PARTY_NOTICES.md` ส่วนโค้ดของโครงการที่เขียนขึ้นใหม่ยังอยู่ภายใต้ Apache-2.0
+
 ## 2. หลักการออกแบบ
 
 1. **Sibling backends** — Hermes, Codex และ Hands มี lifecycle/health แยกกัน ไม่มี backend ใดเป็นทางผ่านบังคับของอีก backend
@@ -36,6 +42,7 @@ hermes-mcp-bridge
 6. **Local human approval** — การอนุมัติทำใน local TTY/companion UI เท่านั้น MCP ไม่มี tool สำหรับ approve
 7. **Content minimization** — audit บันทึก metadata ที่ redacted ไม่บันทึกเนื้อหาไฟล์ prompt/output screenshot/clipboard หรือ secret
 8. **Bounded everything** — จำกัดขนาดไฟล์ output runtime จำนวน process concurrency และ TTL ของ pending action
+9. **No generic deletion baseline** — file API ไม่มี delete primitive และ execution profile ต้องพิสูจน์ kernel-enforced no-delete/no-unapproved-truncate policy; local approval ไม่สามารถเปิด generic deletion ได้ ส่วน exact approved write/patch ใช้ได้เฉพาะ target ที่ผูก digest
 
 ## 3. Trust boundaries และ threat model
 
@@ -55,6 +62,7 @@ hermes-mcp-bridge
 | Prompt injection จากไฟล์/หน้าจอ | ถือ content เป็น data, ไม่เปลี่ยน policy/approval ตามข้อความที่อ่านพบ |
 | Shell injection | argv array, `shell=False`, executable allowlist, environment allowlist |
 | Secret exfiltration | protected paths, baseline protected filenames, output limits, redaction, network tools ปิดโดย default; exec output ยังถือว่า content-bearing |
+| Delete/truncate/rename bypass | ไม่มี delete tool, exact operation schema, kernel-enforced execution policy, dedicated no-clobber move เท่านั้นหากเพิ่มในอนาคต |
 | Approval replay | action digest, exact parameters, TTL, one-time use, local confirmation |
 | PID reuse / process escape | process-group ownership, start-time identity, bounded children, cancellation verification |
 | TOCTOU | canonicalize และตรวจที่จุดใช้งาน, atomic replace, reject path type changes |
@@ -114,6 +122,20 @@ Hands database ควรแยก table namespace หรือไฟล์ state
 - environment ของ Git profile ต้องเริ่มจาก minimal environment และปิด global/system config injection อย่างน้อยด้วย `GIT_CONFIG_GLOBAL=/dev/null`, `GIT_CONFIG_SYSTEM=/dev/null`, ปิด hooks/pager/external diff ตาม action schema; executable อื่นต้องมี hardening เฉพาะตัว
 - profile ที่ไม่ต้อง approval ต้องคืนเฉพาะ metadata และใช้ exact constrained argv; `git diff` เป็น content-bearing จึงไม่อยู่ในกลุ่มนี้
 - stdout/stderr คือ trusted-workspace-content ที่จะไหลกลับเข้า ChatGPT และอาจมี secret การกรองตามชื่อไฟล์หรือ output redaction ไม่สามารถรับประกันการป้องกันได้
+
+#### Kernel enforcement สำหรับ execution
+
+`shell=False` ป้องกัน shell injection แต่ไม่ได้ป้องกัน binary, build rule, interpreter หรือ child process จากการเรียก `unlink`, `rename` หรือ `truncate` โดยตรง เพื่ออ้างว่า generic deletion และ unapproved truncation ถูกปิดจริง v1.3.0 ต้องมี kernel-enforced filesystem policy เช่น Landlock หรือกลไกเทียบเท่าที่ผ่าน acceptance ไม่ใช่ command deny-list Exact `hands_write`/`hands_patch` ที่ผ่าน digest-bound approval เป็น operation แยกและแตะได้เฉพาะ target ที่อนุมัติ
+
+[Landlock](https://docs.kernel.org/userspace-api/landlock.html) เริ่มมีใน Linux 5.13 ไม่ใช่ 5.10 และยังขึ้นกับ kernel build/boot configuration และ ABI ที่รองรับ Runtime ต้อง probe syscall/ABI จริง ห้ามอนุมานจากเลข kernel หรือคำว่า WSL2 เพียงอย่างเดียว Profile ที่ต้อง enforce no-delete/no-truncate unavailable เมื่อกลไกไม่รองรับสิทธิ์ที่ต้องใช้; ห้าม downgrade เงียบไปเป็น keyword filter
+
+ข้อกำหนดขั้นต่ำของ execution sandbox:
+
+- allow เฉพาะ hierarchy ที่ profile ต้องอ่าน/เขียน และ deny ambient filesystem access ที่ไม่ประกาศ
+- deny remove file/directory, rename/link escape และ truncate ตาม ABI ที่รองรับ
+- restrictions สืบทอดไป child processes
+- capability health รายงาน enforcement mechanism/ABI แบบไม่เผย path อ่อนไหว
+- integration test ต้องพิสูจน์ direct syscall deletion, interpreter deletion, child-process deletion และ destination overwrite ล้มเหลว
 
 ### 5.2 v1.4.0 Windows host
 
@@ -190,7 +212,8 @@ secrets*.json
 | create/replace/patch file | ปิดจนเปิด write capability | ต้องอนุมัติ local |
 | process cancel ที่ Hands เป็นเจ้าของ | อนุญาตตาม policy | แสดงผลกระทบ; mutation policy กำหนด |
 | interpreter/script execution | ปิด | ต้อง policy เฉพาะและ approval |
-| delete, chmod/chown, package install, service mutation | ปิด | explicit high-risk policy + local approval |
+| generic delete/unlink/rmdir/destructive rename/unapproved truncate | baseline deny | approval ไม่สามารถเปิด generic delete; exact write/patch target ใช้ flow แยก |
+| chmod/chown, package install, service mutation | ปิด | explicit high-risk policy + local approval ใน milestone ที่รองรับ |
 | credential path, secure desktop, payment | ปฏิเสธ | approval ไม่สามารถ override baseline deny |
 
 Approval record ต้องผูก canonical digest ตาม [ADR-0001](adr/0001-local-hands-foundation.md) หากค่าใดเปลี่ยนต้องขอ approval ใหม่ Runtime execute persisted immutable payload ที่ถูก digest เท่านั้น ไม่รับ payload รอบสองจาก MCP client
@@ -212,6 +235,12 @@ Approval record ต้องผูก canonical digest ตาม [ADR-0001](adr/
 - protected filename baseline ตรวจทุก file operation ก่อนเปิดและผู้ใช้ลดไม่ได้
 - DrvFS `/mnt/<drive>` ใช้ descriptor containment เหมือนกัน แต่ protected names/path comparisons ใช้ conservative case-folding, ตรวจ mount type/options และ reject case-fold collision ที่กำกวม ห้ามสมมติว่า semantics เหมือน ext4
 - Windows path translation เป็น convenience เท่านั้น หลังแปลงต้องผ่าน canonical policy เหมือน path ปกติ
+
+### 7.1 Move และ working-copy redirect
+
+Baseline ไม่มี generic move/delete หากอนาคตต้องย้ายไฟล์ ให้สร้าง dedicated operation ที่รับ source/destination แบบ canonical, จำกัดใน workspace, ใช้ no-clobber primitive เช่น `renameat2(..., RENAME_NOREPLACE)`, ปฏิเสธ destination ที่มีอยู่ และไม่เปิดผ่าน arbitrary executable argv
+
+สำหรับไฟล์นอก writable workspace อาจเพิ่ม read-adjacent workflow ในอนาคตที่สร้าง working copy ชื่อ `name.edited.ext` ใน workspace ที่อนุญาต โดยไม่แก้ต้นฉบับ การสร้างสำเนาต้องมี provenance metadata, collision-safe naming และต้องไม่ตีความว่าเป็นสิทธิ์เขียนนอก workspace
 
 ## 8. Process lifecycle
 
@@ -251,9 +280,10 @@ Windows helper ควรเป็น process แยกที่มี protocol v
 
 ห้ามเริ่ม implementation จนกว่า v1.4.0 Windows Host จะผ่าน live acceptance และมี security review ที่บันทึกผลแล้ว รุ่นแรกของ computer use เป็น observe-only จากนั้นจึงเปิด click เฉพาะ disposable test application ส่วน typing ต้องผ่าน review/acceptance แยกอีกครั้ง
 
-- observe ก่อน action และ action อ้าง `observation_id`
+- observe ก่อน action และ action อ้าง `observation_id` พร้อม action/observation budget
 - ตรวจ window/process identity และ geometry ใหม่ก่อน click/type
-- ไม่อ่านหรือกรอก password/PIN/MFA/token/recovery code
+- หลัง action ต้องเก็บ post-action observation แบบ bounded แล้วตรวจ app/window identity, screen-change signal และ expected-state predicate; หากยืนยันไม่ได้ให้คืน `verification_inconclusive` ไม่เดาว่าสำเร็จ
+- ไม่อ่านหรือกรอก protected field โดยใช้ accessibility secure-field flag เป็นหลักและใช้ normalized/case-folded marker เป็น defense-in-depth ได้แก่ `password`, `passcode`, `pin`, `otp`, `mfa`, `2fa`, `verification code`, `security code`, `รหัสผ่าน`, `รหัส`, `พิน`, `โอทีพี`
 - ไม่ควบคุม UAC/secure desktop
 - ไม่ทำ payment, signing, credential export หรือ security-setting changes
 - ข้อความบนหน้าจอไม่มีสิทธิเปลี่ยน policy หรืออนุมัติ action
@@ -274,6 +304,17 @@ Windows helper ควรเป็น process แยกที่มี protocol v
 
 เหตุผล `quota_exhausted`/`usage_limit` ต้องมาจากผลที่ backend รายงานได้อย่างเชื่อถือ ห้ามเดาจากข้อความทั่วไป หากจำแนกไม่ได้ใช้ `unreachable` หรือ `error` พร้อมรายละเอียดที่ redacted
 
-## 13. ข้อจำกัดที่ต้องสื่อสารกับผู้ใช้
+Diagnostics ต้องมี classifier แยกจาก adapter ที่ map exception/exit/signal/stderr pattern เป็น structured `{error_code, layer, retryable, safe_hint}` โดยไม่ dump raw stderr อัตโนมัติ Raw output อ่านได้เฉพาะผ่าน bounded result paging ตาม policy และไม่เข้า audit log
+
+## 13. รูปแบบจาก Endeavor Hands ที่จงใจไม่รับมา
+
+- ไม่ใช้ sandbox แบบ `(allow default)` แล้วไล่ deny path เพราะ path ที่ตกหล่นยังเข้าถึงได้ Local Hands คง workspace/capability allowlist และอาจเสริมด้วย Landlock ที่ probe ได้จริง
+- ไม่ใช้ nonce ที่โมเดล relay เป็น approval boundary; หากมี friction token ในอนาคตต้องประกาศว่า non-security และห้ามแทน local TTY/companion approval ที่ผูก digest
+- ไม่เปิดอ่านทั่วเครื่องแล้วพึ่ง protected-path deny-list
+- ไม่เพิ่ม PDF/OCR/media/parser เข้า `hands_read` โดยปริยาย ทุก capability ต้องมี policy, dependency, limits, threat model และ acceptance ของตัวเอง
+- ไม่ทำ dynamic MCP-to-MCP bridge หรือ trusted delegation bypass ในรุ่นแรก และไม่ให้ exact path/cwd matching เพียงอย่างเดียวสร้าง trust root
+- ไม่ยอมรับช่องทางที่ shell/interpreter เขียนข้าม edit gate เป็น accepted gap; execution ต้องใช้ operation profile, approval และ kernel enforcement ตาม capability
+
+## 14. ข้อจำกัดที่ต้องสื่อสารกับผู้ใช้
 
 Local Hands เป็น fallback เมื่อ Hermes/Codex ใช้ไม่ได้ แต่ ChatGPT ยังคงเป็น brain ดังนั้นยังขึ้นกับ quota/session ของ ChatGPT และความพร้อมของ tunnel/bridge มันไม่ใช่ offline agent, unrestricted shell หรือ remote desktop และไม่รับประกันว่า task ที่ต้อง reasoning ระยะยาวจะสำเร็จเท่า Codex/Hermes ผู้ใช้ควรแบ่งงานเป็นขั้นสั้น ตรวจผล และอนุมัติเฉพาะ action ที่เข้าใจผลกระทบ

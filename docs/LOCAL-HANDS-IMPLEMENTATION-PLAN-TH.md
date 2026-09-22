@@ -13,6 +13,7 @@
 4. เพิ่ม dependency-direction test หรือ static assertion เพื่อป้องกัน Hands import/call Hermes client และ Codex runner
 5. กำหนด golden redaction tests และ non-removable protected-filename baseline ก่อนสร้าง file tools
 6. เพิ่ม strict-resolver probe สำหรับ `openat2` และ filesystem แต่ละ workspace; unsupported/failed workspace ต้อง unavailable โดยไม่มี check-then-open fallback
+7. เพิ่ม provenance/license check: แนวคิดที่อ้าง Endeavor Hands ต้อง link attribution; ถ้าดัดแปลง source จริงต้องคง MIT notice ใน source/distribution และอัปเดต `THIRD_PARTY_NOTICES.md`
 
 Exit criteria:
 
@@ -63,6 +64,8 @@ Exit criteria:
 - Git/CMake/test runners ถูกจัดเป็น trusted-workspace-code; Git profile ใช้ minimal environment และปิด global/system config, hooks, pager และ external diff ตาม action schema
 - no-approval profile คืนเฉพาะ metadata; `git diff`/build/test/interpreter ต้อง approval
 - docs/approval preview เตือนว่า stdout/stderr อาจมี secret และจะถูกส่งเข้า ChatGPT
+- generic deletion และ unapproved truncation เป็น baseline deny ที่ approval เปิดไม่ได้; execution profile ต้องใช้ Landlock/กลไกเทียบเท่าที่ probe capability/ABI ได้จริง มิฉะนั้น profile นั้น unavailable ส่วน exact write/patch target ใช้ digest-bound flow แยก
+- เพิ่ม structured failure classifier ที่คืน `error_code`, failure layer, retryable และ safe hint โดยไม่ dump raw stderr อัตโนมัติ
 
 ### Stage 4 — Windows host adapter (v1.4.0)
 
@@ -79,9 +82,10 @@ Exit criteria:
 1. observe-only capture/accessibility tree
 2. observation identity/TTL/foreground verification
 3. allowlisted click เฉพาะ disposable app
-4. security review/acceptance gate รอบใหม่ก่อนเปิด key/scroll/typing
-5. typing พร้อม protected-field refusal
-6. emergency stop, visible indicator, queue cancellation และ prompt-injection tests
+4. post-action snapshot/screen-change/app-match verification และ observation budget
+5. security review/acceptance gate รอบใหม่ก่อนเปิด key/scroll/typing
+6. typing พร้อม accessibility secure-field refusal และ English/Thai credential markers
+7. emergency stop, visible indicator, queue cancellation และ prompt-injection tests
 
 ### Stage 6 — Routing and release hardening (v1.6.0)
 
@@ -122,6 +126,8 @@ Checklist:
 - [ ] installer upgrade ไม่ทับ config เดิมและไม่สร้างสิทธิ write/exec
 - [ ] rollback ไป v1.0.1 อธิบายผลของ schema/state ใหม่ชัดเจน
 - [ ] pending action มี per-workspace/global cap ที่ validate ชัดเจน
+- [ ] execution sandbox probe แยก kernel version ออกจาก Landlock availability/ABI; ห้ามอ้างว่า WSL2 รองรับโดยไม่ probe
+- [ ] generic deletion/unapproved truncation baseline deny ลดไม่ได้; exact approved write/patch จำกัด target ตาม digest
 
 ## 4. MCP contract checklist
 
@@ -185,6 +191,9 @@ MCP request
 - bridge restart ก่อน/หลัง spawn, orphan, stale PID/PID reuse, unknown exit
 - Git config/env/hooks/pager/ext-diff bypass และ content-bearing `git diff` classification
 - stdout/stderr fixture ที่มี fake secret เพื่อยืนยัน warning, bounds, audit non-leakage และข้อจำกัดว่า content ยังส่งถึง caller
+- direct syscall/interpreter/child-process delete, truncate, destructive rename และ destination overwrite ต้องถูก deny
+- Landlock unsupported, disabled และ ABI ไม่พอ ต้อง fail closed โดยไม่มี keyword-filter fallback
+- failure classifier คืน safe structured hint และไม่ฝัง raw stderr/secret ใน error/audit
 
 Executable แต่ละตัวต้องมี adversarial tests ตาม semantics ของมัน ไม่ควรอนุญาต generic executable เพียงเพราะ fixed argv ป้องกัน shell injection เพราะ executable เองอาจมี flag สำหรับรันคำสั่งหรือโหลด config/script
 
@@ -203,7 +212,8 @@ Executable แต่ละตัวต้องมี adversarial tests ตา�
 - helper authentication/version mismatch/replay/message oversize
 - helper path replacement/signature mismatch และ public bind refusal
 - window เปลี่ยนก่อน click, geometry/DPI เปลี่ยน, stale screenshot, foreground mismatch
-- password/MFA/UAC/payment fields ถูกปฏิเสธ
+- post-action no-change/unexpected-change/wrong-app คืน `verification_inconclusive` หรือ structured failure
+- password/MFA/UAC/payment fields ถูกปฏิเสธ ทั้ง accessibility secure-field และ marker `password/passcode/pin/otp/mfa/2fa/verification code/security code/รหัสผ่าน/รหัส/พิน/โอทีพี`
 - prompt injection บนหน้าจอไม่เปลี่ยน policy
 - emergency stop ระหว่าง queue และหลัง helper reconnect
 
@@ -226,9 +236,10 @@ Executable แต่ละตัวต้องมี adversarial tests ตา�
 1. สร้าง write/patch pending action, approve/deny/expire และ capacity cap ผ่าน local TTY
 2. ตรวจ canonical digest ด้วย golden vectors และ tamper/replay tests
 3. รัน constrained metadata profile และ approved trusted-workspace-code profile
-4. poll bounded JSONL output, timeout, cancel และ restart recovery
-5. ทดสอบ fake-secret output และยืนยันว่า audit ไม่เก็บ content พร้อมแสดง warning ต่อผู้ใช้
-6. ทำซ้ำขณะ Hermes/Codex unavailable
+4. probe Landlock/กลไกเทียบเท่าแล้วพิสูจน์ deletion/truncation/rename-overwrite refusal ผ่าน direct syscall และ child process
+5. poll bounded JSONL output, timeout, cancel และ restart recovery
+6. ทดสอบ fake-secret output และยืนยันว่า audit ไม่เก็บ content พร้อมแสดง warning ต่อผู้ใช้
+7. ทำซ้ำขณะ Hermes/Codex unavailable
 
 ### v1.4.0 Windows
 
@@ -248,16 +259,17 @@ Executable แต่ละตัวต้องมี adversarial tests ตา�
 1. ยืนยัน v1.4.0 live acceptance + security review gate ก่อนเริ่ม
 2. observe-only โดยอ้าง observation ID
 3. stale/window-change/DPI/coordinate denial
-4. click ใน disposable app, protected-field refusal และ emergency stop
-5. review gate แยกก่อน typing/key/scroll
-6. cancellation ตัด queued actions และตรวจ screenshot retention/audit
+4. click ใน disposable app แล้วตรวจ post-action snapshot/change signal/app match
+5. protected-field refusal ครบ English/Thai markers และ emergency stop
+6. review gate แยกก่อน typing/key/scroll
+7. cancellation ตัด queued actions และตรวจ screenshot retention/audit
 
 ## 7. Documentation and release checklist
 
 ก่อน tag ทุกครั้งต้องทำตามลำดับ:
 
 1. freeze tool/config contract
-2. update README, ROADMAP, architecture, security, operations, install/upgrade, testing, compatibility, release status และ changelog
+2. update README, ROADMAP, architecture, security, operations, install/upgrade, testing, compatibility, release status, changelog และ third-party notices
 3. search ทั้ง repo หา version/tool-count/config examples เก่า
 4. run automated suite, shellcheck และ static/dependency checks
 5. run live acceptance และบันทึก environment/limitations
@@ -290,5 +302,6 @@ Executable แต่ละตัวต้องมี adversarial tests ตา�
 7. รองรับ bind mounts/hard links ระดับใดใน v1.2.0
 8. local approval ใช้ CLI เดิมก่อน หรือเพิ่ม companion UI ในรุ่น Windows
 9. Windows helper transport/auth/signing/distribution model
+10. Landlock wrapper/implementation ที่จะใช้และ minimum ABI ของแต่ละ execution profile
 
 คำตอบของข้อเหล่านี้ควรถูกบันทึกเป็น ADR ก่อน merge implementation PR แรก

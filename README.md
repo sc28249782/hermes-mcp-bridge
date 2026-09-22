@@ -42,7 +42,10 @@ Run `bash tunnel.sh init tunnel_YOUR_ID --force` when changing the bridge direct
 - [Local Hands architecture and security](docs/LOCAL-HANDS-ARCHITECTURE-TH.md)
 - [Local Hands implementation and acceptance plan](docs/LOCAL-HANDS-IMPLEMENTATION-PLAN-TH.md)
 - [ADR-0001: Local Hands foundation contracts](docs/adr/0001-local-hands-foundation.md)
+- [Third-party notices and design attribution](THIRD_PARTY_NOTICES.md)
 
 ## License
 
 Licensed under [Apache License 2.0](LICENSE).
+
+The Local Hands design was inspired in part by [Endeavor Hands](https://github.com/halochamp/Endeavor_Hands) (MIT). No Endeavor Hands source code or assets are incorporated in the current design documents or v1.0.1 runtime; see [Third-Party Notices](THIRD_PARTY_NOTICES.md).

@@ -60,6 +60,14 @@ Execution begins in v1.3.0. A profile can avoid per-run approval only when its a
 
 `git diff`, build/test execution, interpreters, scripts, hooks, response files, and config-file indirection are content-bearing or trusted-workspace-code and require approval. Git profiles use a minimal environment and disable global/system config, hooks, pager, external diff, and other action-specific escape paths.
 
+### 6. Deletion is a non-overridable baseline deny
+
+Local Hands exposes no generic delete tool. Local approval cannot authorize generic delete, unlink, rmdir, destination-clobbering rename, unapproved truncate, or an execution profile that cannot prove these actions are blocked. Exact `hands_write`/`hands_patch` is a separate digest-bound action that may replace only its approved target.
+
+`shell=False` and argv validation do not constrain filesystem syscalls made by a binary or child process. Execution profiles claiming no-delete/no-unapproved-truncate therefore require a runtime-probed kernel mechanism such as Landlock or an equivalent accepted control. Landlock was introduced in Linux 5.13 and also depends on build, boot, and ABI support; availability must not be inferred from the WSL2 label or kernel version alone. If the required rights cannot be enforced, the profile is unavailable without a keyword-filter fallback.
+
+A future move operation must be a dedicated canonical source/destination action using a no-clobber primitive and must not expose arbitrary `mv` arguments.
+
 ## Required security contracts recorded with this ADR
 
 - Baseline protected filename patterns inside workspaces are non-removable; users may only add patterns.
@@ -67,6 +75,7 @@ Execution begins in v1.3.0. A profile can avoid per-run approval only when its a
 - Pending actions have explicit global and per-workspace caps.
 - DrvFS is handled conservatively with case-folded protected-name matching, descriptor containment, mount reporting, and ambiguous case-collision rejection.
 - Computer use cannot start until the Windows Host phase passes live acceptance and a recorded security review.
+- Model-relayed nonces, allow-by-default deny-list sandboxes, read-anywhere policies, and dynamic MCP trust bypasses are not authorization mechanisms for Local Hands.
 
 ## Consequences
 

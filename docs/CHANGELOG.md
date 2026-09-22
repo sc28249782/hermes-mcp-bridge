@@ -7,6 +7,11 @@
 
 ## Unreleased
 
+- Added Endeavor Hands design attribution and its MIT notice while recording that no upstream source or assets are currently incorporated.
+- Made generic deletion and unapproved truncation a non-overridable Local Hands baseline deny; execution must runtime-probe kernel enforcement such as Landlock, which starts with Linux 5.13 and must not be inferred from WSL2 alone.
+- Recorded rejected reference patterns: allow-by-default deny-list sandboxes, model-relayed nonce authorization, read-anywhere policy, broad multi-format tools, and nested MCP trust bypasses.
+- Added no-clobber move/working-copy guidance, structured failure classification, post-action computer verification, and English/Thai protected-field markers.
+
 - Hardened the Local Hands design after review: v1.2.0 is now a three-tool read-only vertical slice, while mutation/execution moves to v1.3.0 and later Windows/computer-use milestones shift to v1.4.0-v1.6.0.
 - Added non-removable workspace-internal protected filename patterns, strict `openat2`/DrvFS policy, property-based path tests, pending-action caps, trusted-workspace-code classification, and a computer-use security gate.
 - Added ADR-0001 defining additive schema-v1 configuration, stable disabled-tool discovery, canonical SHA-256 action serialization, bounded JSONL process output, and metadata-only initial no-approval profiles.
