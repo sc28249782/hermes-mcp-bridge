@@ -356,3 +356,8 @@ v1.0.1 ผ่าน regression 48 tests โดยใช้ `-W error::ResourceWa
 - [OpenAI Secure MCP Tunnel](https://developers.openai.com/api/docs/guides/secure-mcp-tunnels)
 - [OpenAI Connect and test](https://developers.openai.com/plugins/deploy/connect-chatgpt)
 - [Official tunnel-client releases](https://github.com/openai/tunnel-client/releases/latest)
+
+
+## v1.2.1 — work contexts
+
+Use `bridge_context_create` to create an explicit metadata-only context. Pass its `context_id` to later Hermes or Codex submissions. A Hermes context resumes only the bridge-owned `session_id` observed from task status/result; Codex contexts bind workspace/job metadata only and never replay prior prompts or outputs. There is no global active context, so a new ChatGPT chat must explicitly provide the intended `context_id`.
