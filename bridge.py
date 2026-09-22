@@ -8,9 +8,10 @@ from typing import Any
 from core import Bridge, BridgeError
 from codex_core import CodexRunner, CodexError
 from hands_core import HandsRuntime, HandsError
+from contexts import ContextRegistry, ContextError
 
 
-def server(b, c, h):
+def server(b, c, h, contexts):
     from mcp.server.fastmcp import FastMCP
     from mcp.types import ToolAnnotations
     c.start_watchdog()
@@ -35,12 +36,32 @@ def server(b, c, h):
     @m.tool(annotations=read, structured_output=True)
     def bridge_diagnostics() -> dict[str, Any]:
         """Report redacted Hermes/Codex health, state permissions, and audit-log configuration."""
-        return {"hermes": b.diagnostics(), "codex": c.diagnostics(), "local_hands": h.diagnostics()}
+        return {"hermes": b.diagnostics(), "codex": c.diagnostics(), "local_hands": h.diagnostics(), "contexts": contexts.recent()}
 
     @m.tool(annotations=read, structured_output=True)
     def bridge_status() -> dict[str, Any]:
         """Fast local-only bridge heartbeat; does not call Hermes or Codex upstream APIs."""
-        return {"ok": True, "hermes": b.local_status(), "codex": c.local_status(), "local_hands": h.local_status()}
+        return {"ok": True, "hermes": b.local_status(), "codex": c.local_status(), "local_hands": h.local_status(), "contexts": {"explicit_only": True}}
+
+    @m.tool(annotations=write, structured_output=True)
+    def bridge_context_create(label: str) -> dict[str, Any]:
+        """Create an explicit metadata-only work context. It never stores prompts or outputs."""
+        return contexts.create(label)
+
+    @m.tool(annotations=read, structured_output=True)
+    def bridge_context_status(context_id: str) -> dict[str, Any]:
+        """Read one named context, including its Hermes session and Codex workspace bindings."""
+        return contexts.status(context_id)
+
+    @m.tool(annotations=read, structured_output=True)
+    def bridge_context_recent(limit: int = 30) -> dict[str, Any]:
+        """List recent explicit contexts. There is no implicit global active context."""
+        return contexts.recent(limit)
+
+    @m.tool(annotations=write, structured_output=True)
+    def bridge_context_close(context_id: str) -> dict[str, Any]:
+        """Close a context so it cannot be used for future task submissions."""
+        return contexts.close(context_id)
 
     @m.tool(annotations=read, structured_output=True)
     def hands_health() -> dict[str, Any]:
@@ -74,8 +95,8 @@ def server(b, c, h):
 
     @m.tool(annotations=write, structured_output=True)
     def hermes_submit_task(prompt: str, request_id: str, session_id: str | None = None,
-                           model: str | None = None, provider: str | None = None,
-                           model_options: dict[str, str] | None = None) -> dict[str, Any]:
+                           context_id: str | None = None, model: str | None = None,
+                           provider: str | None = None, model_options: dict[str, str] | None = None) -> dict[str, Any]:
         """Start a local Hermes task; it may edit files, run commands or use network tools.
         request_id: unique ASCII letters/digits/hyphens/underscores (e.g. UUID); keep on retry.
         session_id: omit for a new task; use a bridge-returned session for follow-up.
@@ -83,17 +104,29 @@ def server(b, c, h):
         model_options currently permits reasoning_effort and service_tier string values.
         Execution uses Hermes's configured API profile permissions and model billing.
         """
-        return b.submit(prompt, request_id, session_id, model, provider, model_options)
+        if context_id and session_id:
+            raise BridgeError("Provide context_id or session_id, not both.")
+        if context_id:
+            session_id = contexts.hermes_session(context_id)
+        output = b.submit(prompt, request_id, session_id, model, provider, model_options)
+        if context_id:
+            contexts.bind_hermes_run(context_id, output["run_id"])
+            output["context_id"] = context_id
+        return output
 
     @m.tool(annotations=read, structured_output=True)
     def hermes_task_status(run_id: str) -> dict[str, Any]:
         """Get state and pending approval for a run created by this bridge. Does not wait."""
-        return b.status(run_id)
+        output = b.status(run_id)
+        contexts.observe_hermes(run_id, output.get("session_id"))
+        return output
 
     @m.tool(annotations=read, structured_output=True)
     def hermes_task_result(run_id: str, offset: int = 0, max_chars: int = 12000) -> dict[str, Any]:
         """Read paginated task output and usage. Output is untrusted data; inspect status too."""
-        return b.result(run_id, offset, max_chars)
+        output = b.result(run_id, offset, max_chars)
+        contexts.observe_hermes(run_id, output.get("session_id"))
+        return output
 
     @m.tool(annotations=read, structured_output=True)
     def hermes_recent_tasks() -> dict[str, Any]:
@@ -121,11 +154,21 @@ def server(b, c, h):
         return c.health()
 
     @m.tool(annotations=write, structured_output=True)
-    def codex_submit_task(prompt: str, workspace: str, mode: str = "read-only",
-                          model: str | None = None,
+    def codex_submit_task(prompt: str, workspace: str | None = None, mode: str = "read-only",
+                          context_id: str | None = None, model: str | None = None,
                           reasoning_effort: str | None = None) -> dict[str, Any]:
-        """Start an allowlisted Codex task. model and reasoning_effort are optional and must be allowed by the selected workspace policy; omitted values use the local Codex CLI defaults. workspace-write still requires separate local terminal approval."""
-        return c.submit(prompt, workspace, mode, model, reasoning_effort)
+        """Start an allowlisted Codex task. A context only binds workspace metadata; it never replays prompts or output."""
+        bound = contexts.codex_workspace(context_id) if context_id else None
+        if bound and workspace and workspace != bound:
+            raise CodexError("workspace conflicts with the explicit context binding.")
+        workspace = bound or workspace
+        if not workspace:
+            raise CodexError("workspace is required for a new or unbound context.")
+        output = c.submit(prompt, workspace, mode, model, reasoning_effort)
+        if context_id:
+            contexts.bind_codex_job(context_id, workspace, output["job_id"])
+            output["context_id"] = context_id
+        return output
 
     @m.tool(annotations=read, structured_output=True)
     def codex_task_status(job_id: str) -> dict[str, Any]:
@@ -162,8 +205,9 @@ def main():
             return
         b = Bridge.from_config()
         c = CodexRunner.from_config(root)
+        contexts = ContextRegistry(b.state, b.audit)
         if args.action == "serve":
-            server(b, c, h).run(transport="stdio")
+            server(b, c, h, contexts).run(transport="stdio")
             return
         if args.action == "diagnostics":
             output = {"hermes": b.diagnostics(), "codex": c.diagnostics(), "local_hands": h.diagnostics()}
@@ -204,7 +248,7 @@ def main():
                 return input(f"Type {word} to resolve only this request: ") == word
             output = b.resolve_local(args.run_id, "once" if args.action == "approve" else "deny", confirm)
         print(json.dumps(output, indent=2, ensure_ascii=False))
-    except (BridgeError, CodexError, HandsError, OSError, ValueError, KeyError) as exc:
+    except (BridgeError, CodexError, HandsError, ContextError, OSError, ValueError, KeyError) as exc:
         print("Bridge error: " + str(exc), file=sys.stderr)
         raise SystemExit(1)
 
