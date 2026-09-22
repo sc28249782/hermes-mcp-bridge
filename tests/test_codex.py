@@ -4,7 +4,7 @@ import signal
 import tempfile
 from concurrent.futures import ThreadPoolExecutor
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 import json
 import time
 
@@ -145,6 +145,19 @@ class TestCodexRunner(unittest.TestCase):
         self.assertEqual(status["status"], "unknown_exit")
         self.assertIsNone(status["exit_code"])
         self.assertTrue(status["recovered_after_restart"])
+
+    def test_live_popen_handle_does_not_become_unknown_exit_from_proc_race(self):
+        job = self.runner.submit("edit", str(self.root), "workspace-write")
+        with self.runner.db() as db:
+            db.execute("UPDATE jobs SET status='running',started=?,pid=? WHERE job_id=?",
+                       (time.time(), 12345, job["job_id"]))
+        child = Mock()
+        child.poll.return_value = None
+        self.runner._children[job["job_id"]] = child
+        with patch.object(self.runner, "_alive", return_value=False) as alive:
+            status = self.runner.status(job["job_id"])
+        self.assertEqual(status["status"], "running")
+        alive.assert_not_called()
 
     def test_start_failure_is_persisted_as_failed(self):
         runner = CodexRunner({"binary": "/missing/codex", "allowed_workspaces": [str(self.root)]},

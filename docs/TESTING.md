@@ -2,6 +2,12 @@
 
 Target contract reviewed: Hermes v0.21.1, commit 8d79c2ff.
 
+## Unreleased v1.2.0 Local Hands coverage
+
+- `tests/test_hands.py` covers disabled stable results, additive schema validation, dependency direction, workspace secret-name protection, protected-name case folding, traversal, symlink escape, binary/oversize/hard-link rejection, case-colliding entries, strict-resolver failure, and audit content/path non-leakage.
+- `tests/test_mcp.py` verifies discovery of 22 tools and the three read-only Hands tools against a disposable fixture.
+- Automated tests are necessary but do not satisfy the remaining WSL2/ext4/DrvFS and Hermes-off/Codex-unavailable live-acceptance gates for v1.2.0.
+
 Installer coverage includes pip presence detection and ensurepip bootstrap for an existing pip-less venv in the non-uv path.
 
 - Core tests cover authenticated discovery, run lifecycle, follow-up sessions, pagination, key redaction, persistence, duplicate suppression, durable recovery, unsafe replay rejection, run/session ownership, approvals, cached output, stop, loopback/redirect guards, model override fingerprinting, follow-up model policy, model discovery and SQLite migration.

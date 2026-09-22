@@ -7,8 +7,11 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from core import Bridge
 from bridge import server
 from codex_core import CodexRunner
+from hands_core import HandsRuntime
 from test_bridge import FakeHermes
 with tempfile.TemporaryDirectory() as root:
     b=Bridge('http://127.0.0.1:8642','test-secret-123',Path(root),httpx.MockTransport(FakeHermes()))
     c=CodexRunner({'binary':sys.executable,'allowed_workspaces':[root]},Path(root))
-    server(b,c).run(transport='stdio')
+    (Path(root)/'fixture.txt').write_text('hands fixture')
+    h=HandsRuntime({'enabled':True,'workspaces':[{'name':'fixture','path':root}]},Path(root))
+    server(b,c,h).run(transport='stdio')
