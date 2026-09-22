@@ -1,4 +1,4 @@
-# Release status — v1.0.1
+# Release status — v1.2.0
 
 ## v1.2.0 — released (22 กันยายน 2026)
 
