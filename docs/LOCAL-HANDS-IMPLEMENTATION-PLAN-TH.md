@@ -5,11 +5,11 @@
 
 ## สถานะ implementation ปัจจุบัน (ยังไม่ใช่ release)
 
-PR implementation ของ Stage 0/1 เพิ่ม `hands_core.py` เป็น native sibling runtime ที่ไม่ import Hermes/Codex runtime, additive `hands` schema, และ tool read-only 3 ตัวที่ discover เสมอ (รวม 22 tools เมื่อ deploy branch นี้) ค่าเริ่มต้นยัง disabled และ installer ไม่สร้าง workspace หรือสิทธิใหม่
+implementation ของ Stage 0/1 ที่ merge เข้า `main` เพิ่ม `hands_core.py` เป็น native sibling runtime ที่ไม่ import Hermes/Codex runtime, additive `hands` schema, และ tool read-only 3 ตัวที่ discover เสมอ (รวม 22 tools เมื่อ deploy) ค่าเริ่มต้นยัง disabled และ installer ไม่สร้าง workspace หรือสิทธิใหม่
 
 สิ่งที่ implementation บังคับใช้แล้ว: absolute/unique workspace config, baseline secret-name/path deny ที่เพิ่มได้แต่ลดไม่ได้, descriptor-relative `openat2` พร้อม `RESOLVE_BENEATH|RESOLVE_NO_SYMLINKS|RESOLVE_NO_MAGICLINKS`, case-fold ambiguity refusal, regular UTF-8 file เดียวที่ไม่มี hard link, response limit และ audit ที่ไม่บันทึกชื่อ/path/content
 
-สิ่งที่ยังเป็น release gate: WSL2 live acceptance บน ext4 และ DrvFS, critical Hermes OFF + Codex unavailable acceptance, property-based path fuzz, และตรวจ archive/release asset หลัง tag ห้ามตีความ implementation นี้ว่าเปิด v1.2.0 production แล้ว
+สิ่งที่ยังเป็น release gate: WSL2 live acceptance บน ext4 และ DrvFS, critical Hermes OFF + Codex unavailable acceptance, และตรวจ archive/release asset หลัง tag ห้ามตีความ implementation นี้ว่าเปิด v1.2.0 production แล้ว มี automated fallback/fuzz coverage แล้ว แต่ยังทดแทน [WSL2/DrvFS live-acceptance runbook](LOCAL-HANDS-V1.2-LIVE-ACCEPTANCE-TH.md) ไม่ได้
 
 ## 1. ลำดับการพัฒนา
 

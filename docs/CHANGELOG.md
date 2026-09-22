@@ -7,6 +7,9 @@
 
 ## Unreleased
 
+- Added an automated critical-fallback MCP acceptance: Local Hands health/list/read work with an unreachable Hermes transport and missing Codex binary, plus a deterministic generated-path invariant test.
+- Added a WSL2/ext4/DrvFS live-acceptance runbook; v1.2.0 remains unreleased until its fixture, deny matrix, audit-redaction, and OFF/OFF/ON results are recorded.
+
 - Started the v1.2.0 Local Hands read-only implementation: opt-in additive `hands` schema, `hands_health`, `hands_list`, and `hands_read` bring MCP discovery to 22 tools when the branch is deployed.
 - Added a fail-closed descriptor-relative `openat2` resolver with beneath/no-symlink/no-magic-link constraints; workspaces whose strict resolver probe fails are unavailable rather than using check-then-open fallback.
 - Added case-folded baseline workspace secret-name protection, protected credential-path handling, bounded UTF-8 regular-file reads, hard-link/special-file denial, redacted Hands audit metadata, and a read-only setup guide.

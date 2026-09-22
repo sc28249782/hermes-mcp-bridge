@@ -1,5 +1,9 @@
 # ผล Live Acceptance — v1.0.1
 
+## v1.2.0 — Local Hands read-only (รอ live acceptance)
+
+ยังไม่มีการรับรอง v1.2.0 release. Automated CI ครอบคลุม strict resolver, secret/path denial, generative path invariant และ Hermes unreachable + Codex binary absent fallback แล้ว แต่ต้องทำตาม [WSL2/DrvFS live-acceptance runbook](LOCAL-HANDS-V1.2-LIVE-ACCEPTANCE-TH.md) และบันทึกผล ext4/DrvFS รวมถึง OFF/OFF/ON ก่อน tag.
+
 ## v1.0.1 — maintenance release acceptance (21 กันยายน 2026)
 
 - เชื่อมผ่าน `Hermes Local Bridge` จาก deployment `/home/somchaip/hermes-mcp-bridge-v1.0.1` ได้สำเร็จ

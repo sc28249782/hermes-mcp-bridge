@@ -2,6 +2,7 @@ import errno
 import json
 from pathlib import Path
 import os
+import random
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -84,6 +85,26 @@ class TestHandsRuntime(unittest.TestCase):
         (self.root / "escape").symlink_to(outside)
         self.assert_code("invalid_path", self.runtime.read, "work", "../outside.txt")
         self.assert_code("policy_denied", self.runtime.read, "work", "escape")
+
+    def test_generated_path_invariant_never_returns_unapproved_content(self):
+        nested = self.root / "nested"
+        nested.mkdir()
+        (nested / "safe.txt").write_text("nested safe")
+        (self.root / ".env.local").write_text("never expose")
+        expected = {"safe.txt": "safe text", "nested/safe.txt": "nested safe"}
+        alphabet = ["safe.txt", "nested", "nested/safe.txt", ".env.local", "..", ".", "", "\\\\",
+                    "missing", "a/../b", "/etc/passwd", "id_rsa", "credentials.json"]
+        candidates = set(alphabet)
+        generator = random.Random(2_024_0922)
+        for _ in range(500):
+            candidates.add("/".join(generator.choice(alphabet) for _ in range(generator.randint(1, 3))))
+        for candidate in candidates:
+            try:
+                result = self.runtime.read("work", candidate)
+            except HandsError:
+                continue
+            self.assertIn(candidate, expected)
+            self.assertEqual(result["content"], expected[candidate])
 
     def test_binary_oversize_and_hard_link_are_denied(self):
         (self.root / "binary.txt").write_bytes(b"a\x00b")
