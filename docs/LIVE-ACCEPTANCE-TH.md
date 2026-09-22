@@ -9,8 +9,9 @@
 - ทดสอบ critical fallback โดย Hermes หยุดและตั้ง `codex.binary` เป็น `/definitely-missing-codex`: Hermes/Codex health ใช้ไม่ได้ตามคาด ขณะที่ Hands health/list/read ยังทำงานได้; ไม่ได้ submit task ไปยัง Hermes หรือ Codex.
 - คืน config และบริการแล้ว `./bridge.sh doctor`, `./bridge.sh codex-doctor` และ diagnostics ผ่าน; cleanup เสร็จและ production Local Hands กลับสู่ `disabled` โดย workspaces ว่าง.
 
-ยังไม่ประกาศ release/tag: ก่อน tag ต้องบันทึก SHA ของ release commit, `uname -r`, `wsl.exe --version`, และทำขั้นตอน signed tag/release archive ตาม runbook.
+หลักฐาน provenance: ทดสอบบน checkout ที่สะอาดที่ commit `9d00431975a61dc7fd67b521180f4e8669d84479`; `uname -r` = `6.18.33.2-microsoft-standard-WSL2`; WSL `2.7.14.0` (kernel package `6.18.33.2-2`, WSLg `1.0.73.2`); Windows `10.0.26300.9539`.
 
+ยังไม่ประกาศ release/tag: เหลือสร้าง release archive, ตรวจ SHA-256, และสร้าง signed tag ตาม runbook.
 ## v1.0.1 — maintenance release acceptance (21 กันยายน 2026)
 
 - เชื่อมผ่าน `Hermes Local Bridge` จาก deployment `/home/somchaip/hermes-mcp-bridge-v1.0.1` ได้สำเร็จ
