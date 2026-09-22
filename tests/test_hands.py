@@ -1,4 +1,5 @@
 import errno
+import json
 from pathlib import Path
 import os
 import tempfile
@@ -6,6 +7,7 @@ import unittest
 from unittest.mock import patch
 
 from hands_core import HandsError, HandsRuntime
+from config_schema import ConfigError, load_bridge_config
 
 
 class TestHandsRuntime(unittest.TestCase):
@@ -32,6 +34,18 @@ class TestHandsRuntime(unittest.TestCase):
         self.assertEqual(disabled.health()["status"], "disabled")
         self.assertEqual(disabled.list("anything")["error_code"], "disabled")
         self.assertEqual(disabled.read("anything", "file.txt")["error_code"], "disabled")
+
+    def test_schema_keeps_hands_additive_and_validates_known_fields(self):
+        config = {"schema_version": 1, "api_url": "http://127.0.0.1:8642", "hermes_env": "x",
+                  "hands": {"enabled": True, "workspaces": [
+                      {"name": "work", "path": str(self.root)}], "unknown": True}}
+        (Path(self.tmp.name) / "bridge-config.json").write_text(json.dumps(config))
+        _, warnings = load_bridge_config(Path(self.tmp.name))
+        self.assertTrue(any("hands.unknown" in warning for warning in warnings))
+        config["hands"]["workspaces"][0]["path"] = "relative"
+        (Path(self.tmp.name) / "bridge-config.json").write_text(json.dumps(config))
+        with self.assertRaises(ConfigError):
+            load_bridge_config(Path(self.tmp.name))
 
     def test_list_and_read_are_bounded_and_audited_without_content(self):
         listed = self.runtime.list("work")
