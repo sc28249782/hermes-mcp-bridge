@@ -1,9 +1,12 @@
-# Release status — v1.2.1 candidate
+# Release status — v1.2.1 released
 
-## v1.2.1 — documentation gate in progress (22 กันยายน 2026)
+## v1.2.1 — released (22 กันยายน 2026)
 
-- เพิ่ม explicit work contexts แบบ metadata-only: 4 MCP tools, discovery contract 26 tools, Hermes resume จาก bridge-owned session เท่านั้น และ Codex bind เฉพาะ workspace/job metadata.
-- ยังไม่ tag/release: ต้องผ่าน live acceptance ของ context lifecycle และ Phase A pre-tag checklist ตาม release runbook.
+- เพิ่ม explicit work contexts แบบ metadata-only: 4 MCP tools, discovery contract 26 tools, Hermes resume จาก bridge-owned session เท่านั้น และ Codex bind เฉพาะ workspace/job metadata โดยไม่ replay prompt/output.
+- Live acceptance ผ่าน: Hermes continuation ข้าม ChatGPT chat ด้วย `context_id` เดียว, Codex workspace/job binding, closed-context denial และ audit redaction.
+- regression 63/63 ผ่านเมื่อใช้ project `.venv/bin/python` พร้อม `-W error::ResourceWarning`; shellcheck และ Bash syntax ผ่าน.
+- release commit คือ `d86703d1e1d8f675b656588208b3f557f5b63598`, signed tag `v1.2.1` ถูก GitHub ตรวจเป็น Verified.
+- [GitHub Release v1.2.1](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.1) เผยแพร่ ZIP และ external `SHA256SUMS`; SHA-256 ของ archive ที่ตรวจหลังดาวน์โหลดกลับผ่านคือ `36c01197d7dfb89b7a64a22ad32b35475762915076520c84ced8affb542e9b51`.
 
 ## v1.2.0 — released (22 กันยายน 2026)
 

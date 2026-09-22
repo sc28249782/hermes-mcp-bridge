@@ -1,11 +1,12 @@
 # Changelog
 
-## v1.2.1 — unreleased
+## v1.2.1 — released (22 September 2026)
 
 - Added explicit metadata-only work contexts: opaque context IDs bind a bridge-owned Hermes session after observation or bind Codex workspace/job metadata without replaying prompts, outputs, credentials, or ChatGPT conversation state.
-- Added four MCP context tools and raised the canonical discovery contract to 26 tools.
-- Context continuation is explicit per call; no global active context or latest-session inference exists.
-- Release documentation gate is in progress; tag, archive, and release assets remain pending.
+- Added four MCP context tools and raised the canonical discovery contract to 26 tools. Context continuation is explicit per call; no global active context or latest-session inference exists.
+- Live acceptance passed: Hermes continuation across a new ChatGPT chat, Codex workspace/job metadata binding without prompt/output replay, closed-context denial, and redacted audit records.
+- Published signed and GitHub-verified tag `v1.2.1` at `d86703d1e1d8f675b656588208b3f557f5b63598`.
+- Published the GitHub release archive and external `SHA256SUMS`; the archive checksum `36c01197d7dfb89b7a64a22ad32b35475762915076520c84ced8affb542e9b51` was verified after downloading from GitHub.
 
 ## v1.2.0 — released (22 September 2026)
 
