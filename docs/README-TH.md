@@ -168,6 +168,14 @@ bash tunnel.sh key-status
 
 สคริปต์เก็บ key ที่ `~/.config/hermes-mcp-bridge/openai-runtime-api-key` ด้วย mode `600` และอ่านค่านี้อัตโนมัติเมื่อเริ่มใหม่ ไม่ใส่ key ลง command history หรือ systemd unit file
 
+ตรวจ profile และ key ผ่าน wrapper ของโครงการก่อนเริ่ม/หลังแก้ปัญหา:
+
+```bash
+bash tunnel.sh status
+```
+
+อย่าใช้ผล `tunnel-client doctor --profile hermes-wsl` ที่รันตรง ๆ ตัดสินว่า key file ใช้ไม่ได้: profile อ้าง `env:CONTROL_PLANE_API_KEY` ขณะที่ `tunnel.sh` เป็นผู้โหลด key file เข้า environment ให้ `doctor` และ `run` เอง. ถ้าต้องเรียก `tunnel-client` โดยตรง ต้อง export runtime key ใน shell นั้นก่อน และห้ามวาง key ลง chat, command history หรือ log.
+
 สคริปต์จะสร้าง profile `hermes-wsl`, ตรวจ `doctor` และเริ่ม `run`
 Tunnel จะเรียก `bridge.sh` ผ่าน stdio เอง ไม่ต้องเปิด bridge เป็น HTTP server และไม่ต้องรัน `bridge.sh serve` แยก
 อย่าใช้ `hermes mcp serve` แทน เพราะชุดเครื่องมือ messaging ไม่ใช่ Runs bridge ที่เราสร้าง
@@ -201,7 +209,10 @@ bash tunnel.sh service-status
 4. Description: `ส่งงานให้ Hermes บน WSL2 ตรวจสถานะ อ่านผล และขอหยุดงาน`
 5. Connection: **Tunnel**
 6. เลือก Tunnel ที่สร้าง หรือใส่ `tunnel_id`
-7. สร้างการเชื่อมต่อและตรวจรายชื่อเครื่องมือ
+7. Authentication: **No authentication**
+8. สร้างการเชื่อมต่อและตรวจรายชื่อเครื่องมือ
+
+bridge นี้เป็น stdio MCP server และไม่ประกาศ OAuth metadata; runtime API key ใช้ระหว่าง `tunnel-client` กับ OpenAI control plane ไม่ใช่ OAuth ของ MCP server. ห้ามเปลี่ยนไปใช้ Server URL หรือวาง OpenAI-hosted tunnel URL ลงในช่อง Server URL เพื่อแก้ปัญหา connection; ให้เลือก **Tunnel** และระบุ tunnel ที่สร้างใน Platform เสมอ.
 
 ควรค้นพบ 19 เครื่องมือ (Hermes 10 + Codex 6 + operations 3):
 
@@ -310,6 +321,10 @@ helper ตรวจ request_id ซ้ำหลังตัดสินใจเ�
 | พบคำเตือน config top-level | API_SERVER_* อยู่ใน `.env` ตามที่แก้ไปแล้ว ไม่ใช่ top-level YAML |
 | Tunnel ไม่ปรากฏ | ตรวจ workspace association และ Tunnels Read + Use ใน Platform |
 | Tunnel ถาม key ทุกครั้ง | รัน `bash tunnel.sh key-set`; ตรวจ `bash tunnel.sh key-status` ว่า mode เป็น 600 |
+| `tunnel-client doctor` ตรง ๆ แจ้งว่า `CONTROL_PLANE_API_KEY` ไม่ได้ตั้ง | ไม่ได้พิสูจน์ว่า key file หาย: คำสั่งตรง ๆ ไม่โหลด key file ของ wrapper; ใช้ `bash tunnel.sh status` แทน |
+| `Error fetching OAuth configuration` หรือ tunnel endpoint `does not implement OAuth` | ในหน้า Plugin ให้คง Connection เป็น **Tunnel** และเลือก **No authentication**; bridge stdio นี้ไม่มี OAuth discovery อย่าวาง hosted tunnel URL ใน Server URL |
+| `Link not found` หรือ `Invalid MCP request metadata` หลัง disconnect/reconnect | ตรวจ `bash tunnel.sh status` ก่อน แล้วสร้าง developer-mode Plugin connection ใหม่โดยเลือก Tunnel เดิม; อย่า refresh หรือ reuse link ที่หาย และอย่าเปลี่ยน bridge เพื่อแก้ UI state |
+| log มี `unsupported channel "harpoon"` | เก็บ log/redact key, ยืนยัน `bash tunnel.sh status` เป็น `RESULT ok`, ให้ `tunnel.sh run` ทำงานค้าง และสร้าง connection ด้วย Tunnel + No authentication ใหม่; หากยังเกิดซ้ำบน tunnel-client release ล่าสุด ให้ส่ง tunnel ID, เวอร์ชัน และ log ที่ redacted ให้ OpenAI Support—ไม่ต้องเพิ่ม OAuth หรือแก้ protocol ใน bridge |
 | service command ใช้ไม่ได้ | ตรวจว่า WSL เปิด systemd และ `systemctl --user show-environment` ผ่าน |
 | Discovery ล้มเหลว | tunnel-client ยังรันหรือไม่; bridge.sh รันได้และ doctor ผ่านหรือไม่ |
 | รอ approval | ใช้ approve/deny ใน terminal ตามข้างบน |

@@ -7,6 +7,8 @@
 
 ## Unreleased
 
+- Documented Secure MCP Tunnel recovery after a ChatGPT Plugin disconnect: use `tunnel.sh status` rather than direct `tunnel-client doctor` when the profile references `CONTROL_PLANE_API_KEY`, select **Tunnel** plus **No authentication** for the stdio bridge, and preserve a redacted escalation path for stale-link/`harpoon` transport errors. Confirmed a successful live reconnection after this recovery flow.
+
 - Added an automated critical-fallback MCP acceptance: Local Hands health/list/read work with an unreachable Hermes transport and missing Codex binary, plus a deterministic generated-path invariant test.
 - Added a WSL2/ext4/DrvFS live-acceptance runbook; v1.2.0 remains unreleased until its fixture, deny matrix, audit-redaction, and OFF/OFF/ON results are recorded.
 
