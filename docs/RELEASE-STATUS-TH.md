@@ -1,4 +1,9 @@
-# Release status — v1.2.0
+# Release status — v1.2.1 candidate
+
+## v1.2.1 — documentation gate in progress (22 กันยายน 2026)
+
+- เพิ่ม explicit work contexts แบบ metadata-only: 4 MCP tools, discovery contract 26 tools, Hermes resume จาก bridge-owned session เท่านั้น และ Codex bind เฉพาะ workspace/job metadata.
+- ยังไม่ tag/release: ต้องผ่าน live acceptance ของ context lifecycle และ Phase A pre-tag checklist ตาม release runbook.
 
 ## v1.2.0 — released (22 กันยายน 2026)
 
