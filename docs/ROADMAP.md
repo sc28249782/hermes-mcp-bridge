@@ -52,6 +52,9 @@ The design, trust boundaries, proposed configuration, and tool contracts are in 
 - [ ] Require local human approval for writes, patches, content-bearing execution, and all trusted-workspace-code execution; expose no MCP approval tool.
 - [ ] Bound pending actions globally and per workspace; reject new actions at the cap and audit only redacted metadata.
 - [ ] Keep execution fixed-argv with `shell=False`; do not accept unrestricted shell/PowerShell command strings.
+- [ ] Make generic deletion, unlink, rmdir, unapproved truncation, and destructive rename a non-overridable baseline deny. Do not expose a generic delete tool; exact approved write/patch remains a separate digest-bound operation.
+- [ ] Enforce no-delete/no-unapproved-truncate execution at kernel level with a runtime-probed mechanism such as Landlock; Landlock starts with Linux 5.13 but availability/configuration/ABI must be probed rather than inferred from the kernel version or WSL2 label. Required profiles are unavailable when enforcement is insufficient.
+- [ ] If a move operation is added, make it a dedicated exact-source/destination no-clobber operation; never implement it as arbitrary `mv` argv.
 - [ ] Treat Git, CMake, test runners, interpreters, hooks, build rules, response files, and config-file indirection as trusted-workspace-code execution, not as safe merely because the executable is allowlisted.
 - [ ] Permit no-approval profiles only when output is metadata-only and argv is exact/constrained; `git diff` is content-bearing and is not read-safe.
 - [ ] Persist process output as bounded JSONL per process and persist lifecycle state with ownership, timeout enforcement, cancellation, and safe restart recovery.
@@ -75,7 +78,9 @@ The design, trust boundaries, proposed configuration, and tool contracts are in 
 - [ ] Add one compact `hands_computer` tool with staged actions such as `observe`, then `click`; later actions such as `type`, `key`, `scroll`, `drag`, `open`, and `wait` require their own policy/review.
 - [ ] Implement a signed/versioned Windows helper using supported Windows capture and UI Automation APIs; keep it bound to the local machine and authenticate WSL2 requests.
 - [ ] Enforce a window/application allowlist, foreground-window verification, coordinate bounds, stale-observation rejection, and per-action timeouts.
+- [ ] Add bounded post-action observation with screen-change signal, app/window revalidation, expected-state predicate, and `verification_inconclusive` when success cannot be proved.
 - [ ] Refuse password, PIN, MFA, credential-manager, secure-desktop, UAC, payment, and other protected-field interaction.
+- [ ] Include normalized English/Thai defense-in-depth markers: `password`, `passcode`, `pin`, `otp`, `mfa`, `2fa`, `verification code`, `security code`, `รหัสผ่าน`, `รหัส`, `พิน`, and `โอทีพี`; accessibility secure-field metadata remains authoritative where available.
 - [ ] Require approval for high-impact UI actions and never infer approval from visible page text or model output.
 - [ ] Treat screenshots, OCR, accessibility trees, and application text as untrusted input and document prompt-injection handling.
 - [ ] Provide an emergency stop and visible local activity indicator; cancellation must prevent queued follow-up UI actions.
@@ -93,6 +98,7 @@ The design, trust boundaries, proposed configuration, and tool contracts are in 
 ## Release gates applying to every Local Hands version
 
 - Documentation, version references, tool counts, configuration examples, tests, checksums, and release notes must be updated before tagging or publishing release assets.
+- Attribution and `THIRD_PARTY_NOTICES.md` must be reviewed before release; any future Endeavor Hands source adaptation must preserve its copyright and MIT notice.
 - New mutation capabilities ship disabled by default and require explicit local policy.
 - No backend may approve its own action or obtain approval through MCP.
 - No credential value, file content, prompt, command output, screenshot, or clipboard content may enter audit logs.
@@ -107,4 +113,6 @@ The design, trust boundaries, proposed configuration, and tool contracts are in 
 - Transmitting Hermes, OpenAI, Windows, SSH, cloud, browser, or signing credentials through MCP
 - Letting an agent approve its own action, weakening Codex approval rules, or reusing Hermes approval authority
 - Parsing arbitrary shell/PowerShell text and attempting to infer safety from keywords alone
+- A deny-list sandbox with allow-by-default semantics, model-relayed nonce as authorization, read-anywhere filesystem policy, or dynamic MCP-to-MCP trust bypass
+- Treating fixed argv, an exact entrypoint/cwd, or model-managed delegation as sufficient authority to bypass the Local Hands policy engine
 - Multi-user credential management, payment automation, secure-desktop control, or unattended credential entry
