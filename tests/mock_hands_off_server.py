@@ -11,6 +11,7 @@ from bridge import server
 from codex_core import CodexRunner
 from core import Bridge
 from hands_core import HandsRuntime
+from contexts import ContextRegistry
 
 
 def unreachable(_: httpx.Request) -> httpx.Response:
@@ -26,4 +27,4 @@ with tempfile.TemporaryDirectory() as root:
                     httpx.MockTransport(unreachable))
     codex = CodexRunner({"binary": "/definitely-missing-codex", "allowed_workspaces": [root]},
                         root_path / "codex-state")
-    server(hermes, codex, hands).run(transport="stdio")
+    server(hermes, codex, hands, ContextRegistry(hermes.state, hermes.audit)).run(transport="stdio")
