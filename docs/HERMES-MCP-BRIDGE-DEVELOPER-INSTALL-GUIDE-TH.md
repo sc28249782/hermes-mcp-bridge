@@ -194,6 +194,14 @@ bash tunnel.sh key-status
 
 key ถูกเก็บใน `~/.config/hermes-mcp-bridge/openai-runtime-api-key` ด้วย mode `600`; environment variable `CONTROL_PLANE_API_KEY` ยังใช้แทนได้และมีลำดับสูงกว่า key file
 
+ตรวจสถานะด้วย wrapper เสมอ:
+
+```bash
+bash tunnel.sh status
+```
+
+คำสั่ง `tunnel-client doctor --profile hermes-wsl` ที่รันตรง ๆ จะไม่โหลด key file ของโครงการ และอาจรายงานว่า `CONTROL_PLANE_API_KEY` ไม่ได้ตั้งแม้ `key-status` จะผ่าน. `tunnel.sh status`/`run` โหลด key file อย่างปลอดภัยก่อนเรียก doctor; อย่าแก้ด้วยการพิมพ์ key ลง command line.
+
 เริ่มครั้งแรก:
 
 ```bash
@@ -229,7 +237,10 @@ bash tunnel.sh service-status
 1. Name: `Hermes Local Bridge`
 2. Description: `ส่งงานให้ Hermes บน WSL2 ตรวจสถานะ อ่านผล และขอหยุดงาน`
 3. เลือก Tunnel ที่สร้าง หรือระบุ `tunnel_id`
-4. สร้าง connection และตรวจว่าพบ MCP tools ทั้ง 19 รายการ (Hermes 10 + Codex 6 + operations 3)
+4. Authentication: **No authentication**
+5. สร้าง connection และตรวจว่าพบ MCP tools ทั้ง 19 รายการ (Hermes 10 + Codex 6 + operations 3)
+
+MCP target ของ profile นี้เป็น stdio และไม่มี OAuth discovery endpoint. OpenAI Platform runtime API key เป็น credential ของ `tunnel-client` เท่านั้น จึงไม่ใช่เหตุให้ต้องเลือก OAuth ในหน้า Plugin. ห้ามนำ hosted tunnel URL ไปวางใน Server URL; คง Connection เป็น **Tunnel** เสมอ.
 
 ถ้า plugin ถูกเพิ่มแล้วแต่เครื่องมือไม่ปรากฏในแชทเดิม ให้เปิดแชทใหม่และเลือก plugin อีกครั้ง
 
@@ -309,6 +320,9 @@ bash tunnel.sh service-status
 | `Cannot reach Hermes API` | Hermes API server ยังไม่รัน, port ผิด หรืออยู่คนละ WSL |
 | `No module named pip` | เรียก `ensurepip` หรือ install `python3.12-venv` ตามหัวข้อ 4 |
 | Tunnel ถาม/หา key ไม่พบ | รัน `bash tunnel.sh key-set`; ตรวจด้วย `key-status` (ต้องเป็น mode 600) หรือ set `CONTROL_PLANE_API_KEY` เฉพาะ shell นั้น |
+| direct `tunnel-client doctor` แจ้งว่า `CONTROL_PLANE_API_KEY` ไม่ได้ตั้ง | key file อาจยังปกติ; ใช้ `bash tunnel.sh status` ซึ่งโหลด key file ก่อนเรียก doctor |
+| `Error fetching OAuth configuration` / `does not implement OAuth` | เลือก Connection: Tunnel และ Authentication: No authentication; bridge นี้ไม่มี OAuth discovery และไม่ควรใช้ hosted tunnel URL เป็น Server URL |
+| `Link not found`, `Invalid MCP request metadata` หรือ `unsupported channel "harpoon"` | ยืนยัน `bash tunnel.sh status` เป็น `RESULT ok`, ให้ `bash tunnel.sh run` ทำงาน แล้วสร้าง developer-mode connection ใหม่ด้วย Tunnel + No authentication. ถ้า `harpoon` ซ้ำบน client รุ่นล่าสุด ให้ส่ง log ที่ redacted พร้อม tunnel ID/version ให้ OpenAI Support; ห้ามแก้ bridge เพื่อรับ channel ดังกล่าว |
 | `service-install` ใช้ไม่ได้ | WSL session นี้ไม่มี systemd user manager; ใช้ `tunnel.sh run` ใน terminal แทน หรือเปิด systemd ใน WSL ตามนโยบายเครื่อง |
 | Plugin discovery ล้มเหลว | ตรวจ `tunnel-client run`, `./bridge.sh doctor`, tunnel association และสิทธิ์ Tunnel Read/Use |
 | ไม่พบ tools ในแชท | เปิดแชทใหม่และเลือก `Hermes Local Bridge` ใหม่ |
