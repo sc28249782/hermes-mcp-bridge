@@ -7,6 +7,8 @@
 
 ## Unreleased
 
+- Completed functional WSL2 live acceptance for v1.2.0 Local Hands: ext4 and DrvFS read-only flows, deny matrix, audit redaction, a case-sensitive `A.txt`/`a.txt` collision refusal, and Hermes OFF + Codex-unavailable fallback all passed. The temporary Hands workspace was removed and production Hands is disabled again; release provenance and signed tag remain pending.
+
 - Documented Secure MCP Tunnel recovery after a ChatGPT Plugin disconnect: use `tunnel.sh status` rather than direct `tunnel-client doctor` when the profile references `CONTROL_PLANE_API_KEY`, select **Tunnel** plus **No authentication** for the stdio bridge, and preserve a redacted escalation path for stale-link/`harpoon` transport errors. Confirmed a successful live reconnection after this recovery flow.
 
 - Added an automated critical-fallback MCP acceptance: Local Hands health/list/read work with an unreachable Hermes transport and missing Codex binary, plus a deterministic generated-path invariant test.
