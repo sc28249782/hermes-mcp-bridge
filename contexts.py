@@ -14,6 +14,7 @@ class ContextError(RuntimeError):
 
 class ContextRegistry:
     def __init__(self, state: Path, audit):
+        # Bridge creates the private state directory (0700) before this registry is constructed.
         self.path = Path(state) / "contexts.sqlite3"
         self.audit = audit
         with self.db() as db:
