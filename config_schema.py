@@ -96,7 +96,7 @@ def load_bridge_config(root: Path) -> tuple[dict, list[str]]:
         for index, value in enumerate(hands.get(key, [])):
             if not isinstance(value, str) or not value or len(value) > 1024:
                 raise ConfigError(f"hands.{key}[{index}] must be a non-empty string up to 1024 characters")
-            if key == "protected_name_patterns" and ("/" in value or "\\\\" in value or "\\x00" in value):
+            if key == "protected_name_patterns" and ("/" in value or "\\" in value or "\x00" in value):
                 raise ConfigError(f"hands.{key}[{index}] must be a filename pattern")
     names, paths = set(), set()
     for index, workspace in enumerate(hands.get("workspaces", [])):
