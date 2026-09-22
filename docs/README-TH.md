@@ -21,7 +21,7 @@ Repository: https://github.com/sc28249782/hermes-mcp-bridge
 - ผู้ใช้ทดสอบ `/v1/models` แล้ว: ไม่มี key ได้ 401; key ถูกต้องได้ 200
 - มีเมนู Developer mode และ Connection → Tunnel
 - ยังต้องสร้าง tunnel ใน OpenAI Platform, ติดตั้ง tunnel-client และเชื่อม Plugin
-- ผ่าน regression tests 48 รายการ; v1.0.0 full acceptance ผ่าน Secure MCP Tunnel สำหรับ Hermes, Codex, model policy, local write approval และ cancellation และ v1.0.1 read-only live acceptance ผ่านบน WSL2
+- v1.2.1 ผ่าน regression 63/63 โดยใช้ project `.venv/bin/python` พร้อม `-W error::ResourceWarning`, shellcheck และ Bash syntax; Live Acceptance ผ่าน Hermes context ข้าม ChatGPT chat, Codex metadata-only binding, closed-context denial และ audit redaction
 
 อัปเกรดจาก bridge รุ่นก่อนใช้ [UPGRADE-TH.md](UPGRADE-TH.md) ก่อนเริ่ม tunnel รุ่นใหม่ โดยเฉพาะหากต้องการเก็บ session/state เดิม
 
