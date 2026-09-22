@@ -5,7 +5,8 @@ Target contract reviewed: Hermes v0.21.1, commit 8d79c2ff.
 ## Unreleased v1.2.0 Local Hands coverage
 
 - `tests/test_hands.py` covers disabled stable results, additive schema validation, dependency direction, workspace secret-name protection, protected-name case folding, traversal, symlink escape, binary/oversize/hard-link rejection, case-colliding entries, strict-resolver failure, and audit content/path non-leakage.
-- `tests/test_mcp.py` verifies discovery of 22 tools and the three read-only Hands tools against a disposable fixture. `tests/test_hands_fallback_mcp.py` proves health/list/read continue to work when the Hermes transport is unreachable and the configured Codex binary is absent.\n- The Hands path suite includes a deterministic generative invariant: only explicit safe fixture paths may return content; generated traversal, absolute, separator, protected-name, and missing-path candidates must be denied.
+- `tests/test_mcp.py` verifies discovery of 22 tools and the three read-only Hands tools against a disposable fixture. `tests/test_hands_fallback_mcp.py` proves health/list/read continue to work when the Hermes transport is unreachable and the configured Codex binary is absent.
+- The Hands path suite includes a deterministic generative invariant: only explicit safe fixture paths may return content; generated traversal, absolute, separator, protected-name, and missing-path candidates must be denied.
 - Automated tests are necessary but do not satisfy the remaining WSL2/ext4/DrvFS and Hermes-off/Codex-unavailable live-acceptance gates for v1.2.0.
 
 Installer coverage includes pip presence detection and ensurepip bootstrap for an existing pip-less venv in the non-uv path.
