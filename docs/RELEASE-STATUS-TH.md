@@ -1,12 +1,12 @@
 # Release status — v1.0.1
 
-## v1.2.0 — functional acceptance passed, tag pending (22 กันยายน 2026)
+## v1.2.0 — released (22 กันยายน 2026)
 
 - WSL2 live acceptance ผ่านทั้ง ext4 และ DrvFS: discovery 22 tools, strict resolver, secret/path/binary/symlink denial, audit redaction และ case-collision fail-closed.
 - Critical fallback OFF/OFF/ON ผ่าน: เมื่อ Hermes ใช้ไม่ได้และ Codex binary หาย Local Hands health/list/read ยังคงใช้ได้; ไม่มี Hermes/Codex task ถูกส่งระหว่างทดสอบ.
 - คืน production state แล้ว Local Hands เป็น `disabled`, workspaces ว่าง และ diagnostics ไม่มี `config_warnings`.
 
-บันทึก provenance แล้ว: checkout ที่สะอาด `9d00431975a61dc7fd67b521180f4e8669d84479`; `uname -r` = `6.18.33.2-microsoft-standard-WSL2`; WSL `2.7.14.0` (kernel package `6.18.33.2-2`) และ Windows `10.0.26300.9539`. เหลือสร้าง release archive, ตรวจ SHA-256 และสร้าง signed tag ตาม runbook.
+release commit คือ `bd56bafd4fcefcfbdf26699ab281cc1a6798bfc9`, จาก signed tag `v1.2.0` (GPG EDDSA fingerprint `C4E9AFA9C97FC94CA2448E9218BDAEA561529B86`). GitHub Release เผยแพร่ ZIP และ `SHA256SUMS`; SHA-256 ที่ตรวจหลังดาวน์โหลดกลับผ่านคือ `621db6718323fb0639c67a9eac677af23de31a4f0f6e4d09b413d05f82960d08`.
 
 ## v1.0.1 — released (21 กันยายน 2026)
 

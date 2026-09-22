@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.2.0 — released (22 September 2026)
+
+- Released the Local Hands read-only vertical slice after successful WSL2 ext4/DrvFS live acceptance, deny-matrix and audit-redaction checks, case-collision refusal, and Hermes-off/Codex-unavailable fallback.
+- Published signed tag `v1.2.0` at `bd56bafd4fcefcfbdf26699ab281cc1a6798bfc9`; the GPG signature was verified with EDDSA fingerprint `C4E9AFA9C97FC94CA2448E9218BDAEA561529B86`.
+- Published the GitHub release archive and `SHA256SUMS`; the archive checksum `621db6718323fb0639c67a9eac677af23de31a4f0f6e4d09b413d05f82960d08` was verified again after downloading from GitHub.
+
 ## v1.0.1
 
 - Aligned schema validation with the Codex runtime: `codex.approval_ttl_seconds` is now rejected below 60 seconds rather than failing later during runner startup.
@@ -12,7 +18,7 @@
 - Documented Secure MCP Tunnel recovery after a ChatGPT Plugin disconnect: use `tunnel.sh status` rather than direct `tunnel-client doctor` when the profile references `CONTROL_PLANE_API_KEY`, select **Tunnel** plus **No authentication** for the stdio bridge, and preserve a redacted escalation path for stale-link/`harpoon` transport errors. Confirmed a successful live reconnection after this recovery flow.
 
 - Added an automated critical-fallback MCP acceptance: Local Hands health/list/read work with an unreachable Hermes transport and missing Codex binary, plus a deterministic generated-path invariant test.
-- Added a WSL2/ext4/DrvFS live-acceptance runbook; v1.2.0 remains unreleased until its fixture, deny matrix, audit-redaction, and OFF/OFF/ON results are recorded.
+- Added a WSL2/ext4/DrvFS live-acceptance runbook and recorded its successful fixture, deny-matrix, audit-redaction, and OFF/OFF/ON results for v1.2.0.
 
 - Started the v1.2.0 Local Hands read-only implementation: opt-in additive `hands` schema, `hands_health`, `hands_list`, and `hands_read` bring MCP discovery to 22 tools when the branch is deployed.
 - Added a fail-closed descriptor-relative `openat2` resolver with beneath/no-symlink/no-magic-link constraints; workspaces whose strict resolver probe fails are unavailable rather than using check-then-open fallback.
