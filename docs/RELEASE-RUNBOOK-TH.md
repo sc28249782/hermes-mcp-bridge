@@ -1,13 +1,22 @@
-# Release integrity runbook — v1.0.1
+# Release integrity runbook
 
 ## ผู้สร้าง release
 
-1. **Documentation gate (ต้องผ่านก่อน tag/release):** ทบทวนเอกสารทั้งหมดที่อธิบายรุ่นปัจจุบัน—อย่างน้อย README, installation/developer guide, architecture, operations, Codex policy, upgrade, testing, acceptance, compatibility matrix, changelog, release status/runbook, roadmap และ project history—ให้ตรงกับ source, tool discovery, live acceptance, version, package name และ checksum ที่จะเผยแพร่. คงข้อความของ release เก่าไว้เฉพาะส่วนที่ระบุชัดว่าเป็นประวัติหรือเส้นทาง upgrade.
-2. Commit การอัปเดตเอกสารและตรวจ `git diff --check`; **ห้าม** สร้าง archive, signed tag หรือ GitHub Release หาก documentation gate ยังไม่ผ่าน.
-3. รัน test และ acceptance checklist ตาม `V1-ACCEPTANCE-TH.md`.
-4. สร้าง archive โดยมี root directory เดียวชื่อ `hermes-mcp-bridge-vX.Y.Z/`; ต้อง exclude `.git/`, `.venv/`, `__pycache__/`, `state/`, `.env` และ `bridge-config.json*`.
-5. สร้าง `SHA256SUMS` ด้วย `sha256sum hermes-mcp-bridge-vX.Y.Z.zip > SHA256SUMS` แล้วตรวจไฟล์ด้วย `sha256sum -c SHA256SUMS`.
-6. commit source และ `SHA256SUMS`, แล้วลง signed tag ด้วย GPG key ของ maintainer:
+### Phase A — ก่อนสร้าง signed tag
+
+1. **Documentation gate:** ทบทวนเอกสารที่อธิบาย source, tool discovery, configuration, acceptance, compatibility, roadmap และ upgrade ให้ตรงกับ release candidate. Release status ต้องระบุผล acceptance และ provenance ได้ แต่ให้ใช้สถานะ `tag pending` จนกว่าจะ verify asset จริง.
+2. Commit เอกสาร Phase A และตรวจ `git diff --check`; รัน test และ acceptance checklist ตาม `V1-ACCEPTANCE-TH.md`.
+3. ตรวจ release checkout ให้สะอาด, ยืนยัน target commit และ version tag ยังไม่มีอยู่, แล้วตรวจว่า WSL มี private GPG key ที่ตรงกับ `user.signingkey`:
+
+```bash
+set -euo pipefail
+test -z "$(git status --short)"
+git config --show-origin --get user.signingkey
+gpg --list-secret-keys --keyid-format=long
+git ls-remote --exit-code --tags origin "refs/tags/vX.Y.Z" && exit 1 || true
+```
+
+4. สร้างและตรวจ signed tag ก่อน push:
 
 ```bash
 git tag -s vX.Y.Z -m "hermes-mcp-bridge vX.Y.Z"
@@ -15,7 +24,31 @@ git verify-tag vX.Y.Z
 git push origin main vX.Y.Z
 ```
 
-ห้ามแทน `-s` ด้วย unsigned tag ใน release ที่อ้างว่า production baseline. การลงนามเป็นสิทธิ์ของ maintainer เท่านั้น; bridge ไม่เก็บหรือใช้ private signing key.
+ห้ามแทน `-s` ด้วย unsigned tag ใน production release. GitHub authentication token ไม่ใช่ GPG private key และห้ามใส่ private key/passphrase ใน bridge, chat, command history หรือ log.
+
+### Phase B — สร้างและตรวจ release assets จาก signed tag
+
+5. สร้าง archive จาก tag โดยมี root directory เดียวชื่อ `hermes-mcp-bridge-vX.Y.Z/`; ต้อง exclude `.git/`, `.venv/`, `__pycache__/`, `state/`, `.env` และ `bridge-config.json*`.
+6. สร้าง `SHA256SUMS` เป็น **external release asset** หลังสร้าง archive, แล้วตรวจทั้ง non-empty archive, ZIP structure และ checksum:
+
+```bash
+RELEASE_DIR="$(mktemp -d)"
+ZIP="$RELEASE_DIR/hermes-mcp-bridge-vX.Y.Z.zip"
+git archive --format=zip --prefix="hermes-mcp-bridge-vX.Y.Z/" -o "$ZIP" vX.Y.Z
+test -s "$ZIP"
+unzip -t "$ZIP"
+(cd "$RELEASE_DIR" && sha256sum "$(basename "$ZIP")" > SHA256SUMS)
+(cd "$RELEASE_DIR" && sha256sum -c SHA256SUMS)
+```
+
+ห้าม commit checksum ของ archive ปัจจุบันลง source tree ก่อนสร้าง archive: archive ที่บรรจุ checksum ของตัวเองเป็น self-reference. Root `SHA256SUMS` ไม่ใช่ authoritative manifest สำหรับ release ใหม่; ให้แนบ `SHA256SUMS` เป็น asset เดียวกับ ZIP.
+
+7. สร้าง GitHub Release พร้อม ZIP และ `SHA256SUMS`. หากทำงานนอก Git checkout ต้องระบุ `--repo owner/repo` กับ `gh release`.
+8. ดาวน์โหลด asset จาก GitHub ลง directory ใหม่ แล้วรัน `sha256sum -c SHA256SUMS` และ `unzip -t` ซ้ำก่อนประกาศ release สำเร็จ.
+
+### Phase C — release record หลัง tag
+
+9. เปิด release-record commit/PR หลัง Phase B ผ่าน เพื่อบันทึก tag target, signer verification, archive checksum และผล post-download verification ใน changelog, release status และ live acceptance. Commit นี้ไม่แก้ tag หรือ release assets และเป็นเอกสารประวัติหลัง release โดยเจตนา.
 
 ## บันทึก v1.0.1
 
