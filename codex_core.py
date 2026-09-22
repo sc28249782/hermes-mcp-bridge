@@ -381,8 +381,11 @@ class CodexRunner:
             else:
                 child = self._children.get(job_id)
                 recovered_after_restart = child is None
+                # A live Popen handle is authoritative. A child can become a
+                # zombie between poll() and a /proc/PID check; recording that
+                # race as unknown_exit loses its real exit status.
                 exit_code = child.poll() if child else None
-                ended = exit_code is not None or not self._alive(row["pid"])
+                ended = exit_code is not None if child else not self._alive(row["pid"])
                 if not ended:
                     return {"job_id": job_id, "status": status, "workspace": row["workspace"],
                             "mode": row["mode"], "created": row["created"], "started": row["started"],
