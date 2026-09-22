@@ -4,6 +4,8 @@ Securely connect ChatGPT to a local Hermes Agent and Codex CLI running in WSL2, 
 
 The bridge provides a controlled local execution boundary rather than a general remote shell. v1.0.1 is the current signed, GitHub-verified production baseline with 19 MCP tools: 10 Hermes tools, 6 Codex tools, and three read-only operations tools.
 
+Unreleased v1.2.0 work adds an opt-in, fail-closed Local Hands read-only slice: `hands_health`, `hands_list`, and `hands_read`. It uses separately configured workspaces and does not invoke Hermes or Codex; it is not enabled by an upgrade and remains subject to WSL2 live-acceptance release gates.
+
 ## Safety model
 
 - Hermes uses its authenticated local Runs API and its own approval policy.
@@ -41,6 +43,7 @@ Run `bash tunnel.sh init tunnel_YOUR_ID --force` when changing the bridge direct
 - [Roadmap](docs/ROADMAP.md)
 - [Local Hands architecture and security](docs/LOCAL-HANDS-ARCHITECTURE-TH.md)
 - [Local Hands implementation and acceptance plan](docs/LOCAL-HANDS-IMPLEMENTATION-PLAN-TH.md)
+- [Local Hands v1.2.0 read-only setup](docs/LOCAL-HANDS-V1.2-SETUP-TH.md)
 - [ADR-0001: Local Hands foundation contracts](docs/adr/0001-local-hands-foundation.md)
 - [Third-party notices and design attribution](THIRD_PARTY_NOTICES.md)
 
