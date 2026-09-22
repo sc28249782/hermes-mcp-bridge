@@ -1,6 +1,6 @@
 # Local Hands v1.2.0 — WSL2/DrvFS Live Acceptance
 
-สถานะ: release gate สำหรับ `v1.2.0`; ต้องบันทึกผลจริงก่อน tag  
+สถานะ: functional live acceptance ผ่านวันที่ 22 กันยายน 2026; production Local Hands ถูกคืนเป็น `disabled` และ cleanup fixture เสร็จแล้ว. การ tag/release ยังค้างการบันทึก release commit SHA, `uname -r`, `wsl.exe --version` และขั้นตอน signed tag/archive ตาม runbook.  
 ใช้กับ: commit ที่ผ่าน CI แล้วเท่านั้น และใช้ dedicated disposable fixture เท่านั้น
 
 ## เงื่อนไขก่อนเริ่ม
