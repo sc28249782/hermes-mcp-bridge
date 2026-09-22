@@ -1,6 +1,6 @@
 # ผล Live Acceptance — v1.0.1
 
-## v1.2.0 — Local Hands read-only functional live acceptance ผ่าน (22 กันยายน 2026; tag pending)
+## v1.2.0 — Local Hands read-only released (22 กันยายน 2026)
 
 - ทดสอบ deployment `/home/somchaip/hermes-mcp-bridge-v1.2.0-rc` ผ่าน Secure MCP Tunnel; discovery พบ 22 tools (base 19 + Hands 3) และ `bridge_diagnostics` ไม่มี `config_warnings`.
 - รอบ ext4: `hands_health` เป็น available; list แสดงเฉพาะไฟล์/ไดเรกทอรีที่อนุญาต, ซ่อน `.env` และ symlink `escape`; read `allowed.txt` และ `nested/allowed.txt` ได้ fixture ที่คาดไว้.
@@ -9,9 +9,12 @@
 - ทดสอบ critical fallback โดย Hermes หยุดและตั้ง `codex.binary` เป็น `/definitely-missing-codex`: Hermes/Codex health ใช้ไม่ได้ตามคาด ขณะที่ Hands health/list/read ยังทำงานได้; ไม่ได้ submit task ไปยัง Hermes หรือ Codex.
 - คืน config และบริการแล้ว `./bridge.sh doctor`, `./bridge.sh codex-doctor` และ diagnostics ผ่าน; cleanup เสร็จและ production Local Hands กลับสู่ `disabled` โดย workspaces ว่าง.
 
-หลักฐาน provenance: ทดสอบบน checkout ที่สะอาดที่ commit `9d00431975a61dc7fd67b521180f4e8669d84479`; `uname -r` = `6.18.33.2-microsoft-standard-WSL2`; WSL `2.7.14.0` (kernel package `6.18.33.2-2`, WSLg `1.0.73.2`); Windows `10.0.26300.9539`.
+หลักฐาน provenance: live acceptance ทำบน checkout ที่สะอาด `9d00431975a61dc7fd67b521180f4e8669d84479`; `uname -r` = `6.18.33.2-microsoft-standard-WSL2`; WSL `2.7.14.0` (kernel package `6.18.33.2-2`, WSLg `1.0.73.2`); Windows `10.0.26300.9539`.
 
-ยังไม่ประกาศ release/tag: เหลือสร้าง release archive, ตรวจ SHA-256, และสร้าง signed tag ตาม runbook.
+- released เป็น signed tag `v1.2.0` ที่ commit `bd56bafd4fcefcfbdf26699ab281cc1a6798bfc9`; GPG verify ผ่านด้วย EDDSA fingerprint `C4E9AFA9C97FC94CA2448E9218BDAEA561529B86`.
+- GitHub Release แนบ `hermes-mcp-bridge-v1.2.0.zip` และ `SHA256SUMS`; SHA-256 ของ ZIP คือ `621db6718323fb0639c67a9eac677af23de31a4f0f6e4d09b413d05f82960d08`.
+- download asset กลับจาก GitHub แล้ว `sha256sum -c SHA256SUMS` และ `unzip -t` ผ่านครบ.
+
 ## v1.0.1 — maintenance release acceptance (21 กันยายน 2026)
 
 - เชื่อมผ่าน `Hermes Local Bridge` จาก deployment `/home/somchaip/hermes-mcp-bridge-v1.0.1` ได้สำเร็จ
