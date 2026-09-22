@@ -44,7 +44,7 @@ class TestProtocol(unittest.TestCase):
                     hands_health=await session.call_tool('hands_health',{})
                     self.assertTrue(hands_health.structuredContent['ok'])
                     hands_list=await session.call_tool('hands_list',{'workspace':'fixture'})
-                    self.assertEqual(hands_list.structuredContent['entries'][0]['name'],'fixture.txt')
+                    self.assertIn({'name':'fixture.txt','kind':'file'}, hands_list.structuredContent['entries'])
                     hands_read=await session.call_tool('hands_read',{'workspace':'fixture','path':'fixture.txt'})
                     self.assertEqual(hands_read.structuredContent['content'],'hands fixture')
                     start=await session.call_tool('hermes_submit_task',{'prompt':'ทดสอบ','request_id':'protocol-test','model':'deepseek/test','provider':'nous','model_options':{'reasoning_effort':'high'}})
