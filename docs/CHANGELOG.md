@@ -6,7 +6,8 @@
 - Added canonical embedded identity fields and safe `unknown` values for malformed config or unstamped development provenance. Git revision is optional worktree enrichment; release archives do not require `.git`.
 - Added the durable Codex worker repair: local write approval now hands ownership to a detached worker that stores the actual exit code and terminal record after the short-lived approval CLI exits.
 - Dev acceptance passed for the durable worker: an isolated approved write produced the exact marker, `completed`, `exit_code: 0`, terminal actor `worker`, and retrievable JSONL output.
-- Release remains pending review, CI, bridge-version live acceptance, signed tag, external asset verification, and the Phase C release record.
+- CI and Dev bridge-version live acceptance passed: CLI/MCP identity parity held through the Secure MCP Tunnel; `bridge_version` remained available with an unreachable Hermes endpoint and absent Codex binary, then the Dev config was restored byte-for-byte.
+- Release remains pending independent review, Phase A clean-checkout/GPG gate, signed tag, external asset verification, and the Phase C release record.
 
 ## v1.2.1 — released (22 September 2026)
 

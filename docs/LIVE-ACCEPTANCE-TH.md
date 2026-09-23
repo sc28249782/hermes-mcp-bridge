@@ -1,4 +1,12 @@
-# ผล Live Acceptance — v1.0.1
+# ผล Live Acceptance — v1.2.2 candidate (tag pending)
+
+## v1.2.2 — Bridge version/provenance (23 กันยายน 2026)
+
+- ทำบน Dev working copy ที่ commit `5fcac967bc69e82e546a710702454464e52b86be` ผ่าน Secure MCP Tunnel ของ `Hermes Local Bridge - Dev`; Production ไม่ถูกเปลี่ยนแปลง.
+- `./bridge.sh version` และ MCP `bridge_version` ให้ identity ตรงกันทุก field: version `1.2.2`, release identifier `v1.2.2-candidate`, source kind `git-worktree`, revision `5fcac967bc69e82e546a710702454464e52b86be`, schema `1`, และ discovery contract `27` tools.
+- ตั้ง Dev config ชั่วคราวให้ Hermes ชี้ `http://127.0.0.1:1` และ Codex binary เป็น path ที่ไม่มีอยู่, restart เฉพาะ Dev tunnel, แล้ว MCP `bridge_version` ยังตอบผล identity เดิมได้. ระหว่างทดสอบไม่เรียก Hermes/Codex task หรือ tool อื่น.
+- response ไม่มี filesystem path, credential, prompt, output หรือ audit content. หลังทดสอบ restore config จาก backup แล้ว `cmp` ผ่านแบบ byte-for-byte. ต้องเริ่ม Dev tunnel ด้วย config ปกติก่อนใช้งานต่อ; การยืนยัน restart ปกติบันทึกเป็น recovery check แยกต่างหาก.
+- สิ่งที่ยังไม่ทำ: signed tag, GitHub Release asset, external `SHA256SUMS`, post-download verification และ Phase C release record.
 
 ## v1.2.0 — Local Hands read-only released (22 กันยายน 2026)
 
