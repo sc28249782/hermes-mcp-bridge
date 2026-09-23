@@ -37,13 +37,13 @@ class TestVersionReport(unittest.TestCase):
         self.assertEqual(result["revision_source"], "unknown")
         self.assertEqual(result["config_schema_version"], "unknown")
 
-    def test_release_archive_uses_valid_embedded_revision(self):
+    def test_release_archive_uses_valid_embedded_build_input_revision(self):
         with tempfile.TemporaryDirectory() as tmp:
             with patch("version_core.EMBEDDED_SOURCE_REVISION",
                        "b" * 40):
                 result = report(Path(tmp))
         self.assertEqual(result["source_revision"], "b" * 40)
-        self.assertEqual(result["revision_source"], "embedded")
+        self.assertEqual(result["revision_source"], "embedded-build-input")
 
     def test_cli_matches_local_report_without_loading_configured_backends(self):
         completed = subprocess.run(
