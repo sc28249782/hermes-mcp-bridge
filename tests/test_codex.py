@@ -280,5 +280,39 @@ class TestCodexRunner(unittest.TestCase):
         self.assertNotIn("sensitive detail", json.dumps(events))
 
 
+    def test_detached_worker_keeps_exit_result_after_local_approver_exits(self):
+        fake = Path(self.tmp.name) / "fake-codex-detached"
+        fake.write_text(
+            "#!/usr/bin/env python3\\n"
+            "import sys\\n"
+            "print('worker-output:' + sys.stdin.read().strip())\\n"
+        )
+        fake.chmod(0o700)
+        config = {"binary": str(fake), "allowed_workspaces": [str(self.root)]}
+        state = Path(self.tmp.name) / "durable-state"
+        owner = CodexRunner(config, state)
+        job = owner.submit("persist this result", str(self.root), "workspace-write")
+
+        # This is the production topology: the local approval command creates
+        # a different runner object and then exits, while a server polls later.
+        approver = CodexRunner(config, state)
+        approved = approver.approve_local(job["job_id"])
+        self.assertEqual(approved["status"], "running")
+        self.assertIsNotNone(approved["child_pid"])
+
+        observer = CodexRunner(config, state)
+        for _ in range(200):
+            status = observer.status(job["job_id"])
+            if status["status"] != "running":
+                break
+            time.sleep(0.01)
+        self.assertEqual(status["status"], "completed")
+        self.assertEqual(status["exit_code"], 0)
+        self.assertFalse(status["recovered_after_restart"])
+        self.assertEqual(status["terminal"]["transition_actor"], "worker")
+        self.assertEqual(status["terminal"]["transition_reason"], "process_exit_observed")
+        self.assertIn("worker-output:persist this result", observer.result(job["job_id"])["output"])
+
+
 if __name__ == "__main__":
     unittest.main()
