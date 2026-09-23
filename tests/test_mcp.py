@@ -4,6 +4,7 @@ import sys
 import unittest
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
+from version_core import report
 
 class TestProtocol(unittest.TestCase):
     def test_stdio_initialize_discovery_lifecycle(self):
@@ -44,7 +45,7 @@ class TestProtocol(unittest.TestCase):
                     self.assertFalse(health.isError)
                     version=await session.call_tool('bridge_version',{})
                     self.assertFalse(version.isError)
-                    self.assertEqual(version.structuredContent['mcp_discovery_count'],27)
+                    self.assertEqual(version.structuredContent, report(Path(__file__).resolve().parents[1]))
                     diagnostics=await session.call_tool('bridge_diagnostics',{})
                     self.assertFalse(diagnostics.isError)
                     self.assertIn('audit', diagnostics.structuredContent['codex'])
