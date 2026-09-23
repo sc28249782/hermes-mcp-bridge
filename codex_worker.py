@@ -52,14 +52,26 @@ def _terminal(dbpath: Path, job_id: str, worker_pid: int, status: str, exit_code
 def supervise(state: Path, job_id: str, binary: str, ready_fd: int, audit_config: dict | None) -> int:
     dbpath = state / "codex.sqlite3"
     worker_pid = os.getpid()
-    with _db(dbpath) as db:
-        row = db.execute(
-            "SELECT job_id,workspace,mode,prompt,log_path,model,reasoning_effort,status,pid "
-            "FROM jobs WHERE job_id=?",
-            (job_id,),
-        ).fetchone()
-    if not row or row["status"] != "running" or row["pid"] != worker_pid:
-        _ready(ready_fd, {"ok": False, "error": "job was not reserved for this worker"})
+    # The parent reserves the database row immediately after spawning this
+    # detached process.  Wait briefly so scheduler timing cannot turn that
+    # harmless startup race into a false failure.
+    row = None
+    deadline = time.monotonic() + 5
+    while time.monotonic() < deadline:
+        with _db(dbpath) as db:
+            row = db.execute(
+                "SELECT job_id,workspace,mode,prompt,log_path,model,reasoning_effort,status,pid "
+                "FROM jobs WHERE job_id=?",
+                (job_id,),
+            ).fetchone()
+        if row and row["status"] == "running" and row["pid"] == worker_pid:
+            break
+        if not row or row["status"] not in ("queued", "pending_local_approval"):
+            _ready(ready_fd, {"ok": False, "error": "job was not reserved for this worker"})
+            return 2
+        time.sleep(0.01)
+    else:
+        _ready(ready_fd, {"ok": False, "error": "job reservation timed out"})
         return 2
 
     argv = [binary, "exec", "--json", "--sandbox", row["mode"], "-C", row["workspace"]]
