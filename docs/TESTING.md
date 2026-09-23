@@ -1,4 +1,4 @@
-# Validation plan — v1.2.2 release candidate (2026-09-23)
+# Validation record — v1.2.2 release (2026-09-23)
 
 Target contract reviewed: Hermes v0.21.1, commit 8d79c2ff.
 
