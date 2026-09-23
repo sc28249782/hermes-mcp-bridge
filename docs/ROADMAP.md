@@ -62,7 +62,7 @@ The design, trust boundaries, proposed configuration, and tool contracts are in 
 - [x] Define deterministic fail-safe behavior for absent, malformed, or development provenance: report explicit `unknown`/development fields without raising, guessing a release, or exposing filesystem paths, environment values, credentials, prompts, outputs, or audit content.
 - [x] Keep update availability separate from local version reporting. Any optional GitHub release check must be an explicit future command with network behavior documented; `doctor`, `bridge_status`, and `bridge_version` remain local-only.
 - [x] Add tests for release-archive metadata, Git worktree metadata, missing/malformed provenance, CLI/MCP equality, disabled upstreams, and the 27-tool discovery contract.
-- [ ] Update README, TESTING, UPGRADE, OPERATIONS, CHANGELOG, release status, and release runbook before tag; document that tests must use the project interpreter (`.venv/bin/python`) rather than a PATH-selected `python3`.
+- [x] Update README, TESTING, UPGRADE, OPERATIONS, CHANGELOG, release status, and release runbook before tag; document that tests must use the project interpreter (`.venv/bin/python`) rather than a PATH-selected `python3`.
 - [ ] Run WSL2/Secure MCP Tunnel live acceptance: CLI and MCP version fields must agree for the deployed candidate, remain available when Hermes/Codex are unavailable, and expose no secret-bearing state.
 - [ ] Release only through the existing Phase A/B/C process: documentation gate before signed tag, external `SHA256SUMS` asset verified after download, and post-tag release-record commit.
 
