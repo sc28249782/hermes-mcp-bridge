@@ -10,6 +10,7 @@ from unittest.mock import patch
 
 import bridge
 from version_core import report
+from version_info import EMBEDDED_SOURCE_REVISION
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -30,15 +31,22 @@ class TestVersionReport(unittest.TestCase):
         self.assertEqual(result["mcp_discovery_count"], 27)
         revision.assert_called_once()
 
-    def test_release_archive_and_bad_config_fail_safe(self):
+    def test_stamped_release_archive_and_bad_config_fail_safe(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / "bridge-config.json").write_text("{broken")
             result = report(root)
         self.assertEqual(result["source_kind"], "release-archive")
+        self.assertEqual(result["source_revision"], EMBEDDED_SOURCE_REVISION)
+        self.assertEqual(result["revision_source"], "embedded-build-input")
+        self.assertEqual(result["config_schema_version"], "unknown")
+
+    def test_malformed_embedded_provenance_fails_safe(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch("version_core.EMBEDDED_SOURCE_REVISION", "not-a-sha"):
+                result = report(Path(tmp))
         self.assertEqual(result["source_revision"], "unknown")
         self.assertEqual(result["revision_source"], "unknown")
-        self.assertEqual(result["config_schema_version"], "unknown")
 
     def test_release_archive_uses_valid_embedded_build_input_revision(self):
         with tempfile.TemporaryDirectory() as tmp:
