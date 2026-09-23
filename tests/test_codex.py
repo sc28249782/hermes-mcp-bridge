@@ -283,9 +283,9 @@ class TestCodexRunner(unittest.TestCase):
     def test_detached_worker_keeps_exit_result_after_local_approver_exits(self):
         fake = Path(self.tmp.name) / "fake-codex-detached"
         fake.write_text(
-            "#!/usr/bin/env python3\\n"
-            "import sys\\n"
-            "print('worker-output:' + sys.stdin.read().strip())\\n"
+            "#!/usr/bin/env python3\n"
+            "import sys\n"
+            "print('worker-output:' + sys.stdin.read().strip())\n"
         )
         fake.chmod(0o700)
         config = {"binary": str(fake), "allowed_workspaces": [str(self.root)]}
