@@ -50,7 +50,7 @@ def report(root: Path) -> dict:
     if runtime_revision:
         source_revision, revision_source = runtime_revision, "git"
     elif embedded:
-        source_revision, revision_source = embedded, "embedded"
+        source_revision, revision_source = embedded, "embedded-build-input"
     else:
         source_revision, revision_source = "unknown", "unknown"
     return {
