@@ -1,3 +1,5 @@
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 import json
 import subprocess
@@ -6,6 +8,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
+import bridge
 from version_core import report
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -45,7 +48,20 @@ class TestVersionReport(unittest.TestCase):
         self.assertEqual(result["source_revision"], "b" * 40)
         self.assertEqual(result["revision_source"], "embedded-build-input")
 
-    def test_cli_matches_local_report_without_loading_configured_backends(self):
+    def test_version_action_does_not_initialize_configured_backends(self):
+        output = StringIO()
+        with (
+            patch.object(sys, "argv", ["bridge.py", "version"]),
+            patch("bridge.HandsRuntime.from_config",
+                  side_effect=AssertionError("Hands must not initialize")),
+            patch("bridge.Bridge.from_config",
+                  side_effect=AssertionError("Hermes must not initialize")),
+            redirect_stdout(output),
+        ):
+            bridge.main()
+        self.assertEqual(json.loads(output.getvalue()), report(ROOT))
+
+    def test_cli_matches_local_report(self):
         completed = subprocess.run(
             [sys.executable, str(ROOT / "bridge.py"), "version"],
             cwd=ROOT, text=True, capture_output=True, check=True, timeout=10,
