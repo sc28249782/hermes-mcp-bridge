@@ -39,7 +39,8 @@ class CodexRunner:
             raise CodexError("codex.approval_ttl_seconds must be 60-86400")
         if not 5 <= self.watchdog_interval <= 300:
             raise CodexError("codex.watchdog_interval_seconds must be 5-300")
-        self._children = {}
+        self._children = {}  # legacy in-process Codex children
+        self._workers = {}   # detached worker Popen handles, retained until reaped
         self._watchdog_lock = threading.Lock()
         self._watchdog_stop = threading.Event()
         self._watchdog_thread = None
@@ -331,9 +332,10 @@ class CodexRunner:
         finally:
             os.close(read_fd)
         if not payload.get("ok"):
+            self._terminate(worker.pid, worker)
             try:
-                os.killpg(worker.pid, signal.SIGTERM)
-            except ProcessLookupError:
+                worker.wait(timeout=2)
+            except subprocess.TimeoutExpired:
                 pass
             self._set_terminal(
                 job_id, "failed", last_known_state="running", actor="start",
@@ -341,7 +343,9 @@ class CodexRunner:
                 result_reason="Codex worker could not start the Codex CLI",
                 allowed_from=("running",),
             )
+            self.audit.record("codex", "start_failed", job_id, "failed", {})
             raise CodexError("failed to start Codex CLI")
+        self._workers[job_id] = worker
         self.audit.record("codex", "start", job_id, "running",
                           {"workspace": row["workspace"], "policy_root": row["policy_root"], "mode": row["mode"],
                            "model": row["model"], "reasoning_effort": row["reasoning_effort"],
@@ -489,6 +493,10 @@ class CodexRunner:
                 self.audit.record("codex", "finish", job_id, status,
                                   {"exit_code": exit_code, "recovered_after_restart": recovered_after_restart,
                                    "transition_actor": actor, "transition_reason": reason})
+        if status in self.TERMINAL:
+            worker = self._workers.pop(job_id, None)
+            if worker is not None:
+                worker.poll()
         return {"job_id": job_id, "status": status, "workspace": row["workspace"],
                 "mode": row["mode"], "created": row["created"], "started": row["started"],
                 "exit_code": exit_code, "recovered_after_restart": recovered_after_restart,
@@ -552,6 +560,9 @@ class CodexRunner:
         if not changed:
             return {"job_id": job_id, "status": self._row(job_id)["status"]}
         self._children.pop(job_id, None)
+        worker = self._workers.pop(job_id, None)
+        if worker is not None:
+            worker.poll()
         self.audit.record("codex", "cancel", job_id, final_status, {"mode": row["mode"]})
         return {"job_id": job_id, "status": final_status}
 
