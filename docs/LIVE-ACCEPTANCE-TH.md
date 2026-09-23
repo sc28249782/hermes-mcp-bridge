@@ -1,4 +1,4 @@
-# ผล Live Acceptance — v1.2.2 candidate (tag pending)
+# ผล Live Acceptance — v1.2.2 released (23 กันยายน 2026)
 
 ## v1.2.2 — Bridge version/provenance (23 กันยายน 2026)
 
@@ -6,7 +6,9 @@
 - `./bridge.sh version` และ MCP `bridge_version` ให้ identity ตรงกันทุก field: version `1.2.2`, release identifier `v1.2.2-candidate`, source kind `git-worktree`, revision `5fcac967bc69e82e546a710702454464e52b86be`, schema `1`, และ discovery contract `27` tools.
 - ตั้ง Dev config ชั่วคราวให้ Hermes ชี้ `http://127.0.0.1:1` และ Codex binary เป็น path ที่ไม่มีอยู่, restart เฉพาะ Dev tunnel, แล้ว MCP `bridge_version` ยังตอบผล identity เดิมได้. ระหว่างทดสอบไม่เรียก Hermes/Codex task หรือ tool อื่น.
 - response ไม่มี filesystem path, credential, prompt, output หรือ audit content. หลังทดสอบ restore config จาก backup แล้ว `cmp` ผ่านแบบ byte-for-byte. ต้องเริ่ม Dev tunnel ด้วย config ปกติก่อนใช้งานต่อ; การยืนยัน restart ปกติบันทึกเป็น recovery check แยกต่างหาก.
-- สิ่งที่ยังไม่ทำ: signed tag, GitHub Release asset, external `SHA256SUMS`, post-download verification และ Phase C release record.
+- signed tag `v1.2.2` ชี้ commit `f8f1d93930882dc3e669dab0a05b4bd5c1834bef`; `git verify-tag --verbose` ผ่านด้วย GPG EDDSA fingerprint `C4E9AFA9C97FC94CA2448E9218BDAEA561529B86`.
+- [GitHub Release v1.2.2](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.2) แนบ ZIP และ external `SHA256SUMS`; SHA-256 ZIP คือ `e9582153c57458e3ca73a4c169f46653662377b004c9c2ee552824c4ffce5dc5`.
+- ดาวน์โหลด asset กลับจาก GitHub แล้ว `sha256sum -c SHA256SUMS` และ `unzip -t` ผ่านครบ.
 
 ## v1.2.0 — Local Hands read-only released (22 กันยายน 2026)
 
