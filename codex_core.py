@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import signal
+import select
 import sqlite3
 import subprocess
 import sys
@@ -44,7 +45,8 @@ class CodexRunner:
         self._watchdog_thread = None
         self.state = Path(state)
         self.state.mkdir(parents=True, exist_ok=True, mode=0o700)
-        self.audit = AuditLog(self.state, config.get("audit"))
+        self.audit_config = config.get("audit")
+        self.audit = AuditLog(self.state, self.audit_config)
         self.logs = self.state / "codex-logs"
         self.logs.mkdir(exist_ok=True, mode=0o700)
         self.dbpath = self.state / "codex.sqlite3"
@@ -59,6 +61,7 @@ class CodexRunner:
             existing = {row[1] for row in db.execute("PRAGMA table_info(jobs)")}
             for name, definition in (("policy_root", "TEXT"), ("approval_expires", "REAL"),
                                      ("model", "TEXT"), ("reasoning_effort", "TEXT"),
+                                     ("child_pid", "INTEGER"),
                                      ("last_known_state", "TEXT"), ("last_transition_at", "REAL"),
                                      ("transition_actor", "TEXT"), ("transition_reason", "TEXT"),
                                      ("exit_signal", "INTEGER"), ("result_reason", "TEXT")):
@@ -281,38 +284,70 @@ class CodexRunner:
         return row
 
     def _start(self, job_id):
+        """Launch a detached worker which owns the Codex child and its exit code."""
         row = self._row(job_id)
         if row["status"] not in ("queued", "pending_local_approval"):
             raise CodexError("job is not startable")
-        argv = [self.binary, "exec", "--json", "--sandbox", row["mode"], "-C", row["workspace"]]
-        if row["model"]:
-            argv.extend(["--model", row["model"]])
-        if row["reasoning_effort"]:
-            argv.extend(["-c", "model_reasoning_effort=" + row["reasoning_effort"]])
-        argv.append("-")
-        with open(row["log_path"], "ab", buffering=0) as log:
+        read_fd, write_fd = os.pipe()
+        worker_argv = [
+            sys.executable, str(Path(__file__).with_name("codex_worker.py")),
+            "--state", str(self.state), "--job-id", job_id, "--binary", self.binary,
+            "--ready-fd", str(write_fd), "--audit-config-json",
+            json.dumps(self.audit_config, separators=(",", ":")),
+        ]
+        try:
+            worker = subprocess.Popen(
+                worker_argv, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL, cwd=self.state, start_new_session=True,
+                shell=False, pass_fds=(write_fd,),
+            )
+        except OSError as exc:
+            os.close(read_fd)
+            os.close(write_fd)
+            raise CodexError("failed to start Codex worker") from exc
+        finally:
             try:
-                proc = subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=log,
-                                        stderr=subprocess.STDOUT, cwd=row["workspace"],
-                                        start_new_session=True, shell=False)
-                proc.stdin.write(row["prompt"].encode("utf-8"))
-                proc.stdin.close()
-            except OSError as exc:
-                raise CodexError("failed to start Codex CLI") from exc
+                os.close(write_fd)
+            except OSError:
+                pass
         with self.db() as db:
-            changed = db.execute("UPDATE jobs SET status='running',started=?,pid=? WHERE job_id=? AND status=?",
-                                 (time.time(), proc.pid, job_id, row["status"])).rowcount
+            changed = db.execute(
+                "UPDATE jobs SET status='running',started=?,pid=?,child_pid=NULL "
+                "WHERE job_id=? AND status=?",
+                (time.time(), worker.pid, job_id, row["status"]),
+            ).rowcount
         if changed != 1:
             try:
-                os.killpg(proc.pid, signal.SIGTERM)
+                os.killpg(worker.pid, signal.SIGTERM)
             except ProcessLookupError:
                 pass
+            os.close(read_fd)
             raise CodexError("job state changed before start")
-        self._children[job_id] = proc
+        try:
+            ready, _, _ = select.select([read_fd], [], [], 5)
+            payload = json.loads(os.read(read_fd, 4096).decode("utf-8")) if ready else {}
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+            payload = {}
+        finally:
+            os.close(read_fd)
+        if not payload.get("ok"):
+            try:
+                os.killpg(worker.pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+            self._set_terminal(
+                job_id, "failed", last_known_state="running", actor="start",
+                reason="worker_not_ready",
+                result_reason="Codex worker could not start the Codex CLI",
+                allowed_from=("running",),
+            )
+            raise CodexError("failed to start Codex CLI")
         self.audit.record("codex", "start", job_id, "running",
                           {"workspace": row["workspace"], "policy_root": row["policy_root"], "mode": row["mode"],
-                           "model": row["model"], "reasoning_effort": row["reasoning_effort"]})
-        return {"job_id": job_id, "status": "running", "pid": proc.pid}
+                           "model": row["model"], "reasoning_effort": row["reasoning_effort"],
+                           "worker_pid": worker.pid, "child_pid": payload.get("child_pid")})
+        return {"job_id": job_id, "status": "running", "pid": worker.pid,
+                "child_pid": payload.get("child_pid")}
 
     def _set_terminal(self, job_id, status, *, last_known_state, actor, reason,
                       exit_code=None, exit_signal=None, result_reason=None,
@@ -418,12 +453,17 @@ class CodexRunner:
                             "reasoning_effort": row["reasoning_effort"]}
             else:
                 child = self._children.get(job_id)
-                recovered_after_restart = child is None
-                # A live Popen handle is authoritative. A child can become a
-                # zombie between poll() and a /proc/PID check; recording that
-                # race as unknown_exit loses its real exit status.
-                exit_code = child.poll() if child else None
-                ended = exit_code is not None if child else not self._alive(row["pid"])
+                if child is not None:
+                    exit_code = child.poll()
+                    ended = exit_code is not None
+                else:
+                    # New jobs are owned by codex_worker.py.  Its PID remains
+                    # alive until it durably records Codex's real exit status.
+                    # Jobs from older bridge versions lack child_pid and retain
+                    # the fail-closed recovery behaviour.
+                    durable_worker = row["child_pid"] is not None
+                    recovered_after_restart = not durable_worker
+                    ended = not self._alive(row["pid"])
                 if not ended:
                     return {"job_id": job_id, "status": status, "workspace": row["workspace"],
                             "mode": row["mode"], "created": row["created"], "started": row["started"],
@@ -432,9 +472,9 @@ class CodexRunner:
                 self._children.pop(job_id, None)
                 status = "completed" if exit_code == 0 else "failed" if exit_code is not None else "unknown_exit"
                 if exit_code is None:
-                    actor = "recovery" if recovered_after_restart else "status_poll"
+                    actor = "recovery" if recovered_after_restart else "worker_recovery"
                     reason = ("process_not_alive_after_bridge_restart" if recovered_after_restart
-                              else "process_ended_without_exit_status")
+                              else "worker_ended_without_terminal_record")
                     result_reason = "Codex process exit status was unavailable"
                 else:
                     actor = "status_poll"
