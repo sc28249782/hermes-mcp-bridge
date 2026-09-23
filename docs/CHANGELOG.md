@@ -1,13 +1,14 @@
 # Changelog
 
-## v1.2.2 — release candidate (tag pending)
+## v1.2.2 — released (23 September 2026)
 
 - Added local-only `./bridge.sh version` and read-only MCP `bridge_version`; both identify the reached bridge without contacting Hermes, Codex, Tunnel, GitHub, or another network endpoint.
 - Added canonical embedded identity fields and safe `unknown` values for malformed config or unstamped development provenance. Git revision is optional worktree enrichment; release archives do not require `.git`.
 - Added the durable Codex worker repair: local write approval now hands ownership to a detached worker that stores the actual exit code and terminal record after the short-lived approval CLI exits.
 - Dev acceptance passed for the durable worker: an isolated approved write produced the exact marker, `completed`, `exit_code: 0`, terminal actor `worker`, and retrievable JSONL output.
 - CI and Dev bridge-version live acceptance passed: CLI/MCP identity parity held through the Secure MCP Tunnel; `bridge_version` remained available with an unreachable Hermes endpoint and absent Codex binary, then the Dev config was restored byte-for-byte.
-- Release remains pending independent review, Phase A clean-checkout/GPG gate, signed tag, external asset verification, and the Phase C release record.
+- Published signed tag `v1.2.2` at `f8f1d93930882dc3e669dab0a05b4bd5c1834bef`; its GPG signature was verified with EDDSA fingerprint `C4E9AFA9C97FC94CA2448E9218BDAEA561529B86`.
+- Published the GitHub release archive and external `SHA256SUMS`; the archive checksum `e9582153c57458e3ca73a4c169f46653662377b004c9c2ee552824c4ffce5dc5` was verified after downloading from GitHub.
 
 ## v1.2.1 — released (22 September 2026)
 
