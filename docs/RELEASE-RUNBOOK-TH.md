@@ -16,7 +16,7 @@ gpg --list-secret-keys --keyid-format=long
 git ls-remote --exit-code --tags origin "refs/tags/vX.Y.Z" && exit 1 || true
 ```
 
-4. หาก release ใช้ embedded provenance ให้ stamp `version_info.py` ด้วย release identifier/build provenance ตาม release candidate ที่ review แล้ว; ห้ามใช้ `.git` เป็นเงื่อนไขให้ archive ทำงานได้. ตรวจ output `./bridge.sh version` อีกครั้งก่อน tag.
+4. หาก release ใช้ embedded provenance ให้ stamp `version_info.py` ด้วย release identifier/build provenance และ **build-input revision** ตาม release candidate ที่ review แล้ว; build-input revision บอก source ที่ใช้เตรียม stamp ไม่ใช่การอ้างว่าเป็น final tag commit (ซึ่งเป็น self-reference ไม่ได้). signed tag คือ authority ของ final commit. ห้ามใช้ `.git` เป็นเงื่อนไขให้ archive ทำงานได้. ตรวจ output `./bridge.sh version` อีกครั้งก่อน tag.
 
 5. สร้างและตรวจ signed tag ก่อน push:
 
