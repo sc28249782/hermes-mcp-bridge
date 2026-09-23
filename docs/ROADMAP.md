@@ -64,7 +64,7 @@ The design, trust boundaries, proposed configuration, and tool contracts are in 
 - [x] Add tests for release-archive metadata, Git worktree metadata, missing/malformed provenance, CLI/MCP equality, disabled upstreams, and the 27-tool discovery contract.
 - [x] Update README, TESTING, UPGRADE, OPERATIONS, CHANGELOG, release status, and release runbook before tag; document that tests must use the project interpreter (`.venv/bin/python`) rather than a PATH-selected `python3`.
 - [x] Run WSL2/Secure MCP Tunnel live acceptance: CLI and MCP version fields agree for the deployed candidate, remain available when Hermes/Codex are unavailable, expose no secret-bearing state, and restore the Dev config byte-for-byte after the temporary unavailable-upstream fixture.
-- [ ] Release only through the existing Phase A/B/C process: documentation gate before signed tag, external `SHA256SUMS` asset verified after download, and post-tag release-record commit.
+- [x] Release completed through the existing Phase A/B/C process: documentation gate before signed tag, external `SHA256SUMS` asset verified after download, and post-tag release-record commit.
 
 ## v1.3.0 — Approval-bound mutation and execution
 

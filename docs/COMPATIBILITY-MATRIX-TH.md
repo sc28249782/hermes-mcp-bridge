@@ -1,8 +1,8 @@
-# Compatibility matrix — v1.2.2 candidate
+# Compatibility matrix — v1.2.2 release
 
-This is a candidate matrix, not a production compatibility claim. It becomes a release record only after the v1.2.2 live-acceptance and signed-release gates pass.
+This matrix records the released v1.2.2 compatibility baseline. The WSL2 live-acceptance and signed-release gates passed before publication.
 
-| Component | Candidate baseline | วิธีตรวจ | หมายเหตุ |
+| Component | Release baseline | วิธีตรวจ | หมายเหตุ |
 | --- | --- | --- | --- |
 | Python | 3.12 | `.venv/bin/python --version` | รัน regression ด้วย `-W error::ResourceWarning` และต้องใช้ project interpreter |
 | Hermes API | loopback `127.0.0.1:8642` | `./bridge.sh doctor` | ต้องตอบ unauthenticated 401 และ authenticated 2xx |

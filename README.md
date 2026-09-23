@@ -2,7 +2,7 @@
 
 Securely connect ChatGPT to a local Hermes Agent and Codex CLI running in WSL2, through an OpenAI Secure MCP Tunnel.
 
-The bridge is a controlled local execution boundary, not a general remote shell. The current signed, GitHub-verified production release is **v1.2.1** with 26 MCP tools. The in-development **v1.2.2 candidate** adds a local-only version/provenance surface and raises its discovery contract to 27 tools; it is not a production release until its live-acceptance and signed-release gates pass.
+The bridge is a controlled local execution boundary, not a general remote shell. The current signed production release is **v1.2.2** with 27 MCP tools. It adds a local-only version/provenance surface and a durable local worker for approved Codex workspace-write jobs.
 
 ## Safety model
 

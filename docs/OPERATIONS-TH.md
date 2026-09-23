@@ -1,4 +1,4 @@
-# คู่มือปฏิบัติการ — v1.2.2 release candidate
+# คู่มือปฏิบัติการ — v1.2.2 release
 
 ## Version และ provenance
 
@@ -6,7 +6,7 @@
 ./bridge.sh version
 ```
 
-`version` และ MCP `bridge_version` ทำงานในเครื่องเท่านั้น: ไม่เรียก Hermes, Codex, tunnel, GitHub หรือ network. Candidate ที่ยังไม่ได้ stamp provenance อาจรายงาน revision เป็น `unknown` อย่างปลอดภัย; ห้ามเดา revision จากชื่อ directory และไม่ต้องส่ง path, secret, prompt หรือ output ผ่านผลนี้.
+`version` และ MCP `bridge_version` ทำงานในเครื่องเท่านั้น: ไม่เรียก Hermes, Codex, tunnel, GitHub หรือ network. Build ที่ยังไม่ได้ stamp provenance อาจรายงาน revision เป็น `unknown` อย่างปลอดภัย; ห้ามเดา revision จากชื่อ directory และไม่ต้องส่ง path, secret, prompt หรือ output ผ่านผลนี้.
 
 ## ตรวจสุขภาพ
 

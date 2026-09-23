@@ -1,12 +1,12 @@
-# อัปเกรดเป็น v1.2.2 release candidate
+# อัปเกรดเป็น v1.2.2 release
 
 ## จาก v1.2.1 เป็น v1.2.2
 
-1. ใช้ Dev deployment เท่านั้นจนกว่าจะมี signed tag; รอ Codex job สำคัญเป็น terminal status ก่อน upgrade.
+1. ดาวน์โหลด `hermes-mcp-bridge-v1.2.2.zip` และ external `SHA256SUMS` จาก [GitHub Release v1.2.2](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.2), แล้วรัน `sha256sum -c SHA256SUMS`; รอ Codex job สำคัญเป็น terminal status ก่อน upgrade.
 2. แตก archive/checkout ไป directory ใหม่ แล้ว copy เฉพาะ `bridge-config.json` และ `state/` ที่ตรวจแล้ว; ห้าม copy `.venv`, key หรือ `.env`.
 3. รัน `bash install.sh`, `./bridge.sh version`, `./bridge.sh doctor`, `./bridge.sh codex-doctor` และ `./bridge.sh diagnostics`.
 4. หากใช้ `codex.workspaces`, ย้าย allowlist เดิมจาก `codex.allowed_workspaces` มาเป็น policy entries ทั้งหมดก่อน restart; เมื่อมี `workspaces` runtime จะไม่รวม legacy allowlist.
-5. restart Dev tunnel, เปิด chat ใหม่ และตรวจ `bridge_version` กับ discovery 27 tools ก่อน read-only smoke test. workspace-write ยังคงต้อง local approval.
+5. restart tunnel ของ instance ที่อัปเกรด, เปิด chat ใหม่ และตรวจ `bridge_version` กับ discovery 27 tools ก่อน read-only smoke test. workspace-write ยังคงต้อง local approval.
 
 
 
