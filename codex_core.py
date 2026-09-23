@@ -58,7 +58,10 @@ class CodexRunner:
               model TEXT, reasoning_effort TEXT)""")
             existing = {row[1] for row in db.execute("PRAGMA table_info(jobs)")}
             for name, definition in (("policy_root", "TEXT"), ("approval_expires", "REAL"),
-                                     ("model", "TEXT"), ("reasoning_effort", "TEXT")):
+                                     ("model", "TEXT"), ("reasoning_effort", "TEXT"),
+                                     ("last_known_state", "TEXT"), ("last_transition_at", "REAL"),
+                                     ("transition_actor", "TEXT"), ("transition_reason", "TEXT"),
+                                     ("exit_signal", "INTEGER"), ("result_reason", "TEXT")):
                 if name not in existing:
                     db.execute(f"ALTER TABLE jobs ADD COLUMN {name} {definition}")
         self.dbpath.chmod(0o600)
@@ -311,11 +314,42 @@ class CodexRunner:
                            "model": row["model"], "reasoning_effort": row["reasoning_effort"]})
         return {"job_id": job_id, "status": "running", "pid": proc.pid}
 
-    def _mark_start_failed(self, job_id):
+    def _set_terminal(self, job_id, status, *, last_known_state, actor, reason,
+                      exit_code=None, exit_signal=None, result_reason=None,
+                      allowed_from=None):
+        if status not in self.TERMINAL:
+            raise CodexError("terminal status is required")
+        clauses = ["job_id=?"]
+        now = time.time()
+        values = [status, now, exit_code, exit_signal, last_known_state, now,
+                  actor, reason, result_reason, job_id]
+        if allowed_from:
+            placeholders = ",".join("?" for _ in allowed_from)
+            clauses.append(f"status IN ({placeholders})")
+            values.extend(allowed_from)
         with self.db() as db:
-            changed = db.execute("UPDATE jobs SET status='failed',finished=? WHERE job_id=? AND status IN ('queued','pending_local_approval')",
-                                 (time.time(), job_id)).rowcount
-        if changed:
+            return db.execute(
+                "UPDATE jobs SET status=?,finished=?,exit_code=?,exit_signal=?,"
+                "last_known_state=?,last_transition_at=?,transition_actor=?,"
+                "transition_reason=?,result_reason=? WHERE " + " AND ".join(clauses),
+                values).rowcount
+
+    @staticmethod
+    def _terminal_record(row):
+        return {
+            "last_known_state": row["last_known_state"] or row["status"],
+            "transitioned_at": row["last_transition_at"] or row["finished"],
+            "transition_actor": row["transition_actor"] or "unknown",
+            "transition_reason": row["transition_reason"] or "unknown",
+            "exit_signal": row["exit_signal"],
+            "result_reason": row["result_reason"],
+        }
+
+    def _mark_start_failed(self, job_id):
+        if self._set_terminal(job_id, "failed", last_known_state="queued",
+                              actor="start", reason="failed_to_spawn",
+                              result_reason="Codex CLI process could not be started",
+                              allowed_from=("queued", "pending_local_approval")):
             self.audit.record("codex", "start_failed", job_id, "failed", {})
 
     def approval_preview(self, job_id):
@@ -335,15 +369,19 @@ class CodexRunner:
         row = self._expire_pending(row)
         if row["status"] != "pending_local_approval":
             raise CodexError("job is not waiting for approval")
-        with self.db() as db:
-            db.execute("UPDATE jobs SET status='denied',finished=? WHERE job_id=?", (time.time(), job_id))
+        self._set_terminal(job_id, "denied", last_known_state="pending_local_approval",
+                           actor="local_operator", reason="approval_denied",
+                           result_reason="Local operator denied the write approval",
+                           allowed_from=("pending_local_approval",))
         self.audit.record("codex", "deny", job_id, "denied", {"mode": row["mode"]})
         return {"job_id": job_id, "status": "denied"}
 
     def _expire_pending(self, row):
         if row["status"] == "pending_local_approval" and row["approval_expires"] is not None and row["approval_expires"] <= time.time():
-            with self.db() as db:
-                db.execute("UPDATE jobs SET status='expired',finished=? WHERE job_id=?", (time.time(), row["job_id"]))
+            self._set_terminal(row["job_id"], "expired", last_known_state="pending_local_approval",
+                               actor="watchdog", reason="approval_expired",
+                               result_reason="Local write approval expired",
+                               allowed_from=("pending_local_approval",))
             self.audit.record("codex", "approval_expired", row["job_id"], "expired",
                               {"workspace": row["workspace"], "policy_root": row["policy_root"]})
             return self._row(row["job_id"])
@@ -393,21 +431,37 @@ class CodexRunner:
                             "model": row["model"], "reasoning_effort": row["reasoning_effort"]}
                 self._children.pop(job_id, None)
                 status = "completed" if exit_code == 0 else "failed" if exit_code is not None else "unknown_exit"
-                with self.db() as db:
-                    db.execute("UPDATE jobs SET status=?,finished=?,exit_code=? WHERE job_id=?",
-                               (status, time.time(), exit_code, job_id))
+                if exit_code is None:
+                    actor = "recovery" if recovered_after_restart else "status_poll"
+                    reason = ("process_not_alive_after_bridge_restart" if recovered_after_restart
+                              else "process_ended_without_exit_status")
+                    result_reason = "Codex process exit status was unavailable"
+                else:
+                    actor = "status_poll"
+                    reason = "process_exit_observed"
+                    result_reason = None if exit_code == 0 else "Codex CLI exited with a non-zero status"
+                self._set_terminal(job_id, status, last_known_state="running", actor=actor,
+                                   reason=reason, exit_code=exit_code,
+                                   result_reason=result_reason, allowed_from=("running",))
+                row = self._row(job_id)
+                status = row["status"]
+                exit_code = row["exit_code"]
                 self.audit.record("codex", "finish", job_id, status,
-                                  {"exit_code": exit_code, "recovered_after_restart": child is None})
+                                  {"exit_code": exit_code, "recovered_after_restart": recovered_after_restart,
+                                   "transition_actor": actor, "transition_reason": reason})
         return {"job_id": job_id, "status": status, "workspace": row["workspace"],
                 "mode": row["mode"], "created": row["created"], "started": row["started"],
                 "exit_code": exit_code, "recovered_after_restart": recovered_after_restart,
                 "model": row["model"], "reasoning_effort": row["reasoning_effort"],
+                "terminal": self._terminal_record(row) if status in self.TERMINAL else None,
                 "approval": ({"required": True, "expires_at": row["approval_expires"], "policy_root": row["policy_root"]}
                              if status == "pending_local_approval" else None)}
 
     def result(self, job_id, offset=0, max_chars=12000):
-        if offset < 0 or not 1 <= max_chars <= 24000:
-            raise CodexError("invalid result page")
+        if (isinstance(offset, bool) or not isinstance(offset, int) or offset < 0
+                or isinstance(max_chars, bool) or not isinstance(max_chars, int)
+                or not 1 <= max_chars <= 24000):
+            raise CodexError("invalid result page: offset must be a non-negative integer and max_chars must be 1-24000")
         row = self._row(job_id)
         path = Path(row["log_path"])
         data = path.read_text(errors="replace") if path.exists() else ""
@@ -448,9 +502,13 @@ class CodexRunner:
         if not self._terminate(row["pid"], child):
             self.audit.record("codex", "cancel_pending", job_id, "running", {"mode": row["mode"]})
             return {"job_id": job_id, "status": "running", "cancellation_pending": True}
-        with self.db() as db:
-            changed = db.execute("UPDATE jobs SET status=?,finished=? WHERE job_id=? AND status='running' AND pid=?",
-                                 (final_status, time.time(), job_id, row["pid"])).rowcount
+        actor = "watchdog" if final_status == "timed_out" else "local_operator"
+        reason = "runtime_limit_exceeded" if final_status == "timed_out" else "cancellation_requested"
+        result_reason = ("Workspace runtime limit was exceeded" if final_status == "timed_out"
+                         else "Codex job was cancelled by the local operator")
+        changed = self._set_terminal(job_id, final_status, last_known_state="running",
+                                     actor=actor, reason=reason, result_reason=result_reason,
+                                     allowed_from=("running",))
         if not changed:
             return {"job_id": job_id, "status": self._row(job_id)["status"]}
         self._children.pop(job_id, None)

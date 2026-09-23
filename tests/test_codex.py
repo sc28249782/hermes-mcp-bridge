@@ -145,6 +145,18 @@ class TestCodexRunner(unittest.TestCase):
         self.assertEqual(status["status"], "unknown_exit")
         self.assertIsNone(status["exit_code"])
         self.assertTrue(status["recovered_after_restart"])
+        self.assertEqual(status["terminal"]["last_known_state"], "running")
+        self.assertEqual(status["terminal"]["transition_actor"], "recovery")
+        self.assertEqual(status["terminal"]["transition_reason"], "process_not_alive_after_bridge_restart")
+        self.assertEqual(status["terminal"]["result_reason"], "Codex process exit status was unavailable")
+        persisted = self.runner._row(job["job_id"])
+        self.assertEqual(persisted["transition_actor"], "recovery")
+
+    def test_result_page_rejects_non_integer_values(self):
+        job = self.runner.submit("edit", str(self.root), "workspace-write")
+        for offset, max_chars in (("0", 1), (0, "1"), (True, 1), (0, False)):
+            with self.assertRaisesRegex(CodexError, "offset must be a non-negative integer"):
+                self.runner.result(job["job_id"], offset, max_chars)
 
     def test_live_popen_handle_does_not_become_unknown_exit_from_proc_race(self):
         job = self.runner.submit("edit", str(self.root), "workspace-write")
