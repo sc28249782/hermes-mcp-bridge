@@ -2,9 +2,7 @@
 
 Securely connect ChatGPT to a local Hermes Agent and Codex CLI running in WSL2, through an OpenAI Secure MCP Tunnel.
 
-The bridge provides a controlled local execution boundary rather than a general remote shell. v1.0.1 is the current signed, GitHub-verified production baseline with 19 MCP tools: 10 Hermes tools, 6 Codex tools, and three read-only operations tools.
-
-Unreleased v1.2.0 work adds an opt-in, fail-closed Local Hands read-only slice: `hands_health`, `hands_list`, and `hands_read`. It uses separately configured workspaces and does not invoke Hermes or Codex; it is not enabled by an upgrade and remains subject to WSL2 live-acceptance release gates.
+The bridge is a controlled local execution boundary, not a general remote shell. The current signed, GitHub-verified production release is **v1.2.1** with 26 MCP tools. The in-development **v1.2.2 candidate** adds a local-only version/provenance surface and raises its discovery contract to 27 tools; it is not a production release until its live-acceptance and signed-release gates pass.
 
 ## Safety model
 
@@ -13,8 +11,8 @@ Unreleased v1.2.0 work adds an opt-in, fail-closed Local Hands read-only slice: 
 - Codex can use only explicitly allowlisted workspaces.
 - Codex permits only `read-only` and `workspace-write`; `danger-full-access` is rejected.
 - Every write job requires interactive approval in the local WSL2 terminal.
+- Approved Codex work is supervised by a durable local worker, which persists its terminal outcome independently of the tunnel process.
 - Workspace policies can restrict sandbox modes, runtime, prompt size, concurrency, approval lifetime, and configured pre-flight prompt patterns.
-- An optional per-workspace allowlist governs Codex model and reasoning-effort overrides; omitting both keeps the local Codex CLI defaults.
 - Audit logs are redacted, local-only, rotating JSONL files. Secrets, prompts, and outputs are not written to them.
 - A persistent Codex watchdog enforces each workspace runtime limit even when no client polls job status.
 
@@ -25,7 +23,10 @@ bash install.sh
 ./bridge.sh doctor
 ./bridge.sh codex-doctor
 ./bridge.sh diagnostics
+./bridge.sh version
 ```
+
+`./bridge.sh version` is local-only: it does not contact Hermes, Codex, the tunnel, GitHub, or another network service. It reports the installed bridge version, release/provenance fields, config-schema version, and MCP discovery contract. The MCP equivalent is the read-only `bridge_version` tool.
 
 Run `bash tunnel.sh init tunnel_YOUR_ID --force` when changing the bridge directory or version; it updates the `hermes-wsl` profile and starts the tunnel. Later starts use `bash tunnel.sh run`.
 
@@ -51,4 +52,4 @@ Run `bash tunnel.sh init tunnel_YOUR_ID --force` when changing the bridge direct
 
 Licensed under [Apache License 2.0](LICENSE).
 
-The Local Hands design was inspired in part by [Endeavor Hands](https://github.com/halochamp/Endeavor_Hands) (MIT). No Endeavor Hands source code or assets are incorporated in the current design documents or v1.0.1 runtime; see [Third-Party Notices](THIRD_PARTY_NOTICES.md).
+The Local Hands design was inspired in part by [Endeavor Hands](https://github.com/halochamp/Endeavor_Hands) (MIT). No Endeavor Hands source code or assets are incorporated in the current runtime; see [Third-Party Notices](THIRD_PARTY_NOTICES.md).

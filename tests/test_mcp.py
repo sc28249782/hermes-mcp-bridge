@@ -4,6 +4,7 @@ import sys
 import unittest
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
+from version_core import report
 
 class TestProtocol(unittest.TestCase):
     def test_stdio_initialize_discovery_lifecycle(self):
@@ -14,10 +15,11 @@ class TestProtocol(unittest.TestCase):
                     await session.initialize()
                     listed=await session.list_tools()
                     byname={t.name:t for t in listed.tools}
-                    self.assertEqual(len(byname),26)
+                    self.assertEqual(len(byname),27)
                     self.assertFalse(byname['hermes_submit_task'].annotations.readOnlyHint)
                     self.assertNotIn('hermes_approve',byname)
                     self.assertIn('codex_submit_task',byname)
+                    self.assertIn('bridge_version',byname)
                     self.assertIn('bridge_diagnostics',byname)
                     self.assertIn('bridge_audit_recent',byname)
                     self.assertIn('bridge_status',byname)
@@ -41,6 +43,9 @@ class TestProtocol(unittest.TestCase):
                     self.assertFalse(models.isError)
                     health=await session.call_tool('hermes_health',{})
                     self.assertFalse(health.isError)
+                    version=await session.call_tool('bridge_version',{})
+                    self.assertFalse(version.isError)
+                    self.assertEqual(version.structuredContent, report(Path(__file__).resolve().parents[1]))
                     diagnostics=await session.call_tool('bridge_diagnostics',{})
                     self.assertFalse(diagnostics.isError)
                     self.assertIn('audit', diagnostics.structuredContent['codex'])

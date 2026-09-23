@@ -1,10 +1,10 @@
-# Validation plan — v1.2.1 (2026-09-22)
+# Validation plan — v1.2.2 release candidate (2026-09-23)
 
 Target contract reviewed: Hermes v0.21.1, commit 8d79c2ff.
 
 ## MCP tool contract (canonical count)
 
-The canonical discovery contract for v1.2.1 is **26 tools**: existing 22 plus four explicit context tools (`bridge_context_create`, `bridge_context_status`, `bridge_context_recent`, `bridge_context_close`). Other documents should refer here instead of maintaining an independent count.
+The canonical discovery contract for v1.2.2 is **27 tools**: v1.2.1's 26 plus local-only `bridge_version`. Other documents should refer here instead of maintaining an independent count. `bridge_version` and `./bridge.sh version` must agree on shared identity fields and must not contact Hermes, Codex, Tunnel, GitHub, or another network endpoint.
 
 ## Unreleased v1.2.1 context and Hands coverage
 
@@ -24,3 +24,10 @@ Installer coverage includes pip presence detection and ensurepip bootstrap for a
 The test server mocks the Hermes HTTP contract; it does not replace workstation/tunnel validation. Shell syntax checking does not prove runtime integration.
 
 Live acceptance is recorded in `LIVE-ACCEPTANCE-TH.md`: v1.0.0 RC2 validated 19-tool discovery, Hermes idempotent read-only execution, Codex `gpt-5.6-sol` + `low`, local workspace-write approval, and cancellation through the Secure MCP Tunnel. v1.0.1 then passed its WSL2 deployment health check and a no-write/no-network Codex read-only acceptance with no configuration warnings.
+
+## v1.2.2 provenance and durable-worker gates
+
+- `tests/test_version.py` covers worktree enrichment and archive/malformed-config fail-safe output.
+- MCP stdio and Hands fallback suites require 27-tool discovery, including `bridge_version`.
+- Codex regression covers the detached worker retaining a real exit record after the local approver instance exits.
+- WSL2 live acceptance must verify CLI/MCP identity parity, unavailable-upstream behavior, no secret/path leakage, exact marker bytes, terminal exit code, and JSONL result retrieval.

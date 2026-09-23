@@ -1,4 +1,12 @@
-# คู่มือปฏิบัติการ — v1.0.1
+# คู่มือปฏิบัติการ — v1.2.2 release candidate
+
+## Version และ provenance
+
+```bash
+./bridge.sh version
+```
+
+`version` และ MCP `bridge_version` ทำงานในเครื่องเท่านั้น: ไม่เรียก Hermes, Codex, tunnel, GitHub หรือ network. Candidate ที่ยังไม่ได้ stamp provenance อาจรายงาน revision เป็น `unknown` อย่างปลอดภัย; ห้ามเดา revision จากชื่อ directory และไม่ต้องส่ง path, secret, prompt หรือ output ผ่านผลนี้.
 
 ## ตรวจสุขภาพ
 
@@ -34,7 +42,8 @@
 2. เรียก `codex_recent_tasks` แล้วใช้ `codex_task_status` กับ job ที่เกี่ยวข้อง
 3. ถ้าได้ `recovered_after_restart: true` ให้ตรวจ `codex_task_result` และ workspace ก่อนดำเนินการต่อ; หาก status เป็น `unknown_exit` ห้ามถือว่างานสำเร็จจนกว่าจะตรวจผลกระทบเอง
 4. ถ้างานเป็น `workspace-write` ที่ค้าง `pending_local_approval` ให้ตรวจรายละเอียดแล้ว approve/deny ผ่าน terminal เท่านั้น
-5. การ restart tunnel ไม่ได้หยุด Hermes หรือ Codex job ที่เริ่มไปแล้ว; ใช้ cancel tool หากต้องการหยุด
+5. งาน `workspace-write` ที่ถูก approve จะมี detached worker เป็นเจ้าของ Codex process จนบันทึก exit code/terminal record แล้ว. หากยังได้ `unknown_exit` ต้องถือว่าผลยืนยันไม่ได้และตรวจ workspace แบบ read-only ก่อนดำเนินการต่อ.
+6. การ restart tunnel ไม่ได้หยุด Hermes หรือ Codex job ที่เริ่มไปแล้ว; ใช้ cancel tool หากต้องการหยุด
 
 ## Workspace policy และ approval expiry
 
@@ -51,3 +60,7 @@ Codex watchdog ตาม `codex.watchdog_interval_seconds` (ค่าเริ�
 ก่อนส่ง override ให้เรียก `codex_health` และใช้เฉพาะ model ID/effort ที่แสดงใน `workspace_policies` ของ workspace นั้น หากไม่ส่ง `model` หรือ `reasoning_effort` Codex CLI จะใช้ค่า default local. การเลือก override ไม่ข้าม sandbox หรือ local approval สำหรับ `workspace-write`.
 
 หาก Codex CLI ตอบว่า model ไม่รองรับ ให้แก้ `allowed_models` เป็น model ID จริงที่บัญชีใช้งานได้—not display name—แล้ว restart tunnel และตรวจ `codex_health` ใหม่.
+
+## Migration จาก `allowed_workspaces`
+
+หาก config เดิมใช้ `codex.allowed_workspaces` แล้วเพิ่ม `codex.workspaces`, runtime จะใช้ `workspaces` เป็น policy source of truth. ต้องย้าย workspace เดิมทั้งหมดเป็น entries แบบ explicit ก่อน restart; อย่าเพิ่ม policy ทดสอบเพียงรายการเดียวจนทำให้ policy เดิมหาย. เก็บ backup mode 0600 และลบ policy ทดสอบหลัง acceptance.

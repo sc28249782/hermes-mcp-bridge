@@ -1,4 +1,14 @@
-# อัปเกรดเป็น v1.0.1
+# อัปเกรดเป็น v1.2.2 release candidate
+
+## จาก v1.2.1 เป็น v1.2.2
+
+1. ใช้ Dev deployment เท่านั้นจนกว่าจะมี signed tag; รอ Codex job สำคัญเป็น terminal status ก่อน upgrade.
+2. แตก archive/checkout ไป directory ใหม่ แล้ว copy เฉพาะ `bridge-config.json` และ `state/` ที่ตรวจแล้ว; ห้าม copy `.venv`, key หรือ `.env`.
+3. รัน `bash install.sh`, `./bridge.sh version`, `./bridge.sh doctor`, `./bridge.sh codex-doctor` และ `./bridge.sh diagnostics`.
+4. หากใช้ `codex.workspaces`, ย้าย allowlist เดิมจาก `codex.allowed_workspaces` มาเป็น policy entries ทั้งหมดก่อน restart; เมื่อมี `workspaces` runtime จะไม่รวม legacy allowlist.
+5. restart Dev tunnel, เปิด chat ใหม่ และตรวจ `bridge_version` กับ discovery 27 tools ก่อน read-only smoke test. workspace-write ยังคงต้อง local approval.
+
+
 
 ## จาก v1.0.0 เป็น v1.0.1
 

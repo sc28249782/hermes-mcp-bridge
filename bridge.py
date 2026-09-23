@@ -9,6 +9,7 @@ from core import Bridge, BridgeError
 from codex_core import CodexRunner, CodexError
 from hands_core import HandsRuntime, HandsError
 from contexts import ContextRegistry, ContextError
+from version_core import report as bridge_version_report
 
 
 def server(b, c, h, contexts):
@@ -32,6 +33,11 @@ def server(b, c, h, contexts):
     def hermes_health() -> dict[str, Any]:
         """Check authentication and supported Hermes APIs without starting an agent turn."""
         return b.health()
+
+    @m.tool(annotations=read, structured_output=True)
+    def bridge_version() -> dict[str, Any]:
+        """Report local bridge version and provenance without contacting Hermes, Codex, Tunnel, or any network endpoint."""
+        return bridge_version_report(Path(__file__).resolve().parent)
 
     @m.tool(annotations=read, structured_output=True)
     def bridge_diagnostics() -> dict[str, Any]:
@@ -194,11 +200,14 @@ def server(b, c, h, contexts):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("action", choices=["serve", "doctor", "diagnostics", "audit-recent", "status", "result", "recent", "usage", "usage-export", "models", "model-info", "approve", "deny", "codex-doctor", "codex-approve", "codex-deny", "hands-doctor"], nargs="?", default="serve")
+    p.add_argument("action", choices=["serve", "version", "doctor", "diagnostics", "audit-recent", "status", "result", "recent", "usage", "usage-export", "models", "model-info", "approve", "deny", "codex-doctor", "codex-approve", "codex-deny", "hands-doctor"], nargs="?", default="serve")
     p.add_argument("run_id", nargs="?")
     args = p.parse_args()
     try:
         root = Path(__file__).resolve().parent
+        if args.action == "version":
+            print(json.dumps(bridge_version_report(root), indent=2, ensure_ascii=False))
+            return
         h = HandsRuntime.from_config(root)
         if args.action == "hands-doctor":
             print(json.dumps(h.health(), indent=2, ensure_ascii=False))
