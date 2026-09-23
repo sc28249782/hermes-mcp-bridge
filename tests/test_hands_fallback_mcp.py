@@ -18,7 +18,7 @@ class TestHandsFallbackProtocol(unittest.TestCase):
                 async with ClientSession(read, write) as session:
                     await session.initialize()
                     listed = await session.list_tools()
-                    self.assertEqual(len(listed.tools), 26)
+                    self.assertEqual(len(listed.tools), 27)
                     health = await session.call_tool("hands_health", {})
                     self.assertFalse(health.isError)
                     self.assertTrue(health.structuredContent["ok"])
