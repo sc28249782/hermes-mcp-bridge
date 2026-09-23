@@ -1,13 +1,15 @@
-# Release status — v1.2.2 candidate (tag pending)
+# Release status — v1.2.2 released (23 กันยายน 2026)
 
-## v1.2.2 — candidate (tag pending)
+## v1.2.2 — released (23 กันยายน 2026)
 
 - เพิ่ม `./bridge.sh version` และ MCP `bridge_version` แบบ local-only; discovery contract เปลี่ยนเป็น 27 tools.
 - เพิ่ม embedded identity/provenance และ fail-safe `unknown` fields สำหรับ config/provenance ที่ไม่สมบูรณ์ โดยไม่เปิดเผย path, prompt, output หรือ secret.
 - แก้ Codex workspace-write lifecycle ด้วย detached durable worker: acceptance Dev ยืนยัน `completed`, `exit_code: 0`, `transition_actor: worker`, JSONL output retrieval และ exact marker bytes.
 - CI ผ่าน และ Dev live acceptance ผ่าน: CLI/MCP identity parity, `bridge_version` ผ่าน Secure MCP Tunnel แม้ตั้ง Hermes/Codex ให้ unavailable, ไม่มี secret/path leak, และ restore config กลับ byte-for-byte ด้วย `cmp`.
-- independent review ผ่านแล้ว และ Phase A stamp กำหนด `release_identifier` เป็น `v1.2.2`, `build_provenance` เป็น `release`, พร้อม reviewed build-input revision `079f1fc2386de62cfa52a5bbe38645e4efdbdd2e`. signed tag จะเป็น authority ของ final commit แยกจาก embedded build input.
-- เหลือ Phase A clean-checkout/GPG gate, signed tag, external release assets/checksum และ Phase C release record; ยังไม่มี release asset หรือ release checksum.
+- independent review ผ่านแล้ว และ Phase A stamp กำหนด `release_identifier` เป็น `v1.2.2`, `build_provenance` เป็น `release`, พร้อม reviewed build-input revision `079f1fc2386de62cfa52a5bbe38645e4efdbdd2e`; signed tag เป็น authority ของ final commit แยกจาก embedded build input.
+- signed tag `v1.2.2` ชี้ commit `f8f1d93930882dc3e669dab0a05b4bd5c1834bef`; `git verify-tag --verbose` ผ่านด้วย GPG EDDSA fingerprint `C4E9AFA9C97FC94CA2448E9218BDAEA561529B86`.
+- [GitHub Release v1.2.2](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.2) เผยแพร่ ZIP และ external `SHA256SUMS`; SHA-256 ของ archive คือ `e9582153c57458e3ca73a4c169f46653662377b004c9c2ee552824c4ffce5dc5`.
+- Phase B re-verification หลังดาวน์โหลดผ่านทั้ง `sha256sum -c SHA256SUMS` และ `unzip -t`; release asset ไม่ถูก commit กลับเข้า repository.
 ## v1.2.1 — released (22 กันยายน 2026)
 
 - เพิ่ม explicit work contexts แบบ metadata-only: 4 MCP tools, discovery contract 26 tools, Hermes resume จาก bridge-owned session เท่านั้น และ Codex bind เฉพาะ workspace/job metadata โดยไม่ replay prompt/output.
