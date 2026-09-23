@@ -320,7 +320,8 @@ class CodexRunner:
         if status not in self.TERMINAL:
             raise CodexError("terminal status is required")
         clauses = ["job_id=?"]
-        values = [status, time.time(), exit_code, exit_signal, last_known_state,
+        now = time.time()
+        values = [status, now, exit_code, exit_signal, last_known_state, now,
                   actor, reason, result_reason, job_id]
         if allowed_from:
             placeholders = ",".join("?" for _ in allowed_from)
@@ -329,7 +330,7 @@ class CodexRunner:
         with self.db() as db:
             return db.execute(
                 "UPDATE jobs SET status=?,finished=?,exit_code=?,exit_signal=?,"
-                "last_known_state=?,last_transition_at=finished,transition_actor=?,"
+                "last_known_state=?,last_transition_at=?,transition_actor=?,"
                 "transition_reason=?,result_reason=? WHERE " + " AND ".join(clauses),
                 values).rowcount
 
