@@ -44,6 +44,9 @@ printf '%s\\n' "$*" >> "${SYSTEMCTL_LOG:?}"
             "XDG_CONFIG_HOME": str(self.config),
             "SYSTEMCTL_LOG": str(self.root / "systemctl.log"),
         }
+        # The test verifies fallback to its temporary key file, not a key exported
+        # by the developer's shell or an active tunnel service.
+        env.pop("CONTROL_PLANE_API_KEY", None)
         return subprocess.run(["bash", str(self.script), *args], input=input_text, text=True,
                               env=env, capture_output=True, check=False)
 
