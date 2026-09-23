@@ -1,10 +1,14 @@
 from pathlib import Path
 import json
+import subprocess
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
 
 from version_core import report
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 class TestVersionReport(unittest.TestCase):
@@ -32,6 +36,21 @@ class TestVersionReport(unittest.TestCase):
         self.assertEqual(result["source_revision"], "unknown")
         self.assertEqual(result["revision_source"], "unknown")
         self.assertEqual(result["config_schema_version"], "unknown")
+
+    def test_release_archive_uses_valid_embedded_revision(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch("version_core.EMBEDDED_SOURCE_REVISION",
+                       "b" * 40):
+                result = report(Path(tmp))
+        self.assertEqual(result["source_revision"], "b" * 40)
+        self.assertEqual(result["revision_source"], "embedded")
+
+    def test_cli_matches_local_report_without_loading_configured_backends(self):
+        completed = subprocess.run(
+            [sys.executable, str(ROOT / "bridge.py"), "version"],
+            cwd=ROOT, text=True, capture_output=True, check=True, timeout=10,
+        )
+        self.assertEqual(json.loads(completed.stdout), report(ROOT))
 
 
 if __name__ == "__main__":
