@@ -578,7 +578,9 @@ class CodexRunner:
         if row["status"] != "running" or not row["pid"]:
             return {"job_id": job_id, "status": row["status"]}
         child = self._children.get(job_id)
-        if not self._terminate(row["pid"], child, child_pid=row["child_pid"],\n                                  worker_starttime=row["worker_start_ticks"],\n                                  child_starttime=row["child_start_ticks"]):
+        if not self._terminate(row["pid"], child, child_pid=row["child_pid"],
+                                  worker_starttime=row["worker_start_ticks"],
+                                  child_starttime=row["child_start_ticks"]):
             self.audit.record("codex", "cancel_pending", job_id, "running", {"mode": row["mode"]})
             return {"job_id": job_id, "status": "running", "cancellation_pending": True}
         actor = "watchdog" if final_status == "timed_out" else "local_operator"
