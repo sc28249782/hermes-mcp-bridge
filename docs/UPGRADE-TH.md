@@ -6,7 +6,7 @@
 2. แตก archive/checkout ไป directory ใหม่ แล้ว copy เฉพาะ `bridge-config.json` และ `state/` ที่ตรวจแล้ว; ห้าม copy `.venv`, key หรือ `.env`.
 3. รัน `bash install.sh`, `./bridge.sh version`, `./bridge.sh doctor`, `./bridge.sh codex-doctor` และ `./bridge.sh diagnostics`.
 4. หากใช้ `codex.workspaces`, ย้าย allowlist เดิมจาก `codex.allowed_workspaces` มาเป็น policy entries ทั้งหมดก่อน restart; เมื่อมี `workspaces` runtime จะไม่รวม legacy allowlist.
-5. restart tunnel ของ instance ที่อัปเกรด, เปิด chat ใหม่ และตรวจ `bridge_version` กับ discovery 27 tools ก่อน read-only smoke test. workspace-write ยังคงต้อง local approval.
+5. restart tunnel ของ instance ที่อัปเกรด, เปิด chat ใหม่ และตรวจ `bridge_version` กับ canonical discovery count ใน `TESTING.md` ก่อน read-only smoke test. workspace-write ยังคงต้อง local approval.
 
 
 
