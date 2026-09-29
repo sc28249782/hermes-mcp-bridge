@@ -539,28 +539,37 @@ class CodexRunner:
         return {**self.status(job_id), "output": data[offset:end], "total_chars": len(data),
                 "next_offset": end if end < len(data) else None}
 
-    def _terminate(self, pid, child):
-        if self._alive(pid):
+    def _terminate(self, pid, child, *, child_pid=None, worker_starttime=None, child_starttime=None):
+        child_pid = child.pid if child is not None else child_pid
+
+        def group_alive():
+            return (self._alive(pid, worker_starttime)
+                    or self._alive(child_pid, child_starttime))
+
+        if group_alive():
             try:
+                # The worker PID is also the process-group ID.  The group can
+                # remain alive after its leader exits, so do not require the
+                # leader itself to be alive before signalling it.
                 os.killpg(pid, signal.SIGTERM)
             except ProcessLookupError:
                 pass
         deadline = time.monotonic() + 2
-        while self._alive(pid) and time.monotonic() < deadline:
+        while group_alive() and time.monotonic() < deadline:
             if child:
                 child.poll()
             time.sleep(0.05)
-        if self._alive(pid):
+        if group_alive():
             try:
                 os.killpg(pid, signal.SIGKILL)
             except ProcessLookupError:
                 pass
             deadline = time.monotonic() + 2
-            while self._alive(pid) and time.monotonic() < deadline:
+            while group_alive() and time.monotonic() < deadline:
                 if child:
                     child.poll()
                 time.sleep(0.05)
-        return not self._alive(pid)
+        return not group_alive()
 
     def cancel(self, job_id, final_status="cancelled"):
         row = self._expire_pending(self._row(job_id))
@@ -569,7 +578,7 @@ class CodexRunner:
         if row["status"] != "running" or not row["pid"]:
             return {"job_id": job_id, "status": row["status"]}
         child = self._children.get(job_id)
-        if not self._terminate(row["pid"], child):
+        if not self._terminate(row["pid"], child, child_pid=row["child_pid"],\n                                  worker_starttime=row["worker_start_ticks"],\n                                  child_starttime=row["child_start_ticks"]):
             self.audit.record("codex", "cancel_pending", job_id, "running", {"mode": row["mode"]})
             return {"job_id": job_id, "status": "running", "cancellation_pending": True}
         actor = "watchdog" if final_status == "timed_out" else "local_operator"
