@@ -10,7 +10,7 @@ This matrix records the released v1.2.2 compatibility baseline. The WSL2 live-ac
 | Codex CLI | 0.155.1 | `./bridge.sh codex-doctor` | workspace-write ต้องผ่าน local approval; durable worker ต้องบันทึก terminal record |
 | WSL2 | Ubuntu 24.04 | `uname -a` | ทดสอบผ่าน Secure MCP Tunnel |
 | tunnel-client | official profile `hermes-wsl` | `bash tunnel.sh status` | profile ต้องชี้ `bridge.sh` ของ instance เดียวกัน |
-| ChatGPT MCP | 27 tools | discovery ในแชทใหม่ | 26 tools จาก v1.2.1 + read-only `bridge_version` |
+| ChatGPT MCP | canonical count in `TESTING.md` | discovery ในแชทใหม่ | v1.2.1 baseline plus read-only `bridge_version` |
 | Version/provenance | local-only CLI/MCP parity | `./bridge.sh version` และ `bridge_version` | ต้องไม่เรียก Hermes, Codex, tunnel, GitHub หรือ network |
 
 การเปลี่ยน component นอก matrix ไม่ได้แปลว่าไม่รองรับ แต่ต้องทำ acceptance checklist ซ้ำก่อนใช้งาน production.

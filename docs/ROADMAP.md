@@ -58,13 +58,20 @@ The design, trust boundaries, proposed configuration, and tool contracts are in 
 
 - [x] Add one canonical embedded version/provenance source that is included in both Git worktrees and release archives; do not rely on `.git` or `git describe` at runtime.
 - [x] Add a local-only `./bridge.sh version` command that reports bridge version, release identifier, embedded commit/build provenance, source kind (`git-worktree` or `release-archive`), config schema version, and MCP discovery count without calling Hermes, Codex, Tunnel, GitHub, or any network endpoint.
-- [x] Add one additive read-only MCP tool, `bridge_version`, whose result matches the CLI contract and identifies the bridge instance actually reached through Secure MCP Tunnel. The planned discovery count is 27 tools.
+- [x] Add one additive read-only MCP tool, `bridge_version`, whose result matches the CLI contract and identifies the bridge instance actually reached through Secure MCP Tunnel. The planned discovery count is recorded in TESTING.md.
 - [x] Define deterministic fail-safe behavior for absent, malformed, or development provenance: report explicit `unknown`/development fields without raising, guessing a release, or exposing filesystem paths, environment values, credentials, prompts, outputs, or audit content.
 - [x] Keep update availability separate from local version reporting. Any optional GitHub release check must be an explicit future command with network behavior documented; `doctor`, `bridge_status`, and `bridge_version` remain local-only.
-- [x] Add tests for release-archive metadata, Git worktree metadata, missing/malformed provenance, CLI/MCP equality, disabled upstreams, and the 27-tool discovery contract.
+- [x] Add tests for release-archive metadata, Git worktree metadata, missing/malformed provenance, CLI/MCP equality, disabled upstreams, and the canonical discovery contract recorded in TESTING.md.
 - [x] Update README, TESTING, UPGRADE, OPERATIONS, CHANGELOG, release status, and release runbook before tag; document that tests must use the project interpreter (`.venv/bin/python`) rather than a PATH-selected `python3`.
 - [x] Run WSL2/Secure MCP Tunnel live acceptance: CLI and MCP version fields agree for the deployed candidate, remain available when Hermes/Codex are unavailable, expose no secret-bearing state, and restore the Dev config byte-for-byte after the temporary unavailable-upstream fixture.
 - [x] Release completed through the existing Phase A/B/C process: documentation gate before signed tag, external `SHA256SUMS` asset verified after download, and post-tag release-record commit.
+
+## v1.2.3 — Specification and worker-supervision maintenance
+
+- [x] Add SPEC.md as the normative contract for architecture boundaries, MCP/CLI behavior, security invariants, persistence, recovery, testing, and release change control.
+- [ ] Implement the worker-only-loss rule: keep a job running while its Codex child is alive, expose only a redacted supervision hint, and remain fail-closed when the child later exits without a durable exit record.
+- [ ] Add regression coverage for worker/child liveness, cancellation, restart recovery, and PID reuse.
+- [ ] Run WSL2 live acceptance and independent review before the v1.2.3 release gates.
 
 ## v1.3.0 — Approval-bound mutation and execution
 
