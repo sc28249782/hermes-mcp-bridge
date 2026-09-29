@@ -1,6 +1,8 @@
 from pathlib import Path
 import os
 import signal
+import subprocess
+import sys
 import tempfile
 from concurrent.futures import ThreadPoolExecutor
 import unittest
@@ -197,6 +199,33 @@ class TestCodexRunner(unittest.TestCase):
              patch("codex_core.os.kill") as kill:
             self.assertFalse(self.runner._alive(12345, expected_starttime=101))
         kill.assert_not_called()
+
+    def test_alive_rejects_unreaped_zombie_process(self):
+        if not Path("/proc/self/stat").exists():
+            self.skipTest("requires Linux /proc process state")
+        proc = subprocess.Popen(
+            [sys.executable, "-c", "import time; time.sleep(30)"],
+            stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        try:
+            start_ticks = self.runner._proc_starttime(proc.pid)
+            self.assertIsNotNone(start_ticks)
+            os.kill(proc.pid, signal.SIGKILL)
+            for _ in range(200):
+                stat_path = Path(f"/proc/{proc.pid}/stat")
+                if stat_path.exists():
+                    text = stat_path.read_text()
+                    close = text.rfind(")")
+                    fields = text[close + 2:].split() if close >= 0 else []
+                    if fields and fields[0] == "Z":
+                        break
+                time.sleep(0.01)
+            else:
+                self.fail("child did not become an unreaped zombie")
+            self.assertFalse(self.runner._alive(proc.pid, start_ticks))
+        finally:
+            proc.wait(timeout=5)
 
     def test_result_page_rejects_non_integer_values(self):
         job = self.runner.submit("edit", str(self.root), "workspace-write")
