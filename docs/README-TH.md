@@ -1,13 +1,14 @@
-# Hermes MCP Bridge v1.2.2 release candidate — Hermes + Codex/WSL2 / ChatGPT
+# Hermes MCP Bridge v1.2.2 release — Hermes + Codex/WSL2 / ChatGPT
 
 [![Tests](https://github.com/sc28249782/hermes-mcp-bridge/actions/workflows/tests.yml/badge.svg)](https://github.com/sc28249782/hermes-mcp-bridge/actions/workflows/tests.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](../LICENSE)
 
 Repository: https://github.com/sc28249782/hermes-mcp-bridge  
+Specification: [SPEC.md](SPEC.md)  
 จุดเริ่มต้นของโครงการ: [Project origin](PROJECT-ORIGIN.md)
 
 จัดทำสำหรับ Hermes Agent v0.21.1, commit `8d79c2ff` ที่ผู้ใช้ยืนยัน
-วันที่ปรับปรุง: 23 กันยายน 2026 — v1.2.2 อยู่ระหว่าง review/acceptance; ยังไม่มี signed tag หรือ release asset
+วันที่ปรับปรุง: 29 กันยายน 2026 — v1.2.2 released; signed tag และ release assets ผ่านการตรวจแล้ว
 
 ตัวกลางนี้ทำให้ ChatGPT ส่งงานให้ Hermes ที่รันอยู่บนเครื่องคุณ แล้วตรวจสถานะ อ่านผล และขอหยุดงานได้
 ใช้ Runs API เดียวกับที่ `hermes peer run/status/stop` เรียก แต่เรียก HTTP โดยตรง
