@@ -38,7 +38,7 @@ Run `bash tunnel.sh init tunnel_YOUR_ID --force` when changing the bridge direct
 - [Operations guide](docs/OPERATIONS-TH.md)
 - [Upgrade guide](docs/UPGRADE-TH.md)
 - [Technical architecture](docs/HERMES-MCP-BRIDGE-TECHNICAL-ARCHITECTURE-TH.md)
-- [Testing](docs/TESTING.md), [release status](docs/RELEASE-STATUS-TH.md), and [changelog](docs/CHANGELOG.md)
+- [Specification](docs/SPEC.md), [testing](docs/TESTING.md), [release status](docs/RELEASE-STATUS-TH.md), and [changelog](docs/CHANGELOG.md)
 - [v1.x acceptance checklist](docs/V1-ACCEPTANCE-TH.md), [compatibility matrix](docs/COMPATIBILITY-MATRIX-TH.md), and [release runbook](docs/RELEASE-RUNBOOK-TH.md)
 - [Security](docs/SECURITY.md) and [contributing](docs/CONTRIBUTING.md)
 - [Roadmap](docs/ROADMAP.md)
