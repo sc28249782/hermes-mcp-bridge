@@ -42,7 +42,7 @@
 2. เรียก `codex_recent_tasks` แล้วใช้ `codex_task_status` กับ job ที่เกี่ยวข้อง
 3. ถ้าได้ `recovered_after_restart: true` ให้ตรวจ `codex_task_result` และ workspace ก่อนดำเนินการต่อ; หาก status เป็น `unknown_exit` ห้ามถือว่างานสำเร็จจนกว่าจะตรวจผลกระทบเอง
 4. ถ้างานเป็น `workspace-write` ที่ค้าง `pending_local_approval` ให้ตรวจรายละเอียดแล้ว approve/deny ผ่าน terminal เท่านั้น
-5. งาน `workspace-write` ที่ถูก approve จะมี detached worker เป็นเจ้าของ Codex process จนบันทึก exit code/terminal record แล้ว. หากยังได้ `unknown_exit` ต้องถือว่าผลยืนยันไม่ได้และตรวจ workspace แบบ read-only ก่อนดำเนินการต่อ.
+5. งาน `workspace-write` ที่ถูก approve จะมี detached worker เป็นเจ้าของ Codex process จนบันทึก exit code/terminal record แล้ว. หาก worker หายไปแต่ Codex child ยังมีชีวิต สถานะต้องคงเป็น `running` พร้อม hint `supervision_lost`; ห้ามสรุปเป็น `unknown_exit` จนกว่า child จะจบ. หากยังได้ `unknown_exit` ต้องถือว่าผลยืนยันไม่ได้และตรวจ workspace แบบ read-only ก่อนดำเนินการต่อ.
 6. การ restart tunnel ไม่ได้หยุด Hermes หรือ Codex job ที่เริ่มไปแล้ว; ใช้ cancel tool หากต้องการหยุด
 
 ## Workspace policy และ approval expiry

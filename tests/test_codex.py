@@ -1,6 +1,8 @@
 from pathlib import Path
 import os
 import signal
+import subprocess
+import sys
 import tempfile
 from concurrent.futures import ThreadPoolExecutor
 import unittest
@@ -151,6 +153,79 @@ class TestCodexRunner(unittest.TestCase):
         self.assertEqual(status["terminal"]["result_reason"], "Codex process exit status was unavailable")
         persisted = self.runner._row(job["job_id"])
         self.assertEqual(persisted["transition_actor"], "recovery")
+
+    def test_worker_loss_keeps_running_while_child_is_alive(self):
+        job = self.runner.submit("edit", str(self.root), "workspace-write")
+        with self.runner.db() as db:
+            db.execute(
+                "UPDATE jobs SET status='running',started=?,pid=?,child_pid=?,"
+                "worker_start_ticks=?,child_start_ticks=? WHERE job_id=?",
+                (time.time(), 10101, 20202, 11, 22, job["job_id"]),
+            )
+
+        def alive(pid, expected_starttime=None):
+            return pid == 20202 and expected_starttime == 22
+
+        with patch.object(self.runner, "_alive", side_effect=alive):
+            status = self.runner.status(job["job_id"])
+
+        self.assertEqual(status["status"], "running")
+        self.assertIsNone(status["exit_code"])
+        self.assertTrue(status["supervision_lost"])
+        self.assertEqual(status["supervision_reason"], "worker_unavailable_child_alive")
+        self.assertIsNone(status["terminal"])
+        self.assertEqual(self.runner._row(job["job_id"])["status"], "running")
+
+    def test_worker_loss_with_dead_child_becomes_unknown_exit(self):
+        job = self.runner.submit("edit", str(self.root), "workspace-write")
+        with self.runner.db() as db:
+            db.execute(
+                "UPDATE jobs SET status='running',started=?,pid=?,child_pid=?,"
+                "worker_start_ticks=?,child_start_ticks=? WHERE job_id=?",
+                (time.time(), 10101, 20202, 11, 22, job["job_id"]),
+            )
+
+        with patch.object(self.runner, "_alive", return_value=False):
+            status = self.runner.status(job["job_id"])
+
+        self.assertEqual(status["status"], "unknown_exit")
+        self.assertIsNone(status["exit_code"])
+        self.assertFalse(status["recovered_after_restart"])
+        self.assertEqual(status["terminal"]["transition_actor"], "worker_recovery")
+        self.assertEqual(status["terminal"]["transition_reason"], "worker_ended_without_terminal_record")
+
+    def test_alive_rejects_reused_pid_starttime(self):
+        with patch.object(CodexRunner, "_proc_starttime", return_value=100), \
+             patch("codex_core.os.kill") as kill:
+            self.assertFalse(self.runner._alive(12345, expected_starttime=101))
+        kill.assert_not_called()
+
+    def test_alive_rejects_unreaped_zombie_process(self):
+        if not Path("/proc/self/stat").exists():
+            self.skipTest("requires Linux /proc process state")
+        proc = subprocess.Popen(
+            [sys.executable, "-c", "import time; time.sleep(30)"],
+            stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        try:
+            start_ticks = self.runner._proc_starttime(proc.pid)
+            self.assertIsNotNone(start_ticks)
+            os.kill(proc.pid, signal.SIGKILL)
+            for _ in range(200):
+                stat_path = Path(f"/proc/{proc.pid}/stat")
+                if stat_path.exists():
+                    text = stat_path.read_text()
+                    close = text.rfind(")")
+                    fields = text[close + 2:].split() if close >= 0 else []
+                    if fields and fields[0] == "Z":
+                        break
+                time.sleep(0.01)
+            else:
+                self.fail("child did not become an unreaped zombie")
+            self.assertFalse(self.runner._alive(proc.pid, start_ticks))
+        finally:
+            proc.wait(timeout=5)
 
     def test_result_page_rejects_non_integer_values(self):
         job = self.runner.submit("edit", str(self.root), "workspace-write")
