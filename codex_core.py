@@ -62,7 +62,8 @@ class CodexRunner:
             existing = {row[1] for row in db.execute("PRAGMA table_info(jobs)")}
             for name, definition in (("policy_root", "TEXT"), ("approval_expires", "REAL"),
                                      ("model", "TEXT"), ("reasoning_effort", "TEXT"),
-                                     ("child_pid", "INTEGER"),
+                                     ("child_pid", "INTEGER"), ("worker_start_ticks", "INTEGER"),
+                                     ("child_start_ticks", "INTEGER"),
                                      ("last_known_state", "TEXT"), ("last_transition_at", "REAL"),
                                      ("transition_actor", "TEXT"), ("transition_reason", "TEXT"),
                                      ("exit_signal", "INTEGER"), ("result_reason", "TEXT")):
@@ -313,9 +314,9 @@ class CodexRunner:
                 pass
         with self.db() as db:
             changed = db.execute(
-                "UPDATE jobs SET status='running',started=?,pid=?,child_pid=NULL "
+                "UPDATE jobs SET status='running',started=?,pid=?,child_pid=NULL,worker_start_ticks=?,child_start_ticks=NULL "
                 "WHERE job_id=? AND status=?",
-                (time.time(), worker.pid, job_id, row["status"]),
+                (time.time(), worker.pid, self._proc_starttime(worker.pid), job_id, row["status"]),
             ).rowcount
         if changed != 1:
             try:
@@ -427,12 +428,24 @@ class CodexRunner:
         return row
 
     @staticmethod
-    def _alive(pid):
+    def _proc_starttime(pid):
         try:
-            if Path(f"/proc/{pid}/stat").read_text().split()[2] == "Z":
-                return False
-        except (OSError, IndexError):
-            pass
+            text = Path(f"/proc/{pid}/stat").read_text()
+            close = text.rfind(")")
+            fields = text[close + 2:].split()
+            if len(fields) <= 19:
+                return None
+            return int(fields[19])
+        except (OSError, ValueError, IndexError):
+            return None
+
+    @classmethod
+    def _alive(cls, pid, expected_starttime=None):
+        if not pid:
+            return False
+        starttime = cls._proc_starttime(pid)
+        if starttime is None or (expected_starttime is not None and starttime != expected_starttime):
+            return False
         try:
             os.kill(pid, 0)
             return True
@@ -461,13 +474,22 @@ class CodexRunner:
                     exit_code = child.poll()
                     ended = exit_code is not None
                 else:
-                    # New jobs are owned by codex_worker.py.  Its PID remains
-                    # alive until it durably records Codex's real exit status.
-                    # Jobs from older bridge versions lack child_pid and retain
-                    # the fail-closed recovery behaviour.
+                    # Durable jobs are owned by codex_worker.py.  A dead
+                    # worker is not the same as a finished Codex child.
+                    # Older rows without child_pid retain fail-closed recovery.
                     durable_worker = row["child_pid"] is not None
                     recovered_after_restart = not durable_worker
-                    ended = not self._alive(row["pid"])
+                    worker_alive = self._alive(row["pid"], row["worker_start_ticks"])
+                    child_alive = (self._alive(row["child_pid"], row["child_start_ticks"])
+                                   if durable_worker else False)
+                    if durable_worker and not worker_alive and child_alive:
+                        return {"job_id": job_id, "status": "running", "workspace": row["workspace"],
+                                "mode": row["mode"], "created": row["created"], "started": row["started"],
+                                "exit_code": None, "recovered_after_restart": False,
+                                "supervision_lost": True,
+                                "supervision_reason": "worker_unavailable_child_alive",
+                                "model": row["model"], "reasoning_effort": row["reasoning_effort"]}
+                    ended = not worker_alive
                 if not ended:
                     return {"job_id": job_id, "status": status, "workspace": row["workspace"],
                             "mode": row["mode"], "created": row["created"], "started": row["started"],
