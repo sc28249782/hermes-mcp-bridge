@@ -58,7 +58,7 @@ The design, trust boundaries, proposed configuration, and tool contracts are in 
 
 - [x] Add one canonical embedded version/provenance source that is included in both Git worktrees and release archives; do not rely on `.git` or `git describe` at runtime.
 - [x] Add a local-only `./bridge.sh version` command that reports bridge version, release identifier, embedded commit/build provenance, source kind (`git-worktree` or `release-archive`), config schema version, and MCP discovery count without calling Hermes, Codex, Tunnel, GitHub, or any network endpoint.
-- [x] Add one additive read-only MCP tool, `bridge_version`, whose result matches the CLI contract and identifies the bridge instance actually reached through Secure MCP Tunnel. The planned discovery count is 27 tools.
+- [x] Add one additive read-only MCP tool, `bridge_version`, whose result matches the CLI contract and identifies the bridge instance actually reached through Secure MCP Tunnel. The planned discovery count is recorded in TESTING.md.
 - [x] Define deterministic fail-safe behavior for absent, malformed, or development provenance: report explicit `unknown`/development fields without raising, guessing a release, or exposing filesystem paths, environment values, credentials, prompts, outputs, or audit content.
 - [x] Keep update availability separate from local version reporting. Any optional GitHub release check must be an explicit future command with network behavior documented; `doctor`, `bridge_status`, and `bridge_version` remain local-only.
 - [x] Add tests for release-archive metadata, Git worktree metadata, missing/malformed provenance, CLI/MCP equality, disabled upstreams, and the canonical discovery contract recorded in TESTING.md.
