@@ -429,14 +429,21 @@ class CodexRunner:
 
     @staticmethod
     def _proc_starttime(pid):
+        """Return Linux/WSL2 process start ticks, or None when not alive."""
         try:
             text = Path(f"/proc/{pid}/stat").read_text()
             close = text.rfind(")")
+            if close < 0:
+                return None
             fields = text[close + 2:].split()
-            if len(fields) <= 19:
+            # fields[0] is /proc stat field 3 (state); field 22
+            # (starttime) is index 19 after removing pid and comm.
+            if len(fields) <= 19 or fields[0] == "Z":
                 return None
             return int(fields[19])
         except (OSError, ValueError, IndexError):
+            # /proc is Linux-specific.  Missing or malformed identity data
+            # fails closed instead of treating the PID as alive.
             return None
 
     @classmethod
@@ -467,7 +474,8 @@ class CodexRunner:
                             "mode": row["mode"], "created": row["created"], "started": row["started"],
                             "exit_code": None, "recovered_after_restart": False,
                             "timeout_enforcement_pending": True, "model": row["model"],
-                            "reasoning_effort": row["reasoning_effort"]}
+                            "reasoning_effort": row["reasoning_effort"],
+                            "terminal": None, "approval": None}
             else:
                 child = self._children.get(job_id)
                 if child is not None:
@@ -489,13 +497,14 @@ class CodexRunner:
                                 "supervision_lost": True,
                                 "supervision_reason": "worker_unavailable_child_alive",
                                 "model": row["model"], "reasoning_effort": row["reasoning_effort"],
-                                "terminal": None}
+                                "terminal": None, "approval": None}
                     ended = not worker_alive
                 if not ended:
                     return {"job_id": job_id, "status": status, "workspace": row["workspace"],
                             "mode": row["mode"], "created": row["created"], "started": row["started"],
                             "exit_code": None, "recovered_after_restart": recovered_after_restart,
-                            "model": row["model"], "reasoning_effort": row["reasoning_effort"]}
+                            "model": row["model"], "reasoning_effort": row["reasoning_effort"],
+                            "terminal": None, "approval": None}
                 self._children.pop(job_id, None)
                 status = "completed" if exit_code == 0 else "failed" if exit_code is not None else "unknown_exit"
                 if exit_code is None:
