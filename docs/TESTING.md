@@ -4,7 +4,7 @@ Target contract reviewed: Hermes v0.21.1, commit 8d79c2ff.
 
 ## MCP tool contract (canonical count)
 
-The canonical discovery contract for v1.2.2 is **27 tools**: v1.2.1's 26 plus local-only `bridge_version`. Other documents should refer here instead of maintaining an independent count. `bridge_version` and `./bridge.sh version` must agree on shared identity fields and must not contact Hermes, Codex, Tunnel, GitHub, or another network endpoint.
+The normative bridge contract is defined in [SPEC.md](SPEC.md). The canonical discovery contract for v1.2.2 is **27 tools**: v1.2.1's 26 plus local-only `bridge_version`. Other documents should refer here instead of maintaining an independent count. `bridge_version` and `./bridge.sh version` must agree on shared identity fields and must not contact Hermes, Codex, Tunnel, GitHub, or another network endpoint.
 
 ## Current context and Hands coverage
 
@@ -31,3 +31,7 @@ Live acceptance is recorded in `LIVE-ACCEPTANCE-TH.md`: v1.0.0 RC2 validated 19-
 - MCP stdio and Hands fallback suites require 27-tool discovery, including `bridge_version`.
 - Codex regression covers the detached worker retaining a real exit record after the local approver instance exits.
 - WSL2 live acceptance passed CLI/MCP identity parity, unavailable-upstream behavior, and no secret/path leakage; the durable-worker acceptance separately passed exact marker bytes, terminal exit code, and JSONL result retrieval.
+
+## v1.2.3 planned contract
+
+The v1.2.3 maintenance scope is limited to the worker-supervision invariant in SPEC.md: a worker that is unavailable MUST NOT cause unknown_exit while its Codex child is still alive. Regression coverage MUST include worker-only loss, child liveness, delayed child exit, cancellation, PID reuse, and recovery races.
