@@ -193,7 +193,7 @@ class TestCodexRunner(unittest.TestCase):
         self.assertEqual(status["terminal"]["transition_reason"], "worker_ended_without_terminal_record")
 
     def test_alive_rejects_reused_pid_starttime(self):
-        with patch.object(self.runner, "_proc_starttime", return_value=100), \
+        with patch.object(CodexRunner, "_proc_starttime", return_value=100), \
              patch("codex_core.os.kill") as kill:
             self.assertFalse(self.runner._alive(12345, expected_starttime=101))
         kill.assert_not_called()
