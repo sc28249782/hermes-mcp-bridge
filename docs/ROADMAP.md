@@ -66,6 +66,13 @@ The design, trust boundaries, proposed configuration, and tool contracts are in 
 - [x] Run WSL2/Secure MCP Tunnel live acceptance: CLI and MCP version fields agree for the deployed candidate, remain available when Hermes/Codex are unavailable, expose no secret-bearing state, and restore the Dev config byte-for-byte after the temporary unavailable-upstream fixture.
 - [x] Release completed through the existing Phase A/B/C process: documentation gate before signed tag, external `SHA256SUMS` asset verified after download, and post-tag release-record commit.
 
+## v1.2.3 — Specification and worker-supervision maintenance
+
+- [x] Add SPEC.md as the normative contract for architecture boundaries, MCP/CLI behavior, security invariants, persistence, recovery, testing, and release change control.
+- [ ] Implement the worker-only-loss rule: keep a job running while its Codex child is alive, expose only a redacted supervision hint, and remain fail-closed when the child later exits without a durable exit record.
+- [ ] Add regression coverage for worker/child liveness, cancellation, restart recovery, and PID reuse.
+- [ ] Run WSL2 live acceptance and independent review before the v1.2.3 release gates.
+
 ## v1.3.0 — Approval-bound mutation and execution
 
 - [ ] Add `hands_write`, `hands_patch`, `hands_exec`, and `hands_process` after v1.2.0 read-only live acceptance and feedback.
