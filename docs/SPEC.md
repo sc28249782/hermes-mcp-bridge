@@ -1,9 +1,11 @@
 # Hermes MCP Bridge Specification
 
-Status: normative specification for the v1.2.x bridge line  
+Status: normative contract for the released v1.2.2 baseline and explicitly marked future requirements  
 Current released baseline: v1.2.2  
 Draft amendment target: v1.2.3 worker-supervision maintenance  
 Canonical companion: TESTING.md for the MCP discovery count
+
+Requirements marked for v1.2.3 are target-state requirements and MUST NOT be represented as current v1.2.2 behavior before their implementation and acceptance gates pass.
 
 ## 1. Purpose and scope
 
@@ -42,7 +44,7 @@ Both version surfaces MUST report the shared identity fields:
 
 Missing or malformed provenance MUST produce explicit safe unknown/development values. The bridge MUST NOT infer a release from a directory name or expose credentials, prompts, outputs, or filesystem paths.
 
-The v1.2.2 discovery contract is 27 tools. TESTING.md is the canonical location for the count; other documents MUST reference it instead of maintaining an independent number. Any discovery-count change requires a specification amendment, tests, documentation update, and release review.
+The released discovery contract is recorded in TESTING.md, which is the canonical location for the count. Other documents MUST reference that record instead of maintaining an independent number. Any discovery-count change requires a specification amendment, tests, documentation update, and release review.
 
 ## 4. MCP contract
 
@@ -155,7 +157,7 @@ Disabled or unavailable optional backends MUST retain stable response shapes so 
 
 ## 13. Testing and acceptance
 
-Every normative requirement MUST have at least one automated regression test or a documented reason why it requires live acceptance.
+Every normative requirement MUST have at least one automated regression test or a documented reason why it requires live acceptance. Requirements planned for a future release are tracked as unchecked items in ROADMAP.md and MUST NOT be claimed as current behavior until their implementation and acceptance evidence are complete.
 
 The minimum release evidence is:
 
