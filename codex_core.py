@@ -488,7 +488,8 @@ class CodexRunner:
                                 "exit_code": None, "recovered_after_restart": False,
                                 "supervision_lost": True,
                                 "supervision_reason": "worker_unavailable_child_alive",
-                                "model": row["model"], "reasoning_effort": row["reasoning_effort"]}
+                                "model": row["model"], "reasoning_effort": row["reasoning_effort"],
+                                "terminal": None}
                     ended = not worker_alive
                 if not ended:
                     return {"job_id": job_id, "status": status, "workspace": row["workspace"],
@@ -544,7 +545,7 @@ class CodexRunner:
 
         def group_alive():
             return (self._alive(pid, worker_starttime)
-                    or self._alive(child_pid, child_starttime))
+                    or (self._alive(child_pid, child_starttime) if child_pid else False))
 
         if group_alive():
             try:
