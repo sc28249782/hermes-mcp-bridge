@@ -2,7 +2,7 @@
 
 ## v1.2.2 — released (23 กันยายน 2026)
 
-- เพิ่ม `./bridge.sh version` และ MCP `bridge_version` แบบ local-only; discovery contract เปลี่ยนเป็น 27 tools.
+- เพิ่ม `./bridge.sh version` และ MCP `bridge_version` แบบ local-only; discovery contract ยืนยันตาม canonical count ใน `TESTING.md`.
 - เพิ่ม embedded identity/provenance และ fail-safe `unknown` fields สำหรับ config/provenance ที่ไม่สมบูรณ์ โดยไม่เปิดเผย path, prompt, output หรือ secret.
 - แก้ Codex workspace-write lifecycle ด้วย detached durable worker: acceptance Dev ยืนยัน `completed`, `exit_code: 0`, `transition_actor: worker`, JSONL output retrieval และ exact marker bytes.
 - CI ผ่าน และ Dev live acceptance ผ่าน: CLI/MCP identity parity, `bridge_version` ผ่าน Secure MCP Tunnel แม้ตั้ง Hermes/Codex ให้ unavailable, ไม่มี secret/path leak, และ restore config กลับ byte-for-byte ด้วย `cmp`.
