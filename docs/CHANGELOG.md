@@ -2,9 +2,9 @@
 
 ## Unreleased — v1.2.4 capability probe
 
-- The refreshed Dev plugin received a Work-chat request to monitor `bridge.probe.ready`; the conversational response said subscription was unavailable.
-- No sanitized MCP method trace or callback receipt was captured, so this result does not establish whether discovery, subscription, challenge, delivery, or unsubscribe ran. The follow-up “Stopped monitoring” reply is not protocol evidence.
-- Keep runtime delivery gated pending an instrumented Dev probe. Explicit user-directed status polling remains available.
+- Dev trace confirmed successful `server/discover`, `tools/list`, and `events/list`; the plugin page displayed `bridge.probe.ready`.
+- Two additional Dev discovery sequences succeeded, but no `events/subscribe` reached the fixture in the supplied trace. The chat reply is not a protocol error or proof about all Work chats.
+- Stop the runtime track at the subscription gate. Do not retry identical prompts or send callbacks. Reopen only when client/workspace event eligibility is verified and `events/subscribe` is observed. Explicit user-directed status polling remains available.
 
 ## v1.2.3 — released (4 October 2026)
 
