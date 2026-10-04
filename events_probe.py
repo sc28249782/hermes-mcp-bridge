@@ -29,6 +29,23 @@ PROTOCOL_VERSION = "2026-07-28"
 EVENT_NAME = "bridge.probe.ready"
 MAX_CALLBACK_URL = 2048
 MAX_RESPONSE_BYTES = 4096
+TRACE_METHODS = frozenset({
+    "initialize", "notifications/initialized", "server/discover",
+    "tools/list", "events/list", "events/subscribe", "events/unsubscribe",
+})
+
+
+def _trace(method: Any, outcome: str, code: int | None = None) -> None:
+    """Write fixed metadata to stderr; never serialize IDs, params, or payloads."""
+    record: dict[str, Any] = {
+        "component": "events_probe",
+        "time": _now(),
+        "method": method if method in TRACE_METHODS else "other",
+        "outcome": outcome,
+    }
+    if code is not None:
+        record["code"] = code
+    print(json.dumps(record, separators=(",", ":")), file=sys.stderr, flush=True)
 
 
 class ProbeError(ValueError):
@@ -160,14 +177,18 @@ class EventsProbe:
         request_id = request.get("id")
         method = request.get("method")
         if not isinstance(method, str):
+            _trace("other", "error", -32600)
             return self._error(request_id, ProbeError("invalid request"))
         if method == "notifications/initialized":
+            _trace(method, "notification")
             return None
         try:
             if method == "initialize":
                 result = self.initialize(request.get("params"))
             elif method == "server/discover":
                 result = self.discover(request.get("params"))
+            elif method == "tools/list":
+                result = {"tools": []}
             elif method == "events/list":
                 result = self.list_events(request.get("params"))
             elif method == "events/subscribe":
@@ -177,7 +198,9 @@ class EventsProbe:
             else:
                 raise ProbeError("method not found", code=-32601)
         except ProbeError as exc:
+            _trace(method, "error", exc.code)
             return self._error(request_id, exc)
+        _trace(method, "ok")
         return {"jsonrpc": "2.0", "id": request_id, "result": result}
 
     @staticmethod
@@ -348,6 +371,7 @@ def serve_stdio() -> None:
                 raise ProbeError("invalid request")
             response = probe.handle(request)
         except (json.JSONDecodeError, UnicodeError, ProbeError):
+            _trace("other", "error", -32600)
             response = {"jsonrpc": "2.0", "id": None,
                         "error": {"code": -32600, "message": "invalid request"}}
         if response is not None:
