@@ -61,6 +61,8 @@ class TestCodexRunner(unittest.TestCase):
         runner = CodexRunner({"binary": str(fake), "allowed_workspaces": [str(self.root)]},
                              Path(self.tmp.name) / "state2")
         job = runner.submit("inspect safely", str(self.root), "read-only")
+        worker = runner._workers[job["job_id"]]
+        self.addCleanup(worker.wait, timeout=5)
         for _ in range(100):
             status = runner.status(job["job_id"])
             if status["status"] != "running":
@@ -80,6 +82,8 @@ class TestCodexRunner(unittest.TestCase):
             "allowed_reasoning_efforts": ["medium", "high"]}]},
             Path(self.tmp.name) / "model-state")
         job = runner.submit("inspect", str(self.root), "read-only", "gpt-5.6", "high")
+        worker = runner._workers[job["job_id"]]
+        self.addCleanup(worker.wait, timeout=5)
         for _ in range(100):
             status = runner.status(job["job_id"])
             if status["status"] != "running":
@@ -372,6 +376,8 @@ class TestCodexRunner(unittest.TestCase):
         # a different runner object and then exits, while a server polls later.
         approver = CodexRunner(config, state)
         approved = approver.approve_local(job["job_id"])
+        worker = approver._workers[job["job_id"]]
+        self.addCleanup(worker.wait, timeout=5)
         self.assertEqual(approved["status"], "running")
         self.assertIsNotNone(approved["child_pid"])
 
