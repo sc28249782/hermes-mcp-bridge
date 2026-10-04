@@ -1,12 +1,12 @@
 # ผล Live Acceptance
 
-## v1.2.4 — MCP Events Dev capability probe stopped (4 ตุลาคม 2026)
+## v1.2.4 — MCP Events Dev probe ยังสรุป capability ไม่ได้ (4 ตุลาคม 2026)
 
-- ทำบน Dev working copy revision `897639028e718f4708c62bf2a595b89b5acd3636` ผ่าน profile `hermes-wsl-dev` และ plugin **Hermes Local Bridge - Dev** เท่านั้น; Production ไม่ถูกเปลี่ยนแปลง.
-- เปิด fixture ด้วย `BRIDGE_EVENTS_PROBE=1` และ operator-reviewed callback-host allowlist. เปิด chat ใหม่และ refresh Dev plugin ก่อนร้องขอ subscribe event `bridge.probe.ready`.
-- Work chat รายงานว่าปลั๊กอิน Dev ไม่เปิดความสามารถ subscribe event จึงไม่สามารถ monitor `bridge.probe.ready` ได้. ไม่มี subscription, callback URL/secret, challenge, signed delivery, redirect, หรือ retry เกิดขึ้น.
-- คำตอบ “Stopped monitoring `bridge.probe.ready`.” ไม่ใช่หลักฐาน unsubscribe เพราะไม่มี subscription ตั้งต้น.
-- ผล: capability gate ไม่ผ่านที่ Work-chat discovery/subscription. หยุด v1.2.4 runtime track ตาม decision rule; ไม่เพิ่ม persistent subscription, webhook callback, Hermes terminal observer หรือ retry. ทางเลือกที่อนุญาตคือ user-directed explicit `hermes_task_status` polling และต้องคืน Dev bridge เป็น normal mode.
+- Dev working copy revision `897639028e718f4708c62bf2a595b89b5acd3636`; ใช้ profile `hermes-wsl-dev` และ plugin **Hermes Local Bridge - Dev**. ผู้ใช้ refresh แล้วส่งคำสั่ง subscribe `bridge.probe.ready` ใน Work chat ใหม่.
+- Chat ตอบว่า “ปลั๊กอิน Dev ที่เลือกไว้ยังไม่เปิดเครื่องมือสำหรับ subscribe เหตุการณ์ จึงไม่สามารถรอรับ `bridge.probe.ready` ได้ในขณะนี้.” นี่คือคำตอบใน chat ไม่ใช่ protocol trace; MCP Events subscribe เป็น protocol method ไม่ใช่ ordinary tool.
+- คำตอบ “Stopped monitoring `bridge.probe.ready`.” ไม่ยืนยันว่า `events/unsubscribe` ถูกเรียก.
+- รอบนี้ไม่มี trace แบบ redacted ของ `server/discover`, `events/list`, `events/subscribe` หรือหลักฐาน callback challenge/delivery จึงยังระบุสาเหตุและผลครบสาม gate ไม่ได้.
+- คง runtime gate ไว้; เพิ่ม method/outcome trace ที่ไม่บันทึก URL, secret หรือ payload และทดสอบ Dev tunnel อีกครั้งก่อนตัดสินใจเดิน PR runtime. การเรียก `hermes_task_status` โดยผู้ใช้ยังเป็นทางเลือกที่โปร่งใส.
 
 ## v1.2.3 — Worker supervision (4 ตุลาคม 2026)
 
