@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.2.4 — MCP Events Dev probe (unreleased)
+## Unreleased — v1.2.4 capability probe
 
 - The refreshed Dev plugin received a Work-chat request to monitor `bridge.probe.ready`; the conversational response said subscription was unavailable.
 - No sanitized MCP method trace or callback receipt was captured, so this result does not establish whether discovery, subscription, challenge, delivery, or unsubscribe ran. The follow-up “Stopped monitoring” reply is not protocol evidence.
