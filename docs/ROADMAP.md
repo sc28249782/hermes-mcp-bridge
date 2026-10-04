@@ -77,8 +77,8 @@ The design, trust boundaries, proposed configuration, and tool contracts are in 
 
 ## v1.2.4 — Capability-gated MCP Events task-completion notifications
 
-- [ ] **Capability gate inconclusive (4 October 2026):** after a Dev plugin refresh, a new Work chat replied that event subscription was unavailable. We have no protocol trace establishing whether `server/discover`, `events/list`, or `events/subscribe` reached the Dev fixture, and no callback evidence.
-- [ ] Instrument the Dev fixture with redacted method/outcome tracing, verify that its advertised capabilities match handled methods, and repeat the protocol probe before deciding whether the tunnel or Work chat lacks Events support.
+- [x] Instrument the Dev fixture with redacted method/outcome tracing and an empty `tools/list` handler. A repeat Dev probe recorded successful `server/discover`, `tools/list`, and `events/list`; the plugin page showed `bridge.probe.ready`.
+- [ ] **Subscription gate unproven (4 October 2026):** a Work chat reported no event-subscription interface; the supplied trace contains no `events/subscribe` and no callback evidence. Verify Work-chat eligibility and event controls with the probe event visible, and capture the next protocol trace. Do not infer unsupported tunnel or client capability from the chat reply alone.
 - [ ] **Runtime delivery remains gated:** require documented subscription, verified callback, signed event receipt, and unsubscribe before implementing persistent subscriptions or Hermes terminal delivery. User-directed explicit `hermes_task_status` polling remains available.
 - [ ] Add an opt-in, webhook-only MCP Events capability for a subscribed Work chat to receive a redacted terminal-status event for a bridge-owned Hermes run.
 - [ ] Keep the MCP discovery contract at 27 tools; event subscription methods are protocol capabilities, not ordinary MCP tools.

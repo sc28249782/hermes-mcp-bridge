@@ -1,12 +1,12 @@
 # ผล Live Acceptance
 
-## v1.2.4 — MCP Events Dev probe ยังสรุป capability ไม่ได้ (4 ตุลาคม 2026)
+## v1.2.4 — MCP Events Dev probe: discovery confirmed, subscription unproven (4 ตุลาคม 2026)
 
-- Dev working copy revision `897639028e718f4708c62bf2a595b89b5acd3636`; ใช้ profile `hermes-wsl-dev` และ plugin **Hermes Local Bridge - Dev**. ผู้ใช้ refresh แล้วส่งคำสั่ง subscribe `bridge.probe.ready` ใน Work chat ใหม่.
-- Chat ตอบว่า “ปลั๊กอิน Dev ที่เลือกไว้ยังไม่เปิดเครื่องมือสำหรับ subscribe เหตุการณ์ จึงไม่สามารถรอรับ `bridge.probe.ready` ได้ในขณะนี้.” นี่คือคำตอบใน chat ไม่ใช่ protocol trace; MCP Events subscribe เป็น protocol method ไม่ใช่ ordinary tool.
-- คำตอบ “Stopped monitoring `bridge.probe.ready`.” ไม่ยืนยันว่า `events/unsubscribe` ถูกเรียก.
-- รอบนี้ไม่มี trace แบบ redacted ของ `server/discover`, `events/list`, `events/subscribe` หรือหลักฐาน callback challenge/delivery จึงยังระบุสาเหตุและผลครบสาม gate ไม่ได้.
-- คง runtime gate ไว้; เพิ่ม method/outcome trace ที่ไม่บันทึก URL, secret หรือ payload และทดสอบ Dev tunnel อีกครั้งก่อนตัดสินใจเดิน PR runtime. การเรียก `hermes_task_status` โดยผู้ใช้ยังเป็นทางเลือกที่โปร่งใส.
+- รอบแรกบน Dev revision `897639028e718f4708c62bf2a595b89b5acd3636` ไม่มี protocol trace; คำตอบใน chat ว่า subscribe ไม่ได้และ “Stopped monitoring” ไม่ยืนยัน protocol outcome.
+- หลัง PR #31 เพิ่ม `tools/list` และ metadata-only trace ผู้ใช้ refresh plugin **Hermes Local Bridge - Dev** ขณะรัน fixture ด้วย `BRIDGE_EVENTS_PROBE=1`. Trace ที่ให้มาระบุ `server/discover` (12:39:55Z), `tools/list` และ `events/list` (12:39:56Z) ทุก method มี outcome `ok`; tunnel dispatcher บันทึกการ forward ของแต่ละ request. หน้า plugin แสดง event `bridge.probe.ready` หนึ่งรายการ.
+- ใน Work chat คำขอ subscribe ถูกปฏิเสธด้วยข้อความ “the plugin exposes no event-subscription interface in this chat.” Trace ที่ได้รับ **ไม่มี** `events/subscribe` หรือ `events/unsubscribe`; ยังไม่มีหลักฐาน callback challenge, signed delivery หรือ receipt. ข้อความจาก chat ไม่ใช่ protocol error และไม่พิสูจน์ว่า tunnel/client ไม่รองรับ Events โดยทั่วไป.
+- เมื่อปิด probe แล้ว refresh Dev plugin หน้า plugin แสดง Write 6 + Read 21 = 27 tools และไม่มี event. การสลับรายการนี้เป็นพฤติกรรมของ fixture ที่แทน Dev MCP server ชั่วคราว; production ไม่ได้เปลี่ยน.
+- **Decision:** discovery ผ่านเฉพาะชั้นที่วัดได้; gate ของ subscription/callback ยังไม่ผ่าน. ตรวจสิทธิ์/โหมด Work chat และ plugin event controls ขณะ fixture ยังเปิด แล้วเก็บ trace ว่ามี `events/subscribe` เข้าถึง fixture หรือไม่. ใช้ allowlist ว่างในรอบวินิจฉัยเพื่อกัน outbound callback. ห้ามเริ่ม runtime implementation หรือรายงานว่า push ใช้งานได้. Explicit user-directed polling ยังใช้ได้.
 
 ## v1.2.3 — Worker supervision (4 ตุลาคม 2026)
 
