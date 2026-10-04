@@ -2,4 +2,7 @@
 set -euo pipefail
 bridge_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 umask 077
+if [[ "${BRIDGE_EVENTS_PROBE:-}" == "1" ]]; then
+  exec "$bridge_dir/.venv/bin/python" "$bridge_dir/bridge.py" events-probe
+fi
 exec "$bridge_dir/.venv/bin/python" "$bridge_dir/bridge.py" "$@"
