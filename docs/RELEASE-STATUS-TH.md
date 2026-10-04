@@ -1,11 +1,12 @@
 # Release status
 
-## v1.2.3 — implemented, tested, WSL2 accepted, and independently reviewed; release pending
+## v1.2.3 — Phase A prepared; signed tag pending
 
 - Scope is limited to the `SPEC.md` worker-supervision invariant. The change adds no MCP tools and does not expand permissions.
 - The branch records worker/child liveness, rejects reused PIDs and Linux/WSL2 zombies, preserves stable running-response fields, and keeps cancellation targeted at the original process group.
 - Automated CI passed on the current PR head. WSL2 acceptance passed the worker-zombie/child-alive, child-gone fail-closed, and cancel-after-worker-loss cases. The 75-test WSL2 regression run completed without `ResourceWarning`.
-- Independent review passed after the WSL2 evidence and documentation record were complete. v1.2.3 is accepted, but it is not a release candidate and is not a production release until the Phase A, Phase B, and Phase C release gates pass.
+- Independent review passed after the WSL2 evidence and documentation record were complete. `version_info.py` is stamped with release identifier `v1.2.3`, build provenance `release`, and reviewed build-input revision `60de77fa8945a67eb578828e710f1cacc63680e5`; the signed tag will remain the authority for the final commit.
+- The signed tag, external release assets, and post-download verification are pending. v1.2.3 is not a production release until the Phase A, Phase B, and Phase C release gates pass.
 
 ## v1.2.2 — released (23 กันยายน 2026)
 

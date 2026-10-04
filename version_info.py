@@ -7,9 +7,9 @@ commit. Runtime never requires Git; Git metadata is optional enrichment for an
 unpacked working tree only.
 """
 
-BRIDGE_VERSION = "1.2.2"
-RELEASE_IDENTIFIER = "v1.2.2"
-EMBEDDED_SOURCE_REVISION = "079f1fc2386de62cfa52a5bbe38645e4efdbdd2e"
+BRIDGE_VERSION = "1.2.3"
+RELEASE_IDENTIFIER = "v1.2.3"
+EMBEDDED_SOURCE_REVISION = "60de77fa8945a67eb578828e710f1cacc63680e5"
 BUILD_PROVENANCE = "release"
 MCP_DISCOVERY_COUNT = 27
 CONFIG_SCHEMA_VERSION = 1
