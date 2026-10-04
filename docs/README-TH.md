@@ -223,7 +223,7 @@ bash tunnel.sh service-status
 
 bridge นี้เป็น stdio MCP server และไม่ประกาศ OAuth metadata; runtime API key ใช้ระหว่าง `tunnel-client` กับ OpenAI control plane ไม่ใช่ OAuth ของ MCP server. ห้ามเปลี่ยนไปใช้ Server URL หรือวาง OpenAI-hosted tunnel URL ลงในช่อง Server URL เพื่อแก้ปัญหา connection; ให้เลือก **Tunnel** และระบุ tunnel ที่สร้างใน Platform เสมอ.
 
-ตรวจจำนวนเครื่องมือตาม canonical discovery contract ใน [TESTING.md](TESTING.md):
+ตรวจจำนวนเครื่องมือตาม canonical discovery contract ใน [TESTING.md](TESTING.md). ตารางต่อไปนี้เป็นคำอธิบายเครื่องมือพื้นฐาน ไม่ใช่รายการ discovery ทั้งหมด:
 
 | เครื่องมือ | หน้าที่ |
 |---|---|
