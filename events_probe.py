@@ -8,11 +8,13 @@ after callback verification.
 from __future__ import annotations
 
 import base64
+import binascii
 import hashlib
 import hmac
 import ipaddress
 import json
 import os
+import re
 import secrets
 import socket
 import sys
@@ -43,7 +45,9 @@ def _canonical_dns(name: str) -> str:
         value = name.rstrip(".").encode("idna").decode("ascii").lower()
     except UnicodeError as exc:
         raise ProbeError("callback denied") from exc
-    if not value or any(not label or len(label) > 63 for label in value.split(".")):
+    labels = value.split(".")
+    if (not value or any(not re.fullmatch(r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?", label)
+                         for label in labels)):
         raise ProbeError("callback denied")
     return value
 
@@ -75,7 +79,7 @@ def _is_allowed(host: str, entries: tuple[str, ...]) -> bool:
     return False
 
 
-def _callback_url(value: Any, allowlist: tuple[str, ...]) -> str:
+def _callback_url(value: Any, allowlist: tuple[str, ...], *, resolve_public: bool = True) -> str:
     if not isinstance(value, str) or not value or len(value) > MAX_CALLBACK_URL:
         raise ProbeError("callback denied")
     try:
@@ -97,7 +101,8 @@ def _callback_url(value: Any, allowlist: tuple[str, ...]) -> str:
         raise ProbeError("callback denied")
     if not allowlist or not _is_allowed(canonical, allowlist):
         raise ProbeError("callback denied")
-    _require_public_dns(canonical)
+    if resolve_public:
+        _require_public_dns(canonical)
     return value
 
 
@@ -122,7 +127,7 @@ def _secret(value: Any) -> bytes:
     encoded = value[6:]
     try:
         data = base64.b64decode(encoded, validate=True)
-    except ValueError as exc:
+    except (ValueError, binascii.Error) as exc:
         raise ProbeError("invalid callback secret") from exc
     if not 24 <= len(data) <= 64:
         raise ProbeError("invalid callback secret")
@@ -269,7 +274,7 @@ class EventsProbe:
             raise ProbeError("invalid unsubscribe delivery")
         if delivery.get("mode") != "webhook":
             raise ProbeError("unsupported delivery mode")
-        url = _callback_url(delivery.get("url"), self.allowed_hosts)
+        url = _callback_url(delivery.get("url"), self.allowed_hosts, resolve_public=False)
         identity = _canonical_json({"name": EVENT_NAME, "arguments": {}, "url": url})
         subscription_id = "sub_probe_" + hashlib.sha256(identity).hexdigest()[:24]
         self.subscriptions.pop(subscription_id, None)
