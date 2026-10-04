@@ -7,7 +7,7 @@
 - หลัง child จบโดยไม่มี durable terminal record, bridge เปลี่ยนเป็น `unknown_exit` แบบ fail-closed. terminal record ระบุ actor `worker_recovery`, reason `worker_ended_without_terminal_record`, และระบุว่า exit status ของ Codex ใช้ยืนยันไม่ได้.
 - cancel หลัง worker หายยังส่งสัญญาณไปยัง process group เดิมได้. งานจบเป็น `cancelled` โดย terminal actor เป็น `local_operator` และ reason เป็น `cancellation_requested`.
 - รัน `.venv/bin/python -W error::ResourceWarning -m unittest discover -s tests -v` ผ่าน 75 tests โดยไม่มี `ResourceWarning`. ข้อความยืนยันคือ `V123_WSL_REGRESSION_CLEAN`.
-- independent review และ release gate ยังไม่เสร็จ. ผลนี้ไม่ใช่ signed release หรือ production deployment.
+- independent review ผ่านแล้ว. Release gate ยังไม่เริ่ม. ผลนี้ไม่ใช่ signed release หรือ production deployment.
 
 
 ## v1.2.2 — Bridge version/provenance (23 กันยายน 2026)
