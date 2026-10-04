@@ -75,7 +75,20 @@ The design, trust boundaries, proposed configuration, and tool contracts are in 
 - [x] Complete independent review before the v1.2.3 release gates.
 - [x] Complete the Phase A, Phase B, and Phase C release gates for v1.2.3.
 
-## v1.3.0 — Approval-bound mutation and execution
+## v1.2.4 — MCP Events task-completion notifications
+
+- [ ] Add an opt-in, webhook-only MCP Events capability for a subscribed Work chat to receive a redacted terminal-status event for a bridge-owned Hermes run.
+- [ ] Keep the MCP discovery contract at 27 tools; event subscription methods are protocol capabilities, not ordinary MCP tools.
+- [ ] Require MCP Events protocol 2.0, persistent subscription state, authenticated ownership/filter checks, expiry/refresh, callback challenge verification, signed delivery, retry, and bounded deduplication.
+- [ ] Keep events disabled by default; do not send an outbound callback unless the operator explicitly enables the feature and the user has subscribed in ChatGPT.
+- [ ] Reject unsafe callback destinations and never disclose callback URLs, signing secrets, prompts, outputs, credentials, or detailed paths through events, audit, diagnostics, or tool results.
+- [ ] Deliver an event only after the bridge persists a recoverable Hermes terminal record; failed delivery must not change the run state or lose the result.
+- [ ] Prove capability compatibility on Dev Secure MCP Tunnel before implementation. Do not replace unsupported events with hidden polling while calling it push notification.
+- [ ] Complete fake-callback security tests, restart/expiry/dedup/retry coverage, and WSL2 Work-chat live acceptance before release.
+
+## Deferred — v1.3.0 Approval-bound mutation and execution
+
+> v1.3.0 is intentionally paused while v1.2.4 establishes reliable, user-subscribed terminal-status delivery for Hermes work. No Local Hands mutation or execution capability is in the v1.2.4 scope.
 
 - [ ] Add `hands_write`, `hands_patch`, `hands_exec`, and `hands_process` after v1.2.0 read-only live acceptance and feedback.
 - [ ] Implement canonical action digests exactly as [ADR-0001](adr/0001-local-hands-foundation.md) specifies: versioned deterministic JSON bytes plus SHA-256, immutable persisted payload/blob reference, TTL, one-time use, and revalidation at execution.
