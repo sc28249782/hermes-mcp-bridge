@@ -1,4 +1,4 @@
-# Hermes MCP Bridge v1.2.2 release — Hermes + Codex/WSL2 / ChatGPT
+# Hermes MCP Bridge v1.2.3 release — Hermes + Codex/WSL2 / ChatGPT
 
 [![Tests](https://github.com/sc28249782/hermes-mcp-bridge/actions/workflows/tests.yml/badge.svg)](https://github.com/sc28249782/hermes-mcp-bridge/actions/workflows/tests.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](../LICENSE)
@@ -8,7 +8,7 @@ Specification: [SPEC.md](SPEC.md)
 จุดเริ่มต้นของโครงการ: [Project origin](PROJECT-ORIGIN.md)
 
 จัดทำสำหรับ Hermes Agent v0.21.1, commit `8d79c2ff` ที่ผู้ใช้ยืนยัน
-วันที่ปรับปรุง: 29 กันยายน 2026 — v1.2.2 released; signed tag และ release assets ผ่านการตรวจแล้ว
+วันที่ปรับปรุง: 4 ตุลาคม 2026 — v1.2.3 released; signed tag และ release assets ผ่านการตรวจแล้ว
 
 ตัวกลางนี้ทำให้ ChatGPT ส่งงานให้ Hermes ที่รันอยู่บนเครื่องคุณ แล้วตรวจสถานะ อ่านผล และขอหยุดงานได้
 ใช้ Runs API เดียวกับที่ `hermes peer run/status/stop` เรียก แต่เรียก HTTP โดยตรง
@@ -31,12 +31,13 @@ Specification: [SPEC.md](SPEC.md)
 - มีเมนู Developer mode และ Connection → Tunnel
 - ยังต้องสร้าง tunnel ใน OpenAI Platform, ติดตั้ง tunnel-client และเชื่อม Plugin
 - v1.2.1 ผ่าน regression 63/63 โดยใช้ project `.venv/bin/python` พร้อม `-W error::ResourceWarning`, shellcheck และ Bash syntax; Live Acceptance ผ่าน Hermes context ข้าม ChatGPT chat, Codex metadata-only binding, closed-context denial และ audit redaction
+- v1.2.3 ผ่าน 75 regression tests, WSL2 worker-supervision acceptance และ independent review. ดาวน์โหลด production archive และ external `SHA256SUMS` จาก release v1.2.3 เท่านั้น
 
 อัปเกรดจาก bridge รุ่นก่อนใช้ [UPGRADE-TH.md](UPGRADE-TH.md) ก่อนเริ่ม tunnel รุ่นใหม่ โดยเฉพาะหากต้องการเก็บ session/state เดิม
 
 ## 1. ติดตั้งตัวกลางใน WSL2
 
-ดาวน์โหลดทั้ง `hermes-mcp-bridge-v1.2.1.zip` และ `SHA256SUMS` จาก [GitHub Release v1.2.1](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.1) แล้ววางทั้งสองไฟล์ไว้ในโฟลเดอร์ Linux ของผู้ใช้ `somchaip` เช่น:
+ดาวน์โหลดทั้ง `hermes-mcp-bridge-v1.2.3.zip` และ `SHA256SUMS` จาก [GitHub Release v1.2.3](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.3) แล้ววางทั้งสองไฟล์ไว้ในโฟลเดอร์ Linux ของผู้ใช้ `somchaip` เช่น:
 
 ```text
 /home/somchaip/
@@ -47,8 +48,8 @@ Specification: [SPEC.md](SPEC.md)
 ```bash
 cd /home/somchaip
 sha256sum -c SHA256SUMS
-unzip hermes-mcp-bridge-v1.2.1.zip
-cd /home/somchaip/hermes-mcp-bridge-v1.2.1
+unzip hermes-mcp-bridge-v1.2.3.zip
+cd /home/somchaip/hermes-mcp-bridge-v1.2.3
 bash install.sh
 ```
 
@@ -68,7 +69,7 @@ bash install.sh
 หาก `.venv` มี Python แต่ยังไม่มี pip ให้ซ่อม environment เดิม:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v1.0.1
+cd /home/somchaip/hermes-mcp-bridge-v1.2.3
 .venv/bin/python -m ensurepip --upgrade
 bash install.sh
 ```
@@ -163,7 +164,7 @@ tunnel-client help quickstart
 คง Hermes gateway ให้รันอยู่ แล้วเปิด terminal อีกหน้าหนึ่ง:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v1.0.1
+cd /home/somchaip/hermes-mcp-bridge-v1.2.3
 bash tunnel.sh init tunnel_แทนด้วยIDจริง [--force]
 ```
 
@@ -192,7 +193,7 @@ Tunnel จะเรียก `bridge.sh` ผ่าน stdio เอง ไม่�
 การเริ่มใหม่ในครั้งต่อไปใช้:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v1.0.1
+cd /home/somchaip/hermes-mcp-bridge-v1.2.3
 bash tunnel.sh run
 ```
 
@@ -222,7 +223,7 @@ bash tunnel.sh service-status
 
 bridge นี้เป็น stdio MCP server และไม่ประกาศ OAuth metadata; runtime API key ใช้ระหว่าง `tunnel-client` กับ OpenAI control plane ไม่ใช่ OAuth ของ MCP server. ห้ามเปลี่ยนไปใช้ Server URL หรือวาง OpenAI-hosted tunnel URL ลงในช่อง Server URL เพื่อแก้ปัญหา connection; ให้เลือก **Tunnel** และระบุ tunnel ที่สร้างใน Platform เสมอ.
 
-ควรค้นพบ 19 เครื่องมือ (Hermes 10 + Codex 6 + operations 3):
+ตรวจจำนวนเครื่องมือตาม canonical discovery contract ใน [TESTING.md](TESTING.md):
 
 | เครื่องมือ | หน้าที่ |
 |---|---|

@@ -7,7 +7,9 @@
 - หลัง child จบโดยไม่มี durable terminal record, bridge เปลี่ยนเป็น `unknown_exit` แบบ fail-closed. terminal record ระบุ actor `worker_recovery`, reason `worker_ended_without_terminal_record`, และระบุว่า exit status ของ Codex ใช้ยืนยันไม่ได้.
 - cancel หลัง worker หายยังส่งสัญญาณไปยัง process group เดิมได้. งานจบเป็น `cancelled` โดย terminal actor เป็น `local_operator` และ reason เป็น `cancellation_requested`.
 - รัน `.venv/bin/python -W error::ResourceWarning -m unittest discover -s tests -v` ผ่าน 75 tests โดยไม่มี `ResourceWarning`. ข้อความยืนยันคือ `V123_WSL_REGRESSION_CLEAN`.
-- independent review ผ่านแล้ว. Release gate ยังไม่เริ่ม. ผลนี้ไม่ใช่ signed release หรือ production deployment.
+- independent review ผ่านแล้ว. signed tag `v1.2.3` ชี้ commit `c610660637dbdcfa0b8ddb7bbf01ed22ae66055d`; GPG verify ผ่านด้วย EDDSA fingerprint `C4E9AFA9C97FC94CA2448E9218BDAEA561529B86`.
+- [GitHub Release v1.2.3](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.3) แนบ ZIP และ external `SHA256SUMS`; SHA-256 ของ ZIP คือ `c231f8563543dbfa9eafa240c5e8e15f44434103940352066e65b58162cb5458`.
+- ดาวน์โหลด asset กลับจาก GitHub แล้ว `sha256sum -c SHA256SUMS` และ `unzip -t` ผ่านครบ. ผลนี้เป็น release ที่เผยแพร่แล้ว.
 
 
 ## v1.2.2 — Bridge version/provenance (23 กันยายน 2026)

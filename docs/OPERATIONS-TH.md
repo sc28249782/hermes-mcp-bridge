@@ -1,4 +1,4 @@
-# คู่มือปฏิบัติการ — v1.2.2 release
+# คู่มือปฏิบัติการ — v1.2.3 release
 
 ## Version และ provenance
 

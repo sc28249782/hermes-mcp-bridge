@@ -1,12 +1,14 @@
 # Changelog
 
-## Unreleased — v1.2.3
+## v1.2.3 — released (4 October 2026)
 
 - Preserve `running` when a durable worker is unavailable but its Codex child remains alive; expose only a redacted supervision-loss hint.
 - Persist worker/child process start times to reject reused PIDs during recovery and keep cancellation targeted at the original process group.
 - Treat Linux/WSL2 `/proc` state `Z` as not alive so an unreaped crashed worker cannot leave a dead job stuck in `running`.
 - Keep `terminal` and `approval` fields stable across running-state early returns.
-- Add regression coverage for worker-only loss, delayed child exit, fail-closed `unknown_exit`, PID-reuse detection, and an actual unreaped zombie process. Automated CI and WSL2 live acceptance passed on the current PR head; the 75-test WSL2 run has no `ResourceWarning`. Independent review passed; release remains pending.
+- Add regression coverage for worker-only loss, delayed child exit, fail-closed `unknown_exit`, PID-reuse detection, and an actual unreaped zombie process. Automated CI and WSL2 live acceptance passed; the 75-test WSL2 run has no `ResourceWarning`.
+- Published signed tag `v1.2.3` at `c610660637dbdcfa0b8ddb7bbf01ed22ae66055d`. The GPG signature was verified with EDDSA fingerprint `C4E9AFA9C97FC94CA2448E9218BDAEA561529B86`.
+- Published the GitHub release archive and external `SHA256SUMS`; the archive checksum `c231f8563543dbfa9eafa240c5e8e15f44434103940352066e65b58162cb5458` was verified after a fresh download from GitHub.
 
 ## v1.2.2 — released (23 September 2026)
 
