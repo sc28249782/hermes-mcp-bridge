@@ -1,4 +1,13 @@
-# อัปเกรดเป็น v1.2.2 release
+# อัปเกรดเป็น v1.2.3 release
+
+## จาก v1.2.2 เป็น v1.2.3
+
+1. ดาวน์โหลด `hermes-mcp-bridge-v1.2.3.zip` และ external `SHA256SUMS` จาก [GitHub Release v1.2.3](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.3). ตรวจ archive ด้วย `sha256sum -c SHA256SUMS`; checksum ที่เผยแพร่คือ `c231f8563543dbfa9eafa240c5e8e15f44434103940352066e65b58162cb5458`.
+2. รอ Codex job สำคัญเป็น terminal status. หยุด tunnel ของ deployment เดิม แล้วแตก archive ไปยัง directory ใหม่. ห้ามเขียนทับ deployment เดิม.
+3. Copy เฉพาะ `bridge-config.json` และ `state/` ที่ตรวจแล้ว. ห้าม copy `.venv`, key หรือ `.env`.
+4. รัน `bash install.sh`, `./bridge.sh version`, `./bridge.sh doctor`, `./bridge.sh codex-doctor`, และ `./bridge.sh diagnostics`. ต้องตรวจว่า version เป็น `1.2.3` และ `release_identifier` เป็น `v1.2.3`.
+5. restart tunnel ของ instance ใหม่, เปิด chat ใหม่, และตรวจ discovery ตาม canonical contract ใน `TESTING.md` ก่อนส่ง read-only job. งาน `workspace-write` ยังต้อง local terminal approval.
+6. หาก worker หายแต่ Codex child ยังทำงานอยู่, bridge จะคืน `running` พร้อม `supervision_lost`. ห้ามส่งงานซ้ำหรือสรุป `unknown_exit` จนกว่า child จะจบ.
 
 ## จาก v1.2.1 เป็น v1.2.2
 
