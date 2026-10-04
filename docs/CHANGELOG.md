@@ -6,7 +6,7 @@
 - Persist worker/child process start times to reject reused PIDs during recovery and keep cancellation targeted at the original process group.
 - Treat Linux/WSL2 `/proc` state `Z` as not alive so an unreaped crashed worker cannot leave a dead job stuck in `running`.
 - Keep `terminal` and `approval` fields stable across running-state early returns.
-- Add regression coverage for worker-only loss, delayed child exit, fail-closed `unknown_exit`, PID-reuse detection, and an actual unreaped zombie process. CI run #286 passed; WSL2 live acceptance is still pending.
+- Add regression coverage for worker-only loss, delayed child exit, fail-closed `unknown_exit`, PID-reuse detection, and an actual unreaped zombie process. Automated CI passed on the current PR head; WSL2 live acceptance is still pending.
 
 ## v1.2.2 — released (23 September 2026)
 

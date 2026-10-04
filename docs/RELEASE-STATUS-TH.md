@@ -1,10 +1,10 @@
 # Release status — v1.2.2 released (23 กันยายน 2026)
 
-## v1.2.3 — implementation in progress
+## v1.2.3 — implemented and tested; acceptance pending
 
 - Scope is limited to the SPEC.md worker-supervision invariant; no new MCP tools or permission expansion.
 - Current branch includes the worker/child liveness change, process start-time persistence, zombie-state rejection, stable running-response fields, and regression coverage.
-- CI run #286 passed; WSL2 live acceptance is pending. v1.2.3 is not a release candidate or production release.
+- Automated CI passed on the current PR head. WSL2 live acceptance is pending. v1.2.3 is not accepted, is not a release candidate, and is not a production release.
 
 ## v1.2.2 — released (23 กันยายน 2026)
 

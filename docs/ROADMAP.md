@@ -69,7 +69,7 @@ The design, trust boundaries, proposed configuration, and tool contracts are in 
 ## v1.2.3 — Specification and worker-supervision maintenance
 
 - [x] Add SPEC.md as the normative contract for architecture boundaries, MCP/CLI behavior, security invariants, persistence, recovery, testing, and release change control.
-- [x] Implement the worker-only-loss rule: keep a job running while its Codex child is alive, expose only a redacted supervision hint, and remain fail-closed when the child later exits without a durable exit record. Implementation and regression coverage passed CI run #286; WSL2 live acceptance remains required before merge and release.
+- [x] Implement the worker-only-loss rule: keep a job running while its Codex child is alive, expose only a redacted supervision hint, and remain fail-closed when the child later exits without a durable exit record. Implementation and regression coverage passed automated CI on the current PR head; WSL2 live acceptance remains required before merge and release.
 - [x] Add regression coverage for worker/child liveness, cancellation, restart recovery, PID reuse, and unreaped zombie processes.
 - [ ] Run WSL2 live acceptance and independent review before the v1.2.3 release gates.
 
