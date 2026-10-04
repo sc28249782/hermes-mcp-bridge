@@ -1,3 +1,5 @@
+# ผล Live Acceptance
+
 ## v1.2.4 — MCP Events Dev probe: discovery confirmed, subscription unproven (4 ตุลาคม 2026)
 
 - รอบแรกบน Dev revision `897639028e718f4708c62bf2a595b89b5acd3636` ไม่มี protocol trace; คำตอบใน chat ว่า subscribe ไม่ได้และ “Stopped monitoring” ไม่ยืนยัน protocol outcome.
