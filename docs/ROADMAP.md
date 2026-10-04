@@ -75,13 +75,16 @@ The design, trust boundaries, proposed configuration, and tool contracts are in 
 - [x] Complete independent review before the v1.2.3 release gates.
 - [x] Complete the Phase A, Phase B, and Phase C release gates for v1.2.3.
 
-## v1.2.4 — MCP Events task-completion notifications
+## v1.2.4 — Capability-gated MCP Events task-completion notifications
 
+- [ ] **Capability-gated:** do not commit to runtime delivery until the Dev Secure MCP Tunnel probe proves the required MCP Events subscription and signed callback flow end-to-end.
 - [ ] Add an opt-in, webhook-only MCP Events capability for a subscribed Work chat to receive a redacted terminal-status event for a bridge-owned Hermes run.
 - [ ] Keep the MCP discovery contract at 27 tools; event subscription methods are protocol capabilities, not ordinary MCP tools.
 - [ ] Require MCP Events protocol 2.0, persistent subscription state, authenticated ownership/filter checks, expiry/refresh, callback challenge verification, signed delivery, retry, and bounded deduplication.
 - [ ] Keep events disabled by default; do not send an outbound callback unless the operator explicitly enables the feature and the user has subscribed in ChatGPT.
-- [ ] Reject unsafe callback destinations and never disclose callback URLs, signing secrets, prompts, outputs, credentials, or detailed paths through events, audit, diagnostics, or tool results.
+- [ ] Permit callbacks only to a locally configured allowlist of exact hosts or host suffixes; the default allowlist is empty. Keep HTTPS/private-address/redirect defenses as additional checks, not as the primary authorization rule.
+- [ ] Accept subscriptions only through an authenticated MCP Events protocol call following the user's Work-chat confirmation; never expose a model-callable tool or prompt-derived callback URL path.
+- [ ] Never disclose callback URLs, signing secrets, prompts, outputs, credentials, or detailed paths through events, audit, diagnostics, or tool results.
 - [ ] Deliver an event only after the bridge persists a recoverable Hermes terminal record; failed delivery must not change the run state or lose the result.
 - [ ] Prove capability compatibility on Dev Secure MCP Tunnel before implementation. Do not replace unsupported events with hidden polling while calling it push notification.
 - [ ] Complete fake-callback security tests, restart/expiry/dedup/retry coverage, and WSL2 Work-chat live acceptance before release.
