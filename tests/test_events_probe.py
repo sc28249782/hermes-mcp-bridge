@@ -1,4 +1,6 @@
 import base64
+import io
+import json
 from unittest.mock import patch
 import unittest
 
@@ -104,6 +106,28 @@ class TestEventsProbe(unittest.TestCase):
         self.assertEqual(response["result"]["capabilities"], {"tools": {}, "events": {}})
         events = self.probe.handle({"jsonrpc": "2.0", "id": 2, "method": "events/list"})
         self.assertEqual(events["result"]["events"][0]["name"], EVENT_NAME)
+
+        tools = self.probe.handle({"jsonrpc": "2.0", "id": 3, "method": "tools/list"})
+        self.assertEqual(tools["result"], {"tools": []})
+
+    def test_trace_records_methods_and_outcomes_without_request_data(self):
+        stderr = io.StringIO()
+        marker = "private-callback-or-secret"
+        with patch("sys.stderr", stderr):
+            result = self.probe.handle({
+                "jsonrpc": "2.0", "id": marker, "method": "server/discover",
+                "params": {"untrusted": marker},
+            })
+            bad = self.probe.handle({
+                "jsonrpc": "2.0", "id": marker, "method": "events/subscribe",
+                "params": {"secret": marker, "url": marker},
+            })
+        self.assertIn("result", result)
+        self.assertEqual(bad["error"]["code"], -32602)
+        lines = [json.loads(line) for line in stderr.getvalue().splitlines()]
+        self.assertEqual([(line["method"], line["outcome"]) for line in lines],
+                         [("server/discover", "ok"), ("events/subscribe", "error")])
+        self.assertNotIn(marker, stderr.getvalue())
 
 
 if __name__ == "__main__":
