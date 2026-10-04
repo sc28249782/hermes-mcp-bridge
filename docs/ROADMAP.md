@@ -85,6 +85,7 @@ The design, trust boundaries, proposed configuration, and tool contracts are in 
 - [ ] Deliver an event only after the bridge persists a recoverable Hermes terminal record; failed delivery must not change the run state or lose the result.
 - [ ] Prove capability compatibility on Dev Secure MCP Tunnel before implementation. Do not replace unsupported events with hidden polling while calling it push notification.
 - [ ] Complete fake-callback security tests, restart/expiry/dedup/retry coverage, and WSL2 Work-chat live acceptance before release.
+- [ ] Add a regression proof for explicit-context Hermes follow-ups: the follow-up request contains only the persisted session identifier and input, never a new model/provider override; document that `reported_model` is observation metadata, not a model-selection channel.
 
 ## Deferred — v1.3.0 Approval-bound mutation and execution
 
