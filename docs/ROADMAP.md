@@ -77,8 +77,9 @@ The design, trust boundaries, proposed configuration, and tool contracts are in 
 
 ## v1.2.4 — Capability-gated MCP Events task-completion notifications
 
-- [x] **Capability gate executed — did not pass (4 October 2026):** a new Work chat refreshed against the opt-in Dev fixture but reported that the selected plugin did not expose event-subscription capability. No subscription, callback challenge, or signed delivery occurred.
-- [ ] **Runtime delivery remains stopped:** do not implement subscription persistence, callback delivery, retries, or Hermes terminal events unless a future Dev probe proves the end-to-end protocol path. The permitted fallback remains user-directed explicit `hermes_task_status` polling.
+- [ ] **Capability gate inconclusive (4 October 2026):** after a Dev plugin refresh, a new Work chat replied that event subscription was unavailable. We have no protocol trace establishing whether `server/discover`, `events/list`, or `events/subscribe` reached the Dev fixture, and no callback evidence.
+- [ ] Instrument the Dev fixture with redacted method/outcome tracing, verify that its advertised capabilities match handled methods, and repeat the protocol probe before deciding whether the tunnel or Work chat lacks Events support.
+- [ ] **Runtime delivery remains gated:** require documented subscription, verified callback, signed event receipt, and unsubscribe before implementing persistent subscriptions or Hermes terminal delivery. User-directed explicit `hermes_task_status` polling remains available.
 - [ ] Add an opt-in, webhook-only MCP Events capability for a subscribed Work chat to receive a redacted terminal-status event for a bridge-owned Hermes run.
 - [ ] Keep the MCP discovery contract at 27 tools; event subscription methods are protocol capabilities, not ordinary MCP tools.
 - [ ] Require MCP Events protocol 2.0, persistent subscription state, authenticated ownership/filter checks, expiry/refresh, callback challenge verification, signed delivery, retry, and bounded deduplication.
