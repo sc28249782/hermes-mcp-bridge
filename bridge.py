@@ -200,11 +200,15 @@ def server(b, c, h, contexts):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("action", choices=["serve", "version", "doctor", "diagnostics", "audit-recent", "status", "result", "recent", "usage", "usage-export", "models", "model-info", "approve", "deny", "codex-doctor", "codex-approve", "codex-deny", "hands-doctor"], nargs="?", default="serve")
+    p.add_argument("action", choices=["serve", "events-probe", "version", "doctor", "diagnostics", "audit-recent", "status", "result", "recent", "usage", "usage-export", "models", "model-info", "approve", "deny", "codex-doctor", "codex-approve", "codex-deny", "hands-doctor"], nargs="?", default="serve")
     p.add_argument("run_id", nargs="?")
     args = p.parse_args()
     try:
         root = Path(__file__).resolve().parent
+        if args.action == "events-probe":
+            from events_probe import serve_stdio
+            serve_stdio()
+            return
         if args.action == "version":
             print(json.dumps(bridge_version_report(root), indent=2, ensure_ascii=False))
             return
