@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.2.4 — MCP Events capability gate stopped (unreleased)
+
+- Ran the opt-in Dev-only MCP Events fixture through the Dev Secure MCP Tunnel after refreshing **Hermes Local Bridge - Dev** in a new Work chat.
+- Work chat reported that the selected plugin did not expose event-subscription capability. No subscription, callback URL/secret, challenge, signed delivery, redirect, or retry occurred.
+- Stopped the v1.2.4 runtime track under its documented decision rule; no persistent subscription state, runtime webhook delivery, Hermes terminal observer, or retry implementation was started. Explicit user-directed status polling remains the transparent fallback.
+
 ## v1.2.3 — released (4 October 2026)
 
 - Preserve `running` when a durable worker is unavailable but its Codex child remains alive; expose only a redacted supervision-loss hint.
