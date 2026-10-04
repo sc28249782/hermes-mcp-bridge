@@ -1,10 +1,11 @@
-# Release status — v1.2.2 released (23 กันยายน 2026)
+# Release status
 
-## v1.2.3 — implemented and tested; acceptance pending
+## v1.2.3 — implemented, tested, and WSL2 live acceptance passed; independent review pending
 
-- Scope is limited to the SPEC.md worker-supervision invariant; no new MCP tools or permission expansion.
-- Current branch includes the worker/child liveness change, process start-time persistence, zombie-state rejection, stable running-response fields, and regression coverage.
-- Automated CI passed on the current PR head. WSL2 live acceptance is pending. v1.2.3 is not accepted, is not a release candidate, and is not a production release.
+- Scope is limited to the `SPEC.md` worker-supervision invariant. The change adds no MCP tools and does not expand permissions.
+- The branch records worker/child liveness, rejects reused PIDs and Linux/WSL2 zombies, preserves stable running-response fields, and keeps cancellation targeted at the original process group.
+- Automated CI passed on the current PR head. WSL2 acceptance passed the worker-zombie/child-alive, child-gone fail-closed, and cancel-after-worker-loss cases. The 75-test WSL2 regression run completed without `ResourceWarning`.
+- v1.2.3 is not accepted until independent review passes. It is not a release candidate and is not a production release.
 
 ## v1.2.2 — released (23 กันยายน 2026)
 

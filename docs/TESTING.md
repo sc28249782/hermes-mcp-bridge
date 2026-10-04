@@ -1,4 +1,4 @@
-# Validation record — v1.2.2 release (2026-09-23)
+# Validation record — v1.2.3 candidate
 
 Target contract reviewed: Hermes v0.21.1, commit 8d79c2ff.
 
@@ -35,4 +35,6 @@ Live acceptance is recorded in `LIVE-ACCEPTANCE-TH.md`: v1.0.0 RC2 validated 19-
 
 The v1.2.3 maintenance scope is limited to the worker-supervision invariant in SPEC.md: a worker that is unavailable MUST NOT cause `unknown_exit` while its Codex child is still alive.
 
-Automated regression coverage includes worker-only loss, child liveness, delayed child exit, cancellation, restart recovery, PID-reuse start-time rejection, and a real unreaped-zombie liveness probe on Linux `/proc`. Automated CI passed on the current PR head. WSL2 live acceptance remains required before this change is accepted or released.
+Automated regression coverage includes worker-only loss, child liveness, delayed child exit, cancellation, restart recovery, PID-reuse start-time rejection, and a real unreaped-zombie liveness probe on Linux `/proc`. Automated CI passed on the current PR head.
+
+WSL2 live acceptance passed on commit `7755f1219a54dd4c8cef6d6d17482e8c8c983478`: worker-zombie/child-alive retained `running` with the redacted supervision hint; a later child exit without a terminal record became `unknown_exit`; and cancel after worker loss became `cancelled`. The project interpreter completed 75 tests without `ResourceWarning`. Independent review remains required before release.

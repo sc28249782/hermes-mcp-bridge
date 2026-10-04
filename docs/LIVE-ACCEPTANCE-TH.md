@@ -1,4 +1,14 @@
-# ผล Live Acceptance — v1.2.2 released (23 กันยายน 2026)
+# ผล Live Acceptance
+
+## v1.2.3 — Worker supervision (4 ตุลาคม 2026)
+
+- ทำบน WSL2 branch `feat/v1-2-3-worker-supervision` ที่ commit `7755f1219a54dd4c8cef6d6d17482e8c8c983478`.
+- fault injection ทำให้ detached worker เป็น zombie ขณะที่ Codex child ยังมีชีวิต. สถานะคงเป็น `running`, `exit_code: null`, `supervision_lost: true`, และ reason เป็น `worker_unavailable_child_alive`. ไม่มี terminal record ถูกสร้าง.
+- หลัง child จบโดยไม่มี durable terminal record, bridge เปลี่ยนเป็น `unknown_exit` แบบ fail-closed. terminal record ระบุ actor `worker_recovery`, reason `worker_ended_without_terminal_record`, และระบุว่า exit status ของ Codex ใช้ยืนยันไม่ได้.
+- cancel หลัง worker หายยังส่งสัญญาณไปยัง process group เดิมได้. งานจบเป็น `cancelled` โดย terminal actor เป็น `local_operator` และ reason เป็น `cancellation_requested`.
+- รัน `.venv/bin/python -W error::ResourceWarning -m unittest discover -s tests -v` ผ่าน 75 tests โดยไม่มี `ResourceWarning`. ข้อความยืนยันคือ `V123_WSL_REGRESSION_CLEAN`.
+- independent review และ release gate ยังไม่เสร็จ. ผลนี้ไม่ใช่ signed release หรือ production deployment.
+
 
 ## v1.2.2 — Bridge version/provenance (23 กันยายน 2026)
 
