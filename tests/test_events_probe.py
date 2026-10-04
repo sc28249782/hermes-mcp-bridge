@@ -15,7 +15,7 @@ class TestEventsProbe(unittest.TestCase):
         def sender(url, secret, subscription_id, message_id, payload):
             self.calls.append((url, subscription_id, message_id, payload))
             if payload.get("type") == "verification":
-                return httpx.Response(204, json={"challenge": payload["challenge"]})
+                return httpx.Response(200, json={"challenge": payload["challenge"]})
             return httpx.Response(204)
 
         self.probe = EventsProbe(("*.openai.com",), sender=sender)
