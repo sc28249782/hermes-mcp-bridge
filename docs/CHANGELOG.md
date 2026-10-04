@@ -1,10 +1,10 @@
 # Changelog
 
-## v1.2.4 — MCP Events capability gate stopped (unreleased)
+## v1.2.4 — MCP Events Dev probe (unreleased)
 
-- Ran the opt-in Dev-only MCP Events fixture through the Dev Secure MCP Tunnel after refreshing **Hermes Local Bridge - Dev** in a new Work chat.
-- Work chat reported that the selected plugin did not expose event-subscription capability. No subscription, callback URL/secret, challenge, signed delivery, redirect, or retry occurred.
-- Stopped the v1.2.4 runtime track under its documented decision rule; no persistent subscription state, runtime webhook delivery, Hermes terminal observer, or retry implementation was started. Explicit user-directed status polling remains the transparent fallback.
+- The refreshed Dev plugin received a Work-chat request to monitor `bridge.probe.ready`; the conversational response said subscription was unavailable.
+- No sanitized MCP method trace or callback receipt was captured, so this result does not establish whether discovery, subscription, challenge, delivery, or unsubscribe ran. The follow-up “Stopped monitoring” reply is not protocol evidence.
+- Keep runtime delivery gated pending an instrumented Dev probe. Explicit user-directed status polling remains available.
 
 ## v1.2.3 — released (4 October 2026)
 
