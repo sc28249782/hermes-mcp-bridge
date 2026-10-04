@@ -40,7 +40,7 @@ def _trace(method: Any, outcome: str, code: int | None = None) -> None:
     record: dict[str, Any] = {
         "component": "events_probe",
         "time": _now(),
-        "method": method if method in TRACE_METHODS else "other",
+        "method": method if isinstance(method, str) and method in TRACE_METHODS else "other",
         "outcome": outcome,
     }
     if code is not None:
