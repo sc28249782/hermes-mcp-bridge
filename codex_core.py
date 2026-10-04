@@ -62,7 +62,8 @@ class CodexRunner:
             existing = {row[1] for row in db.execute("PRAGMA table_info(jobs)")}
             for name, definition in (("policy_root", "TEXT"), ("approval_expires", "REAL"),
                                      ("model", "TEXT"), ("reasoning_effort", "TEXT"),
-                                     ("child_pid", "INTEGER"),
+                                     ("child_pid", "INTEGER"), ("worker_start_ticks", "INTEGER"),
+                                     ("child_start_ticks", "INTEGER"),
                                      ("last_known_state", "TEXT"), ("last_transition_at", "REAL"),
                                      ("transition_actor", "TEXT"), ("transition_reason", "TEXT"),
                                      ("exit_signal", "INTEGER"), ("result_reason", "TEXT")):
@@ -313,9 +314,9 @@ class CodexRunner:
                 pass
         with self.db() as db:
             changed = db.execute(
-                "UPDATE jobs SET status='running',started=?,pid=?,child_pid=NULL "
+                "UPDATE jobs SET status='running',started=?,pid=?,child_pid=NULL,worker_start_ticks=?,child_start_ticks=NULL "
                 "WHERE job_id=? AND status=?",
-                (time.time(), worker.pid, job_id, row["status"]),
+                (time.time(), worker.pid, self._proc_starttime(worker.pid), job_id, row["status"]),
             ).rowcount
         if changed != 1:
             try:
@@ -427,12 +428,31 @@ class CodexRunner:
         return row
 
     @staticmethod
-    def _alive(pid):
+    def _proc_starttime(pid):
+        """Return Linux/WSL2 process start ticks, or None when not alive."""
         try:
-            if Path(f"/proc/{pid}/stat").read_text().split()[2] == "Z":
-                return False
-        except (OSError, IndexError):
-            pass
+            text = Path(f"/proc/{pid}/stat").read_text()
+            close = text.rfind(")")
+            if close < 0:
+                return None
+            fields = text[close + 2:].split()
+            # fields[0] is /proc stat field 3 (state); field 22
+            # (starttime) is index 19 after removing pid and comm.
+            if len(fields) <= 19 or fields[0] == "Z":
+                return None
+            return int(fields[19])
+        except (OSError, ValueError, IndexError):
+            # /proc is Linux-specific.  Missing or malformed identity data
+            # fails closed instead of treating the PID as alive.
+            return None
+
+    @classmethod
+    def _alive(cls, pid, expected_starttime=None):
+        if not pid:
+            return False
+        starttime = cls._proc_starttime(pid)
+        if starttime is None or (expected_starttime is not None and starttime != expected_starttime):
+            return False
         try:
             os.kill(pid, 0)
             return True
@@ -454,25 +474,37 @@ class CodexRunner:
                             "mode": row["mode"], "created": row["created"], "started": row["started"],
                             "exit_code": None, "recovered_after_restart": False,
                             "timeout_enforcement_pending": True, "model": row["model"],
-                            "reasoning_effort": row["reasoning_effort"]}
+                            "reasoning_effort": row["reasoning_effort"],
+                            "terminal": None, "approval": None}
             else:
                 child = self._children.get(job_id)
                 if child is not None:
                     exit_code = child.poll()
                     ended = exit_code is not None
                 else:
-                    # New jobs are owned by codex_worker.py.  Its PID remains
-                    # alive until it durably records Codex's real exit status.
-                    # Jobs from older bridge versions lack child_pid and retain
-                    # the fail-closed recovery behaviour.
+                    # Durable jobs are owned by codex_worker.py.  A dead
+                    # worker is not the same as a finished Codex child.
+                    # Older rows without child_pid retain fail-closed recovery.
                     durable_worker = row["child_pid"] is not None
                     recovered_after_restart = not durable_worker
-                    ended = not self._alive(row["pid"])
+                    worker_alive = self._alive(row["pid"], row["worker_start_ticks"])
+                    child_alive = (self._alive(row["child_pid"], row["child_start_ticks"])
+                                   if durable_worker else False)
+                    if durable_worker and not worker_alive and child_alive:
+                        return {"job_id": job_id, "status": "running", "workspace": row["workspace"],
+                                "mode": row["mode"], "created": row["created"], "started": row["started"],
+                                "exit_code": None, "recovered_after_restart": False,
+                                "supervision_lost": True,
+                                "supervision_reason": "worker_unavailable_child_alive",
+                                "model": row["model"], "reasoning_effort": row["reasoning_effort"],
+                                "terminal": None, "approval": None}
+                    ended = not worker_alive
                 if not ended:
                     return {"job_id": job_id, "status": status, "workspace": row["workspace"],
                             "mode": row["mode"], "created": row["created"], "started": row["started"],
                             "exit_code": None, "recovered_after_restart": recovered_after_restart,
-                            "model": row["model"], "reasoning_effort": row["reasoning_effort"]}
+                            "model": row["model"], "reasoning_effort": row["reasoning_effort"],
+                            "terminal": None, "approval": None}
                 self._children.pop(job_id, None)
                 status = "completed" if exit_code == 0 else "failed" if exit_code is not None else "unknown_exit"
                 if exit_code is None:
@@ -517,28 +549,37 @@ class CodexRunner:
         return {**self.status(job_id), "output": data[offset:end], "total_chars": len(data),
                 "next_offset": end if end < len(data) else None}
 
-    def _terminate(self, pid, child):
-        if self._alive(pid):
+    def _terminate(self, pid, child, *, child_pid=None, worker_starttime=None, child_starttime=None):
+        child_pid = child.pid if child is not None else child_pid
+
+        def group_alive():
+            return (self._alive(pid, worker_starttime)
+                    or (self._alive(child_pid, child_starttime) if child_pid else False))
+
+        if group_alive():
             try:
+                # The worker PID is also the process-group ID.  The group can
+                # remain alive after its leader exits, so do not require the
+                # leader itself to be alive before signalling it.
                 os.killpg(pid, signal.SIGTERM)
             except ProcessLookupError:
                 pass
         deadline = time.monotonic() + 2
-        while self._alive(pid) and time.monotonic() < deadline:
+        while group_alive() and time.monotonic() < deadline:
             if child:
                 child.poll()
             time.sleep(0.05)
-        if self._alive(pid):
+        if group_alive():
             try:
                 os.killpg(pid, signal.SIGKILL)
             except ProcessLookupError:
                 pass
             deadline = time.monotonic() + 2
-            while self._alive(pid) and time.monotonic() < deadline:
+            while group_alive() and time.monotonic() < deadline:
                 if child:
                     child.poll()
                 time.sleep(0.05)
-        return not self._alive(pid)
+        return not group_alive()
 
     def cancel(self, job_id, final_status="cancelled"):
         row = self._expire_pending(self._row(job_id))
@@ -547,7 +588,9 @@ class CodexRunner:
         if row["status"] != "running" or not row["pid"]:
             return {"job_id": job_id, "status": row["status"]}
         child = self._children.get(job_id)
-        if not self._terminate(row["pid"], child):
+        if not self._terminate(row["pid"], child, child_pid=row["child_pid"],
+                                  worker_starttime=row["worker_start_ticks"],
+                                  child_starttime=row["child_start_ticks"]):
             self.audit.record("codex", "cancel_pending", job_id, "running", {"mode": row["mode"]})
             return {"job_id": job_id, "status": "running", "cancellation_pending": True}
         actor = "watchdog" if final_status == "timed_out" else "local_operator"

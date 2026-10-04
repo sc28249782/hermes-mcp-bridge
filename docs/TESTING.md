@@ -1,4 +1,4 @@
-# Validation record — v1.2.2 release (2026-09-23)
+# Validation record — v1.2.3 candidate
 
 Target contract reviewed: Hermes v0.21.1, commit 8d79c2ff.
 
@@ -31,7 +31,10 @@ Live acceptance is recorded in `LIVE-ACCEPTANCE-TH.md`: v1.0.0 RC2 validated 19-
 - MCP stdio and Hands fallback suites require 27-tool discovery, including `bridge_version`.
 - Codex regression covers the detached worker retaining a real exit record after the local approver instance exits.
 - WSL2 live acceptance passed CLI/MCP identity parity, unavailable-upstream behavior, and no secret/path leakage; the durable-worker acceptance separately passed exact marker bytes, terminal exit code, and JSONL result retrieval.
+## v1.2.3 implementation and acceptance contract
 
-## v1.2.3 planned contract
+The v1.2.3 maintenance scope is limited to the worker-supervision invariant in SPEC.md: a worker that is unavailable MUST NOT cause `unknown_exit` while its Codex child is still alive.
 
-The v1.2.3 maintenance scope is limited to the worker-supervision invariant in SPEC.md: a worker that is unavailable MUST NOT cause unknown_exit while its Codex child is still alive. Regression coverage MUST include worker-only loss, child liveness, delayed child exit, cancellation, PID reuse, and recovery races.
+Automated regression coverage includes worker-only loss, child liveness, delayed child exit, cancellation, restart recovery, PID-reuse start-time rejection, and a real unreaped-zombie liveness probe on Linux `/proc`. Automated CI passed on the current PR head.
+
+WSL2 live acceptance passed on commit `7755f1219a54dd4c8cef6d6d17482e8c8c983478`: worker-zombie/child-alive retained `running` with the redacted supervision hint; a later child exit without a terminal record became `unknown_exit`; and cancel after worker loss became `cancelled`. The project interpreter completed 75 tests without `ResourceWarning`. Independent review passed. The Phase A, Phase B, and Phase C release gates remain required before release.

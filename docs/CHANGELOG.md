@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased — v1.2.3
+
+- Preserve `running` when a durable worker is unavailable but its Codex child remains alive; expose only a redacted supervision-loss hint.
+- Persist worker/child process start times to reject reused PIDs during recovery and keep cancellation targeted at the original process group.
+- Treat Linux/WSL2 `/proc` state `Z` as not alive so an unreaped crashed worker cannot leave a dead job stuck in `running`.
+- Keep `terminal` and `approval` fields stable across running-state early returns.
+- Add regression coverage for worker-only loss, delayed child exit, fail-closed `unknown_exit`, PID-reuse detection, and an actual unreaped zombie process. Automated CI and WSL2 live acceptance passed on the current PR head; the 75-test WSL2 run has no `ResourceWarning`. Independent review passed; release remains pending.
+
 ## v1.2.2 — released (23 September 2026)
 
 - Added local-only `./bridge.sh version` and read-only MCP `bridge_version`; both identify the reached bridge without contacting Hermes, Codex, Tunnel, GitHub, or another network endpoint.

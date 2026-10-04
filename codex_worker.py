@@ -24,6 +24,18 @@ def _db(path: Path):
     return conn
 
 
+def _proc_starttime(pid: int) -> int | None:
+    try:
+        text = Path(f"/proc/{pid}/stat").read_text()
+        close = text.rfind(")")
+        fields = text[close + 2:].split()
+        if len(fields) <= 19:
+            return None
+        return int(fields[19])
+    except (OSError, ValueError, IndexError):
+        return None
+
+
 def _ready(fd: int, payload: dict) -> None:
     try:
         os.write(fd, (json.dumps(payload, separators=(",", ":")) + "\n").encode("utf-8"))
@@ -93,12 +105,14 @@ def supervise(state: Path, job_id: str, binary: str, ready_fd: int, audit_config
                 start_new_session=False,
                 shell=False,
             )
+            child_start_ticks = _proc_starttime(proc.pid)
             with _db(dbpath) as db:
                 db.execute(
-                    "UPDATE jobs SET child_pid=? WHERE job_id=? AND status='running' AND pid=?",
-                    (proc.pid, job_id, worker_pid),
+                    "UPDATE jobs SET child_pid=?,child_start_ticks=? WHERE job_id=? AND status='running' AND pid=?",
+                    (proc.pid, child_start_ticks, job_id, worker_pid),
                 )
-            _ready(ready_fd, {"ok": True, "child_pid": proc.pid})
+            _ready(ready_fd, {"ok": True, "child_pid": proc.pid,
+                              "child_start_ticks": child_start_ticks})
             try:
                 proc.stdin.write(row["prompt"].encode("utf-8"))
                 proc.stdin.close()
