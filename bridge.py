@@ -230,7 +230,8 @@ def main():
         oc = OpenCodeRunner.from_config(root)
         contexts = ContextRegistry(b.state, b.audit)
         if args.action == "serve":
-            server(b, c, h, contexts, oc).run(transport="stdio")
+            from stdio_guard import run_stdio_guarded  # SPEC.md section 17
+            run_stdio_guarded(server(b, c, h, contexts, oc))
             return
         if args.action == "diagnostics":
             output = {"hermes": b.diagnostics(), "codex": c.diagnostics(), "local_hands": h.diagnostics()}

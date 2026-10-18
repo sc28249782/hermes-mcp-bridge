@@ -105,3 +105,13 @@ Codex watchdog ตาม `codex.watchdog_interval_seconds` (ค่าเริ�
 เมื่อ disabled จะ fail closed ด้วย error `OpenCode integration is disabled in bridge-config.json; review docs/SECURITY.md before enabling it`
 
 ข้อจำกัด: live acceptance ยืนยันเฉพาะผล `--version` (`opencode v2.0.32`) ยังไม่มี task submission, sessions, events, cancellation หรือ permission integration bridge ไม่เพิ่ม sandbox — executable ที่กำหนดรันด้วยสิทธิ์เต็มของ bridge process และอ่าน global configuration/credentials ได้ จึงต้องอ่าน `SECURITY.md` ก่อนเปิดใช้ runner ไม่ส่ง `--auto` และ `--standalone` เป็น exclusive in-process private server ไม่ใช่ sandbox OpenCode CLI ต่างจาก provider `opencode-go` ใน Hermes config
+
+## Legacy stdio discovery guard (local-only, ยังไม่อยู่ใน release)
+
+อาการที่อาจเจอและสาเหตุ:
+
+- client ส่ง probe `server/discover` ผ่าน stdio แล้วได้ `-32601 Method not found` — พฤติกรรมตั้งใจตาม SPEC.md §17: guard ตอบที่ boundary ด้วย id เดิม ไม่มี params echo ไม่ถึง low-level server และไม่พิมพ์ payload ลง log ไม่ใช่ความผิดพลาดของ bridge
+- probe ซ้ำยังตอบ `-32601` ทุกครั้งแต่ไม่ flood log (มีแค่ constant-text debug line)
+- `initialize` / `notifications/initialized` / `tools/list` ต้องปกติ (27 tools; 28 เมื่อเปิด OpenCode adapter ตาม §16) — ถ้าจำนวน tools เปลี่ยน แปลว่า guard รั่ว ให้หยุดและรีวิว `stdio_guard.py`
+- method อื่นที่ไม่รู้จักยังได้ `-32602` พร้อม warning `Failed to validate request` จาก SDK เหมือนเดิม — guard ไม่กด warning ใด ๆ
+- ปิด stdin (EOF) แล้ว process ต้องออก rc=0; ถ้าค้างให้เช็คว่า `guarded_stdio_streams` finally มีการ cancel forwarder และปิด reply stream ครบ — guard ครอบเฉพาะ `bridge.py serve` (stdio) tunnel/HTTP ไม่เกี่ยว
