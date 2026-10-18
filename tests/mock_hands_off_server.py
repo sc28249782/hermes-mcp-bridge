@@ -27,4 +27,5 @@ with tempfile.TemporaryDirectory() as root:
                     httpx.MockTransport(unreachable))
     codex = CodexRunner({"binary": "/definitely-missing-codex", "allowed_workspaces": [root]},
                         root_path / "codex-state")
-    server(hermes, codex, hands, ContextRegistry(hermes.state, hermes.audit)).run(transport="stdio")
+    import stdio_guard
+    stdio_guard.run_stdio_guarded(server(hermes, codex, hands, ContextRegistry(hermes.state, hermes.audit)))

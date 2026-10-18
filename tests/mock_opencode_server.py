@@ -28,4 +28,5 @@ with tempfile.TemporaryDirectory() as root:
     (Path(root) / "fixture.txt").write_text("hands fixture")
     h = HandsRuntime({"enabled": True, "workspaces": [{"name": "fixture", "path": root}]}, Path(root))
     oc = OpenCodeRunner({"enabled": True, "binary": str(fake)})
-    server(b, c, h, ContextRegistry(b.state, b.audit), oc).run(transport="stdio")
+    import stdio_guard
+    stdio_guard.run_stdio_guarded(server(b, c, h, ContextRegistry(b.state, b.audit), oc))

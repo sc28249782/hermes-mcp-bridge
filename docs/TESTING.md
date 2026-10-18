@@ -52,3 +52,8 @@ Automated regression coverage includes worker-only loss, child liveness, delayed
 WSL2 live acceptance passed on commit `7755f1219a54dd4c8cef6d6d17482e8c8c983478`: worker-zombie/child-alive retained `running` with the redacted supervision hint; a later child exit without a terminal record became `unknown_exit`; and cancel after worker loss became `cancelled`. The project interpreter completed 75 tests without `ResourceWarning`. Independent review passed.
 
 Release verification passed for signed tag `v1.2.3` at `c610660637dbdcfa0b8ddb7bbf01ed22ae66055d`. The published archive SHA-256 is `c231f8563543dbfa9eafa240c5e8e15f44434103940352066e65b58162cb5458`. A fresh GitHub download passed both `sha256sum -c SHA256SUMS` and `unzip -t`.
+
+## Legacy stdio discovery guard (unreleased, local-only)
+
+- `tests/test_stdio_guard.py` (13 tests): in-memory boundary pump (int/string id reply shape, no params echo, notification pass-through, non-matching requests, metadata preservation, parse-error forwarding, forward failure logged once, EOF) + guarded `stdio_server` lifecycle + real-stdio subprocess probes (pre-init probe, legacy initialize/initialized/tools-list = 27 tools, repeated probes, unchanged `-32602` validation, clean EOF shutdown rc=0).
+- Run: `env -u PYTHONPATH /home/somchaip/workspace/hermes-mcp-bridge/.venv/bin/python -W error::ResourceWarning -m unittest tests.test_stdio_guard -v`

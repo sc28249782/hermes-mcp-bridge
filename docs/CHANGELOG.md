@@ -2,6 +2,8 @@
 
 ## Unreleased — OpenCode health foundation
 
+- Legacy stdio: guard `server/discover` ตอบ `-32601` ที่ boundary (same id, ไม่ echo params) และปิด context อย่างถูกต้อง (cancel forwarder, wake stdout writer ป้องกัน hang) — local-only ยังไม่อยู่ใน release (runtime ยังเป็น 1.2.3)
+
 - Add a disabled-by-default OpenCode adapter (`opencode_core.py`) with one additive read-only tool, `opencode_health`, registered only when the new `opencode` configuration section sets `enabled: true`. Discovery stays at 27 tools by default and becomes 28 tools when enabled.
 - The health check performs one bounded `--version` probe with a fixed argv list, `shell` disabled, a 1-120 second timeout (default 10), a per-stream memory cap (1024-1048576 bytes, default 65536), and process-group cleanup with `SIGTERM` escalation to `SIGKILL`. When disabled, the bridge fails closed and never spawns a process.
 - The adapter is a foundation only: task submission, sessions, JSON event output, cancellation, and permission handling are not implemented. No version bump.
