@@ -10,6 +10,8 @@ Specification: [SPEC.md](SPEC.md)
 จัดทำสำหรับ Hermes Agent v0.21.1, commit `8d79c2ff` ที่ผู้ใช้ยืนยัน
 วันที่ปรับปรุง: 4 ตุลาคม 2026 — v1.2.3 released; signed tag และ release assets ผ่านการตรวจแล้ว
 
+หมายเหตุ (18 ตุลาคม 2026): มี release candidate v1.2.4 เตรียมแบบ local บน branch `release/v1.2.4-prep` (OpenCode health adapter disabled by default และ legacy stdio discovery guard) candidate ยังไม่เผยแพร่และยังไม่ติดตั้ง รอ live tunnel acceptance คู่มือนี้จึงยังใช้กับ released v1.2.3 เท่านั้น
+
 ตัวกลางนี้ทำให้ ChatGPT ส่งงานให้ Hermes ที่รันอยู่บนเครื่องคุณ แล้วตรวจสถานะ อ่านผล และขอหยุดงานได้
 ใช้ Runs API เดียวกับที่ `hermes peer run/status/stop` เรียก แต่เรียก HTTP โดยตรง
 งานใหม่เริ่ม session ใหม่ ไม่ใช้ canonical “Bot Chat” ร่วมกับ peer อื่น

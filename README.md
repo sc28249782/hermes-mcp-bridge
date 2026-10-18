@@ -4,6 +4,8 @@ Securely connect ChatGPT to a local Hermes Agent and Codex CLI running in WSL2, 
 
 The bridge is a controlled local execution boundary, not a general remote shell. The current signed production release is **v1.2.3**. It has 27 MCP tools, local-only version/provenance reporting, and durable Codex worker supervision that preserves `running` while a worker is unavailable but its child remains alive.
 
+A **v1.2.4 release candidate** is prepared on the local branch `release/v1.2.4-prep`. It adds the disabled-by-default OpenCode health adapter (PR #34) and the legacy stdio discovery guard (PR #35). The candidate is not tagged, not published, and not installed; live tunnel acceptance is pending. The installation and upgrade instructions still target the released v1.2.3.
+
 ## OpenCode health (disabled by default)
 
 The bridge includes a disabled-by-default OpenCode adapter (`opencode_core.py`). Discovery stays at the canonical 27 tools while it is disabled. Enabling it registers one additive read-only tool, `opencode_health` (28 tools).
@@ -13,6 +15,10 @@ The bridge includes a disabled-by-default OpenCode adapter (`opencode_core.py`).
 - The health check runs one bounded `--version` probe with a fixed argv list, `shell` disabled, a hard timeout, and a per-stream memory cap. The probe group always receives `SIGTERM` and then `SIGKILL`, including descendants that hold pipes or ignore `SIGTERM`. Every group signal is delivered while the leader is still unreaped (its zombie pins the PID/PGID), exit is observed with a nonreaping `waitid` bounded by the probe deadline, and the leader is reaped once by handle after the final `SIGKILL`; if leader ownership is unknown, no signal is sent.
 - The configured executable is not a sandbox. It runs with the full user privileges of the bridge process and can read global configuration and credentials.
 - This is a foundation only. Task submission, sessions, JSON event output, cancellation, and permission handling are not implemented. No public submit tool exists until safe permissions are verified. Never pass `--auto` to a bridge-run OpenCode process.
+
+## Legacy stdio discovery guard
+
+On the legacy stdio serve path (`./bridge.sh serve`), an incoming `server/discover` request is answered at the stream boundary with a JSON-RPC `-32601` error carrying the original request id and no echoed parameters. The reply is an error, not a capability: discovery stays at the canonical 27 tools (28 with `opencode` enabled), repeated probes do not flood logs, and every other message is forwarded to the SDK unchanged. See SPEC.md section 17.
 
 ## Safety model
 

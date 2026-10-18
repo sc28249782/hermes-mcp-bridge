@@ -1,5 +1,11 @@
 # ผล Live Acceptance
 
+## v1.2.4 release candidate — live tunnel acceptance ยังไม่ execute (18 ตุลาคม 2026)
+
+- ยังไม่มี live Secure MCP Tunnel acceptance สำหรับ release candidate v1.2.4 (OpenCode health adapter disabled by default + legacy stdio discovery guard) สถานะจึงเป็น implemented + tested เท่านั้น ยังไม่ `accepted`
+- live acceptance เดียวที่บันทึกไว้สำหรับ adapter คือ `--version` จริงของ OpenCode CLI (`opencode v2.0.32`, 18 ตุลาคม 2026) ตามขอบเขต PR #34 — ไม่มี server start/stop
+- จนกว่า acceptance จะผ่านและ release เผยแพร่: ห้ามติดตั้ง candidate หรือ restart runtime การผลิต production ยังเป็น released v1.2.3
+
 ## v1.2.4 — MCP Events Dev probe: discovery confirmed, subscription unproven (4 ตุลาคม 2026)
 
 - รอบแรกบน Dev revision `897639028e718f4708c62bf2a595b89b5acd3636` ไม่มี protocol trace; คำตอบใน chat ว่า subscribe ไม่ได้และ “Stopped monitoring” ไม่ยืนยัน protocol outcome.

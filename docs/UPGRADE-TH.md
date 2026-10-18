@@ -143,8 +143,8 @@ bash tunnel.sh service-status
 
 หยุด tunnel v0.3.1 แล้วรัน `tunnel-client init` จากโฟลเดอร์ v0.2.0 ด้วย `--profile hermes-wsl`, `--mcp-command "$PWD/bridge.sh"` และ `--force` ไฟล์ state ต้นฉบับยังอยู่เพราะขั้นตอนย้ายเป็นการ copy
 
-## OpenCode adapter — ยังไม่มีขั้นตอนอัปเกรด
+## OpenCode adapter และ stdio guard — ยังไม่มีขั้นตอนอัปเกรด
 
-release production ล่าสุด (v1.2.3) ไม่รวม OpenCode health adapter; ฟีเจอร์นี้อยู่ใน draft PR #34 (branch `opencode-health-foundation`) เท่านั้นและยังไม่เผยแพร่ จึงไม่มีขั้นตอนอัปเกรดในเอกสารนี้ และห้ามติดตั้งจาก branch, upgrade หรือ restart การใช้งานจริงเพื่อใช้ฟีเจอร์นี้
+release production ล่าสุด (v1.2.3) ยังไม่รวม OpenCode health adapter และ legacy stdio discovery guard ทั้งสองรวมอยู่ใน release candidate v1.2.4 (PR #34, PR #35) ซึ่งยังไม่เผยแพร่และยังไม่ติดตั้ง จึงยังไม่มีขั้นตอนอัปเกรดในเอกสารนี้ และยังไม่ต้องติดตั้งจาก branch หรือ restart การใช้งานจริง จนกว่า release v1.2.4 จะเผยแพร่พร้อม live tunnel acceptance ที่ผ่าน
 
-เมื่อ adapter ตีพิมพ์ใน release จริงในอนาคต ให้ทำตามขั้นตอนอัปเกรดของ release นั้นเท่านั้น (`sha256sum -c SHA256SUMS`, แตก archive ไปยัง directory ใหม่, `bash install.sh` และ health checks ตาม RELEASE-RUNBOOK-TH.md) section `opencode` เป็น optional และ disabled by default — ไม่มีการเปิดใช้อัตโนมัติและไม่ต้องแก้ config ใด ๆ ระหว่างอัปเกรด
+เมื่อ release v1.2.4 เผยแพร่จริง ให้ทำตามขั้นตอนอัปเกรดของ release นั้นเท่านั้น (`sha256sum -c SHA256SUMS`, แตก archive ไปยัง directory ใหม่, `bash install.sh` และ health checks ตาม RELEASE-RUNBOOK-TH.md) section `opencode` เป็น optional และ disabled by default — ไม่มีการเปิดใช้อัตโนมัติและไม่ต้องแก้ config ใด ๆ ระหว่างอัปเกรด stdio guard ทำงานเองบน `bridge.py serve` โดยไม่ต้องแก้ config

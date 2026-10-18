@@ -2,10 +2,11 @@
 
 Status: normative contract for the released v1.2.3 baseline and explicitly marked future requirements  
 Current released baseline: v1.2.3  
-Draft amendment target: v1.2.4 MCP Events capability probe  
 Canonical companion: TESTING.md for the MCP discovery count
 
-Requirements marked for v1.2.4 are target-state requirements and MUST NOT be represented as current v1.2.3 behavior before their capability, implementation, and acceptance gates pass.
+Release candidate: v1.2.4 (local; not tagged, not published, not installed). The MCP Events amendment (section 15), originally the v1.2.4 target requirement, is deferred with no assigned release and remains blocked.
+
+Section 15 requirements are deferred target-state requirements with no assigned release and MUST NOT be represented as current v1.2.3 behavior before their capability, implementation, and acceptance gates pass. The v1.2.4 release candidate includes only the section 16 OpenCode health adapter and the section 17 legacy stdio discovery guard. Section 15 MCP Events is a future requirement and is not part of the candidate.
 
 ## 1. Purpose and scope
 
@@ -188,13 +189,13 @@ The following require a specification update before implementation is merged:
 
 v1.2.3 was limited to the durable-worker supervision invariant in section 7 and its tests, operational guidance, and acceptance evidence.
 
-v1.2.4 is capability-gated. Its first change is a Dev-only probe and specification amendment; no runtime event subscription or delivery may be claimed until the probe has passed. Local Hands mutation/execution remains deferred while this gate is evaluated.
+The MCP Events amendment (section 15) is capability-gated and deferred with no assigned release; it is no longer tied to the v1.2.4 release. Its first change is a Dev-only probe and specification amendment; no runtime event subscription or delivery may be claimed until the probe has passed. Local Hands mutation/execution remains deferred while this gate is evaluated.
 
-Separately, PR #34 (draft, unmerged, unreleased) amends this specification by adding section 16 for the OpenCode health adapter: an additive, disabled-by-default, health-only surface that is not part of the v1.2.3 baseline and carries no v1.2.4 Events claim.
+Separately, PR #34 (merged 2026-10-18) and PR #35 (merged 2026-10-18) amend this specification by adding section 16 for the OpenCode health adapter and section 17 for the legacy stdio discovery guard: additive surfaces that are not part of the v1.2.3 baseline and carry no v1.2.4 Events claim. Both sections ship in the local v1.2.4 release candidate, which is not tagged, not published, and not installed; live tunnel acceptance for that candidate is pending.
 
-## 15. MCP Events capability gate (v1.2.4 target requirement)
+## 15. MCP Events capability gate (deferred — no assigned release; BLOCKED)
 
-This section is a future requirement. The released v1.2.3 bridge has no MCP Events capability, subscription state, callback sender, or event delivery.
+This section is a future requirement, originally planned as the v1.2.4 target requirement; it is now deferred with no assigned release and remains blocked at the subscription gate. The released v1.2.3 bridge has no MCP Events capability, subscription state, callback sender, or event delivery.
 
 Before a runtime implementation is merged, a Dev Secure MCP Tunnel probe MUST demonstrate that authenticated MCP Events protocol 2.0 requests, signed HTTPS callback verification, one redacted event delivery, and unsubscribe work end-to-end in a ChatGPT Work chat. A failed or unsupported probe MUST stop the runtime Events track. Explicit user-directed polling through existing Hermes status/result tools remains permitted, but MUST NOT be described as push notification.
 
@@ -204,13 +205,13 @@ A later callback validator MUST use canonical, label-boundary host matching. An 
 
 A future subscription MUST be accepted only through an authenticated MCP Events protocol request after user confirmation in the Work chat. No ordinary MCP tool or CLI command may create a subscription or accept a model-derived callback URL. Callback URLs, signing secrets, prompts, outputs, credentials, detailed paths, and result content MUST NOT appear in events, audit output, diagnostics, or tool responses.
 
-The detailed Dev acceptance procedure is in V1.2.4-MCP-EVENTS-PROBE-TH.md.
+The detailed Dev acceptance procedure is in V1.2.4-MCP-EVENTS-PROBE-TH.md, which keeps its original v1.2.4 filename as a historical record; the filename remains a valid link.
 
-## 16. OpenCode health adapter (unreleased; introduced by PR #34)
+## 16. OpenCode health adapter (v1.2.4 release candidate; introduced by PR #34)
 
-This section is introduced by PR #34 and is not part of any released baseline. The released v1.2.3 bridge has no OpenCode adapter, no `opencode` configuration section, and no `opencode_health` tool. No release or version note may present this section as current released behavior. This amendment is the specification update required by sections 3, 4, and 14 for the conditional discovery-count change carried by PR #34.
+This section is introduced by PR #34 and is not part of any released baseline; it ships in the local v1.2.4 release candidate, which is not tagged, not published, and not installed. The released v1.2.3 bridge has no OpenCode adapter, no `opencode` configuration section, and no `opencode_health` tool. No release or version note may present this section as current v1.2.3 released behavior. This amendment is the specification update required by sections 3, 4, and 14 for the conditional discovery-count change carried by PR #34.
 
-The adapter is additive, disabled by default, and health-only. It MUST be represented as an explicitly unreleased PR-introduced surface until a future release record says otherwise.
+The adapter is additive, disabled by default, and health-only. It MUST be represented as a release-candidate surface that is absent from the released v1.2.3 baseline until a published release record says otherwise.
 
 - The `opencode` configuration section MUST default to disabled (`enabled` false). While disabled, the bridge MUST NOT register `opencode_health`, MUST NOT spawn a process, and MUST return an explicit fail-closed disabled result for every health call. Default MCP discovery MUST remain the canonical 27 tools.
 - Enabling MUST be an explicit operator configuration change that names an explicit `binary`. Configuration validation MUST reject: a non-boolean `enabled`; a non-integer or out-of-range `version_timeout_seconds` (1-120) or `max_output_bytes` (1024-1048576); a `binary` that is empty, longer than 4096 characters, not an absolute path, or contains any ASCII control character (0x00-0x1F and 0x7F); and a section that is enabled without a `binary`. Unknown keys in the section are warned and ignored, consistent with other optional sections.
@@ -223,9 +224,9 @@ The adapter is additive, disabled by default, and health-only. It MUST be repres
 - Acceptance mapping: the requirements above are proven by `tests/test_opencode.py` (disabled fail-closed, enabled validation including regular-executable checks, fixed argv and version reporting, symlink acceptance, malformed-version and nonzero-exit rejection, per-stream oversize caps, timeout termination, descendant cleanup, and the leader-reap ordering regression set `TestOpenCodeCleanupOrdering`), `tests/mock_opencode_server.py` with `tests/test_opencode.py` for enabled stdio discovery at 28 tools, and `tests/test_mcp.py` for the 27-tool default. The sole live acceptance surface is the real OpenCode CLI `--version`, recorded against v2.0.32 in WSL2. No other live surface is accepted, and this section claims no acceptance beyond it.
 
 
-## 17. Legacy stdio discovery compatibility (unreleased; local-only)
+## 17. Legacy stdio discovery compatibility (v1.2.4 release candidate; introduced by PR #35)
 
-This section is an unreleased compatibility boundary for the legacy stdio transport only. It is not part of any released baseline; no release or version note may present it as current released behavior. It is deliberately narrow:
+This section is a compatibility boundary for the legacy stdio transport only, introduced by PR #35. It is not part of any released baseline (the released v1.2.3 bridge predates the guard), so no release or version note may present it as current v1.2.3 behavior. It ships in the local v1.2.4 release candidate, which is not tagged, not published, and not installed. It is deliberately narrow:
 
 - The compatibility boundary applies ONLY to the legacy stdio serve path (`bridge.py serve` / `./bridge.sh serve` over `mcp.server.stdio.stdio_server()`). The tunnel-facing HTTP surfaces and the Dev `events_probe` fixture MUST show no change.
 - The guard MUST sit only at the official SDK stdio stream boundary (the streams `stdio_server()` yields and the bridge hands to the low-level server), operating on typed SDK message objects. Site-packages edits and global monkeypatching of the SDK MUST NOT be used.
