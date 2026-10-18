@@ -64,3 +64,44 @@ Codex watchdog ตาม `codex.watchdog_interval_seconds` (ค่าเริ�
 ## Migration จาก `allowed_workspaces`
 
 หาก config เดิมใช้ `codex.allowed_workspaces` แล้วเพิ่ม `codex.workspaces`, runtime จะใช้ `workspaces` เป็น policy source of truth. ต้องย้าย workspace เดิมทั้งหมดเป็น entries แบบ explicit ก่อน restart; อย่าเพิ่ม policy ทดสอบเพียงรายการเดียวจนทำให้ policy เดิมหาย. เก็บ backup mode 0600 และลบ policy ทดสอบหลัง acceptance.
+
+## OpenCode health adapter (draft PR #34 — ยังไม่อยู่ใน release)
+
+`opencode_health` อยู่ใน draft PR #34 (branch `opencode-health-foundation`) เท่านั้น ยังไม่อยู่ใน release ล่าสุด (v1.2.3) จึงห้ามติดตั้ง, อัปเกรด หรือ restart การใช้งานจริงเพื่อใช้ฟีเจอร์นี้ adapter เป็น disabled by default: ถ้าไม่มี section `opencode` หรือ `enabled` เป็น `false` discovery ยังอยู่ที่ canonical 27 tools และทุก health check fail closed โดยไม่ spawn process ใด ๆ เมื่อเปิดใช้ `opencode_health` ลงทะเบียนเพิ่มหนึ่ง read-only tool และ discovery เป็น 28 tools
+
+เมื่อเปิดใช้ (ต่อเมื่อ adapter ตีพิมพ์ใน release จริงแล้ว) ให้เพิ่ม section `opencode` ลงใน `bridge-config.json` แบบ merge — เก็บ key เดิมทั้งหมด ห้ามแทนที่ทั้งไฟล์:
+
+```json
+{
+  "opencode": {
+    "enabled": true,
+    "binary": "/home/<user>/.opencode/bin/opencode",
+    "version_timeout_seconds": 10,
+    "max_output_bytes": 65536
+  }
+}
+```
+
+- `enabled` (boolean, default `false`): เปิดด้วยมือเท่านั้น ไม่มี auto-enable
+- `binary` (จำเป็นเมื่อ enabled): absolute path เช่น `/home/<user>/.opencode/bin/opencode` ยาวไม่เกิน 4096 ตัวอักษร ไม่มี control characters และต้องเป็น regular executable file
+- `version_timeout_seconds` (1-120, default 10) และ `max_output_bytes` (1024-1048576, default 65536): ค่านอกช่วง reject ตอนโหลด config; key ที่ไม่รู้จักถูกเตือนและข้าม
+
+เรียกผ่าน MCP `tools/call` ชื่อ `opencode_health` (ไม่มี subcommand ของ `bridge.sh`): `{"name": "opencode_health", "arguments": {}}` เมื่อ enabled และ probe สำเร็จ ผลเป็น structured output ตรงตามนี้ (`version` มาจาก live acceptance จริง 2026-10-18):
+
+```json
+{
+  "ok": true,
+  "enabled": true,
+  "version": "opencode v2.0.32",
+  "binary": "/home/<user>/.opencode/bin/opencode",
+  "version_timeout_seconds": 10,
+  "max_output_bytes": 65536,
+  "probe": "bounded --version with fixed argv, shell disabled, process-group cleanup",
+  "execution_scope": "The probe runs the configured executable with the full privileges of the bridge process. The bridge adds no sandbox and makes no network, model, or authentication calls.",
+  "runner_scope": "health only; task submission, sessions, events, cancellation, and permission handling are not implemented"
+}
+```
+
+เมื่อ disabled จะ fail closed ด้วย error `OpenCode integration is disabled in bridge-config.json; review docs/SECURITY.md before enabling it`
+
+ข้อจำกัด: live acceptance ยืนยันเฉพาะผล `--version` (`opencode v2.0.32`) ยังไม่มี task submission, sessions, events, cancellation หรือ permission integration bridge ไม่เพิ่ม sandbox — executable ที่กำหนดรันด้วยสิทธิ์เต็มของ bridge process และอ่าน global configuration/credentials ได้ จึงต้องอ่าน `SECURITY.md` ก่อนเปิดใช้ runner ไม่ส่ง `--auto` และ `--standalone` เป็น exclusive in-process private server ไม่ใช่ sandbox OpenCode CLI ต่างจาก provider `opencode-go` ใน Hermes config
