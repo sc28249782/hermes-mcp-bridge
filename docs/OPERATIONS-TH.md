@@ -65,9 +65,9 @@ Codex watchdog ตาม `codex.watchdog_interval_seconds` (ค่าเริ�
 
 หาก config เดิมใช้ `codex.allowed_workspaces` แล้วเพิ่ม `codex.workspaces`, runtime จะใช้ `workspaces` เป็น policy source of truth. ต้องย้าย workspace เดิมทั้งหมดเป็น entries แบบ explicit ก่อน restart; อย่าเพิ่ม policy ทดสอบเพียงรายการเดียวจนทำให้ policy เดิมหาย. เก็บ backup mode 0600 และลบ policy ทดสอบหลัง acceptance.
 
-## OpenCode health adapter (draft PR #34 — ยังไม่อยู่ใน release)
+## OpenCode health adapter (รวมใน release candidate v1.2.4 — ยังไม่เผยแพร่ ยังไม่ติดตั้ง)
 
-`opencode_health` อยู่ใน draft PR #34 (branch `opencode-health-foundation`) เท่านั้น ยังไม่อยู่ใน release ล่าสุด (v1.2.3) จึงห้ามติดตั้ง, อัปเกรด หรือ restart การใช้งานจริงเพื่อใช้ฟีเจอร์นี้ adapter เป็น disabled by default: ถ้าไม่มี section `opencode` หรือ `enabled` เป็น `false` discovery ยังอยู่ที่ canonical 27 tools และทุก health check fail closed โดยไม่ spawn process ใด ๆ เมื่อเปิดใช้ `opencode_health` ลงทะเบียนเพิ่มหนึ่ง read-only tool และ discovery เป็น 28 tools
+adapter ถูกรวมแล้วใน release candidate v1.2.4 (PR #34) ซึ่งยังไม่เผยแพร่และยังไม่ติดตั้ง production ยังเป็น released v1.2.3 จึงยังไม่มีขั้นตอนติดตั้ง อัปเกรด หรือ restart สำหรับฟีเจอร์นี้จนกว่า release v1.2.4 จะเผยแพร่และผ่าน live tunnel acceptance adapter เป็น disabled by default: ถ้าไม่มี section `opencode` หรือ `enabled` เป็น `false` discovery ยังอยู่ที่ canonical 27 tools และทุก health check fail closed โดยไม่ spawn process ใด ๆ เมื่อเปิดใช้ `opencode_health` ลงทะเบียนเพิ่มหนึ่ง read-only tool และ discovery เป็น 28 tools
 
 เมื่อเปิดใช้ (ต่อเมื่อ adapter ตีพิมพ์ใน release จริงแล้ว) ให้เพิ่ม section `opencode` ลงใน `bridge-config.json` แบบ merge — เก็บ key เดิมทั้งหมด ห้ามแทนที่ทั้งไฟล์:
 
@@ -106,7 +106,7 @@ Codex watchdog ตาม `codex.watchdog_interval_seconds` (ค่าเริ�
 
 ข้อจำกัด: live acceptance ยืนยันเฉพาะผล `--version` (`opencode v2.0.32`) ยังไม่มี task submission, sessions, events, cancellation หรือ permission integration bridge ไม่เพิ่ม sandbox — executable ที่กำหนดรันด้วยสิทธิ์เต็มของ bridge process และอ่าน global configuration/credentials ได้ จึงต้องอ่าน `SECURITY.md` ก่อนเปิดใช้ runner ไม่ส่ง `--auto` และ `--standalone` เป็น exclusive in-process private server ไม่ใช่ sandbox OpenCode CLI ต่างจาก provider `opencode-go` ใน Hermes config
 
-## Legacy stdio discovery guard (local-only, ยังไม่อยู่ใน release)
+## Legacy stdio discovery guard (รวมใน release candidate v1.2.4 — ทำงานเองบน stdio ไม่ต้องแก้ config)
 
 อาการที่อาจเจอและสาเหตุ:
 

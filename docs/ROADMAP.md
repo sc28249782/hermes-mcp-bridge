@@ -77,6 +77,10 @@ The design, trust boundaries, proposed configuration, and tool contracts are in 
 
 ## v1.2.4 — Capability-gated MCP Events task-completion notifications
 
+Release candidate status (18 October 2026): PR #34 and PR #35 are merged at `0884482d8cf74d696b6c52a785282f65f2bd40fa` and are the only code surfaces in the local v1.2.4 release candidate (`release/v1.2.4-prep`) — the OpenCode health adapter (disabled by default) and the legacy stdio discovery guard. The Events runtime items below stay BLOCKED at the subscription gate and are not in the candidate. Pending before any tag: live Secure MCP Tunnel acceptance. No Local Hands mutation is in scope.
+
+- [x] Prepare the local v1.2.4 release candidate: documentation gate, `version_info.py` stamp (reviewed build input `0884482d8cf74d696b6c52a785282f65f2bd40fa`), packaging regression test, and a verified local archive built per RELEASE-RUNBOOK-TH.md Phase B without tag, publish, or upload.
+- [ ] Run live Secure MCP Tunnel acceptance for the candidate before tagging.
 - [x] Instrument the Dev fixture with redacted method/outcome tracing and an empty `tools/list` handler. A repeat Dev probe recorded successful `server/discover`, `tools/list`, and `events/list`; the plugin page showed `bridge.probe.ready`.
 - [ ] **Runtime track blocked before fixture subscription handling (4 October 2026):** two further Dev discovery sequences succeeded, but no `events/subscribe` reached the fixture in the supplied trace. Stop identical prompt retries. Reopen only after verifying client/workspace event-triggered task eligibility and capturing the protocol request; do not infer universal lack of Events support from a chat reply.
 - [ ] **Runtime delivery remains gated:** require documented subscription, verified callback, signed event receipt, and unsubscribe before implementing persistent subscriptions or Hermes terminal delivery. User-directed explicit `hermes_task_status` polling remains available.

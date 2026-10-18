@@ -1,4 +1,14 @@
-# Validation record — v1.2.3 release (2026-10-04)
+# Validation record — v1.2.4 release candidate (2026-10-18)
+
+## v1.2.4 candidate gates (local; not published, not installed)
+
+- Offline suite: all tests pass with the project-interpreter recipe below (`env -u PYTHONPATH`, `-W error::ResourceWarning`), including the 13 stdio-guard tests and the new packaging tests; `bash -n install.sh bridge.sh tunnel.sh` and `shellcheck -S warning install.sh bridge.sh tunnel.sh` pass.
+- Local archive candidate verification (Phase B minus tag/publish): ZIP structure test, exclusion check (no `.venv/`, `state/`, `.env`, `bridge-config.json*`, `.git/`, `__pycache__/`), re-extraction, `./bridge.sh version` from the extracted tree, and the extracted-tree stdio fixture probe (pre-init `server/discover` → `-32601` with the same id, no params echo, no log flood; `initialize` → `tools/list` = 27 tools; EOF → exit code 0). No real Hermes/Codex/OpenCode/provider call is made.
+- The optional 28-tool discovery is proven inside the suite by `tests/mock_opencode_server.py` with `tests/test_opencode.py`; the default and canonical count remains 27.
+- `tests/test_packaging.py` (new): derives `bridge.py`'s real root-module import surface and proves `opencode_core.py`, `stdio_guard.py`, and the three stdio fixture servers are present and git-tracked. `install.sh` runs from the extracted `git archive` and copies nothing, so an untracked module would silently break the release archive.
+- Pending: live Secure MCP Tunnel acceptance. Until it passes, the candidate is implemented and tested, not accepted and not released.
+
+## v1.2.3 release record (2026-10-04)
 
 Target contract reviewed: Hermes v0.21.1, commit 8d79c2ff.
 
@@ -53,7 +63,7 @@ WSL2 live acceptance passed on commit `7755f1219a54dd4c8cef6d6d17482e8c8c983478`
 
 Release verification passed for signed tag `v1.2.3` at `c610660637dbdcfa0b8ddb7bbf01ed22ae66055d`. The published archive SHA-256 is `c231f8563543dbfa9eafa240c5e8e15f44434103940352066e65b58162cb5458`. A fresh GitHub download passed both `sha256sum -c SHA256SUMS` and `unzip -t`.
 
-## Legacy stdio discovery guard (unreleased, local-only)
+## Legacy stdio discovery guard (v1.2.4 release candidate)
 
 - `tests/test_stdio_guard.py` (13 tests): in-memory boundary pump (int/string id reply shape, no params echo, notification pass-through, non-matching requests, metadata preservation, parse-error forwarding, forward failure logged once, EOF) + guarded `stdio_server` lifecycle + real-stdio subprocess probes (pre-init probe, legacy initialize/initialized/tools-list = 27 tools, repeated probes, unchanged `-32602` validation, clean EOF shutdown rc=0).
 - Run: `PROJECT_PYTHON=/absolute/path/to/bridge/.venv/bin/python` followed by `env -u PYTHONPATH "$PROJECT_PYTHON" -W error::ResourceWarning -m unittest discover -s tests`
