@@ -4,6 +4,16 @@ Securely connect ChatGPT to a local Hermes Agent and Codex CLI running in WSL2, 
 
 The bridge is a controlled local execution boundary, not a general remote shell. The current signed production release is **v1.2.3**. It has 27 MCP tools, local-only version/provenance reporting, and durable Codex worker supervision that preserves `running` while a worker is unavailable but its child remains alive.
 
+## OpenCode health (disabled by default)
+
+The bridge includes a disabled-by-default OpenCode adapter (`opencode_core.py`). Discovery stays at the canonical 27 tools while it is disabled. Enabling it registers one additive read-only tool, `opencode_health` (28 tools).
+
+- Configuration lives in `bridge-config.json` under `opencode`: `enabled` (default `false`), `binary` (absolute path to the OpenCode executable, required when enabled), `version_timeout_seconds` (1-120, default 10), and `max_output_bytes` (1024-1048576, default 65536). Unknown keys are warned and ignored.
+- When disabled, the bridge fails closed: it never spawns a process and makes no network, model, or authentication call.
+- The health check runs one bounded `--version` probe with a fixed argv list, `shell` disabled, a hard timeout, and a per-stream memory cap. The probe group always receives `SIGTERM` and then `SIGKILL`, including descendants that hold pipes or ignore `SIGTERM`.
+- The configured executable is not a sandbox. It runs with the full user privileges of the bridge process and can read global configuration and credentials.
+- This is a foundation only. Task submission, sessions, JSON event output, cancellation, and permission handling are not implemented. No public submit tool exists until safe permissions are verified. Never pass `--auto` to a bridge-run OpenCode process.
+
 ## Safety model
 
 - Hermes uses its authenticated local Runs API and its own approval policy.

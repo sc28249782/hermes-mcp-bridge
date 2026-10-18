@@ -39,7 +39,8 @@ def load_bridge_config(root: Path) -> tuple[dict, list[str]]:
         warnings.append("legacy configuration without schema_version; treated as schema version 1")
     elif version != 1:
         raise ConfigError("unsupported schema_version; expected 1")
-    _unknown(config, {"schema_version", "api_url", "hermes_env", "hermes_config", "hermes", "audit", "codex", "hands"},
+    _unknown(config, {"schema_version", "api_url", "hermes_env", "hermes_config", "hermes", "audit", "codex", "hands",
+                      "opencode"},
              "bridge-config", warnings)
     for key in ("api_url", "hermes_env"):
         if not isinstance(config.get(key), str) or not config[key]:
@@ -120,4 +121,22 @@ def load_bridge_config(root: Path) -> tuple[dict, list[str]]:
         paths.add(canonical)
     if hands.get("enabled", False) and not hands.get("workspaces", []):
         raise ConfigError("hands.enabled requires at least one workspace")
+    opencode = _object(config.get("opencode", {}), "opencode")
+    _unknown(opencode, {"enabled", "binary", "version_timeout_seconds", "max_output_bytes"},
+             "opencode", warnings)
+    if "enabled" in opencode and not isinstance(opencode["enabled"], bool):
+        raise ConfigError("opencode.enabled must be boolean")
+    for key, low, high in (("version_timeout_seconds", 1, 120), ("max_output_bytes", 1024, 1_048_576)):
+        if key in opencode:
+            _integer(opencode[key], f"opencode.{key}", low, high)
+    if "binary" in opencode:
+        binary = opencode["binary"]
+        if not isinstance(binary, str) or not binary or len(binary) > 4096:
+            raise ConfigError("opencode.binary must be a non-empty string up to 4096 characters")
+        if "\x00" in binary or "\n" in binary or "\r" in binary:
+            raise ConfigError("opencode.binary must not contain control characters")
+        if not Path(binary).expanduser().is_absolute():
+            raise ConfigError("opencode.binary must be an absolute path")
+    if opencode.get("enabled", False) and not opencode.get("binary"):
+        raise ConfigError("opencode.enabled requires an explicit opencode.binary path")
     return config, warnings

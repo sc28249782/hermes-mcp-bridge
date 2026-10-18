@@ -9,10 +9,11 @@ from core import Bridge, BridgeError
 from codex_core import CodexRunner, CodexError
 from hands_core import HandsRuntime, HandsError
 from contexts import ContextRegistry, ContextError
+from opencode_core import OpenCodeRunner, OpenCodeError
 from version_core import report as bridge_version_report
 
 
-def server(b, c, h, contexts):
+def server(b, c, h, contexts, opencode=None):
     from mcp.server.fastmcp import FastMCP
     from mcp.types import ToolAnnotations
     c.start_watchdog()
@@ -195,6 +196,14 @@ def server(b, c, h, contexts):
     def codex_recent_tasks() -> dict[str, Any]:
         """List the 30 most recent bridge-owned Codex jobs."""
         return c.recent()
+
+    if opencode is not None and opencode.enabled:
+        # Conditional registration: disabled by default, so the canonical
+        # discovery count stays at 27 tools until the operator enables it.
+        @m.tool(annotations=read, structured_output=True)
+        def opencode_health() -> dict[str, Any]:
+            """Check the configured OpenCode CLI executable with a bounded local version probe."""
+            return opencode.health()
     return m
 
 
@@ -218,9 +227,10 @@ def main():
             return
         b = Bridge.from_config()
         c = CodexRunner.from_config(root)
+        oc = OpenCodeRunner.from_config(root)
         contexts = ContextRegistry(b.state, b.audit)
         if args.action == "serve":
-            server(b, c, h, contexts).run(transport="stdio")
+            server(b, c, h, contexts, oc).run(transport="stdio")
             return
         if args.action == "diagnostics":
             output = {"hermes": b.diagnostics(), "codex": c.diagnostics(), "local_hands": h.diagnostics()}
@@ -261,7 +271,7 @@ def main():
                 return input(f"Type {word} to resolve only this request: ") == word
             output = b.resolve_local(args.run_id, "once" if args.action == "approve" else "deny", confirm)
         print(json.dumps(output, indent=2, ensure_ascii=False))
-    except (BridgeError, CodexError, HandsError, ContextError, OSError, ValueError, KeyError) as exc:
+    except (BridgeError, CodexError, HandsError, ContextError, OpenCodeError, OSError, ValueError, KeyError) as exc:
         print("Bridge error: " + str(exc), file=sys.stderr)
         raise SystemExit(1)
 

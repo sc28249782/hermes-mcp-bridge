@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased — OpenCode health foundation
+
+- Add a disabled-by-default OpenCode adapter (`opencode_core.py`) with one additive read-only tool, `opencode_health`, registered only when the new `opencode` configuration section sets `enabled: true`. Discovery stays at 27 tools by default and becomes 28 tools when enabled.
+- The health check performs one bounded `--version` probe with a fixed argv list, `shell` disabled, a 1-120 second timeout (default 10), a per-stream memory cap (1024-1048576 bytes, default 65536), and process-group cleanup with `SIGTERM` escalation to `SIGKILL`. When disabled, the bridge fails closed and never spawns a process.
+- The adapter is a foundation only: task submission, sessions, JSON event output, cancellation, and permission handling are not implemented. No version bump.
+
 ## Unreleased — v1.2.4 capability probe
 
 - Dev trace confirmed successful `server/discover`, `tools/list`, and `events/list`; the plugin page displayed `bridge.probe.ready`.
