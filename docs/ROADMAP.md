@@ -75,12 +75,17 @@ The design, trust boundaries, proposed configuration, and tool contracts are in 
 - [x] Complete independent review before the v1.2.3 release gates.
 - [x] Complete the Phase A, Phase B, and Phase C release gates for v1.2.3.
 
-## v1.2.4 — Capability-gated MCP Events task-completion notifications
+## v1.2.4 — Maintenance release candidate (OpenCode health adapter, legacy stdio discovery guard)
 
-Release candidate status (18 October 2026): PR #34 and PR #35 are merged at `0884482d8cf74d696b6c52a785282f65f2bd40fa` and are the only code surfaces in the local v1.2.4 release candidate (`release/v1.2.4-prep`) — the OpenCode health adapter (disabled by default) and the legacy stdio discovery guard. The Events runtime items below stay BLOCKED at the subscription gate and are not in the candidate. Pending before any tag: live Secure MCP Tunnel acceptance. No Local Hands mutation is in scope.
+Release candidate status (18 October 2026): PR #34 and PR #35 are merged at `0884482d8cf74d696b6c52a785282f65f2bd40fa` and are the only code surfaces in the local v1.2.4 release candidate (`release/v1.2.4-prep`) — the OpenCode health adapter (disabled by default) and the legacy stdio discovery guard. The capability-gated MCP Events track is not part of this candidate: originally planned as the v1.2.4 release target, it is deferred to the unversioned BLOCKED section below with no assigned release. Pending before any tag: live Secure MCP Tunnel acceptance. No Local Hands mutation is in scope.
 
 - [x] Prepare the local v1.2.4 release candidate: documentation gate, `version_info.py` stamp (reviewed build input `0884482d8cf74d696b6c52a785282f65f2bd40fa`), packaging regression test, and a verified local archive built per RELEASE-RUNBOOK-TH.md Phase B without tag, publish, or upload.
 - [ ] Run live Secure MCP Tunnel acceptance for the candidate before tagging.
+
+## Deferred — Capability-gated MCP Events task-completion notifications (BLOCKED)
+
+> Deferral note (18 October 2026): this track was originally planned as the v1.2.4 release target ("Capability-gated MCP Events task-completion notifications"). It is now deferred with no assigned release and remains BLOCKED at the subscription gate. The historical documents [V1.2.4-MCP-EVENTS-PROBE-TH.md](V1.2.4-MCP-EVENTS-PROBE-TH.md) and [V1.2.4-MCP-EVENTS-PLAN-TH.md](V1.2.4-MCP-EVENTS-PLAN-TH.md) keep their original v1.2.4 filenames and titles as evidence; those filenames remain valid links.
+
 - [x] Instrument the Dev fixture with redacted method/outcome tracing and an empty `tools/list` handler. A repeat Dev probe recorded successful `server/discover`, `tools/list`, and `events/list`; the plugin page showed `bridge.probe.ready`.
 - [ ] **Runtime track blocked before fixture subscription handling (4 October 2026):** two further Dev discovery sequences succeeded, but no `events/subscribe` reached the fixture in the supplied trace. Stop identical prompt retries. Reopen only after verifying client/workspace event-triggered task eligibility and capturing the protocol request; do not infer universal lack of Events support from a chat reply.
 - [ ] **Runtime delivery remains gated:** require documented subscription, verified callback, signed event receipt, and unsubscribe before implementing persistent subscriptions or Hermes terminal delivery. User-directed explicit `hermes_task_status` polling remains available.
@@ -109,7 +114,7 @@ Release candidate status (18 October 2026): PR #34 and PR #35 are merged at `088
 
 ## Deferred — v1.3.0 Approval-bound mutation and execution
 
-> v1.3.0 is intentionally paused while v1.2.4 establishes reliable, user-subscribed terminal-status delivery for Hermes work. No Local Hands mutation or execution capability is in the v1.2.4 scope.
+> v1.3.0 is intentionally paused until the bridge establishes reliable, user-subscribed Hermes terminal-status delivery — a capability requirement (the deferred, BLOCKED MCP Events track above has no assigned release), not a dependency on any numeric version. No Local Hands mutation or execution capability is in the v1.2.4 maintenance-candidate scope.
 
 - [ ] Add `hands_write`, `hands_patch`, `hands_exec`, and `hands_process` after v1.2.0 read-only live acceptance and feedback.
 - [ ] Implement canonical action digests exactly as [ADR-0001](adr/0001-local-hands-foundation.md) specifies: versioned deterministic JSON bytes plus SHA-256, immutable persisted payload/blob reference, TTL, one-time use, and revalidation at execution.

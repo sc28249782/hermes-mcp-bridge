@@ -6,7 +6,7 @@
 - สถานะ: implemented + tested เท่านั้น offline regression suite ผ่านครบด้วย project venv และ `-W error::ResourceWarning`; `bash -n` และ shellcheck ผ่าน live Secure MCP Tunnel acceptance ยังไม่ execute จึงยังไม่ถือว่า `accepted` และยังไม่ `released`
 - `version_info.py` stamp: `RELEASE_IDENTIFIER` เป็น `v1.2.4`, `BUILD_PROVENANCE` เป็น `release`, `EMBEDDED_SOURCE_REVISION` เป็น `0884482d8cf74d696b6c52a785282f65f2bd40fa` (reviewed build input ตามแบบ v1.2.3; signed tag ในอนาคตคือ authority ของ final commit)
 - Local archive candidate สร้างจาก candidate commit ตาม RELEASE-RUNBOOK-TH Phase B ยกเว้นขั้น tag/publish: ตรวจ ZIP structure, ตรวจว่าไม่มี `.venv/`, `state/`, `.env`, `bridge-config.json*` หรือ `.git/` ใน archive, re-extract แล้วรัน `./bridge.sh version` และ stdio fixture probe จาก tree ที่แตกแล้ว; checksum ไม่ถูก commit ลง source tree (ห้าม self-reference) และยังไม่มีการอัปโหลด
-- MCP Events (SPEC.md section 15) ยัง BLOCKED ที่ subscription gate เหมือนเดิม และไม่อยู่ใน candidate นี้ — ไม่มี event channel หรือ capability ใหม่
+- MCP Events (SPEC.md section 15) ยัง BLOCKED ที่ subscription gate เหมือนเดิม และไม่อยู่ใน candidate นี้ — งานนี้ถูกเลื่อนออกจาก v1.2.4 เป็นงานไม่ผูกเวอร์ชัน (deferred, no assigned release) ไม่มี event channel หรือ capability ใหม่
 
 ## v1.2.3 — released (4 ตุลาคม 2026)
 

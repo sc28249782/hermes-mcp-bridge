@@ -4,9 +4,9 @@ Status: normative contract for the released v1.2.3 baseline and explicitly marke
 Current released baseline: v1.2.3  
 Canonical companion: TESTING.md for the MCP discovery count
 
-Release candidate: v1.2.4 (local; not tagged, not published, not installed). The Events amendment target (MCP Events capability probe, section 15) is still blocked.
+Release candidate: v1.2.4 (local; not tagged, not published, not installed). The MCP Events amendment (section 15), originally the v1.2.4 target requirement, is deferred with no assigned release and remains blocked.
 
-Requirements marked for v1.2.4 are target-state requirements and MUST NOT be represented as current v1.2.3 behavior before their capability, implementation, and acceptance gates pass. The v1.2.4 release candidate includes only the section 16 OpenCode health adapter and the section 17 legacy stdio discovery guard. Section 15 MCP Events remains a future requirement and is not part of the candidate.
+Section 15 requirements are deferred target-state requirements with no assigned release and MUST NOT be represented as current v1.2.3 behavior before their capability, implementation, and acceptance gates pass. The v1.2.4 release candidate includes only the section 16 OpenCode health adapter and the section 17 legacy stdio discovery guard. Section 15 MCP Events is a future requirement and is not part of the candidate.
 
 ## 1. Purpose and scope
 
@@ -189,13 +189,13 @@ The following require a specification update before implementation is merged:
 
 v1.2.3 was limited to the durable-worker supervision invariant in section 7 and its tests, operational guidance, and acceptance evidence.
 
-v1.2.4 is capability-gated. Its first change is a Dev-only probe and specification amendment; no runtime event subscription or delivery may be claimed until the probe has passed. Local Hands mutation/execution remains deferred while this gate is evaluated.
+The MCP Events amendment (section 15) is capability-gated and deferred with no assigned release; it is no longer tied to the v1.2.4 release. Its first change is a Dev-only probe and specification amendment; no runtime event subscription or delivery may be claimed until the probe has passed. Local Hands mutation/execution remains deferred while this gate is evaluated.
 
 Separately, PR #34 (merged 2026-10-18) and PR #35 (merged 2026-10-18) amend this specification by adding section 16 for the OpenCode health adapter and section 17 for the legacy stdio discovery guard: additive surfaces that are not part of the v1.2.3 baseline and carry no v1.2.4 Events claim. Both sections ship in the local v1.2.4 release candidate, which is not tagged, not published, and not installed; live tunnel acceptance for that candidate is pending.
 
-## 15. MCP Events capability gate (v1.2.4 target requirement)
+## 15. MCP Events capability gate (deferred — no assigned release; BLOCKED)
 
-This section is a future requirement. The released v1.2.3 bridge has no MCP Events capability, subscription state, callback sender, or event delivery.
+This section is a future requirement, originally planned as the v1.2.4 target requirement; it is now deferred with no assigned release and remains blocked at the subscription gate. The released v1.2.3 bridge has no MCP Events capability, subscription state, callback sender, or event delivery.
 
 Before a runtime implementation is merged, a Dev Secure MCP Tunnel probe MUST demonstrate that authenticated MCP Events protocol 2.0 requests, signed HTTPS callback verification, one redacted event delivery, and unsubscribe work end-to-end in a ChatGPT Work chat. A failed or unsupported probe MUST stop the runtime Events track. Explicit user-directed polling through existing Hermes status/result tools remains permitted, but MUST NOT be described as push notification.
 
@@ -205,7 +205,7 @@ A later callback validator MUST use canonical, label-boundary host matching. An 
 
 A future subscription MUST be accepted only through an authenticated MCP Events protocol request after user confirmation in the Work chat. No ordinary MCP tool or CLI command may create a subscription or accept a model-derived callback URL. Callback URLs, signing secrets, prompts, outputs, credentials, detailed paths, and result content MUST NOT appear in events, audit output, diagnostics, or tool responses.
 
-The detailed Dev acceptance procedure is in V1.2.4-MCP-EVENTS-PROBE-TH.md.
+The detailed Dev acceptance procedure is in V1.2.4-MCP-EVENTS-PROBE-TH.md, which keeps its original v1.2.4 filename as a historical record; the filename remains a valid link.
 
 ## 16. OpenCode health adapter (v1.2.4 release candidate; introduced by PR #34)
 
