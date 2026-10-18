@@ -8,6 +8,7 @@
 - Fix (review): the version probe no longer reaps the probe leader before the final group signal. Exit is observed with nonreaping `os.waitid` (`WEXITED|WNOHANG|WNOWAIT`, Linux) bounded by the same overall deadline as the drain; `SIGTERM`, the grace wait, and `SIGKILL` all happen while the unreaped leader pins the PGID; the single reap follows the final `SIGKILL` by handle; unknown leader ownership sends no signal. Regression tests record the real signal/wait ordering on the success, nonzero-exit, timeout, and pipe-descendant paths.
 - Config validation now rejects every ASCII control character (0x00-0x1F and 0x7F) in `opencode.binary`, not only NUL/CR/LF. Removed the unused 300-character version cap; the version regex already bounds the string to 200 characters.
 - Live acceptance recorded for `--version` ONLY against the real OpenCode CLI (WSL2, in-memory configuration, no settings change): `ok: true`, version `opencode v2.0.32`. Task submission, sessions, JSON event output, cancellation, and permissions remain unverified.
+- SPEC.md: add section 16 as the normative contract for the OpenCode health adapter (review amendment, PR #34). It marks the surface as unreleased and disabled by default, and maps each requirement to the existing offline tests and the v2.0.32 `--version` live acceptance only. Section 14 records the amendment as a separate PR-introduced change with no v1.2.4 Events claim.
 
 ## Unreleased — v1.2.4 capability probe
 
