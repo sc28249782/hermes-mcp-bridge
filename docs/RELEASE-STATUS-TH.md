@@ -1,6 +1,14 @@
 # Release status
 
-## v1.2.4 — release candidate (local; ยังไม่เผยแพร่ ยังไม่ติดตั้ง — 18 ตุลาคม 2026)
+## v1.2.4 — released (18 ตุลาคม 2026)
+
+- เผยแพร่ผ่าน annotated tag `v1.2.4` ที่เซ็น GPG (EDDSA fingerprint `C4E9AFA9C97FC94CA2448E9218BDAEA561529B86`) บน main commit `213305638c135041c42a3f242d6c5665c49c3fdf` (tag object `191ec44e979739659d042ff7306446a2db0639fc`); `git verify-tag` ผ่านทั้ง local และจาก remote object ที่ fetch สด
+- ทรัพยากร release: https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.4 มีเฉพาะ `hermes-mcp-bridge-v1.2.4.zip` (SHA-256 `e6deb0e6ab16d669836b0e361e2e875858e19597ef35dc7e4fc19010a6a5f3a9`; 65 ไฟล์ใต้ root `hermes-mcp-bridge-v1.2.4/`; สร้างจาก signed tag) และ SHA256SUMS ภายนอก (ไม่ถูก commit ลง source tree)
+- ตรวจซ้ำจากการดาวน์โหลดจริงจาก GitHub: `sha256sum -c SHA256SUMS` ผ่าน, `cmp` กับไฟล์ build เท่ากันทุก byte, re-extract แล้ว `bridge.py version` รายงาน version `1.2.4` / release identifier `v1.2.4` / build_provenance `release` / source_kind `release-archive` / source_revision `0884482d8cf74d696b6c52a785282f65f2bd40fa` (embedded build input) / discovery 27
+- production runtime ยังเป็น released v1.2.3; ทั้งหมดนี้ไม่ต้องมี rollout, service, config หรือการเปลี่ยน runtime
+- บันทึก historical ระหว่าง candidate อยู่ด้านล่างครบถ้วน ไม่มีการรื้อ
+
+## v1.2.4 — release candidate (historical; event ตามหลักฐานเดิม — 2026-10-18)
 
 - Scope คือ PR #34 (OpenCode health adapter, disabled by default) และ PR #35 (legacy stdio discovery guard) ทั้งสอง merge แล้วที่ `main` commit `0884482d8cf74d696b6c52a785282f65f2bd40fa` candidate ยังไม่มี signed tag, ไม่เผยแพร่, และไม่ติดตั้งลง runtime การผลิต — production ยังเป็น released v1.2.3
 - สถานะ: implemented + tested + live smoke บน Dev route จริงแล้ว (18 ตุลาคม 2026) offline regression suite ผ่านครบด้วย project venv และ `-W error::ResourceWarning`; `bash -n` และ shellcheck ผ่าน ผล live acceptance เป็น bounded PASS — identity/status/tool visibility ของ candidate ยืนยันผ่าน plugin Dev จริง แต่ `server/discover` → `-32601` บน tunnel สังเกตไม่ได้เพราะ dispatcher log ไม่บันทึก method/outcome code (ตารางผ่าน/ไม่สังเกตได้/ค้าง อยู่ใน [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md)) ยังไม่ `released` และยังไม่ติด tag — release gates ที่เหลือ: รีวิว acceptance record นี้, archive สุดท้ายจาก signed tag และ tag/sign/publish ตาม RELEASE-RUNBOOK-TH

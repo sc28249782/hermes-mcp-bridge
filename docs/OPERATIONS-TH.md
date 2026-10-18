@@ -65,11 +65,11 @@ Codex watchdog ตาม `codex.watchdog_interval_seconds` (ค่าเริ�
 
 หาก config เดิมใช้ `codex.allowed_workspaces` แล้วเพิ่ม `codex.workspaces`, runtime จะใช้ `workspaces` เป็น policy source of truth. ต้องย้าย workspace เดิมทั้งหมดเป็น entries แบบ explicit ก่อน restart; อย่าเพิ่ม policy ทดสอบเพียงรายการเดียวจนทำให้ policy เดิมหาย. เก็บ backup mode 0600 และลบ policy ทดสอบหลัง acceptance.
 
-## OpenCode health adapter (รวมใน release candidate v1.2.4 — ยังไม่เผยแพร่ ยังไม่ติดตั้ง)
+## OpenCode health adapter (released v1.2.4 — 18 ตุลาคม 2026; production deployment ยัง v1.2.3)
 
-adapter ถูกรวมแล้วใน release candidate v1.2.4 (PR #34) ซึ่งยังไม่เผยแพร่และยังไม่ติดตั้ง production ยังเป็น released v1.2.3 จึงยังไม่มีขั้นตอนติดตั้ง อัปเกรด หรือ restart สำหรับฟีเจอร์นี้จนกว่า release v1.2.4 จะเผยแพร่และผ่าน live tunnel acceptance adapter เป็น disabled by default: ถ้าไม่มี section `opencode` หรือ `enabled` เป็น `false` discovery ยังอยู่ที่ canonical 27 tools และทุก health check fail closed โดยไม่ spawn process ใด ๆ เมื่อเปิดใช้ `opencode_health` ลงทะเบียนเพิ่มหนึ่ง read-only tool และ discovery เป็น 28 tools
+adapter ถูกรวมแล้วใน released v1.2.4 (PR #34) ซึ่งเผยแพร่แล้วผ่าน signed tag production deployment ยังรัน released v1.2.3 จึงยังไม่จำเป็นต้องมีขั้นตอนติดตั้ง อัปเกรด หรือ restart ใด ๆ จาก release นี้ adapter เป็น disabled by default: ถ้าไม่มี section `opencode` หรือ `enabled` เป็น `false` discovery ยังอยู่ที่ canonical 27 tools และทุก health check fail closed โดยไม่ spawn process ใด ๆ เมื่อเปิดใช้ `opencode_health` ลงทะเบียนเพิ่มหนึ่ง read-only tool และ discovery เป็น 28 tools
 
-เมื่อเปิดใช้ (ต่อเมื่อ adapter ตีพิมพ์ใน release จริงแล้ว) ให้เพิ่ม section `opencode` ลงใน `bridge-config.json` แบบ merge — เก็บ key เดิมทั้งหมด ห้ามแทนที่ทั้งไฟล์:
+เมื่อเปิดใช้ (adapter ตีพิมพ์แล้วใน released v1.2.4) ให้เพิ่ม section `opencode` ลงใน `bridge-config.json` แบบ merge — เก็บ key เดิมทั้งหมด ห้ามแทนที่ทั้งไฟล์:
 
 ```json
 {
