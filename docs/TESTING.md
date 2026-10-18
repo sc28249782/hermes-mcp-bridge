@@ -1,6 +1,8 @@
-# Validation record — v1.2.4 release candidate (2026-10-18)
+# Validation record — v1.2.4 (2026-10-18)
 
-## v1.2.4 candidate gates (local; not published, not installed)
+## v1.2.4 candidate gates (historical pre-tag record; v1.2.4 released 2026-10-18)
+
+> สถานะอัปเดต (18 ตุลาคม 2026): v1.2.4 เผยแพร่แล้วผ่าน signed tag พร้อม release assets ที่ตรวจแล้ว (ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)) ข้อความ "not published, not installed" และรายการ "Pending: live Secure MCP Tunnel acceptance" ด้านล่างคงไว้เป็นหลักฐานก่อน tag ตามเดิม; live tunnel acceptance เกิดขึ้นจริงในวันเดียวกันเป็น bounded PASS บน Dev route (ดู [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md))
 
 - Offline suite: all tests pass with the project-interpreter recipe below (`env -u PYTHONPATH`, `-W error::ResourceWarning`), including the 13 stdio-guard tests and the new packaging tests; `bash -n install.sh bridge.sh tunnel.sh` and `shellcheck -S warning install.sh bridge.sh tunnel.sh` pass.
 - Local archive candidate verification (Phase B minus tag/publish): ZIP structure test, exclusion check (no `.venv/`, `state/`, `.env`, `bridge-config.json*`, `.git/`, `__pycache__/`), re-extraction, `./bridge.sh version` from the extracted tree, and the extracted-tree stdio fixture probe (pre-init `server/discover` → `-32601` with the same id, no params echo, no log flood; `initialize` → `tools/list` = 27 tools; EOF → exit code 0). No real Hermes/Codex/OpenCode/provider call is made.
@@ -14,7 +16,7 @@ Target contract reviewed: Hermes v0.21.1, commit 8d79c2ff.
 
 ## MCP tool contract (canonical count)
 
-The normative bridge contract is defined in [SPEC.md](SPEC.md). The canonical discovery contract for v1.2.2 is **27 tools**: v1.2.1's 26 plus local-only `bridge_version`. Other documents should refer here instead of maintaining an independent count. `bridge_version` and `./bridge.sh version` must agree on shared identity fields and must not contact Hermes, Codex, Tunnel, GitHub, or another network endpoint.
+The normative bridge contract is defined in [SPEC.md](SPEC.md). The canonical discovery contract is **27 tools** (unchanged since v1.2.2: v1.2.1's 26 plus local-only `bridge_version`); it becomes 28 tools when `opencode` is enabled. Other documents should refer here instead of maintaining an independent count. `bridge_version` and `./bridge.sh version` must agree on shared identity fields and must not contact Hermes, Codex, Tunnel, GitHub, or another network endpoint.
 
 ## Current context and Hands coverage
 
@@ -63,7 +65,7 @@ WSL2 live acceptance passed on commit `7755f1219a54dd4c8cef6d6d17482e8c8c983478`
 
 Release verification passed for signed tag `v1.2.3` at `c610660637dbdcfa0b8ddb7bbf01ed22ae66055d`. The published archive SHA-256 is `c231f8563543dbfa9eafa240c5e8e15f44434103940352066e65b58162cb5458`. A fresh GitHub download passed both `sha256sum -c SHA256SUMS` and `unzip -t`.
 
-## Legacy stdio discovery guard (v1.2.4 release candidate)
+## Legacy stdio discovery guard (released v1.2.4)
 
 - `tests/test_stdio_guard.py` (13 tests): in-memory boundary pump (int/string id reply shape, no params echo, notification pass-through, non-matching requests, metadata preservation, parse-error forwarding, forward failure logged once, EOF) + guarded `stdio_server` lifecycle + real-stdio subprocess probes (pre-init probe, legacy initialize/initialized/tools-list = 27 tools, repeated probes, unchanged `-32602` validation, clean EOF shutdown rc=0).
 - Run: `PROJECT_PYTHON=/absolute/path/to/bridge/.venv/bin/python` followed by `env -u PYTHONPATH "$PROJECT_PYTHON" -W error::ResourceWarning -m unittest discover -s tests`

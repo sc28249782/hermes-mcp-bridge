@@ -1,16 +1,18 @@
-# Hermes MCP Bridge v1.2.3 release — Hermes + Codex/WSL2 / ChatGPT
+# Hermes MCP Bridge v1.2.4 release — Hermes + Codex/WSL2 / ChatGPT
 
 [![Tests](https://github.com/sc28249782/hermes-mcp-bridge/actions/workflows/tests.yml/badge.svg)](https://github.com/sc28249782/hermes-mcp-bridge/actions/workflows/tests.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](../LICENSE)
 
 Repository: https://github.com/sc28249782/hermes-mcp-bridge  
 Specification: [SPEC.md](SPEC.md)  
+Release status: [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)  
+Operations: [OPERATIONS-TH.md](OPERATIONS-TH.md)  
 จุดเริ่มต้นของโครงการ: [Project origin](PROJECT-ORIGIN.md)
 
 จัดทำสำหรับ Hermes Agent v0.21.1, commit `8d79c2ff` ที่ผู้ใช้ยืนยัน
-วันที่ปรับปรุง: 4 ตุลาคม 2026 — v1.2.3 released; signed tag และ release assets ผ่านการตรวจแล้ว
+วันที่ปรับปรุง: 18 ตุลาคม 2026 — v1.2.4 released; signed tag และ release assets ผ่านการตรวจแล้ว
 
-หมายเหตุ (18 ตุลาคม 2026): มี release candidate v1.2.4 เตรียมแบบ local บน branch `release/v1.2.4-prep` (OpenCode health adapter disabled by default และ legacy stdio discovery guard) candidate ยังไม่เผยแพร่และยังไม่ติดตั้ง รอ live tunnel acceptance คู่มือนี้จึงยังใช้กับ released v1.2.3 เท่านั้น
+หมายเหตุ (18 ตุลาคม 2026): released v1.2.4 เผยแพร่แล้วผ่าน signed tag (ZIP ตรวจแล้วจากการดาวน์โหลดจริง; ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)) โดยเพิ่ม OpenCode health adapter แบบ disabled by default และ legacy stdio discovery guard คู่มือนี้อัปเดตให้ติดตั้ง released v1.2.4 การอัปเกรด deployment ที่ผลิตจริงเป็นดุลยพินิจของ operator (ยังรัน v1.2.3 เดิมได้)
 
 ตัวกลางนี้ทำให้ ChatGPT ส่งงานให้ Hermes ที่รันอยู่บนเครื่องคุณ แล้วตรวจสถานะ อ่านผล และขอหยุดงานได้
 ใช้ Runs API เดียวกับที่ `hermes peer run/status/stop` เรียก แต่เรียก HTTP โดยตรง
@@ -33,25 +35,26 @@ Specification: [SPEC.md](SPEC.md)
 - มีเมนู Developer mode และ Connection → Tunnel
 - ยังต้องสร้าง tunnel ใน OpenAI Platform, ติดตั้ง tunnel-client และเชื่อม Plugin
 - v1.2.1 ผ่าน regression 63/63 โดยใช้ project `.venv/bin/python` พร้อม `-W error::ResourceWarning`, shellcheck และ Bash syntax; Live Acceptance ผ่าน Hermes context ข้าม ChatGPT chat, Codex metadata-only binding, closed-context denial และ audit redaction
-- v1.2.3 ผ่าน 75 regression tests, WSL2 worker-supervision acceptance และ independent review. ดาวน์โหลด production archive และ external `SHA256SUMS` จาก release v1.2.3 เท่านั้น
+- v1.2.3 ผ่าน 75 regression tests, WSL2 worker-supervision acceptance และ independent review
+- v1.2.4 ผ่าน 129 regression tests รวม stdio-guard และ packaging tests, live tunnel acceptance แบบ bounded PASS บน Dev route และการตรวจ release assets หลังดาวน์โหลด (ดู [TESTING.md](TESTING.md) และ [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)) ดาวน์โหลด production archive และ external `SHA256SUMS` จาก [GitHub Release v1.2.4](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.4) เท่านั้น
 
 อัปเกรดจาก bridge รุ่นก่อนใช้ [UPGRADE-TH.md](UPGRADE-TH.md) ก่อนเริ่ม tunnel รุ่นใหม่ โดยเฉพาะหากต้องการเก็บ session/state เดิม
 
 ## 1. ติดตั้งตัวกลางใน WSL2
 
-ดาวน์โหลดทั้ง `hermes-mcp-bridge-v1.2.3.zip` และ `SHA256SUMS` จาก [GitHub Release v1.2.3](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.3) แล้ววางทั้งสองไฟล์ไว้ในโฟลเดอร์ Linux ของผู้ใช้ `somchaip` เช่น:
+ดาวน์โหลดทั้ง `hermes-mcp-bridge-v1.2.4.zip` และ `SHA256SUMS` จาก [GitHub Release v1.2.4](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.4) แล้ววางทั้งสองไฟล์ไว้ในโฟลเดอร์บ้านของผู้ใช้ใน WSL เช่น:
 
 ```text
-/home/somchaip/
+~
 ```
 
 `SHA256SUMS` เป็น external release asset จึงต้องอยู่ข้าง ZIP ก่อนตรวจสอบ หากดาวน์โหลดผ่าน Windows สามารถเปิดโฟลเดอร์บ้าน WSL ใน File Explorer ด้วย `explorer.exe ~` แล้วแตกไฟล์ใน WSL:
 
 ```bash
-cd /home/somchaip
+cd ~
 sha256sum -c SHA256SUMS
-unzip hermes-mcp-bridge-v1.2.3.zip
-cd /home/somchaip/hermes-mcp-bridge-v1.2.3
+unzip hermes-mcp-bridge-v1.2.4.zip
+cd ~/hermes-mcp-bridge-v1.2.4
 bash install.sh
 ```
 
@@ -71,7 +74,7 @@ bash install.sh
 หาก `.venv` มี Python แต่ยังไม่มี pip ให้ซ่อม environment เดิม:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v1.2.3
+cd ~/hermes-mcp-bridge-v1.2.4
 .venv/bin/python -m ensurepip --upgrade
 bash install.sh
 ```
@@ -92,8 +95,8 @@ bash install.sh
 ```json
 {
   "api_url": "http://127.0.0.1:8642",
-  "hermes_env": "/home/somchaip/.hermes/.env",
-  "hermes_config": "/home/somchaip/.hermes/config.yaml",
+  "hermes_env": "/home/<user>/.hermes/.env",
+  "hermes_config": "/home/<user>/.hermes/config.yaml",
   "codex": {
     "allowed_workspaces": []
   }
@@ -148,12 +151,12 @@ Hermes ยังคงใช้ provider/model และการคิดค่
 - `aarch64`: เลือก `tunnel-client-<version>-linux-arm64.zip`
 
 เลือก **tunnel-client** ปกติ ไม่ใช่ runtime, source, cloudflared หรือแพ็กเกจ Windows
-แตกแพ็กเกจแล้ววาง executable `tunnel-client` ใน `/home/somchaip/.local/bin/`
+แตกแพ็กเกจแล้ววาง executable `tunnel-client` ใน `~/.local/bin/`
 รักษาไฟล์ประกอบตามคำแนะนำใน release นั้นถ้ามี ตรวจ checksum กับ `SHA256SUMS` ของ release เดียวกัน
 
 ```bash
-mkdir -p /home/somchaip/.local/bin
-chmod 700 /home/somchaip/.local/bin/tunnel-client
+mkdir -p ~/.local/bin
+chmod 700 ~/.local/bin/tunnel-client
 export PATH="$HOME/.local/bin:$PATH"
 tunnel-client help quickstart
 ```
@@ -166,7 +169,7 @@ tunnel-client help quickstart
 คง Hermes gateway ให้รันอยู่ แล้วเปิด terminal อีกหน้าหนึ่ง:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v1.2.3
+cd ~/hermes-mcp-bridge-v1.2.4
 bash tunnel.sh init tunnel_แทนด้วยIDจริง [--force]
 ```
 
@@ -195,7 +198,7 @@ Tunnel จะเรียก `bridge.sh` ผ่าน stdio เอง ไม่�
 การเริ่มใหม่ในครั้งต่อไปใช้:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v1.2.3
+cd ~/hermes-mcp-bridge-v1.2.4
 bash tunnel.sh run
 ```
 
@@ -248,6 +251,8 @@ bridge นี้เป็น stdio MCP server และไม่ประกา�
 | `codex_task_result` | อ่าน JSONL output แบบแบ่งหน้า |
 | `codex_cancel_task` | หยุดงานที่กำลังรันหรือปฏิเสธ write job ที่ยังรออนุมัติ |
 | `codex_recent_tasks` | แสดง Codex jobs ล่าสุด 30 รายการ |
+
+ตารางนี้ไม่ใช่รายการครบทุก tool: ยังมี work contexts 4 ตัว, Local Hands read-only 3 ตัว (`hands_health`, `hands_list`, `hands_read`) และ `bridge_version` รวมเป็น canonical 27 tools ตาม [TESTING.md](TESTING.md) นอกจากนี้ยังมี `opencode_health` เป็น tool ที่ 28 เฉพาะเมื่อ operator เปิดใช้ section `opencode` ด้วยตนเอง (ปิดเป็นค่าเริ่มต้น, ตรวจสุขภาพอย่างเดียว, ไม่เรียกโมเดล; ดู [README.md](../README.md) และ [SPEC.md](SPEC.md) section 16)
 
 เปิดแชทใหม่แล้วเลือก Plugin นี้ ถ้าเครื่องมือไม่ปรากฏในแชทเดิม ให้แนบ Plugin หรือเปิดแชทใหม่ตาม UI
 การเพิ่ม Plugin ในบัญชีไม่ได้ยืนยันว่าบทสนทนาเดิมเห็นเครื่องมือแล้ว

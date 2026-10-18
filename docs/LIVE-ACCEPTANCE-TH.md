@@ -27,6 +27,8 @@
 
 สิ่งที่ยังไม่อ้างและสถานะคงเดิม: ไม่อ้างการพิสูจน์ guard แบบ live ครบทั้งหมดบน tunnel ไม่อ้าง production accepted หรือ released ห้ามติดตั้ง candidate ลง runtime การผลิตหรือ restart production จนกว่า release จะเผยแพร่ MCP Events ยังคงสถานะ deferred BLOCKED ตาม section ถัดไป และ production ยังเป็น released v1.2.3
 
+อัปเดตสถานะ (18 ตุลาคม 2026): แถว "release review → archive สุดท้ายจาก signed tag → tag/sign/publish" ที่บันทึกไว้ว่า "ค้าง" ได้เสร็จสมบูรณ์แล้วในวันเดียวกัน — released v1.2.4 ผ่าน signed tag ที่ `2133056` พร้อม ZIP (`e6deb0e6ab16d669836b0e361e2e875858e19597ef35dc7e4fc19010a6a5f3a9`) และ SHA256SUMS ภายนอกที่ตรวจซ้ำหลังดาวน์โหลด (ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)) บันทึก bounded PASS และข้อจำกัดหลักฐานข้างต้นคงเป็นหลักฐานเดิมตามที่เกิดขึ้น ส่วน production deployment ยังเป็น v1.2.3 จนกว่า operator จะเลือกอัปเกรด
+
 ## v1.2.4 — MCP Events Dev probe: discovery confirmed, subscription unproven (4 ตุลาคม 2026)
 
 - รอบแรกบน Dev revision `897639028e718f4708c62bf2a595b89b5acd3636` ไม่มี protocol trace; คำตอบใน chat ว่า subscribe ไม่ได้และ “Stopped monitoring” ไม่ยืนยัน protocol outcome.

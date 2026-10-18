@@ -1,6 +1,6 @@
-# Compatibility matrix — v1.2.3 release
+# Compatibility matrix — v1.2.4 release
 
-This matrix records the released v1.2.3 compatibility baseline. The WSL2 live-acceptance, independent-review, and signed-release gates passed before publication.
+This matrix records the released v1.2.4 compatibility baseline (same components as v1.2.3; v1.2.4 adds only the optional OpenCode health adapter row below). The WSL2 live-acceptance, independent-review, and signed-release gates passed before publication.
 
 | Component | Release baseline | วิธีตรวจ | หมายเหตุ |
 | --- | --- | --- | --- |
@@ -12,5 +12,6 @@ This matrix records the released v1.2.3 compatibility baseline. The WSL2 live-ac
 | tunnel-client | official profile `hermes-wsl` | `bash tunnel.sh status` | profile ต้องชี้ `bridge.sh` ของ instance เดียวกัน |
 | ChatGPT MCP | canonical count in `TESTING.md` | discovery ในแชทใหม่ | v1.2.1 baseline plus read-only `bridge_version` |
 | Version/provenance | local-only CLI/MCP parity | `./bridge.sh version` และ `bridge_version` | ต้องไม่เรียก Hermes, Codex, tunnel, GitHub หรือ network |
+| OpenCode CLI (optional) | v2.0.32 (health-only, opt-in) | `opencode_health` | disabled by default; live acceptance ครอบคลุมเฉพาะ `--version` (18 ตุลาคม 2026); discovery 27 tools เมื่อปิด, 28 เมื่อเปิด |
 
 การเปลี่ยน component นอก matrix ไม่ได้แปลว่าไม่รองรับ แต่ต้องทำ acceptance checklist ซ้ำก่อนใช้งาน production.

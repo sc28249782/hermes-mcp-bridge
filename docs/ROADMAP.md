@@ -75,7 +75,7 @@ The design, trust boundaries, proposed configuration, and tool contracts are in 
 - [x] Complete independent review before the v1.2.3 release gates.
 - [x] Complete the Phase A, Phase B, and Phase C release gates for v1.2.3.
 
-## v1.2.4 — Maintenance release candidate (OpenCode health adapter, legacy stdio discovery guard)
+## v1.2.4 — Maintenance release (OpenCode health adapter, legacy stdio discovery guard)
 
 Release record (18 October 2026): PR #34 and PR #35 are merged at `0884482d8cf74d696b6c52a785282f65f2bd40fa` and are the only code surfaces in released v1.2.4 — the OpenCode health adapter (disabled by default; 27 tools default, 28 on opt-in) and the legacy stdio discovery guard. The capability-gated MCP Events track is not part of this release: originally planned as the v1.2.4 release target, it is deferred to the unversioned BLOCKED section below with no assigned release. Live Secure MCP Tunnel acceptance was executed on 18 October 2026 through the real Dev plugin route with a bounded pass — candidate identity, status, and tool visibility confirmed; the exact tunnel-side `server/discover` → `-32601` observation is not obtainable from the dispatcher log (no method names or outcome codes recorded) and remains an accepted limitation of this release. Record: [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md). No Local Hands mutation is in scope.
 
@@ -115,7 +115,7 @@ Release record (18 October 2026): PR #34 and PR #35 are merged at `0884482d8cf74
 
 ## Deferred — v1.3.0 Approval-bound mutation and execution
 
-> v1.3.0 is intentionally paused until the bridge establishes reliable, user-subscribed Hermes terminal-status delivery — a capability requirement (the deferred, BLOCKED MCP Events track above has no assigned release), not a dependency on any numeric version. No Local Hands mutation or execution capability is in the v1.2.4 maintenance-candidate scope.
+> v1.3.0 is intentionally paused until the bridge establishes reliable, user-subscribed Hermes terminal-status delivery — a capability requirement (the deferred, BLOCKED MCP Events track above has no assigned release), not a dependency on any numeric version. No Local Hands mutation or execution capability is in the v1.2.4 maintenance-release scope.
 
 - [ ] Add `hands_write`, `hands_patch`, `hands_exec`, and `hands_process` after v1.2.0 read-only live acceptance and feedback.
 - [ ] Implement canonical action digests exactly as [ADR-0001](adr/0001-local-hands-foundation.md) specifies: versioned deterministic JSON bytes plus SHA-256, immutable persisted payload/blob reference, TTL, one-time use, and revalidation at execution.

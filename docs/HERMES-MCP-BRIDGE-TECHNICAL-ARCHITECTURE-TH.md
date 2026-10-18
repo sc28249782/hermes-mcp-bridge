@@ -2,6 +2,8 @@
 
 เอกสารนี้อธิบายฐาน Hermes และ MCP adapter ของ `hermes-mcp-bridge-v1.0.1.zip`; ส่วน Codex/WSL2, model policy, audit และ approval gate ดู `CODEX-WSL2-TH.md` และ `OPERATIONS-TH.md`
 
+> หมายเหตุสถานะ (18 ตุลาคม 2026): เอกสารนี้คงบันทึกสถาปัตยกรรมยุค v1.0.1 ไว้ตามเดิม released v1.2.4 เพิ่ม `stdio_guard.py` (legacy stdio discovery guard — SPEC.md section 17) และ `opencode_core.py` (OpenCode health adapter, disabled by default — SPEC.md section 16) สัญญา discovery ปัจจุบันคือ 27 tools (28 เมื่อ opt-in) ตาม `TESTING.md` สถานะ release ล่าสุดอยู่ใน `RELEASE-STATUS-TH.md`
+
 รุ่นอ้างอิง: Hermes Agent v0.21.1, commit `8d79c2ff`  
 Runtime ที่ทดสอบ: Python 3.12, `mcp==1.30.0`, `httpx==0.28.1`, `python-dotenv==1.2.3`
 

@@ -1,4 +1,6 @@
-# อัปเกรดเป็น v1.2.3 release
+# คู่มืออัปเกรด Hermes MCP Bridge
+
+release ปัจจุบันคือ v1.2.4 (18 ตุลาคม 2026) — ดูขั้นตอนท้ายเอกสาร หัวข้อ "จาก X เป็น Y" ด้านล่างเป็นบันทึกประวัติรายรุ่นคงไว้ตามเดิม
 
 ## จาก v1.2.2 เป็น v1.2.3
 
@@ -147,4 +149,4 @@ bash tunnel.sh service-status
 
 release v1.2.4 เผยแพร่แล้ว (18 ตุลาคม 2026) ผ่าน signed tag `v1.2.4` บน main `2133056` ดาวน์โหลด ZIP และ `SHA256SUMS` จาก [GitHub Release v1.2.4](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.4), ตรวจด้วย `sha256sum -c SHA256SUMS` (ZIP SHA-256 `e6deb0e6ab16d669836b0e361e2e875858e19597ef35dc7e4fc19010a6a5f3a9`) แล้วจึงติดตั้ง/อัปเกรดตามแนวทาง download-verify-install เดิม การอัปเกรดเป็นทางเลือกของ operator ตามจังหวะของตน: production deployment ยังคงรัน released v1.2.3 และ release นี้ไม่ต้องการ rollout, service, config หรือการ restart ใด ๆ ข้อจำกัดที่บันทึกไว้คงอยู่: live tunnel acceptance เป็น bounded PASS (identity/status/tool visibility) ส่วน guard outcome บน tunnel ยังสังเกตไม่ได้ — รายละเอียดใน LIVE-ACCEPTANCE-TH.md
 
-อัปเกรดเป็น v1.2.4: `sha256sum -c SHA256SUMS`, แตก archive ไปยัง directory ใหม่, `bash install.sh` และ health checks ตาม RELEASE-RUNBOOK-TH.md section `opencode` เป็น optional และ disabled by default — ไม่มีการเปิดใช้อัตโนมัติและไม่ต้องแก้ config ใด ๆ ระหว่างอัปเกรด stdio guard ทำงานเองบน `bridge.py serve` โดยไม่ต้องแก้ config
+อัปเกรดเป็น v1.2.4: `sha256sum -c SHA256SUMS`, แตก archive ไปยัง directory ใหม่, `bash install.sh` และ health checks ตาม RELEASE-RUNBOOK-TH.md. หัวข้อ `opencode` เป็น optional และ disabled by default — ไม่มีการเปิดใช้อัตโนมัติและไม่ต้องแก้ config ใด ๆ ระหว่างอัปเกรด. stdio guard ทำงานเองบน `bridge.py serve` โดยไม่ต้องแก้ config
