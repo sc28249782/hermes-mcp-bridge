@@ -77,10 +77,11 @@ The design, trust boundaries, proposed configuration, and tool contracts are in 
 
 ## v1.2.4 — Maintenance release candidate (OpenCode health adapter, legacy stdio discovery guard)
 
-Release candidate status (18 October 2026): PR #34 and PR #35 are merged at `0884482d8cf74d696b6c52a785282f65f2bd40fa` and are the only code surfaces in the local v1.2.4 release candidate (`release/v1.2.4-prep`) — the OpenCode health adapter (disabled by default) and the legacy stdio discovery guard. The capability-gated MCP Events track is not part of this candidate: originally planned as the v1.2.4 release target, it is deferred to the unversioned BLOCKED section below with no assigned release. Pending before any tag: live Secure MCP Tunnel acceptance. No Local Hands mutation is in scope.
+Release candidate status (18 October 2026): PR #34 and PR #35 are merged at `0884482d8cf74d696b6c52a785282f65f2bd40fa` and are the only code surfaces in the local v1.2.4 release candidate (`release/v1.2.4-prep`) — the OpenCode health adapter (disabled by default) and the legacy stdio discovery guard. The capability-gated MCP Events track is not part of this candidate: originally planned as the v1.2.4 release target, it is deferred to the unversioned BLOCKED section below with no assigned release. Live Secure MCP Tunnel acceptance was executed on 18 October 2026 through the real Dev plugin route with a bounded pass — candidate identity, status, and tool visibility confirmed; the exact tunnel-side `server/discover` → `-32601` observation is not obtainable from the dispatcher log (no method names or outcome codes recorded). Record: [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md). No Local Hands mutation is in scope.
 
 - [x] Prepare the local v1.2.4 release candidate: documentation gate, `version_info.py` stamp (reviewed build input `0884482d8cf74d696b6c52a785282f65f2bd40fa`), packaging regression test, and a verified local archive built per RELEASE-RUNBOOK-TH.md Phase B without tag, publish, or upload.
-- [ ] Run live Secure MCP Tunnel acceptance for the candidate before tagging.
+- [x] Run live Secure MCP Tunnel acceptance for the candidate before tagging (18 October 2026, real Dev plugin route; bounded pass recorded in [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md) — tunnel-side guard observation stays unproven from the dispatcher log; the SPEC.md section 17 acceptance mapping is unchanged).
+- [ ] Complete the remaining release gates: review of the acceptance record, final archive built from the signed tag, then tag, sign, and publish per [RELEASE-RUNBOOK-TH.md](RELEASE-RUNBOOK-TH.md).
 
 ## Deferred — Capability-gated MCP Events task-completion notifications (BLOCKED)
 
