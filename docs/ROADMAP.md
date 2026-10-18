@@ -92,6 +92,17 @@ The design, trust boundaries, proposed configuration, and tool contracts are in 
 - [ ] Complete fake-callback security tests, restart/expiry/dedup/retry coverage, and WSL2 Work-chat live acceptance before release.
 - [ ] Add a regression proof for explicit-context Hermes follow-ups: the follow-up request contains only the persisted session identifier and input, never a new model/provider override; document that `reported_model` is observation metadata, not a model-selection channel.
 
+## OpenCode adapter — health foundation (disabled by default)
+
+- [x] Add a disabled-by-default `opencode` configuration section: `enabled` (`false` by default), an explicit absolute `binary` path, `version_timeout_seconds` (1-120, default 10), and `max_output_bytes` (1024-1048576, default 65536), with strict validation and unknown-key warnings.
+- [x] Register the read-only `opencode_health` tool only when the section is enabled, so the canonical discovery contract stays at 27 tools until an operator enables it; prove both counts in tests.
+- [x] Implement one bounded `--version` health probe: fixed argv with `shell` disabled, hard timeout, per-stream memory cap, and process-group cleanup with `SIGTERM` escalation to `SIGKILL`, including descendants that hold pipes or ignore `SIGTERM`.
+- [x] Keep the probe leader unreaped until after the final group signal (review fix): exit is observed with nonreaping `os.waitid` (`WEXITED|WNOHANG|WNOWAIT`, Linux) bounded by the same overall deadline as the drain; `SIGTERM`, the grace wait, and `SIGKILL` all happen while the unreaped leader pins the PGID; the single reap follows the final `SIGKILL` by handle; unknown leader ownership sends no signal. Regression tests record the real signal/wait ordering on the success, nonzero-exit, timeout, and pipe-descendant paths.
+- [x] Fail closed when disabled: no process spawn and no network, model, or authentication call. Sanitized errors do not include output, paths, environment values, or credentials.
+- [x] Cover the foundation with offline fake-executable tests in `tests/test_opencode.py` and the enabled stdio fixture `tests/mock_opencode_server.py`.
+- [x] Verify the probe against the real OpenCode CLI (`v2.0.32`) in a WSL2 live acceptance for the `--version` surface only (in-memory configuration, no settings change): `ok: true` with version `opencode v2.0.32`. This proves the version probe only; it is not acceptance for any other surface.
+- [ ] Design and verify safe permissions before any submission capability: OpenCode task submission, sessions, NDJSON event consumption, cancellation, and permission handling are unverified and not implemented. Working directory and private server mode are not a sandbox; never pass `--auto`.
+
 ## Deferred — v1.3.0 Approval-bound mutation and execution
 
 > v1.3.0 is intentionally paused while v1.2.4 establishes reliable, user-subscribed terminal-status delivery for Hermes work. No Local Hands mutation or execution capability is in the v1.2.4 scope.
