@@ -4,7 +4,7 @@
 
 - Scope note (18 October 2026): the capability-gated MCP Events track originally planned for v1.2.4 is deferred to an unversioned BLOCKED track with no assigned release and is not part of this maintenance candidate (OpenCode health adapter disabled by default and legacy stdio discovery guard only).
 
-Scope: PR #34 (OpenCode health adapter) plus PR #35 (legacy stdio discovery guard), both merged into `main` at `0884482d8cf74d696b6c52a785282f65f2bd40fa`. The candidate is not tagged, not published, and not installed; production runtime remains the released v1.2.3, and the live Secure MCP Tunnel acceptance is pending.
+Scope: PR #34 (OpenCode health adapter) plus PR #35 (legacy stdio discovery guard), both merged into `main` at `0884482d8cf74d696b6c52a785282f65f2bd40fa`. The candidate is not tagged, not published, and not installed; production runtime remains the released v1.2.3. Live Secure MCP Tunnel acceptance over the real Dev plugin route was recorded on 18 October 2026 as a bounded pass (identity/status/tool visibility confirmed; the tunnel-side guard `-32601` observation stays unproven from the dispatcher log — see LIVE-ACCEPTANCE-TH.md); the tag, sign, and publish gates remain pending.
 
 - Legacy stdio: guard `server/discover` ตอบ `-32601` ที่ boundary (same id, ไม่ echo params) และปิด context อย่างถูกต้อง (cancel forwarder, wake stdout writer ป้องกัน hang) — รวมใน release candidate v1.2.4 (ยังไม่เผยแพร่)
 

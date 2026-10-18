@@ -1,10 +1,31 @@
 # ผล Live Acceptance
 
-## v1.2.4 release candidate — live tunnel acceptance ยังไม่ execute (18 ตุลาคม 2026)
+## v1.2.4 release candidate — live tunnel acceptance บน Dev route จริง: ผ่านแบบมีเงื่อนไข (18 ตุลาคม 2026)
 
-- ยังไม่มี live Secure MCP Tunnel acceptance สำหรับ release candidate v1.2.4 (OpenCode health adapter disabled by default + legacy stdio discovery guard) สถานะจึงเป็น implemented + tested เท่านั้น ยังไม่ `accepted`
-- live acceptance เดียวที่บันทึกไว้สำหรับ adapter คือ `--version` จริงของ OpenCode CLI (`opencode v2.0.32`, 18 ตุลาคม 2026) ตามขอบเขต PR #34 — ไม่มี server start/stop
-- จนกว่า acceptance จะผ่านและ release เผยแพร่: ห้ามติดตั้ง candidate หรือ restart runtime การผลิต production ยังเป็น released v1.2.3
+สถานะ: executed แล้วเมื่อ 18 ตุลาคม 2026 ผ่าน plugin จริง `Hermes Local Bridge - Dev` ที่ชี้ไปยัง candidate deployment `~/hermes-mcp-bridge-v1.2.4-dev-candidate` (ติดตั้งจาก candidate ZIP ที่สร้างจาก commit `00245f45da2142dfd86de6741272632f1e1b0407` และตรวจ SHA-256 `431cb064ad27408ad4ab4199f3452f811ffd16f27ddfc31a33b2e5f5e99eb363` แล้ว) ข้อสรุปเป็น **bounded PASS**: ยืนยัน identity, status และ tool visibility ของ candidate บน Dev route จริงเท่านั้น **ไม่ใช่**การพิสูจน์ guard ผ่าน tunnel ทั้งหมด (ดูข้อจำกัดหลักฐานด้านล่าง) ส่วน `--version` จริงของ OpenCode CLI (`opencode v2.0.32`, 18 ตุลาคม 2026) ยังเป็น live acceptance เดียวของ adapter ตามขอบเขต PR #34 OpenCode ยัง disabled by default และ acceptance นี้ไม่ได้เปิด OpenCode ผ่าน MCP
+
+ข้อสังเกตบน plugin Dev จริง (จาก tool call จริงของ parent):
+
+- `bridge_version`: ok — version `1.2.4`, release identifier `v1.2.4`, build provenance `release`, source kind `release-archive`, source revision `0884482d8cf74d696b6c52a785282f65f2bd40fa`, revision source `embedded-build-input`, schema `1/1`, discovery count `27`
+- `bridge_status`: ok — hermes ok, codex ok, watchdog running ทุก 15 วินาที, Hands false, upstream_checked false
+- Dev chat แสดง 27 callable tools (นับจาก ALL_TOOLS ของ parent) — เป็นหลักฐานฝั่ง parent ไม่ใช่ raw `tools/list` response บน wire; raw `tools/list` = 27 ถูกพิสูจน์แยกใน offline suite และ real-stdio probe จาก tree ที่แตกจาก candidate
+- production ไม่ถูกแตะ: plugin production ยังรายงาน `1.2.3` / revision `60de77fa8945a67eb578828e710f1cacc63680e5` / 27 tools (ตรวจ read-only)
+- receipt ส่วนตัว `guard-tunnel-acceptance-receipt-20261018.md` (เก็บในพื้นที่ backup 0600; parse แบบ metadata-only): log โตจาก byte 320572 เป็น 323717 ในช่วง 21:16:04–21:16:07 +07 มี event forward command 6 รายการและ acknowledged notification 2 รายการ หลัง ready ไม่มี error ใหม่และไม่มี validation flood เพิ่ม ก่อนหน้านั้น start ล้มเหลว 3 ครั้งเพราะ environment ของ authentication ไม่ครบ ผู้ใช้ relaunch ให้ครบแล้วจึง start ได้ (recovery โดย operator แบบสั้น ไม่มี secret, path ของ env, ค่า env หรือข้อความจาก history ใดถูกบันทึก)
+
+| รายการตรวจ | ผล |
+| --- | --- |
+| identity ตรง candidate stamp ผ่าน real Dev route (`bridge_version`) | ผ่าน |
+| `bridge_status` สุขภาพครบบน real Dev route | ผ่าน |
+| tool visibility: 27 tools บน Dev chat (parent count) | ผ่าน |
+| production ยังเป็น v1.2.3 / 27 tools (read-only) | ผ่าน |
+| ไม่มี error ใหม่ / ไม่มี validation flood หลัง activation (log metadata) | ผ่าน |
+| raw `tools/list` = 27 บน tunnel (wire evidence ผ่าน tunnel) | ไม่สังเกตได้ — ใช้หลักฐาน offline/stdio แทน |
+| `server/discover` → `-32601` ตรง ๆ ผ่าน tunnel | ไม่สังเกตได้ — ดูข้อจำกัดหลักฐาน |
+| release review → archive สุดท้ายจาก signed tag → tag/sign/publish | ค้าง — release gates ถัดไป |
+
+ข้อจำกัดของหลักฐาน (สำคัญ ห้ามมองข้าม): dispatcher log ไม่บันทึกชื่อ method, ชื่อ tool หรือ JSON-RPC outcome code และ guard ออกแบบให้ไม่ log payload จึงไม่มีใครสังเกต `server/discover` → `-32601` บน tunnel ได้จาก log นี้ ทั้งตอนนี้และในอนาคตจากไฟล์ log เดียวกัน การที่ไม่พบ flood ห้ามนำไปสรุปว่า guard จัดการ probe จริง (ห้ามอนุมานจากการขาดหลักฐาน) พฤติกรรม guard ถูกพิสูจน์ด้วย offline suite 129/129 และ real-stdio probe (same id / no echo / `-32601` / 27 tools / EOF สะอาด) ซึ่งตรงกับ acceptance mapping ของ SPEC.md section 17 ที่ระบุชุดทดสอบ real-stdio อย่างชัดเจน ไม่ใช่การสังเกต guard code ผ่าน tunnel และ LIVE-ACCEPTANCE ของ candidate กำหนดให้มี live smoke ผ่าน Secure MCPs จริงโดยไม่มีเกณฑ์พิเศษให้สังเกต probe ตรง ๆ — เอกสารนี้บันทึกผลตามขอบเขตนั้น ไม่แก้ SPEC และไม่ลดเกณฑ์ย้อนหลัง
+
+สิ่งที่ยังไม่อ้างและสถานะคงเดิม: ไม่อ้างการพิสูจน์ guard แบบ live ครบทั้งหมดบน tunnel ไม่อ้าง production accepted หรือ released ห้ามติดตั้ง candidate ลง runtime การผลิตหรือ restart production จนกว่า release จะเผยแพร่ MCP Events ยังคงสถานะ deferred BLOCKED ตาม section ถัดไป และ production ยังเป็น released v1.2.3
 
 ## v1.2.4 — MCP Events Dev probe: discovery confirmed, subscription unproven (4 ตุลาคม 2026)
 
