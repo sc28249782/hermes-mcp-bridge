@@ -56,4 +56,4 @@ Release verification passed for signed tag `v1.2.3` at `c610660637dbdcfa0b8ddb7b
 ## Legacy stdio discovery guard (unreleased, local-only)
 
 - `tests/test_stdio_guard.py` (13 tests): in-memory boundary pump (int/string id reply shape, no params echo, notification pass-through, non-matching requests, metadata preservation, parse-error forwarding, forward failure logged once, EOF) + guarded `stdio_server` lifecycle + real-stdio subprocess probes (pre-init probe, legacy initialize/initialized/tools-list = 27 tools, repeated probes, unchanged `-32602` validation, clean EOF shutdown rc=0).
-- Run: `env -u PYTHONPATH /home/somchaip/workspace/hermes-mcp-bridge/.venv/bin/python -W error::ResourceWarning -m unittest tests.test_stdio_guard -v`
+- Run: `PROJECT_PYTHON=/absolute/path/to/bridge/.venv/bin/python` followed by `env -u PYTHONPATH "$PROJECT_PYTHON" -W error::ResourceWarning -m unittest discover -s tests`
