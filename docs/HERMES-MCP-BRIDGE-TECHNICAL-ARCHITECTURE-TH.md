@@ -334,7 +334,7 @@ Bridge ไม่รับประกัน rollback ของคำสั่ง
 5. เพิ่ม background polling ต้องไม่ทำให้มีการ submit ซ้ำหรือแย่ง session
 6. เพิ่ม auth provider ต้องรักษา loopback restriction และไม่ log credential
 7. หากทำ systemd user service ต้องแยก environment ของ tunnel-client ออกจาก Hermes key และจำกัด file permissions
-8. เพิ่ม external CLI adapter (เช่น `opencode_core.py`) ต้อง disabled by default กำหนด executable path แบบ explicit ใช้ fixed argv โดยปิด shell กำหนด timeout และ memory cap ต่อ stream และ kill ทั้ง process group (TERM แล้ว KILL) รวม descendant ที่ถือ pipe; ตอน disabled ต้อง fail closed โดยไม่ spawn process ใด ๆ และไม่มีการเรียก network/model/auth
+8. เพิ่ม external CLI adapter (เช่น `opencode_core.py`) ต้อง disabled by default กำหนด executable path แบบ explicit ใช้ fixed argv โดยปิด shell กำหนด timeout และ memory cap ต่อ stream และ kill ทั้ง process group (TERM แล้ว KILL) รวม descendant ที่ถือ pipe; ทุก signal ต้องส่งก่อน reap leader (ตรวจ exit ด้วย `waitid` แบบ non-reaping `WNOWAIT` ภายใต้ deadline เดิม) และ reap ครั้งเดียวด้วย handle หลัง `SIGKILL` สุดท้าย หากไม่ทราบความเป็นเจ้าของ leader ห้ามส่ง signal; ตอน disabled ต้อง fail closed โดยไม่ spawn process ใด ๆ และไม่มีการเรียก network/model/auth
 
 ก่อน release ควรตรวจ:
 

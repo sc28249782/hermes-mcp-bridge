@@ -133,7 +133,10 @@ def load_bridge_config(root: Path) -> tuple[dict, list[str]]:
         binary = opencode["binary"]
         if not isinstance(binary, str) or not binary or len(binary) > 4096:
             raise ConfigError("opencode.binary must be a non-empty string up to 4096 characters")
-        if "\x00" in binary or "\n" in binary or "\r" in binary:
+        # Reject every ASCII control character (0x00-0x1F and 0x7F DEL), not
+        # only NUL/CR/LF, so terminal-escape or delimiter injection via the
+        # configured path cannot reach logs, argv, or error surfaces.
+        if any(ord(char) < 0x20 or ord(char) == 0x7F for char in binary):
             raise ConfigError("opencode.binary must not contain control characters")
         if not Path(binary).expanduser().is_absolute():
             raise ConfigError("opencode.binary must be an absolute path")

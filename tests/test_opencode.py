@@ -3,6 +3,8 @@ from pathlib import Path
 import asyncio
 import json
 import os
+import signal
+import subprocess
 import sys
 import tempfile
 import time
@@ -59,6 +61,58 @@ def pid_gone(pid, deadline=15.0):
     return False
 
 
+class RecordingOrder:
+    """Record opencode_core's killpg / Popen.wait / Popen.poll call order.
+
+    killpg and Popen.wait are pass-through recorders: the real functions
+    still run, so cleanup behavior is exercised for real while the ordering
+    is captured. os.waitid is left real unless a test patches it separately,
+    because the nonreaping observation must not be faked in ordering tests.
+    """
+
+    def __init__(self):
+        self.events = []
+
+    def __enter__(self):
+        real = {"killpg": os.killpg, "wait": subprocess.Popen.wait, "poll": subprocess.Popen.poll}
+
+        def rec_killpg(pgid, sig):
+            self.events.append(("killpg", sig))
+            return real["killpg"](pgid, sig)
+
+        def rec_wait(*args, **kwargs):
+            self.events.append(("wait",))
+            return real["wait"](*args, **kwargs)
+
+        def rec_poll(*args, **kwargs):
+            self.events.append(("poll",))
+            return real["poll"](*args, **kwargs)
+
+        self._patches = [
+            patch("opencode_core.os.killpg", rec_killpg),
+            patch("subprocess.Popen.wait", rec_wait),
+            patch("subprocess.Popen.poll", rec_poll),
+        ]
+        for target in self._patches:
+            target.start()
+        return self
+
+    def __exit__(self, *exc):
+        for target in reversed(self._patches):
+            target.stop()
+        return False
+
+    def assert_single_reap_after_final_killpg(self, testcase):
+        """Exactly TERM, KILL, then one reap; no wait/poll before the KILL."""
+        reaps = [i for i, event in enumerate(self.events) if event[0] in ("wait", "poll")]
+        kills = [i for i, event in enumerate(self.events) if event[0] == "killpg"]
+        testcase.assertEqual([self.events[i] for i in kills],
+                             [("killpg", signal.SIGTERM), ("killpg", signal.SIGKILL)])
+        testcase.assertEqual(len(reaps), 1, f"expected one reap event, saw {self.events}")
+        testcase.assertGreater(reaps[0], kills[-1],
+                               f"leader reaped before the final killpg: {self.events}")
+
+
 class TestOpenCodeConfig(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -90,6 +144,10 @@ class TestOpenCodeConfig(unittest.TestCase):
             {"enabled": True, "binary": ""},
             {"enabled": True, "binary": 7},
             {"enabled": True, "binary": "/tmp/x\n"},
+            {"enabled": True, "binary": "/tmp/x\t"},
+            {"enabled": True, "binary": "/tmp/x\x01"},
+            {"enabled": True, "binary": "/tmp/x\x1b"},
+            {"enabled": True, "binary": "/tmp/x\x7f"},
             {"enabled": True, "binary": "/tmp/x", "version_timeout_seconds": 0},
             {"enabled": True, "binary": "/tmp/x", "version_timeout_seconds": 121},
             {"enabled": True, "binary": "/tmp/x", "version_timeout_seconds": "10"},
@@ -248,6 +306,171 @@ class TestOpenCodeRunner(unittest.TestCase):
         fake.unlink()
         with self.assertRaises(OpenCodeError):
             runner.health()
+
+
+class TestOpenCodeCleanupOrdering(unittest.TestCase):
+    """Regression tests for the leader-reap invariant.
+
+    The old probe reaped the leader with `proc.wait(timeout=1)` after EOF and
+    again inside cleanup between TERM and KILL, so a later `killpg` could hit
+    a reused PGID. These tests prove the fixed ordering: every killpg happens
+    while the leader is unreaped, observation is nonreaping waitid, and the
+    single reap follows the final KILL.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.addCleanup(clear_test_env)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_success_path_reaps_only_after_final_killpg(self):
+        fake = write_executable(self.root / "fake-opencode",
+                                "import sys\nsys.stdout.write('2.0.32\\n')\n")
+        runner = OpenCodeRunner({"enabled": True, "binary": str(fake)})
+        with RecordingOrder() as order:
+            health = runner.health()
+        self.assertTrue(health["ok"])
+        self.assertEqual(health["version"], "2.0.32")
+        order.assert_single_reap_after_final_killpg(self)
+
+    def test_nonzero_exit_reaps_only_after_final_killpg(self):
+        fake = write_executable(self.root / "fake-opencode",
+                                "sys.stdout.write('2.0.32\\n')\nsys.exit(3)\n")
+        runner = OpenCodeRunner({"enabled": True, "binary": str(fake)})
+        with RecordingOrder() as order:
+            with self.assertRaises(OpenCodeError):
+                runner.health()
+        order.assert_single_reap_after_final_killpg(self)
+
+    def test_timeout_reaps_only_after_final_killpg(self):
+        marker = self.root / "leader.pid"
+        fake = write_executable(self.root / "fake-opencode",
+                                "import os,time\n"
+                                f"open(os.environ['{MARKER_ENV}'],'w').write(str(os.getpid()))\n"
+                                "time.sleep(30)\n")
+        set_test_env(**{MARKER_ENV: marker})
+        runner = OpenCodeRunner({"enabled": True, "binary": str(fake), "version_timeout_seconds": 1})
+        with RecordingOrder() as order:
+            with self.assertRaises(OpenCodeError) as caught:
+                runner.health()
+        self.assertIn("timed out", str(caught.exception))
+        order.assert_single_reap_after_final_killpg(self)
+        self.assertTrue(pid_gone(int(marker.read_text())))
+
+    def test_descendant_ignoring_term_reaps_only_after_final_killpg(self):
+        marker = self.root / "child.pid"
+        done = self.root / "child.argv"
+        fake = write_executable(self.root / "fake-opencode",
+                                "import os,subprocess,sys\n"
+                                "sys.stdout.write('2.0.32\\n')\n"
+                                "sys.stdout.flush()\n"
+                                "child = subprocess.Popen([sys.executable, '-c',\n"
+                                "    \"import os,signal,time\\n\"\n"
+                                "    \"signal.signal(signal.SIGTERM, signal.SIG_IGN)\\n\"\n"
+                                f"    \"open(os.environ['{MARKER_ENV}'],'w').write(str(os.getpid()))\\n\"\n"
+                                "    \"time.sleep(30)\\n\"])\n"
+                                f"open(os.environ['{ARGV_ENV}'],'w').write(str(child.pid))\n")
+        set_test_env(**{MARKER_ENV: marker, ARGV_ENV: done})
+        runner = OpenCodeRunner({"enabled": True, "binary": str(fake), "version_timeout_seconds": 2})
+        with RecordingOrder() as order:
+            with self.assertRaises(OpenCodeError) as caught:
+                runner.health()
+        self.assertIn("timed out", str(caught.exception))
+        order.assert_single_reap_after_final_killpg(self)
+        self.assertTrue(pid_gone(int(done.read_text())))
+
+    def test_unknown_ownership_sends_no_signal_and_still_reaps(self):
+        fake = write_executable(self.root / "fake-opencode",
+                                "import sys\nsys.stdout.write('2.0.32\\n')\n")
+        runner = OpenCodeRunner({"enabled": True, "binary": str(fake)})
+        with RecordingOrder() as order:
+            with patch("opencode_core.os.waitid", side_effect=ChildProcessError()):
+                with self.assertRaises(OpenCodeError) as caught:
+                    runner.health()
+        self.assertIn("could not be verified", str(caught.exception))
+        # Ownership unknown: not one signal; only the handle-based reap.
+        self.assertEqual([event[0] for event in order.events], ["wait"])
+
+    def test_waitid_eintr_is_retried_without_reaping_or_hanging(self):
+        fake = write_executable(self.root / "fake-opencode",
+                                "import sys\nsys.stdout.write('2.0.32\\n')\n")
+        runner = OpenCodeRunner({"enabled": True, "binary": str(fake)})
+        real_waitid = os.waitid
+        calls = []
+
+        def flaky_waitid(idtype, ident, options):
+            calls.append(options)
+            if len(calls) <= 2:
+                raise InterruptedError()
+            return real_waitid(idtype, ident, options)
+
+        with patch("opencode_core.os.waitid", side_effect=flaky_waitid):
+            health = runner.health()
+        self.assertTrue(health["ok"])
+        self.assertEqual(health["version"], "2.0.32")
+        self.assertGreaterEqual(len(calls), 3)
+        self.assertEqual(calls[0], os.WEXITED | os.WNOHANG | os.WNOWAIT)
+
+    def test_observe_leader_reports_exit_without_reaping(self):
+        proc = subprocess.Popen([sys.executable, "-c", "pass"], stdin=subprocess.DEVNULL,
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                start_new_session=True, close_fds=True)
+        time.sleep(0.3)  # let it exit and become a zombie
+        state, result = OpenCodeRunner._observe_leader(proc.pid, time.monotonic() + 5)
+        self.assertEqual(state, "exited")
+        self.assertEqual(result.si_code, os.CLD_EXITED)
+        self.assertEqual(result.si_status, 0)
+        stat = Path(f"/proc/{proc.pid}/stat").read_text()
+        # WNOWAIT left the child waitable: still a zombie, NOT reaped.
+        self.assertEqual(stat.rsplit(")", 1)[1].split()[0], "Z")
+        self.assertEqual(proc.wait(), 0)  # reap by handle afterwards
+
+    def test_observe_leader_returns_running_at_deadline_without_hanging(self):
+        proc = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"],
+                                stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                                stderr=subprocess.DEVNULL, start_new_session=True, close_fds=True)
+        deadline = time.monotonic()
+        state, result = OpenCodeRunner._observe_leader(proc.pid, deadline)
+        self.assertEqual((state, result), ("running", None))
+        self.assertLess(time.monotonic() - deadline, 1.0)
+        proc.kill()
+        proc.wait()
+
+    def test_cleanup_group_escalates_to_kill_before_reaping(self):
+        marker = self.root / "trap.pid"
+        set_test_env(**{MARKER_ENV: marker})
+        proc = subprocess.Popen([sys.executable, "-c",
+                                 "import os,signal,time\n"
+                                 "signal.signal(signal.SIGTERM, signal.SIG_IGN)\n"
+                                 f"open(os.environ['{MARKER_ENV}'],'w').write(str(os.getpid()))\n"
+                                 "time.sleep(30)\n"],
+                                stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                                stderr=subprocess.DEVNULL, start_new_session=True, close_fds=True)
+        # TERM must not race the child's signal setup: wait for the readiness
+        # marker written after SIG_IGN is installed.
+        end = time.monotonic() + 5
+        while time.monotonic() < end and not marker.exists():
+            time.sleep(0.05)
+        self.assertTrue(marker.exists())
+        runner = OpenCodeRunner({"enabled": True, "binary": sys.executable})
+        with RecordingOrder() as order:
+            runner._cleanup_group(proc, "pinned")
+        order.assert_single_reap_after_final_killpg(self)
+        self.assertEqual(proc.returncode, -signal.SIGKILL)
+
+    def test_cleanup_group_never_signals_unknown_ownership(self):
+        proc = subprocess.Popen([sys.executable, "-c", "pass"], stdin=subprocess.DEVNULL,
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                start_new_session=True, close_fds=True)
+        runner = OpenCodeRunner({"enabled": True, "binary": sys.executable})
+        with RecordingOrder() as order:
+            runner._cleanup_group(proc, "unknown")
+        # Ownership unknown: not one signal; only the handle-based reap.
+        self.assertEqual([event[0] for event in order.events], ["wait"])
+        self.assertEqual(proc.returncode, 0)
 
 
 class TestOpenCodeRegistration(unittest.TestCase):

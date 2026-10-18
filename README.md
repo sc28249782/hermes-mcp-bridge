@@ -10,7 +10,7 @@ The bridge includes a disabled-by-default OpenCode adapter (`opencode_core.py`).
 
 - Configuration lives in `bridge-config.json` under `opencode`: `enabled` (default `false`), `binary` (absolute path to the OpenCode executable, required when enabled), `version_timeout_seconds` (1-120, default 10), and `max_output_bytes` (1024-1048576, default 65536). Unknown keys are warned and ignored.
 - When disabled, the bridge fails closed: it never spawns a process and makes no network, model, or authentication call.
-- The health check runs one bounded `--version` probe with a fixed argv list, `shell` disabled, a hard timeout, and a per-stream memory cap. The probe group always receives `SIGTERM` and then `SIGKILL`, including descendants that hold pipes or ignore `SIGTERM`.
+- The health check runs one bounded `--version` probe with a fixed argv list, `shell` disabled, a hard timeout, and a per-stream memory cap. The probe group always receives `SIGTERM` and then `SIGKILL`, including descendants that hold pipes or ignore `SIGTERM`. Every group signal is delivered while the leader is still unreaped (its zombie pins the PID/PGID), exit is observed with a nonreaping `waitid` bounded by the probe deadline, and the leader is reaped once by handle after the final `SIGKILL`; if leader ownership is unknown, no signal is sent.
 - The configured executable is not a sandbox. It runs with the full user privileges of the bridge process and can read global configuration and credentials.
 - This is a foundation only. Task submission, sessions, JSON event output, cancellation, and permission handling are not implemented. No public submit tool exists until safe permissions are verified. Never pass `--auto` to a bridge-run OpenCode process.
 

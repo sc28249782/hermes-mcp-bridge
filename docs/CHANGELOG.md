@@ -5,6 +5,9 @@
 - Add a disabled-by-default OpenCode adapter (`opencode_core.py`) with one additive read-only tool, `opencode_health`, registered only when the new `opencode` configuration section sets `enabled: true`. Discovery stays at 27 tools by default and becomes 28 tools when enabled.
 - The health check performs one bounded `--version` probe with a fixed argv list, `shell` disabled, a 1-120 second timeout (default 10), a per-stream memory cap (1024-1048576 bytes, default 65536), and process-group cleanup with `SIGTERM` escalation to `SIGKILL`. When disabled, the bridge fails closed and never spawns a process.
 - The adapter is a foundation only: task submission, sessions, JSON event output, cancellation, and permission handling are not implemented. No version bump.
+- Fix (review): the version probe no longer reaps the probe leader before the final group signal. Exit is observed with nonreaping `os.waitid` (`WEXITED|WNOHANG|WNOWAIT`, Linux) bounded by the same overall deadline as the drain; `SIGTERM`, the grace wait, and `SIGKILL` all happen while the unreaped leader pins the PGID; the single reap follows the final `SIGKILL` by handle; unknown leader ownership sends no signal. Regression tests record the real signal/wait ordering on the success, nonzero-exit, timeout, and pipe-descendant paths.
+- Config validation now rejects every ASCII control character (0x00-0x1F and 0x7F) in `opencode.binary`, not only NUL/CR/LF. Removed the unused 300-character version cap; the version regex already bounds the string to 200 characters.
+- Live acceptance recorded for `--version` ONLY against the real OpenCode CLI (WSL2, in-memory configuration, no settings change): `ok: true`, version `opencode v2.0.32`. Task submission, sessions, JSON event output, cancellation, and permissions remain unverified.
 
 ## Unreleased — v1.2.4 capability probe
 
