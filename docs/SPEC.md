@@ -1,7 +1,7 @@
 # Hermes MCP Bridge Specification
 
-Status: normative contract for the released v1.2.3 baseline and explicitly marked future requirements  
-Current released baseline: v1.2.3  
+Status: normative contract for the released baselines (v1.2.3, extended by v1.2.4 sections 16-17) and explicitly marked future requirements  
+Current released baseline: v1.2.4 (released 2026-10-18)  
 Canonical companion: TESTING.md for the MCP discovery count
 
 Release record: v1.2.4 released 2026-10-18 via a GPG-signed annotated tag on `213305638c135041c42a3f242d6c5665c49c3fdf` and published with a download-verified ZIP plus an external SHA256SUMS asset. The MCP Events amendment (section 15), originally the v1.2.4 target requirement, is deferred with no assigned release and remains blocked.

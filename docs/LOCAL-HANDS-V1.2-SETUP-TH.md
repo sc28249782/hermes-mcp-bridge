@@ -1,6 +1,6 @@
 # Local Hands v1.2.0 — การเปิดใช้ read-only WSL2 Hands
 
-สถานะ: implementation merge เข้า `main` แล้ว แต่ยังไม่ใช่ release tag  
+สถานะ: released ใน v1.2.0 (22 กันยายน 2026)  
 ขอบเขต: `hands_health`, `hands_list`, `hands_read` เท่านั้น ไม่มี write, patch, shell หรือ executable
 
 ## ก่อนเปิดใช้
@@ -21,7 +21,7 @@ Local Hands ปิดเป็นค่าเริ่มต้นเสมอ �
     "workspaces": [
       {
         "name": "sample-project",
-        "path": "/home/somchaip/work/sample-project"
+        "path": "/home/<user>/work/sample-project"
       }
     ],
     "max_read_bytes": 65536,
@@ -31,7 +31,7 @@ Local Hands ปิดเป็นค่าเริ่มต้นเสมอ �
       "customer-export-*.csv"
     ],
     "protected_paths": [
-      "/home/somchaip/work/sample-project/private-fixtures"
+      "/home/<user>/work/sample-project/private-fixtures"
     ]
   }
 }
@@ -56,4 +56,4 @@ Local Hands ปิดเป็นค่าเริ่มต้นเสมอ �
 - audit บันทึกเฉพาะ metadata เช่นจำนวน byte/entry ไม่บันทึก path, ชื่อไฟล์ หรือเนื้อหา
 - การกรองชื่อไฟล์ช่วยลดความเสี่ยง แต่ไม่ทำให้ workspace เป็นแหล่งข้อมูลปลอด secret โดยอัตโนมัติ; เลือก workspace อย่างระมัดระวัง
 
-การทดสอบ live บน WSL2/ext4 และ DrvFS รวมถึงกรณี Hermes/Codex unavailable ยังเป็น release gate ของ v1.2.0 ตาม [runbook live acceptance](LOCAL-HANDS-V1.2-LIVE-ACCEPTANCE-TH.md) และ [แผน implementation](LOCAL-HANDS-IMPLEMENTATION-PLAN-TH.md)
+การทดสอบ live บน WSL2/ext4 และ DrvFS รวมถึงกรณี Hermes/Codex unavailable เป็น release gate ของ v1.2.0 และผ่านครบแล้ว (22 กันยายน 2026) ตาม [runbook live acceptance](LOCAL-HANDS-V1.2-LIVE-ACCEPTANCE-TH.md) และ [แผน implementation](LOCAL-HANDS-IMPLEMENTATION-PLAN-TH.md)

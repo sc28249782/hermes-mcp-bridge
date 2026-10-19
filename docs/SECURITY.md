@@ -20,7 +20,7 @@
 
 ## OpenCode adapter (`opencode_health`)
 
-`opencode_health` (รวมใน release candidate v1.2.4 แล้ว แต่ยังไม่เผยแพร่และยังไม่ติดตั้ง — release ล่าสุดที่เผยแพร่คือ v1.2.3) เป็น disabled by default: เมื่อไม่กำหนด section `opencode` หรือ `enabled` เป็น `false` ทุก health check fail closed โดยไม่ spawn process และไม่มีการเรียก network/model/auth. การเปิดใช้ต้องกำหนด `opencode.binary` เป็น absolute path (ไม่เกิน 4096 ตัวอักษร ไม่มี control characters ต้องเป็น regular executable file) พร้อม `version_timeout_seconds` (1-120) และ `max_output_bytes` (1024-1048576); ไม่มีการเปิดใช้อัตโนมัติ
+`opencode_health` (รวมใน released v1.2.4 แล้ว — 18 ตุลาคม 2026; deployment ที่ยังรัน v1.2.3 จะไม่มี adapter นี้จนกว่า operator จะอัปเกรด) เป็น disabled by default: เมื่อไม่กำหนด section `opencode` หรือ `enabled` เป็น `false` ทุก health check fail closed โดยไม่ spawn process และไม่มีการเรียก network/model/auth. การเปิดใช้ต้องกำหนด `opencode.binary` เป็น absolute path (ไม่เกิน 4096 ตัวอักษร ไม่มี control characters ต้องเป็น regular executable file) พร้อม `version_timeout_seconds` (1-120) และ `max_output_bytes` (1024-1048576); ไม่มีการเปิดใช้อัตโนมัติ
 
 ขอบเขตเป็น health เท่านั้น: ยังไม่มี task submission, sessions, events, cancellation หรือ permission integration. bridge ไม่เพิ่ม sandbox — executable ที่กำหนดรันด้วยสิทธิ์เต็มของ bridge process และอ่าน global configuration/credentials ได้ จึงเปิดใช้เฉพาะ binary ที่ตรวจแล้ว. runner ไม่ส่ง `--auto` และ `--standalone` เป็น exclusive in-process server ไม่ใช่ sandbox
 

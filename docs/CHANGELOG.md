@@ -2,7 +2,7 @@
 
 ## v1.2.4 — released (18 October 2026; signed tag, published)
 
-- Scope note (18 October 2026): the capability-gated MCP Events track originally planned for v1.2.4 is deferred to an unversioned BLOCKED track with no assigned release and is not part of this maintenance candidate (OpenCode health adapter disabled by default and legacy stdio discovery guard only).
+- Scope note (18 October 2026): the capability-gated MCP Events track originally planned for v1.2.4 is deferred to an unversioned BLOCKED track with no assigned release and is not part of this maintenance release (OpenCode health adapter disabled by default and legacy stdio discovery guard only).
 
 Release record: released on 18 October 2026 via GPG-signed annotated tag `v1.2.4` on main `213305638c135041c42a3f242d6c5665c49c3fdf` (build input `0884482d8cf74d696b6c52a785282f65f2bd40fa`); the final ZIP built from the signed tag is published at https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.4 (ZIP SHA-256 `e6deb0e6ab16d669836b0e361e2e875858e19597ef35dc7e4fc19010a6a5f3a9`, external SHA256SUMS asset, fresh download re-verified). Production runtime remains the released v1.2.3. Live Secure MCP Tunnel acceptance over the real Dev plugin route was recorded on 18 October 2026 as a bounded pass (identity/status/tool visibility confirmed; the tunnel-side guard `-32601` observation stays unproven from the dispatcher log — see LIVE-ACCEPTANCE-TH.md).
 
@@ -63,6 +63,8 @@ Release record: released on 18 October 2026 via GPG-signed annotated tag `v1.2.4
 - Documented that the timeout watchdog runs in the persistent MCP server process; standalone local CLI approval depends on that server remaining available or on later status polling.
 
 ## Unreleased
+
+> Historical note (18 October 2026): every item in this section shipped in v1.2.0 or a later release recorded above; kept here as history.
 
 - Clarified the two-phase release process: final archive checksums are external GitHub Release assets verified after the signed tag; a follow-up release-record commit documents that outcome without mutating the release tag.
 

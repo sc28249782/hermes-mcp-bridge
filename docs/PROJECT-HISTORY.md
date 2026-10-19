@@ -16,5 +16,10 @@ For the project purpose and architectural choices, see [Project origin](PROJECT-
 | v0.9.0–v0.9.1 | Operational state and Hermes capability hardening | Added local heartbeat, stale labels, versioned configuration validation, and canonical `run_approval_response` capability detection. |
 | v1.0.0 | Production baseline | Completed compatibility/release documentation and full WSL2 acceptance; published archive checksum and signed, GitHub-verified release tag. |
 | v1.0.1 | Maintenance validation | Aligned approval-TTL schema validation with runtime policy; published a signed, checksum-verified archive and completed WSL2 read-only acceptance. |
+| v1.2.0 | Local Hands read-only | Added the opt-in read-only Local Hands backend (`hands_health`/`hands_list`/`hands_read`, 22-tool discovery), strict `openat2` workspace containment, and ext4/DrvFS live acceptance. |
+| v1.2.1 | Explicit work contexts | Added metadata-only work contexts (four context tools, 26-tool discovery) with Hermes session and Codex metadata binding. |
+| v1.2.2 | Bridge version and provenance | Added local-only CLI/MCP version identity with embedded provenance and the durable detached Codex worker repair. |
+| v1.2.3 | Worker-supervision maintenance | Kept a job `running` while its Codex child outlives a lost worker; introduced SPEC.md as the normative contract. |
+| v1.2.4 | Maintenance release | Added the disabled-by-default OpenCode health adapter (27-tool default, 28 on opt-in) and the legacy stdio discovery guard; MCP Events remained deferred (BLOCKED). |
 
 This repository is the source of record for implementation, tests, issues, releases, and project documentation.

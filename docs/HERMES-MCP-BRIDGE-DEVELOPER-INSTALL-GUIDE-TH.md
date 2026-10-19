@@ -3,8 +3,8 @@
 เอกสารนี้อธิบาย bridge ที่เชื่อม ChatGPT ผ่าน Secure MCP Tunnel ไปยัง Hermes Agent ที่ทำงานอยู่ใน WSL2 โดยใช้ Hermes Runs API แบบ HTTP
 
 รุ่นอ้างอิง: Hermes Agent v0.21.1, commit `8d79c2ff`  
-Bridge: `hermes-mcp-bridge-v1.0.1` (signed and GitHub-verified)  
-ปรับปรุงล่าสุด: 21 กันยายน 2026
+Bridge: `hermes-mcp-bridge-v1.2.4` (signed and GitHub-verified)  
+ปรับปรุงล่าสุด: 18 ตุลาคม 2026
 
 ## 1. ภาพรวมและขอบเขต
 
@@ -35,7 +35,7 @@ Bridge นี้ทำหน้าที่เป็น adapter และ state 
 - ยอมให้หยุดงานแบบ cooperative stop
 - ไม่สร้าง filesystem sandbox เพิ่ม และไม่เปลี่ยน permission/tool policy ของ Hermes
 
-เครื่องมือ MCP รวม 19 รายการ: Hermes 10 รายการ, Codex 6 รายการ และ read-only operations 3 รายการ (`bridge_diagnostics`, `bridge_audit_recent`, `bridge_status`). รายละเอียด policy และ approval ของ Codex อยู่ใน `CODEX-WSL2-TH.md`.
+เครื่องมือ MCP รวม 27 รายการ: Hermes 10 รายการ, Codex 6 รายการ, read-only operations 3 รายการ (`bridge_diagnostics`, `bridge_audit_recent`, `bridge_status`), work contexts 4 รายการ, Local Hands read-only 3 รายการ และ `bridge_version` 1 รายการ (เป็น 28 เมื่อเปิดใช้ OpenCode adapter แบบ opt-in) ตารางด้านล่างแสดงเฉพาะเครื่องมือ Hermes สัญญา discovery ฉบับเต็มอยู่ใน `TESTING.md` รายละเอียด policy และ approval ของ Codex อยู่ใน `CODEX-WSL2-TH.md`.
 
 | Tool | หน้าที่ |
 |---|---|
@@ -93,10 +93,10 @@ curl --max-time 10 -sS -o /dev/null -w 'HTTP %{http_code}\n' \
 แตก ZIP ไปยัง path Linux ที่ไม่มีช่องว่าง เช่น:
 
 ```bash
-cd /home/somchaip
+cd ~
 sha256sum -c SHA256SUMS
-unzip hermes-mcp-bridge-v1.0.1.zip
-cd /home/somchaip/hermes-mcp-bridge-v1.0.1
+unzip hermes-mcp-bridge-v1.2.4.zip
+cd ~/hermes-mcp-bridge-v1.2.4
 bash install.sh
 ```
 
@@ -131,8 +131,8 @@ bash install.sh
 ```json
 {
   "api_url": "http://127.0.0.1:8642",
-  "hermes_env": "/home/somchaip/.hermes/.env",
-  "hermes_config": "/home/somchaip/.hermes/config.yaml",
+  "hermes_env": "/home/<user>/.hermes/.env",
+  "hermes_config": "/home/<user>/.hermes/config.yaml",
   "codex": { "allowed_workspaces": [] }
 }
 ```
@@ -176,8 +176,8 @@ GET /v1/capabilities 200 OK
 ใน OpenAI Platform ให้สร้าง Tunnel, associate กับ ChatGPT workspace และเก็บ `tunnel_id` จากนั้นติดตั้ง official `tunnel-client`:
 
 ```bash
-mkdir -p /home/somchaip/.local/bin
-chmod 700 /home/somchaip/.local/bin/tunnel-client
+mkdir -p ~/.local/bin
+chmod 700 ~/.local/bin/tunnel-client
 export PATH="$HOME/.local/bin:$PATH"
 tunnel-client help quickstart
 ```
@@ -187,7 +187,7 @@ tunnel-client help quickstart
 ก่อนเริ่มครั้งแรก ให้บันทึก OpenAI Platform runtime key (คนละตัวกับ Hermes `API_SERVER_KEY`) โดยไม่แสดงค่าในหน้าจอ:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v1.0.1
+cd ~/hermes-mcp-bridge-v1.2.4
 bash tunnel.sh key-set
 bash tunnel.sh key-status
 ```
@@ -205,14 +205,14 @@ bash tunnel.sh status
 เริ่มครั้งแรก:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v1.0.1
+cd ~/hermes-mcp-bridge-v1.2.4
 bash tunnel.sh init tunnel_IDจริง --force
 ```
 
 เริ่มครั้งถัดไป:
 
 ```bash
-cd /home/somchaip/hermes-mcp-bridge-v1.0.1
+cd ~/hermes-mcp-bridge-v1.2.4
 bash tunnel.sh run
 ```
 
@@ -238,7 +238,7 @@ bash tunnel.sh service-status
 2. Description: `ส่งงานให้ Hermes บน WSL2 ตรวจสถานะ อ่านผล และขอหยุดงาน`
 3. เลือก Tunnel ที่สร้าง หรือระบุ `tunnel_id`
 4. Authentication: **No authentication**
-5. สร้าง connection และตรวจว่าพบ MCP tools ทั้ง 19 รายการ (Hermes 10 + Codex 6 + operations 3)
+5. สร้าง connection และตรวจว่าพบ MCP tools ตาม canonical contract ใน `TESTING.md` — 27 รายการ (Hermes 10 + Codex 6 + operations 3 + contexts 4 + Hands 3 + `bridge_version`); 28 รายการเมื่อเปิดใช้ OpenCode adapter แบบ opt-in
 
 MCP target ของ profile นี้เป็น stdio และไม่มี OAuth discovery endpoint. OpenAI Platform runtime API key เป็น credential ของ `tunnel-client` เท่านั้น จึงไม่ใช่เหตุให้ต้องเลือก OAuth ในหน้า Plugin. ห้ามนำ hosted tunnel URL ไปวางใน Server URL; คง Connection เป็น **Tunnel** เสมอ.
 
@@ -290,6 +290,9 @@ MCP target ของ profile นี้เป็น stdio และไม่ม�
 | ไฟล์ | หน้าที่ |
 |---|---|
 | `core.py` | HTTP client, authentication, SQLite state, idempotency, pagination, ownership และ approval |
+| `codex_core.py` | Codex policy, job runner และ durable worker |
+| `opencode_core.py` | OpenCode health adapter (disabled by default) |
+| `stdio_guard.py` | legacy stdio discovery guard |
 | `bridge.py` | MCP stdio server และ local operator CLI |
 | `bridge.sh` | เรียก Python ใน `.venv` |
 | `install.sh` | สร้าง environment และติดตั้ง dependencies |
@@ -307,9 +310,9 @@ MCP target ของ profile นี้เป็น stdio และไม่ม�
 - retry หลัง response หายทำได้เมื่อ Hermes ประกาศ durable idempotency และยังอยู่ใน safe replay window
 - เปลี่ยน schema/API ต้องเพิ่ม fake-server test และ MCP stdio integration test
 
-ชุดทดสอบครอบคลุม Hermes lifecycle/recovery/model/usage เดิม, Codex workspace/model/reasoning allowlist, symlink, sandbox, write approval, audit/recovery และ MCP SDK stdio integration ที่ค้นพบ 19 tools
+ชุดทดสอบครอบคลุม Hermes lifecycle/recovery/model/usage เดิม, Codex workspace/model/reasoning allowlist, symlink, sandbox, write approval, audit/recovery และ MCP SDK stdio integration ที่ค้นพบ 27 tools
 
-การทดสอบดังกล่าวเป็น contract test กับ Hermes จำลอง ไม่ใช่การรัน live model หรือการยืนยัน UI ของ WordPress/Elementor
+การทดสอบดังกล่าวเป็น contract test กับ Hermes จำลอง ไม่ใช่การรัน live model หรือการยืนยัน UI จริง
 
 ## 11. Troubleshooting
 
@@ -337,7 +340,7 @@ MCP target ของ profile นี้เป็น stdio และไม่ม�
 - Hermes API ตอบ `200` เมื่อใช้ key และปฏิเสธ request ที่ไม่มี key
 - `./bridge.sh doctor` ได้ `ok: true`
 - `tunnel-client doctor` ผ่านและ `tunnel.sh run` คง connection ได้
-- ChatGPT ค้นพบเครื่องมือ MCP ครบ 19 รายการ รวม Hermes 10, Codex 6, `bridge_diagnostics`, `bridge_audit_recent` และ `bridge_status`
+- ChatGPT ค้นพบเครื่องมือ MCP ครบตาม canonical contract (27 รายการ; 28 เมื่อเปิด OpenCode adapter) รวม Hermes 10, Codex 6, `bridge_diagnostics`, `bridge_audit_recent`, `bridge_status`, contexts 4, Hands read-only 3 และ `bridge_version`
 - health, response-only task และ read-only task ผ่าน
 - `codex_health` แสดง workspace policy ที่ตั้งใจ; หากเปิด model override ให้ทดสอบ model ID/effort ที่อยู่ใน allowlist ก่อนใช้งานจริง
 - retry ด้วย request เดิมไม่สร้าง run ซ้ำ

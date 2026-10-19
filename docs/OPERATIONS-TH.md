@@ -1,4 +1,4 @@
-# คู่มือปฏิบัติการ — v1.2.3 release
+# คู่มือปฏิบัติการ — release v1.2.4
 
 ## Version และ provenance
 
@@ -67,7 +67,7 @@ Codex watchdog ตาม `codex.watchdog_interval_seconds` (ค่าเริ�
 
 ## OpenCode health adapter (released v1.2.4 — 18 ตุลาคม 2026; production deployment ยัง v1.2.3)
 
-adapter ถูกรวมแล้วใน released v1.2.4 (PR #34) ซึ่งเผยแพร่แล้วผ่าน signed tag production deployment ยังรัน released v1.2.3 จึงยังไม่จำเป็นต้องมีขั้นตอนติดตั้ง อัปเกรด หรือ restart ใด ๆ จาก release นี้ adapter เป็น disabled by default: ถ้าไม่มี section `opencode` หรือ `enabled` เป็น `false` discovery ยังอยู่ที่ canonical 27 tools และทุก health check fail closed โดยไม่ spawn process ใด ๆ เมื่อเปิดใช้ `opencode_health` ลงทะเบียนเพิ่มหนึ่ง read-only tool และ discovery เป็น 28 tools
+adapter ถูกรวมแล้วใน released v1.2.4 (PR #34) ซึ่งเผยแพร่แล้วผ่าน signed tag. production deployment ยังรัน released v1.2.3 จนกว่า operator จะเลือกอัปเกรด จึงยังไม่จำเป็นต้องมีขั้นตอนติดตั้ง อัปเกรด หรือ restart ใด ๆ จาก release นี้. adapter เป็น disabled by default: ถ้าไม่มี section `opencode` หรือ `enabled` เป็น `false` discovery ยังอยู่ที่ canonical 27 tools และทุก health check fail closed โดยไม่ spawn process ใด ๆ เมื่อเปิดใช้ `opencode_health` ลงทะเบียนเพิ่มหนึ่ง read-only tool และ discovery เป็น 28 tools
 
 เมื่อเปิดใช้ (adapter ตีพิมพ์แล้วใน released v1.2.4) ให้เพิ่ม section `opencode` ลงใน `bridge-config.json` แบบ merge — เก็บ key เดิมทั้งหมด ห้ามแทนที่ทั้งไฟล์:
 
@@ -106,7 +106,7 @@ adapter ถูกรวมแล้วใน released v1.2.4 (PR #34) ซึ่�
 
 ข้อจำกัด: live acceptance ยืนยันเฉพาะผล `--version` (`opencode v2.0.32`) ยังไม่มี task submission, sessions, events, cancellation หรือ permission integration bridge ไม่เพิ่ม sandbox — executable ที่กำหนดรันด้วยสิทธิ์เต็มของ bridge process และอ่าน global configuration/credentials ได้ จึงต้องอ่าน `SECURITY.md` ก่อนเปิดใช้ runner ไม่ส่ง `--auto` และ `--standalone` เป็น exclusive in-process private server ไม่ใช่ sandbox OpenCode CLI ต่างจาก provider `opencode-go` ใน Hermes config
 
-## Legacy stdio discovery guard (รวมใน release candidate v1.2.4 — ทำงานเองบน stdio ไม่ต้องแก้ config)
+## Legacy stdio discovery guard (released v1.2.4 — ทำงานเองบน stdio ไม่ต้องแก้ config)
 
 อาการที่อาจเจอและสาเหตุ:
 

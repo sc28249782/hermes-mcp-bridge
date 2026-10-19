@@ -1,7 +1,7 @@
 # Hermes Local Hands — สถาปัตยกรรมและขอบเขตความปลอดภัย
 
 สถานะ: เอกสารออกแบบสำหรับ roadmap หลัง `v1.0.1`  
-เป้าหมายรุ่นแรก: `v1.2.0` แบบ read-only (`health/list/read`)  
+เป้าหมายรุ่นแรก: `v1.2.0` แบบ read-only (`health/list/read`) — released แล้ว 22 กันยายน 2026; v1.3.0 mutation/execution ยังพักตาม capability gate (ดู ROADMAP.md)  
 เอกสารที่เกี่ยวข้อง: `ROADMAP.md`, `LOCAL-HANDS-IMPLEMENTATION-PLAN-TH.md`, `HERMES-MCP-BRIDGE-TECHNICAL-ARCHITECTURE-TH.md`, `CODEX-WSL2-TH.md`
 
 ## 1. เป้าหมาย
