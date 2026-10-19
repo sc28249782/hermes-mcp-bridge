@@ -333,6 +333,6 @@ Hermes result สองหน้าต่อกันตรงครบ 29 chara
 นี่เป็น runtime จริงกับ in-process fake Hermes transport; ไม่ใช่ actual Hermes HTTP/native approval/model acceptance หรือ live Codex read-cap probe.
 State mode 0700 เป็น disposable fixture; directory repair และ bounded reads อ้าง WSL tests แยก.
 Root config schema รายงาน `unknown` ตาม fixture ที่ไม่มี config file; embedded schema 1 และ version stamp เดิมไม่ใช่ release ใหม่.
-Restored-route proof ยังรอ operator คืน Dev เดิมและ parent ตรวจ pin `e7add7e`.
+Restored-route verification ผ่านจาก Dev connector: pin `e7add7e`, schema 1, state เดิม mode 0700, Hermes/Codex jobs 0, watchdog ทำงาน และ Hands disabled. Recent Hermes/Codex lists ว่าง; ไม่ยืนยัน OpenCode job count หลัง restore เพราะ tool ไม่ปรากฏใน parent registry รอบนี้.
 ตารางหลักฐานและวิธีคืน route: [PRIVACY-DEV-ACCEPTANCE-TH.md](PRIVACY-DEV-ACCEPTANCE-TH.md).
 Privacy follow-up ยังไม่ปิด; production ไม่ถูกเปลี่ยน.
