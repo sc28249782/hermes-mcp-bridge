@@ -18,6 +18,8 @@ Status remains `running` when that worker is unavailable but its child is still 
 
 Previous release: **2026-10-18**, **v1.2.4** with a GPG-signed annotated tag on `2133056`. It adds the disabled-by-default OpenCode health adapter (PR #34; discovery stays at the canonical 27 tools unless an operator opts in) and the legacy stdio discovery guard (PR #35). Release assets plus an external SHA256SUMS are published at https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.4 (ZIP SHA-256 `e6deb0e6ab16d669836b0e361e2e875858e19597ef35dc7e4fc19010a6a5f3a9`, download re-verified). MCP Events is not included (deferred, BLOCKED). Production deployment remains v1.2.3; this release requires no rollout, service, or config change. Current installation and upgrade instructions use v1.2.5.
 
+Deployment note (dated): the "Production deployment remains v1.2.3" statement in the paragraph above describes 2026-10-18, the v1.2.4 release date. The production deployment is v1.2.5 as of 2026-10-19; see [release status](docs/RELEASE-STATUS-TH.md).
+
 Released **2026-10-19** as **v1.2.5** with a signed annotated tag on `6fbcd7e`. [Release ZIP and external SHA256SUMS](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.5) were downloaded and verified (ZIP SHA-256 `1f1c8a583cf7f51a88ec35ca3023c86342220f5baba37faed3f1724b04bf8d5f`). See [release status](docs/RELEASE-STATUS-TH.md).
 
 ## OpenCode health (disabled by default)

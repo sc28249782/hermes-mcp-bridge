@@ -117,24 +117,30 @@ Status: implemented on `main` (merged by PR #40 at merge commit `a666d626`; fina
 - [x] Verify the probe against the real OpenCode CLI (`v2.0.32`) in a WSL2 live acceptance for the `--version` surface only (in-memory configuration, no settings change): `ok: true` with version `opencode v2.0.32`. This proves the version probe only; it is not acceptance for any other surface.
 - [x] Implement the submission capability behind the separately gated `opencode.execution` opt-in (v1.2.5 release; see the section above). Native permission replies and event subscriptions remain unsupported: `permission_required` requires an explicit protocol event, the bridge never auto-approves, and no coverage beyond the fixture probe is claimed. Working directory and private server mode are not a sandbox; never pass `--auto`.
 
-## Prerequisites before Local Hands mutation development (checkpoint 19 October 2026)
+## Outstanding work before Local Hands mutation development (checkpoint 19 October 2026)
 
-This checkpoint records what MUST finish before the v1.3.0 mutation track below starts, based on the current records. It adds no requirement; each item cites the existing record. Separate blockers from optional follow-ups.
+This checkpoint records outstanding work and existing gates as of 19 October 2026. It does not add new requirements.
 
-Blockers, in priority order:
+Existing hard gate (already normative; not introduced here):
 
-1. Independent artifact-chain audit for v1.2.5 — pending. [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md) records signed-tag, archive, checksum, and CI verification, but no independent external review of the v1.2.5 artifact chain exists yet (the v1.2.2 and v1.2.3 records carry independent reviews).
-2. SPEC.md sections 4 and 10 privacy contract review — pending. The shipped execution surface returns paginated untrusted output (`opencode_task_result`) and stores private per-job artifacts. Review these surfaces against the section 4 bounded-response and no-secret-bearing-field rules and the section 10 privacy invariants. Any gap requires a SPEC amendment before further implementation builds on it.
-3. Production OpenCode benign model acceptance — not yet done. The recorded real-model acceptance ran on the Dev route only ([TESTING.md](TESTING.md), [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md)). The 19 October 2026 production plugin checkpoint verified identity, health, discovery, and the execution API listing only (`opencode_recent_tasks` returned an empty `jobs` list); it does not prove production model task acceptance.
-4. Local Hands mutation gates — spec-first and fail-closed, per [SPEC.md](SPEC.md), [SECURITY.md](SECURITY.md), and the v1.3.0 section below. A SPEC amendment MUST exist before mutation implementation. Kernel-enforced no-delete/no-unapproved-truncate (for example Landlock) MUST be probed at runtime, and profiles MUST fail closed when enforcement is insufficient. Approval is local and digest-bound with no MCP approval tool.
+- v1.3.0 remains paused until the bridge establishes reliable, user-subscribed Hermes terminal-status delivery, and MCP Events stays BLOCKED at the subscription gate. [SPEC.md](SPEC.md) section 14 ("Local Hands mutation/execution remains deferred while this gate is evaluated") and the deferred MCP Events section above already state this.
+- Per that section's recorded rule: stop identical prompt retries; reopen only after verifying client/workspace event-triggered task eligibility and capturing the protocol request. This records the existing reopen rule; it does not categorically prohibit future diagnostics or code changes on that track.
 
-Standing blocked track — no reprobes and no code changes:
+Requirements that already bind mutation work (existing, per [SPEC.md](SPEC.md), [SECURITY.md](SECURITY.md), and the v1.3.0 section below):
 
-- MCP Events stays BLOCKED at the subscription gate; no `events/subscribe` delivery has been observed. Per the deferred section below: stop identical prompt retries and reopen only after capturing protocol evidence.
+- Spec-first: a SPEC amendment is required before implementation is merged for the change classes listed in SPEC.md section 14.
+- Approval stays local and digest-bound (ADR-0001 action digests), with no MCP approval tool.
+- Any execution profile that claims no-delete/no-unapproved-truncate requires kernel-level enforcement that is probed at runtime (for example Landlock), and such a profile fails closed when enforcement is unavailable. This requirement does not make kernel enforcement a prerequisite for exact approved write/patch operations or for design work.
 
-Proposed, not committed:
+Recommended follow-ups (pending; not blockers; scoped separately from the hard gate above):
 
-- Context softcap/pruning, observation annotations, and observation counters are not implemented in code and are not normative SPEC sections. The only related repository material is the proposed observation identity/TTL/budget design in the future-requirement Local Hands computer-use documents ([LOCAL-HANDS-ARCHITECTURE-TH.md](LOCAL-HANDS-ARCHITECTURE-TH.md), [LOCAL-HANDS-IMPLEMENTATION-PLAN-TH.md](LOCAL-HANDS-IMPLEMENTATION-PLAN-TH.md)); `ToolAnnotations` in code are standard MCP read/write hints, not observation annotations. Treat all of these as proposals; each needs a SPEC amendment and a roadmap item before any implementation claim.
+- Independent external review of the v1.2.5 artifact chain remains pending per the reviewer's note. The repo records tag, archive, checksum, and CI verification in [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md); those records do not show an independent external review for v1.2.5 (the v1.2.2 and v1.2.3 records include one).
+- SPEC.md sections 4 and 10 privacy contract review remains pending: the shipped execution surface returns paginated untrusted output (`opencode_task_result`) and stores private per-job artifacts; review them against the section 4 bounded-response and no-secret-bearing-field rules and the section 10 privacy invariants.
+- Production OpenCode benign model acceptance has not been performed as part of this checkpoint. The recorded real-model acceptance ran on the Dev route only ([TESTING.md](TESTING.md), [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md)); the 19 October 2026 production plugin checkpoint covers identity, health, discovery, and the execution API listing only.
+
+Proposals pending scoping (prior chat proposals; absent from committed roadmap items):
+
+- Context softcap/pruning; observation annotations; an observation counter. These are proposals; scope each before treating it as planned work.
 
 Optional follow-ups, lower priority:
 
