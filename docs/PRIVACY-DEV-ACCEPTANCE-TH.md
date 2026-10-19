@@ -1,6 +1,6 @@
 # Privacy candidate — Dev transport acceptance
 
-สถานะ: Dev transport fixture ผ่านตามขอบเขตที่บันทึก; restored-route proof และ acceptance review ยังรอ.
+สถานะ: Dev transport fixture และ restored-route verification ผ่านตามขอบเขตที่บันทึก; acceptance-record review ยังรอ.
 วันที่: 19 ตุลาคม 2026.
 Candidate: `db00968230fd4aee5690c361b11c8bc8fc36dabc` หลัง merge PR #47.
 Directory ที่เตรียม: `~/workspace/hermes-mcp-bridge-privacy-dev` (detached worktree).
@@ -66,7 +66,7 @@ Background task ไม่มี environment key ที่ Dev profile อ้า�
 
 ## สิ่งที่ยังไม่ผ่านใน preparation นี้
 
-- Actual Dev transport และ restored-route proof.
+- Actual Dev transport และ restored-route proof ผ่านแล้วตาม checkpoint ด้านล่าง; ไม่ครอบคลุม actual Hermes HTTP/native approval/model acceptance.
 - Production OpenCode benign model acceptance.
 - Release/version decision, signed assets และ deployment.
 - Privacy follow-up closure และ gates ของ MCP Events/Local Hands.
@@ -95,5 +95,5 @@ Hands ที่ available เป็น read-only synthetic fixture workspace เ
 Directory repair และ bounded Codex reads อ้างผล real-filesystem tests บน WSL ที่ candidate เดียวกัน; ไม่ได้ probe Codex result ผ่าน Dev tunnel ในรอบนี้.
 สถานะ `PASS` จำกัดเฉพาะรายการในตาราง.
 
-**รอ restored-route proof:** ให้ operator หยุด fixture และเริ่ม Dev โดยไม่ใส่ command override แล้ว parent ต้องตรวจ revision กลับเป็น `e7add7e`.
-Privacy follow-up ยังเปิดรอ restoration, acceptance-record review และ release/deployment decision.
+**Restored-route verification: ผ่าน.** หลัง operator คืน route แล้ว parent เรียก Dev connector ซ้ำ: revision `e7add7e594fb2cc0029dd53b628c85f9a7c1a87c`, source `git-worktree`, schema 1 และ default discovery count 27. `bridge_status` กลับสู่ state เดิม mode 0700; Hermes/Codex registered jobs เป็น 0, watchdog ทำงาน และ Local Hands disabled. `hermes_recent_tasks` และ `codex_recent_tasks` ว่าง. รอบนี้ไม่ได้เรียก OpenCode recent เพราะ tool ไม่ปรากฏใน registry ที่ parent ใช้ จึงไม่ยืนยันจำนวน OpenCode jobs หลัง restore.
+Privacy follow-up ยังเปิดรอ acceptance-record review และ release/deployment decision.
