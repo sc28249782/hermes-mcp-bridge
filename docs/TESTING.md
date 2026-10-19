@@ -2,6 +2,8 @@
 
 ## Unreleased privacy-hardening candidate (SPEC §19)
 
+WSL preparation checkpoint (19 October 2026): isolated candidate `db009682` passed 183/183 full-suite tests in its own venv, 18/18 privacy regressions and shellcheck. Local SDK stdio fixture discovery was 27; status metadata was 415 bytes with filtered approval/error. This supplements the earlier host limitation below; it is not live Dev transport evidence. Operator handoff: [PRIVACY-DEV-ACCEPTANCE-TH.md](PRIVACY-DEV-ACCEPTANCE-TH.md).
+
 - `tests/test_privacy_hardening.py`: 18 process-free synthetic regressions cover metadata allowlists, numeric/size limits, exact local approval, legacy key exclusion, timeout/error behavior, existing-directory enforcement and failures, bounded snapshot reads, Unicode/newlines/invalid UTF-8, sparse/oversize logs, append/truncate races and read-budget assertions.
 - `tests/test_mcp.py::test_privacy_metadata_is_bounded_on_real_stdio` checks the actual SDK stdio boundary with fake Hermes data. It verifies no raw approval/error fixture reaches metadata and discovery remains at the canonical default.
 - Focused local suite: 40/40 pass with the project venv and `-W error::ResourceWarning` (`test_privacy_hardening`, `test_bridge`, `test_mcp`). No real model/provider call is made.
