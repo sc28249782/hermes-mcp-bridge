@@ -1,5 +1,12 @@
 # Hermes MCP Bridge
 
+## Unreleased privacy hardening
+
+A separate candidate implements the reviewed privacy requirements in [SPEC section 19](docs/SPEC.md).
+It filters Hermes metadata, enforces private directory modes and bounds Codex result reads.
+It has no assigned release and is not deployed to production.
+The signed v1.2.5 release and its acceptance records remain unchanged.
+
 Securely connect ChatGPT to a local Hermes Agent and Codex CLI running in WSL2, through an OpenAI Secure MCP Tunnel.
 
 The bridge is a controlled local execution boundary. It does not expose a general remote shell.
@@ -116,3 +123,4 @@ Run `bash tunnel.sh init tunnel_YOUR_ID --force` when changing the bridge direct
 Licensed under [Apache License 2.0](LICENSE).
 
 The Local Hands design was inspired in part by [Endeavor Hands](https://github.com/halochamp/Endeavor_Hands) (MIT). No Endeavor Hands source code or assets are incorporated in the current runtime; see [Third-Party Notices](THIRD_PARTY_NOTICES.md).
+
