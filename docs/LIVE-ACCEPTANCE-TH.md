@@ -292,3 +292,24 @@ Production deployment อัปเกรดเป็น released v1.2.5 แล�
 - Registry: parent tool registry แสดง 33 tools (นับฝั่ง parent ไม่ใช่ raw `tools/list` บน wire)
 - Jobs: `opencode_recent_tasks` ok พร้อม `jobs` ว่าง; Local Hands disabled
 - Scope: identity/health/discovery และ execution API listing เท่านั้น ไม่มีการส่ง production model task ระหว่าง checkpoint นี้ และ checkpoint นี้ไม่ถือเป็นการยอมรับ production acceptance
+
+### Fresh artifact chain re-verification (19 ตุลาคม 2026)
+
+Automation ฝั่ง maintainer ตรวจ artifact chain ของ v1.2.5 ซ้ำทั้งสายจากข้อมูลดิบใหม่ทั้งหมด ไม่ใช้ไฟล์ที่เคยดาวน์โหลดหรือ tag ที่มีอยู่ก่อน ผลตรวจผ่านทุกรายการ บันทึกนี้เป็นการตรวจโดย automation ไม่ใช่การอนุมัติโดย external reviewer ภายนอก
+
+- Fresh fetch จาก origin ลง temporary bare repository ที่แยกจาก working copies เดิม (ไม่แตะ tag ที่มีอยู่): `git verify-tag v1.2.5` แสดง `Good signature` ด้วย EDDSA key `C4E9AFA9C97FC94CA2448E9218BDAEA561529B86`; tag object `11420f1a…` และ peeled commit `6fbcd7e…` ตรงกับค่าที่บันทึกไว้ใน section นี้
+- ดาวน์โหลด asset ใหม่ทั้งสองไฟล์จาก GitHub Release ลง scratch directory ใหม่: `sha256sum -c SHA256SUMS` รายงาน `OK` และ digest ฝั่ง GitHub ของ asset ทั้งสองตรงกับที่ดาวน์โหลด
+- ZIP structure: 79 entries ใต้ root เดียว `hermes-mcp-bridge-v1.2.5/` ไม่มี duplicate entry และไม่มี traversal entry ไม่พบ symlink หรือ special file และไม่พบ `.git/`, `.venv/`, `__pycache__/`, `state/`, `.env`, `bridge-config.json*`
+- สร้าง `git archive --format=zip --prefix=hermes-mcp-bridge-v1.2.5/ v1.2.5` ใหม่จาก signed tag ใน bare repository แล้ว `cmp` กับ ZIP ที่ดาวน์โหลด: byte-identical ที่ SHA-256 `1f1c8a583cf7f51a88ec35ca3023c86342220f5baba37faed3f1724b04bf8d5f` (271,346 bytes)
+- แตกไฟล์จาก ZIP ที่ดาวน์โหลดแล้วตรวจ stamp: version `1.2.5`, identifier `v1.2.5`, provenance `release`, embedded build input `a666d626…`, discovery 27 จากนั้นรัน version CLI offline ด้วย venv เดิมของ working copy จาก tree ที่ไม่มี `.git`: `ok: true`, source kind `release-archive`, discovery 27 (ไม่มี network หรือ model call)
+- ยืนยันความต่างสองค่าตาม runbook: signed tag คือ authority ของ final commit `6fbcd7e…` ส่วน embedded revision `a666d626…` คือ reviewed build input ซึ่งเป็น ancestor ของ final commit (ยืนยันด้วย `git merge-base --is-ancestor`)
+- ขอบเขต: ตรวจเฉพาะ artifact chain ไม่มีการแก้ tag, assets, release หรือ runtime สถานะ independent external reviewer approval ยังค้างตาม [ROADMAP.md](ROADMAP.md)
+
+### External artifact audit approval (19 ตุลาคม 2026)
+
+Operator ส่งรายงาน external review ของ Hermes Agent สำหรับ [PR #45](https://github.com/sc28249782/hermes-mcp-bridge/pull/45) ที่ head `c3754c9` เมื่อ 19 ตุลาคม 2026 เวลา 19:32 +07.
+Reviewer รายงานผลตรวจจาก fresh inputs ของตนเอง: fetch tag ใน temporary bare repository, ตรวจ signature, ดาวน์โหลด assets ทั้งสองใหม่, ตรวจ checksum/ZIP structure, rebuild เทียบ byte-identical, ตรวจ ancestry และรัน version CLI offline จาก archive ที่แตกใหม่.
+ผลทุกรายการผ่านและตรงกับ record ของ automation.
+Reviewer ให้ verdict `APPROVE`; external artifact-audit follow-up ของ v1.2.5 ปิดแล้ว.
+ข้อความ pending ใน checkpoint automation ข้างบนเป็นสถานะก่อน review นี้.
+การอนุมัตินี้ไม่ขยายขอบเขตไปยัง production model-task acceptance หรือ SPEC privacy contract review.
