@@ -85,7 +85,7 @@ Release record (18 October 2026): PR #34 and PR #35 are merged at `0884482d8cf74
 
 ## v1.2.5 — released OpenCode task execution (SPEC.md section 18)
 
-Status: implemented on `main` (merged by PR #40 at merge commit `a666d626`; final code head `e7add7e`) and released as signed **v1.2.5** on 19 October 2026 after PR #41. ZIP and external SHA256SUMS were downloaded and verified; production remains v1.2.3. See [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md). An explicit `opencode.execution` opt-in adds five tools (`opencode_submit_task`, `opencode_task_status`, `opencode_task_result`, `opencode_cancel_task`, `opencode_recent_tasks`; discovery 27 → 28 → 33) with a durable detached worker, bridge-owned sessions, idempotent submission, and native permission boundaries: no `--auto`, no bridge permission injection, workspace selection is a cwd allowlist and NOT isolation, `completed` never implies goal success, and `permission_required` requires an explicit protocol event — native permission replies and event subscriptions remain unsupported, and permission-required coverage stays fixture-only. Verified: 164/164 offline tests and CI at the code head, plus authenticated Dev Work-chat live acceptance on 19 October 2026 (records in [TESTING.md](TESTING.md) and [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md)). Released v1.2.4 remains health-only shipped. Details: [OPENCODE-TH.md](OPENCODE-TH.md).
+Status: implemented on `main` (merged by PR #40 at merge commit `a666d626`; final code head `e7add7e`) and released as signed **v1.2.5** on 19 October 2026 after PR #41. ZIP and external SHA256SUMS were downloaded and verified; production was upgraded to v1.2.5 on 2026-10-19 (identity/health/discovery verified read-only through the production plugin; see [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)). An explicit `opencode.execution` opt-in adds five tools (`opencode_submit_task`, `opencode_task_status`, `opencode_task_result`, `opencode_cancel_task`, `opencode_recent_tasks`; discovery 27 → 28 → 33) with a durable detached worker, bridge-owned sessions, idempotent submission, and native permission boundaries: no `--auto`, no bridge permission injection, workspace selection is a cwd allowlist and NOT isolation, `completed` never implies goal success, and `permission_required` requires an explicit protocol event — native permission replies and event subscriptions remain unsupported, and permission-required coverage stays fixture-only. Verified: 164/164 offline tests and CI at the code head, plus authenticated Dev Work-chat live acceptance on 19 October 2026 (records in [TESTING.md](TESTING.md) and [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md)). Released v1.2.4 remains health-only shipped. Details: [OPENCODE-TH.md](OPENCODE-TH.md).
 
 ## Deferred — Capability-gated MCP Events task-completion notifications (BLOCKED)
 
@@ -116,6 +116,30 @@ Status: implemented on `main` (merged by PR #40 at merge commit `a666d626`; fina
 - [x] Cover the foundation with offline fake-executable tests in `tests/test_opencode.py` and the enabled stdio fixture `tests/mock_opencode_server.py`.
 - [x] Verify the probe against the real OpenCode CLI (`v2.0.32`) in a WSL2 live acceptance for the `--version` surface only (in-memory configuration, no settings change): `ok: true` with version `opencode v2.0.32`. This proves the version probe only; it is not acceptance for any other surface.
 - [x] Implement the submission capability behind the separately gated `opencode.execution` opt-in (v1.2.5 release; see the section above). Native permission replies and event subscriptions remain unsupported: `permission_required` requires an explicit protocol event, the bridge never auto-approves, and no coverage beyond the fixture probe is claimed. Working directory and private server mode are not a sandbox; never pass `--auto`.
+
+## Prerequisites before Local Hands mutation development (checkpoint 19 October 2026)
+
+This checkpoint records what MUST finish before the v1.3.0 mutation track below starts, based on the current records. It adds no requirement; each item cites the existing record. Separate blockers from optional follow-ups.
+
+Blockers, in priority order:
+
+1. Independent artifact-chain audit for v1.2.5 — pending. [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md) records signed-tag, archive, checksum, and CI verification, but no independent external review of the v1.2.5 artifact chain exists yet (the v1.2.2 and v1.2.3 records carry independent reviews).
+2. SPEC.md sections 4 and 10 privacy contract review — pending. The shipped execution surface returns paginated untrusted output (`opencode_task_result`) and stores private per-job artifacts. Review these surfaces against the section 4 bounded-response and no-secret-bearing-field rules and the section 10 privacy invariants. Any gap requires a SPEC amendment before further implementation builds on it.
+3. Production OpenCode benign model acceptance — not yet done. The recorded real-model acceptance ran on the Dev route only ([TESTING.md](TESTING.md), [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md)). The 19 October 2026 production plugin checkpoint verified identity, health, discovery, and the execution API listing only (`opencode_recent_tasks` returned an empty `jobs` list); it does not prove production model task acceptance.
+4. Local Hands mutation gates — spec-first and fail-closed, per [SPEC.md](SPEC.md), [SECURITY.md](SECURITY.md), and the v1.3.0 section below. A SPEC amendment MUST exist before mutation implementation. Kernel-enforced no-delete/no-unapproved-truncate (for example Landlock) MUST be probed at runtime, and profiles MUST fail closed when enforcement is insufficient. Approval is local and digest-bound with no MCP approval tool.
+
+Standing blocked track — no reprobes and no code changes:
+
+- MCP Events stays BLOCKED at the subscription gate; no `events/subscribe` delivery has been observed. Per the deferred section below: stop identical prompt retries and reopen only after capturing protocol evidence.
+
+Proposed, not committed:
+
+- Context softcap/pruning, observation annotations, and observation counters are not implemented in code and are not normative SPEC sections. The only related repository material is the proposed observation identity/TTL/budget design in the future-requirement Local Hands computer-use documents ([LOCAL-HANDS-ARCHITECTURE-TH.md](LOCAL-HANDS-ARCHITECTURE-TH.md), [LOCAL-HANDS-IMPLEMENTATION-PLAN-TH.md](LOCAL-HANDS-IMPLEMENTATION-PLAN-TH.md)); `ToolAnnotations` in code are standard MCP read/write hints, not observation annotations. Treat all of these as proposals; each needs a SPEC amendment and a roadmap item before any implementation claim.
+
+Optional follow-ups, lower priority:
+
+- Capture a raw wire `tools/list` on the production route in a future maintenance window; the 19 October 2026 production evidence for 33 tools is a parent-side registry count, not a wire capture.
+- The recorded v1.2.4-era limitations (tunnel-side `server/discover` → `-32601` unobservable from the dispatcher log; permission-required coverage fixture-only) stay accepted as documented; revisit only when those surfaces change.
 
 ## Deferred — v1.3.0 Approval-bound mutation and execution
 

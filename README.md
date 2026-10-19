@@ -4,7 +4,8 @@ Securely connect ChatGPT to a local Hermes Agent and Codex CLI running in WSL2, 
 
 The bridge is a controlled local execution boundary. It does not expose a general remote shell.
 The current signed release is **v1.2.5**.
-The production deployment remains **v1.2.3** until the operator upgrades.
+The production deployment is **v1.2.5** (operator upgraded on 2026-10-19).
+The production upgrade checkpoint is recorded in [release status](docs/RELEASE-STATUS-TH.md).
 
 Released v1.2.5 adds the separately gated OpenCode execution opt-in.
 Discovery contains 27 MCP tools by default.

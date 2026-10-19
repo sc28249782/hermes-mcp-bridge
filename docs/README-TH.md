@@ -14,7 +14,7 @@ Operations: [OPERATIONS-TH.md](OPERATIONS-TH.md)
 
 หมายเหตุ (18 ตุลาคม 2026): released v1.2.4 เผยแพร่แล้วผ่าน signed tag (ZIP ตรวจแล้วจากการดาวน์โหลดจริง; ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)) โดยเพิ่ม OpenCode health adapter แบบ disabled by default และ legacy stdio discovery guard ขณะนั้นคู่มือแนะนำติดตั้ง released v1.2.4 การอัปเกรด deployment ที่ผลิตจริงเป็นดุลยพินิจของ operator (ยังรัน v1.2.3 เดิมได้)
 
-หมายเหตุ (19 ตุลาคม 2026): เผยแพร่ **v1.2.5** แล้ว พร้อม signed tag และ ZIP/SHA256SUMS ที่ตรวจหลังดาวน์โหลด คู่มือปัจจุบันใช้ v1.2.5; ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md) สำหรับ checksum และ provenance
+หมายเหตุ (19 ตุลาคม 2026): เผยแพร่ **v1.2.5** แล้ว พร้อม signed tag และ ZIP/SHA256SUMS ที่ตรวจหลังดาวน์โหลด คู่มือปัจจุบันใช้ v1.2.5; ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md) สำหรับ checksum และ provenance; production deployment อัปเกรดเป็น v1.2.5 แล้วเมื่อ 19 ตุลาคม 2026 (ตรวจ identity/health/discovery แบบ read-only ผ่าน production plugin; ขอบเขตหลักฐานอยู่ใน RELEASE-STATUS-TH.md)
 
 ตัวกลางนี้ทำให้ ChatGPT ส่งงานให้ Hermes ที่รันอยู่บนเครื่องคุณ แล้วตรวจสถานะ อ่านผล และขอหยุดงานได้
 ใช้ Runs API เดียวกับที่ `hermes peer run/status/stop` เรียก แต่เรียก HTTP โดยตรง

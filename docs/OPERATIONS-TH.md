@@ -81,7 +81,7 @@ Codex watchdog ตาม `codex.watchdog_interval_seconds` (ค่าเริ�
 
 ## OpenCode health adapter (released v1.2.4 — 18 ตุลาคม 2026; production deployment ยัง v1.2.3)
 
-adapter ถูกรวมแล้วใน released v1.2.4 (PR #34) ซึ่งเผยแพร่แล้วผ่าน signed tag. production deployment ยังรัน released v1.2.3 จนกว่า operator จะเลือกอัปเกรด จึงยังไม่จำเป็นต้องมีขั้นตอนติดตั้ง อัปเกรด หรือ restart ใด ๆ จาก release นี้. adapter เป็น disabled by default: ถ้าไม่มี section `opencode` หรือ `enabled` เป็น `false` discovery ยังอยู่ที่ canonical 27 tools และทุก health check fail closed โดยไม่ spawn process ใด ๆ เมื่อเปิดใช้ `opencode_health` ลงทะเบียนเพิ่มหนึ่ง read-only tool และ discovery เป็น 28 tools
+adapter ถูกรวมแล้วใน released v1.2.4 (PR #34) ซึ่งเผยแพร่แล้วผ่าน signed tag. ณ วันเผยแพร่ v1.2.4 production deployment ยังรัน released v1.2.3 จึงยังไม่จำเป็นต้องมีขั้นตอนติดตั้ง อัปเกรด หรือ restart ใด ๆ จาก release นี้ อัปเดต (19 ตุลาคม 2026): operator อัปเกรด production deployment เป็น released v1.2.5 แล้ว ตรวจ identity/health/discovery แบบ read-only ผ่าน production plugin แล้ว (ขอบเขตหลักฐานและ checkpoint อยู่ใน [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)). adapter เป็น disabled by default: ถ้าไม่มี section `opencode` หรือ `enabled` เป็น `false` discovery ยังอยู่ที่ canonical 27 tools และทุก health check fail closed โดยไม่ spawn process ใด ๆ เมื่อเปิดใช้ `opencode_health` ลงทะเบียนเพิ่มหนึ่ง read-only tool และ discovery เป็น 28 tools
 
 เมื่อเปิดใช้ (adapter ตีพิมพ์แล้วใน released v1.2.4) ให้เพิ่ม section `opencode` ลงใน `bridge-config.json` แบบ merge — เก็บ key เดิมทั้งหมด ห้ามแทนที่ทั้งไฟล์:
 
