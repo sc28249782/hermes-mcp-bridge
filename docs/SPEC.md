@@ -1,11 +1,11 @@
 # Hermes MCP Bridge Specification
 
-Status: normative contract for the released baselines (v1.2.3, extended by v1.2.4 sections 16-17) and explicitly marked unreleased/future requirements
+Status: normative contract for the released baselines (v1.2.3, extended by v1.2.4 sections 16-17 and v1.2.5 section 18) and explicitly marked unreleased/future requirements
 
-Current released baseline: v1.2.4 (released 2026-10-18)  
+Current released baseline: v1.2.5 (released 2026-10-19)
 Canonical companion: TESTING.md for the MCP discovery count
 
-Release record: v1.2.4 released 2026-10-18 via a GPG-signed annotated tag on `213305638c135041c42a3f242d6c5665c49c3fdf` and published with a download-verified ZIP plus an external SHA256SUMS asset. The MCP Events amendment (section 15), originally the v1.2.4 target requirement, is deferred with no assigned release and remains blocked.
+Historical release record: v1.2.4 released 2026-10-18 via a GPG-signed annotated tag on `213305638c135041c42a3f242d6c5665c49c3fdf` and published with a download-verified ZIP plus an external SHA256SUMS asset. The MCP Events amendment (section 15), originally the v1.2.4 target requirement, is deferred with no assigned release and remains blocked.
 
 Section 15 requirements are deferred target-state requirements with no assigned release and MUST NOT be represented as current v1.2.3 behavior before their capability, implementation, and acceptance gates pass. Released v1.2.4 includes only the section 16 OpenCode health adapter and the section 17 legacy stdio discovery guard. Section 15 MCP Events is a future requirement and is not part of the release.
 
@@ -25,7 +25,7 @@ The released bridge has three independent backend paths:
 2. Codex path: policy-checked subprocess jobs executed only in configured workspaces.
 3. Local Hands path: bounded local read-only filesystem operations that do not invoke Hermes or Codex.
 
-Section 18 adds a separately enabled, unreleased fourth path for native OpenCode CLI tasks. It does not run through the Hermes API or Codex sandbox.
+Section 18 adds a separately enabled fourth path, released in v1.2.5, for native OpenCode CLI tasks. It does not run through the Hermes API or Codex sandbox.
 
 A backend being unavailable MUST NOT cause an unrelated backend to be advertised as available. Local Hands health/list/read MUST remain independently callable when Hermes is unavailable or Codex is unavailable, subject to its own configuration and strict resolver checks.
 
@@ -241,9 +241,9 @@ This section is a compatibility boundary for the legacy stdio transport only, in
 - Acceptance mapping: `tests/test_stdio_guard.py` proves the synthetic in-memory boundary cases (int/string id preservation, no-param reply shape, notification pass-through, argument-name non-matching, unknown-method unchanged behavior, repeated probes) and its real-stdio section proves the pre-initialize probe, the legacy initialize/initialized/tools-list sequence, unchanged malformed-request validation, and clean EOF shutdown.
 
 
-## 18. OpenCode task execution (v1.2.5 release candidate; tag pending)
+## 18. OpenCode task execution (v1.2.5; released 2026-10-19)
 
-This section is an amendment prepared as the v1.2.5 release candidate (tag pending; no signed tag, release asset, or rollout exists yet). It is not part of the v1.2.3 baseline and carries no v1.2.4 claim; sections 16 and 17 keep their released history unchanged. This section is the specification update required by sections 3, 4, and 14 for the tool-count change it introduces. It overrides the section 16 rule that the adapter MUST NOT provide task submission, sessions, cancellation, or permission handling ONLY for the explicit execution opt-in defined here. The health-only default behavior of section 16 is unchanged. For this opt-in only, section 17 discovery-count references extend to 33 tools; the stdio guard and initialize capabilities remain unchanged.
+This amendment ships in signed v1.2.5 (2026-10-19); ZIP and external SHA256SUMS assets are published and download-verified. It does not activate or roll out any backend. See RELEASE-STATUS-TH.md. It is not part of the v1.2.3 baseline and carries no v1.2.4 claim; sections 16 and 17 keep their released history unchanged. This section is the specification update required by sections 3, 4, and 14 for the tool-count change it introduces. It overrides the section 16 rule that the adapter MUST NOT provide task submission, sessions, cancellation, or permission handling ONLY for the explicit execution opt-in defined here. The health-only default behavior of section 16 is unchanged. For this opt-in only, section 17 discovery-count references extend to 33 tools; the stdio guard and initialize capabilities remain unchanged.
 
 ### 18.1 Enabling and validation
 

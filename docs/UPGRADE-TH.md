@@ -1,15 +1,14 @@
 # คู่มืออัปเกรด Hermes MCP Bridge
 
-release ที่เผยแพร่ล่าสุดคือ v1.2.4 (18 ตุลาคม 2026) — ดูขั้นตอนท้ายเอกสาร หัวข้อ "จาก X เป็น Y" ด้านล่างเป็นบันทึกประวัติรายรุ่นคงไว้ตามเดิม
+release ที่เผยแพร่ล่าสุดคือ v1.2.5 (19 ตุลาคม 2026) — ดูขั้นตอนท้ายเอกสาร หัวข้อ "จาก X เป็น Y" ด้านล่างเป็นบันทึกประวัติรายรุ่นคงไว้ตามเดิม
 
-กำลังเตรียม: release candidate **v1.2.5** (OpenCode task execution opt-in ตาม SPEC.md section 18; รวมใน `main` แล้วผ่าน PR #40) — ยังไม่มี signed tag และยังไม่มี ZIP ให้ดาวน์โหลด ขั้นตอนด้านล่างเตรียมไว้ให้ใช้เมื่อ release assets เผยแพร่และตรวจแล้ว อย่าอ้างว่า v1.2.5 เผยแพร่แล้ว ผลิตจริงยังรัน v1.2.3 ได้ตามดุลยพินิจของ operator
+v1.2.5 เผยแพร่แล้ว พร้อม signed tag และ ZIP/SHA256SUMS ที่ตรวจหลังดาวน์โหลด; OpenCode execution ปิดโดยค่าเริ่มต้น การอัปเกรดไม่สลับ production หรือตั้ง permission ให้อัตโนมัติ.
 
 ## จาก v1.2.3 หรือ v1.2.4 เป็น v1.2.5
 
-ขั้นตอนนี้เตรียมไว้สำหรับใช้หลัง v1.2.5 มี signed tag และ release assets ที่ตรวจได้จริง
-ขณะเป็น candidate ห้ามถือว่ามีไฟล์พร้อมดาวน์โหลด ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md).
+ขั้นตอนนี้ใช้กับ signed release v1.2.5 ซึ่งตรวจ release assets แล้ว ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md).
 
-1. ดาวน์โหลด `hermes-mcp-bridge-v1.2.5.zip` กับ external `SHA256SUMS` จาก GitHub Release v1.2.5 เมื่อเผยแพร่แล้ว ตรวจ `sha256sum -c SHA256SUMS`, `unzip -t` และ signed tag ตาม [RELEASE-RUNBOOK-TH.md](RELEASE-RUNBOOK-TH.md).
+1. ดาวน์โหลด `hermes-mcp-bridge-v1.2.5.zip` กับ external `SHA256SUMS` จาก [GitHub Release v1.2.5](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.5) ตรวจ `sha256sum -c SHA256SUMS`, `unzip -t` และ signed tag ตาม [RELEASE-RUNBOOK-TH.md](RELEASE-RUNBOOK-TH.md).
 2. รอ Hermes, Codex และ OpenCode jobs ของ instance ที่จะอัปเกรดเป็น terminal; ถ้ามี `unknown_exit` ให้ตรวจ process ก่อน หยุดเฉพาะ tunnel ของ instance นั้น แล้วแตก ZIP ไป directory ใหม่ ห้ามเขียนทับ deployment เดิมหรือคัดลอก state ที่ยังมี worker ทำงาน.
 3. คัดลอกเฉพาะ config/state ที่ตรวจแล้วไป directory ใหม่ รักษา mode 0600/0700 ตรวจ relative references ใน `hermes_env`/`hermes_config` ให้ยังชี้ไฟล์เดิมที่ถูกต้อง ไม่คัดลอก key, `.env` หรือ `.venv` รัน `bash install.sh` เพื่อสร้าง venv ใหม่.
 4. ตรวจ `./bridge.sh version` เป็น `1.2.5` / `v1.2.5` และใช้ `doctor`, `codex-doctor`, `diagnostics` ตรวจ config/auth เดิม การอัปเกรดไม่เปิด OpenCode อัตโนมัติ: default 27 tools, เปิด health เป็น 28, เปิด execution แยกเป็น 33 ตาม [OPENCODE-TH.md](OPENCODE-TH.md). Workspace เป็น cwd allowlist ไม่ใช่ filesystem/network sandbox และ native permissions ยังคงมีผล.
@@ -166,11 +165,11 @@ release v1.2.4 เผยแพร่แล้ว (18 ตุลาคม 2026) �
 
 อัปเกรดเป็น v1.2.4: `sha256sum -c SHA256SUMS`, แตก archive ไปยัง directory ใหม่, `bash install.sh` และ health checks ตาม RELEASE-RUNBOOK-TH.md. หัวข้อ `opencode` เป็น optional และ disabled by default — ไม่มีการเปิดใช้อัตโนมัติและไม่ต้องแก้ config ใด ๆ ระหว่างอัปเกรด. stdio guard ทำงานเองบน `bridge.py serve` โดยไม่ต้องแก้ config
 
-## OpenCode execution — development branch เท่านั้น
+## OpenCode execution — released v1.2.5 (opt-in)
 
-ส่วนส่งงาน OpenCode ใน [OPENCODE-TH.md](OPENCODE-TH.md) ยังไม่อยู่ใน release ใด
+ส่วนส่งงาน OpenCode ใน [OPENCODE-TH.md](OPENCODE-TH.md) เผยแพร่ใน v1.2.5 แล้ว
 การติดตั้ง ZIP v1.2.4 ไม่ทำให้มี execution tools และไม่ควรแก้ไฟล์ใน production deployment เดิม
-ทดสอบ source branch ใน directory/state แยกสำหรับ Dev พร้อม explicit execution config
+ทดสอบ release v1.2.5 ใน directory/state แยกสำหรับ Dev พร้อม explicit execution config
 ก่อนเปลี่ยน Dev route ต้องรอ job เดิมจบและเก็บ config/profile เดิมไว้สำหรับ rollback
 restart/refresh เฉพาะ Dev แล้วตรวจ discovery 33 tools และทดสอบหนึ่งงานกับ session reuse
 การ merge PR หรือการเผยแพร่ release ไม่ได้เปิด execution หรือติดตั้ง production ให้อัตโนมัติ

@@ -1,4 +1,4 @@
-# คู่มือปฏิบัติการ — release v1.2.4
+# คู่มือปฏิบัติการ — release v1.2.5
 
 ## Version และ provenance
 
@@ -104,7 +104,7 @@ adapter ถูกรวมแล้วใน released v1.2.4 (PR #34) ซึ่�
 
 เมื่อ disabled จะ fail closed ด้วย error `OpenCode integration is disabled in bridge-config.json; review docs/SECURITY.md before enabling it`
 
-ข้อจำกัด: live acceptance ยืนยันเฉพาะผล `--version` (`opencode v2.0.32`) execution เปิดได้เฉพาะด้วย opt-in แยกตามหัวข้อถัดไป (release candidate v1.2.5 ที่ยังไม่แท็ก) ส่วน native permission replies และ event subscriptions ยังไม่รองรับ bridge ไม่เพิ่ม sandbox — executable ที่กำหนดรันด้วยสิทธิ์เต็มของ bridge process และอ่าน global configuration/credentials ได้ จึงต้องอ่าน `SECURITY.md` ก่อนเปิดใช้ runner ไม่ส่ง `--auto` และ `--standalone` เป็น exclusive in-process private server ไม่ใช่ sandbox OpenCode CLI ต่างจาก provider `opencode-go` ใน Hermes config
+ข้อจำกัด: live acceptance ยืนยันเฉพาะผล `--version` (`opencode v2.0.32`) execution เปิดได้เฉพาะด้วย opt-in แยกตามหัวข้อถัดไป (released v1.2.5) ส่วน native permission replies และ event subscriptions ยังไม่รองรับ bridge ไม่เพิ่ม sandbox — executable ที่กำหนดรันด้วยสิทธิ์เต็มของ bridge process และอ่าน global configuration/credentials ได้ จึงต้องอ่าน `SECURITY.md` ก่อนเปิดใช้ runner ไม่ส่ง `--auto` และ `--standalone` เป็น exclusive in-process private server ไม่ใช่ sandbox OpenCode CLI ต่างจาก provider `opencode-go` ใน Hermes config
 
 ## Legacy stdio discovery guard (released v1.2.4 — ทำงานเองบน stdio ไม่ต้องแก้ config)
 
@@ -112,15 +112,15 @@ adapter ถูกรวมแล้วใน released v1.2.4 (PR #34) ซึ่�
 
 - client ส่ง probe `server/discover` ผ่าน stdio แล้วได้ `-32601 Method not found` — พฤติกรรมตั้งใจตาม SPEC.md §17: guard ตอบที่ boundary ด้วย id เดิม ไม่มี params echo ไม่ถึง low-level server และไม่พิมพ์ payload ลง log ไม่ใช่ความผิดพลาดของ bridge
 - probe ซ้ำยังตอบ `-32601` ทุกครั้งแต่ไม่ flood log (มีแค่ constant-text debug line)
-- `initialize` / `notifications/initialized` / `tools/list` ต้องปกติ (27 tools; 28 เมื่อเปิดเฉพาะ OpenCode health ตาม §16; 33 เมื่อเปิด execution ตาม §18 — release candidate v1.2.5 ที่ยังไม่แท็ก) — ถ้าจำนวน tools เปลี่ยน แปลว่า guard รั่ว ให้หยุดและรีวิว `stdio_guard.py`
+- `initialize` / `notifications/initialized` / `tools/list` ต้องปกติ (27 tools; 28 เมื่อเปิดเฉพาะ OpenCode health ตาม §16; 33 เมื่อเปิด execution ตาม §18 — released v1.2.5) — ถ้าจำนวน tools เปลี่ยน แปลว่า guard รั่ว ให้หยุดและรีวิว `stdio_guard.py`
 - method อื่นที่ไม่รู้จักยังได้ `-32602` พร้อม warning `Failed to validate request` จาก SDK เหมือนเดิม — guard ไม่กด warning ใด ๆ
 - ปิด stdin (EOF) แล้ว process ต้องออก rc=0; ถ้าค้างให้เช็คว่า `guarded_stdio_streams` finally มีการ cancel forwarder และปิด reply stream ครบ — guard ครอบเฉพาะ `bridge.py serve` (stdio) tunnel/HTTP ไม่เกี่ยว
 
-## OpenCode task execution (release candidate v1.2.5 — ยังไม่แท็ก ยังไม่เผยแพร่)
+## OpenCode task execution (released v1.2.5)
 
-ส่วน execution ตาม SPEC.md section 18 ยังไม่อยู่ใน release ใด (v1.2.4 ที่เผยแพร่เป็น
-health-only) โค้ดรวมใน `main` แล้วผ่าน PR #40 และเตรียมเป็น release candidate v1.2.5
-อย่าเปิดใช้บน production จนกว่าจะปิด change-control gate. หลักการสำหรับ
+ส่วน execution ตาม SPEC.md section 18 เผยแพร่ใน signed v1.2.5 แล้ว (v1.2.4 ยังคงเป็น
+health-only ตามประวัติ) โค้ดรวมผ่าน PR #40 และ release preparation ผ่าน PR #41.
+การเปิด execution ต้องเป็นการเลือก config โดย operator; production ยังไม่ถูกอัปเกรด. หลักการสำหรับ
 operator: เปิดด้วย `opencode.execution.enabled=true` พร้อม `opencode.enabled` +
 `opencode.binary`, `allowed_workspaces` (canonical absolute path) และ `allowed_models`
 (เช่น `opencode-go/glm-5.3-flash`) ไม่ว่าง; จำกัดด้วย `max_prompt_chars`,

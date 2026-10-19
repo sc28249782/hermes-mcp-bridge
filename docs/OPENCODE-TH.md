@@ -1,11 +1,9 @@
-# OpenCode task execution (release candidate v1.2.5 — SPEC.md section 18; tag pending)
+# OpenCode task execution (released v1.2.5 — SPEC.md section 18)
 
-เอกสารนี้อธิบายส่วน execution ของ OpenCode adapter ซึ่งเป็น **release candidate v1.2.5 ที่ยังไม่แท็ก (tag pending)**
-โค้ดรวมใน `main` แล้วผ่าน PR #40 (merge `a666d626`) แต่ยังไม่มี signed tag, ยังไม่เผยแพร่
-และยังไม่มี release asset ใด ๆ อย่าอ้างสิทธิ์ส่วนนี้เป็น released จนกว่าจะ tag/sign/publish
-ตาม `docs/RELEASE-RUNBOOK-TH.md` และ verify asset จริง
-สิ่งที่เผยแพร่แล้วใน v1.2.4 (18 ตุลาคม 2026) คือ **health-only adapter** (`opencode_health`
-tool เดียว) เท่านั้น
+ส่วน execution เผยแพร่ใน signed v1.2.5 เมื่อ 19 ตุลาคม 2026 หลัง merge PR #40
+และเตรียม release ผ่าน PR #41. ZIP/SHA256SUMS ตรวจหลังดาวน์โหลดแล้ว
+ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md) และ [UPGRADE-TH.md](UPGRADE-TH.md).
+v1.2.4 ที่เผยแพร่ก่อนหน้ายังคงเป็น health-only ตามประวัติ.
 
 ## Tool count
 
@@ -143,7 +141,7 @@ bridge ไม่มี remote force-unblock และไม่ฆ่า PID ท�
 - `deny_prompt_patterns` ของ Codex ไม่มีผลกับ OpenCode; ตัวจำกัดจริงคือ allowlist ของ
   workspace/model, native permissions และ caps ข้างต้น
 
-## เปิด Dev candidate ที่เตรียมไว้ (operator checkpoint: 19 ตุลาคม 2026)
+## Historical Dev candidate activation (operator checkpoint: 19 ตุลาคม 2026)
 
 candidate สำหรับการทดสอบครั้งนี้อยู่ที่ `~/hermes-mcp-bridge-opencode-dev`
 เป็น unreleased git worktree ไม่ใช่ release ZIP ใหม่ workspace ที่เปิดไว้มีเพียง

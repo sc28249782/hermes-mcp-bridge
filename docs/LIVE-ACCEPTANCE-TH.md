@@ -271,3 +271,13 @@ submit/result, session continuity, replay/recent and native file creation throug
 an authenticated Dev tunnel. Cancellation evidence remains scoped to the earlier
 controller run; native permission-required coverage remains fixture-only, not a
 live permission interaction. No permission configuration was changed by this test.
+
+
+## v1.2.5 — released (19 October 2026)
+
+- Signed annotated tag `v1.2.5`: object `11420f1ae968244195701b296db2f8ce419b793a`, peeled commit `6fbcd7ef278d5e45a95b7328c719c5b01cbcf522`; EDDSA fingerprint `C4E9AFA9C97FC94CA2448E9218BDAEA561529B86`. Local and fresh-fetch remote `git verify-tag` pass; GitHub reports the signature valid.
+- [GitHub Release v1.2.5](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.5) publishes exactly `hermes-mcp-bridge-v1.2.5.zip` and external `SHA256SUMS`. ZIP SHA-256: `1f1c8a583cf7f51a88ec35ca3023c86342220f5baba37faed3f1724b04bf8d5f`.
+- Built from the signed tag: 79 files under the single root `hermes-mcp-bridge-v1.2.5/`, no private config/state/venv/env/git/cache entries. Fresh-download `sha256sum -c SHA256SUMS`, `unzip -t` and byte comparison against the built assets pass.
+- Extracted identity: version `1.2.5`, release identifier `v1.2.5`, source kind `release-archive`, embedded build input `a666d626da1fe716ce4b259d49eedfc3f97acc7d`, canonical default discovery 27. The signed tag identifies the final commit; the embedded revision identifies its reviewed build input.
+- Scope: opt-in OpenCode execution from PR #40; release preparation from PR #41. Candidate WSL/archive suite 164/164 and discovery 27/28/33 pass; exact-head CI `39224170181` passes. Work-chat proof remains scoped to the recorded Dev candidate; cancellation remains controller evidence and permission-required remains fixture-only.
+- Production remains v1.2.3; active Dev remains the tested git-worktree candidate. Publishing does not change profiles, runtimes or permission configuration. This post-tag documentation record does not modify the tag or assets.
