@@ -220,6 +220,8 @@ def _run(row, dbpath, job_id, worker_pid):
         if proc is not None and ownership != "unknown":
             cleaner._cleanup_group(proc, ownership)
             code = proc.returncode
+        if proc is not None and proc.returncode is None:
+            status, reason = "unknown_exit", "cleanup_unconfirmed"
         selector.close()
         if proc is not None:
             for stream in (proc.stdin, proc.stdout, proc.stderr):

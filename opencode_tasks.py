@@ -162,6 +162,7 @@ class OpenCodeTasks:
             ticks = _proc_starttime(row["pid"]) if row["pid"] else None
             if ticks is None or ticks != row["worker_start_ticks"]:
                 db.execute("UPDATE jobs SET status='unknown_exit',finished=?,transition_actor='controller',transition_reason='worker_identity_lost',result_reason='Worker exit could not be confirmed' WHERE job_id=? AND status IN ('pending','running')", (time.time(), row["job_id"]))
+                self.audit.record("opencode", "recover", row["job_id"], "unknown_exit", {"reason": "worker_identity_lost"})
 
     @staticmethod
     def _ack(row):
@@ -224,12 +225,16 @@ class OpenCodeTasks:
             worker = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True, shell=False, close_fds=True)
         except OSError:
             self._set_terminal(job_id, "failed", last_known_state="pending", actor="controller", reason="worker_spawn_failed", allowed_from=("pending",))
+            self.audit.record("opencode", "finish", job_id, "failed", {"reason": "worker_spawn_failed"})
             raise OpenCodeTaskError("OpenCode worker could not be started") from None
         # Only the worker may spawn/signal its CLI child. No controller signal,
         # even on a startup race. The worker verifies this reservation first.
-        with self.db() as db:
-            db.execute("UPDATE jobs SET status='running',started=?,pid=?,worker_start_ticks=? WHERE job_id=? AND status='pending'", (time.time(), worker.pid, _proc_starttime(worker.pid), job_id))
         threading.Thread(target=worker.wait, daemon=True).start()
+        try:
+            with self.db() as db:
+                db.execute("UPDATE jobs SET status='running',started=?,pid=?,worker_start_ticks=? WHERE job_id=? AND status='pending'", (time.time(), worker.pid, _proc_starttime(worker.pid), job_id))
+        except sqlite3.Error:
+            raise OpenCodeTaskError("Worker reservation could not be confirmed; inspect the existing job status") from None
         return self._ack(self._row(job_id))
 
     def _set_terminal(self, job_id, status, *, last_known_state, actor, reason, exit_code=None, result_reason=None, allowed_from=None):
@@ -275,7 +280,10 @@ class OpenCodeTasks:
                 db.execute("UPDATE jobs SET status='cancelled',finished=?,transition_actor='controller',transition_reason='cancel_before_start' WHERE job_id=?", (time.time(), job_id))
             elif row["status"] == "running":
                 db.execute("UPDATE jobs SET cancel_flag=1 WHERE job_id=?", (job_id,))
+            original_status = row["status"]
             row = self._row_for(db, job_id)
+        if original_status in ("pending", "running"):
+            self.audit.record("opencode", "cancel", job_id, "requested", {})
         return {**self._ack(row), "note": "A running worker confirms cancellation only after cleanup."}
 
     def recent(self):

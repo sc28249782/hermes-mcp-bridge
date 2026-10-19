@@ -202,6 +202,7 @@ class TestOpenCodeTasks(unittest.TestCase):
         self.assertIn(result["status"], ("running", "cancelled"))
         self.assertEqual(self.wait(ack["job_id"])["status"], "cancelled")
         self.assertEqual(self.tasks.cancel(ack["job_id"])["status"], "cancelled")
+        self.assertIn("cancel", [e["action"] for e in self.tasks.audit.recent()["events"]])
 
     def test_cancel_pending_never_spawns(self):
         with mock.patch.object(self.tasks, "_start", lambda job: self.tasks._ack(self.tasks._row(job))):
@@ -259,6 +260,7 @@ class TestOpenCodeTasks(unittest.TestCase):
         metadata = json.dumps([self.tasks.status(ack["job_id"]), self.tasks.recent()])
         self.assertNotIn("sensitive-prompt", metadata)
         self.assertNotIn(str(self.ws), metadata)
+        self.assertNotIn("sensitive-prompt", json.dumps(self.tasks.audit.recent()))
         for offset, size in ((-1, 10), (True, 10), (0, False), (0, 24001)):
             with self.assertRaises(OpenCodeTaskError):
                 self.tasks.result(ack["job_id"], offset, size)
@@ -301,6 +303,30 @@ class TestOpenCodeTasks(unittest.TestCase):
                 self.assertEqual(waits, [1])
                 self.assertEqual(signals, [signal.SIGTERM, signal.SIGKILL])
                 _finish(self.tasks.dbpath, ack["job_id"], os.getpid(), *outcome)
+
+    def test_unconfirmed_cleanup_is_unknown_not_success_or_cancel(self):
+        from opencode_core import OpenCodeRunner
+        from opencode_worker import _run, _finish
+        import subprocess
+        captured = []
+        original_popen = subprocess.Popen
+        def popen(*args, **kwargs):
+            proc = original_popen(*args, **kwargs)
+            captured.append(proc)
+            return proc
+        with mock.patch.object(self.tasks, "_start", lambda job: self.tasks._ack(self.tasks._row(job))):
+            ack = self.tasks.submit("ok", str(self.ws), "unconfirmed")
+        with self.tasks.db() as db:
+            db.execute("UPDATE jobs SET status='running',pid=? WHERE job_id=?", (os.getpid(), ack["job_id"]))
+        try:
+            with mock.patch("opencode_worker.subprocess.Popen", side_effect=popen), mock.patch.object(OpenCodeRunner, "_cleanup_group", return_value=None):
+                outcome = _run(self.tasks._row(ack["job_id"]), self.tasks.dbpath, ack["job_id"], os.getpid())
+            self.assertEqual(outcome[0], "unknown_exit")
+            self.assertEqual(outcome[2], "cleanup_unconfirmed")
+            _finish(self.tasks.dbpath, ack["job_id"], os.getpid(), *outcome)
+        finally:
+            for proc in captured:
+                OpenCodeRunner({})._cleanup_group(proc, "pinned")
 
     def test_cancel_admitted_before_terminal_commit_wins(self):
         from opencode_worker import _finish
