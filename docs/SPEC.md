@@ -236,3 +236,50 @@ This section is a compatibility boundary for the legacy stdio transport only, in
 - Every other message - supported requests, unrelated unknown methods, responses, notifications, transport parse errors - MUST be forwarded unchanged as the same typed object with transport metadata preserved, so SDK validation outcomes (including `-32602` and its `Failed to validate request` warning) remain unchanged and uncovered. The guard MUST NOT add any broad logging filter or warning suppression.
 - The forwarder MUST be cancellation-safe and bounded: when stdin reaches EOF or the session stops consuming, it must stop without leaving detached tasks or hanging the process, and it adds no extra process, network, or dependency surface. Repeated discovery probes in one process MUST NOT flood typical operator logs.
 - Acceptance mapping: `tests/test_stdio_guard.py` proves the synthetic in-memory boundary cases (int/string id preservation, no-param reply shape, notification pass-through, argument-name non-matching, unknown-method unchanged behavior, repeated probes) and its real-stdio section proves the pre-initialize probe, the legacy initialize/initialized/tools-list sequence, unchanged malformed-request validation, and clean EOF shutdown.
+
+
+## 18. OpenCode task execution (unreleased; no assigned release)
+
+This section is an unreleased amendment. It is not part of the v1.2.3 baseline and carries no v1.2.4 claim; sections 16 and 17 keep their released history unchanged. This section is the specification update required by sections 3, 4, and 14 for the tool-count change it introduces. It overrides the section 16 rule that the adapter MUST NOT provide task submission, sessions, cancellation, or permission handling ONLY for the explicit execution opt-in defined here. The health-only default behavior of section 16 is unchanged.
+
+### 18.1 Enabling and validation
+
+- A new subsection `opencode.execution` MUST default to disabled (`enabled` false). While disabled, the bridge MUST NOT register any execution tool, MUST NOT spawn a worker or CLI process, and MUST return an explicit fail-closed disabled result for every execution call. Default MCP discovery MUST remain 27 tools, or 28 when the section 16 adapter is enabled.
+- Enabling execution MUST require all of: `opencode.enabled` true with a valid `binary` under section 16 rules; a nonempty list `allowed_workspaces` whose entries are absolute directory paths with no ASCII control character (0x00-0x1F and 0x7F); a nonempty list `allowed_models` whose entries match the bounded pattern `provider/model` with printable non-control characters and a bounded length. Validation MUST reject empty lists, control characters, relative paths, non-boolean `enabled`, and out-of-range integers. Entries are canonicalized once at load; the canonical forms are the only accepted workspace and model values.
+- The subsection MUST define, with explicit ranges: `max_prompt_chars` (default 32000, range 1-131072), `max_runtime_seconds` (default 1800, range 30-14400), and `max_output_bytes` (default 524288, range 65536-8388608). The execution `max_output_bytes` is independent of the section 16 health `max_output_bytes`; the bridge MUST NOT silently repurpose the health value for execution.
+
+### 18.2 Tool surface
+
+- When execution is enabled, the bridge MUST register exactly five tools and discovery becomes 33 tools under the change-control rules: `opencode_submit_task(prompt, workspace, request_id, session_id=None, model=None)`, `opencode_task_status(job_id)`, `opencode_task_result(job_id, offset=0, max_chars=12000)`, `opencode_cancel_task(job_id)`, and `opencode_recent_tasks()`. Tool annotations follow the existing read/write split: submit and cancel are write; the others are read.
+
+### 18.3 Execution boundary
+
+- The bridge MUST NOT inject permission configuration. It MUST NOT set `OPENCODE_CONFIG`, `OPENCODE_CONFIG_CONTENT`, or `OPENCODE_CONFIG_DIR`, and MUST NOT pass flags that alter permission behavior. Rationale: config precedence for permission rules is not proven, so an injected policy MUST NOT be claimed as enforced. Native OpenCode configuration, plugins, and saved permissions apply unchanged.
+- The configured executable runs with the full privileges of the bridge process. The bridge adds no sandbox. Workspace selection is a current-working-directory allowlist only; it is NOT filesystem isolation and NOT network isolation. All operator-facing documents (README, security, tool help, and operator examples) MUST state this unmistakably.
+- The bridge MUST NOT use `--auto`, `--server`, `--continue`, or any caller-supplied flag, agent, environment variable, or file attachment. The CLI command line MUST be exactly `[binary, "run", "--standalone", "--format", "json", "--session", <session id>, "--model", <allowed model>]` with shell disabled. The prompt MUST be passed on standard input as UTF-8, never as an argv element, and stdin MUST be closed after the prompt.
+
+### 18.4 Sessions and resume
+
+- The bridge MUST mint each session identifier before spawn, store it in the state database first, and supply it with `--session`. A minted identifier MUST match `^ses_[A-Za-z0-9]{8,64}$`.
+- Resume is permitted ONLY for a bridge-owned session with the same canonical workspace and the same allowed model as the owning job. The bridge MUST NOT permit arbitrary local session access or a model change on resume. A resumed prompt creates a new job row that references the prior session.
+
+### 18.5 Durable worker and lifecycle
+
+- A separate detached worker module owns each job. The worker remains the parent of the CLI process after the bridge disconnects and writes the terminal record to a private SQLite state database owned by the bridge. State files and output files MUST have mode 0600; private state directories MUST have mode 0700. Job outputs MUST be stored outside every allowed workspace.
+- Job states are `pending`, `running`, and the terminal states `completed`, `failed`, `cancelled`, `permission_required`, and `unknown_exit`. A runtime deadline produces `failed` with a bounded timeout reason. An observed native permission request produces `permission_required`; the bridge MUST NEVER auto-approve. An unresolved ask that outlives the bounded deadline produces `failed` with the timeout reason, never success.
+- Admission MUST be atomic. Concurrency is 1 globally and 1 per session. The bridge MUST NOT queue jobs without bound: when the global slot is busy, submission fails with an explicit busy result.
+- Idempotency: a submission whose `request_id` matches a stored job with the same canonical input fingerprint (prompt, workspace, model, session) MUST return the original acknowledgement. The same `request_id` with a different fingerprint MUST be rejected without a second model invocation.
+- Cancellation is owned by the worker through a database cancel flag. Every `killpg` MUST be sent only by the direct parent of the CLI leader, only while the leader is still an unreaped child of that parent (the section 16 WNOWAIT invariant), and the leader MUST be reaped exactly once, by handle, after the final group signal. The controller MUST NOT signal a stored PID or PGID. A timeout is enforced by the worker independently of controller polling.
+- If the worker crashes or its identity is uncertain, the job MUST become `unknown_exit`. The bridge MUST NOT invent a success or a cancel, MUST NOT signal a process it cannot prove it owns, and MUST reject new submissions conservatively while a job is `running` or `unknown_exit`. Cancellation reaches `cancelled` only after the worker confirms cleanup. Terminal states are immutable.
+
+### 18.6 Output contract
+
+- The CLI stdout MUST be JSON lines of bounded objects. Every event MUST carry the job session identifier; a mismatch, malformed line, output overflow, truncation, or empty stream MUST fail the job. Process exit 0 alone is insufficient.
+- A job MAY reach `completed` only when the bridge observed valid response evidence (a text or step-finish event) AND the process exited 0. A text-only refusal or denial from the model MAY still be a `completed` native turn. Documents MUST state that callers inspect the output, and that the bridge cannot infer goal success or permission outcomes from it.
+- Result pagination returns untrusted content; the caller MUST treat it as model output. `status` and `recent` responses MUST be redacted: no prompt text, output content, credentials, or detailed paths. Audit records MUST NOT contain prompts, output, or credentials.
+
+### 18.7 Acceptance mapping
+
+- `tests/test_opencode.py` and the section 16 suite MUST pass unchanged; default discovery stays 27, and health-enabled discovery stays 28.
+- A new execution test suite MUST prove: disabled fail-closed; section 18.1 validation; the fixed argv and stdin prompt; session minting and resume rules; idempotency and fingerprint conflict; admission concurrency and busy rejection; a deterministic fixture CLI for error-with-exit-0, streaming events, pause, descendant processes, cancellation race, output caps, worker restart, and bridge-owned sessions; `permission_required` detection; `unknown_exit`; redaction of status and recent; 0600 and 0700 file modes; and discovery 33 through the real stdio fixture.
+- `tests/test_packaging.py` MUST include the new modules. No released surface may claim this section until its own change-control gate closes.
