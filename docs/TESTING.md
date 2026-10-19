@@ -1,5 +1,13 @@
 # Validation record — v1.2.5 released (2026-10-19)
 
+## Unreleased privacy-hardening candidate (SPEC §19)
+
+- `tests/test_privacy_hardening.py`: 18 process-free synthetic regressions cover metadata allowlists, numeric/size limits, exact local approval, legacy key exclusion, timeout/error behavior, existing-directory enforcement and failures, bounded snapshot reads, Unicode/newlines/invalid UTF-8, sparse/oversize logs, append/truncate races and read-budget assertions.
+- `tests/test_mcp.py::test_privacy_metadata_is_bounded_on_real_stdio` checks the actual SDK stdio boundary with fake Hermes data. It verifies no raw approval/error fixture reaches metadata and discovery remains at the canonical default.
+- Focused local suite: 40/40 pass with the project venv and `-W error::ResourceWarning` (`test_privacy_hardening`, `test_bridge`, `test_mcp`). No real model/provider call is made.
+- Four pre-existing Codex process/identity tests fail in this execution environment on both baseline and candidate: unreaped-zombie detection, detached-approver result, model override forwarding, and fixed-argv result capture. The baseline comparison also failed to obtain a start-ticks identity. These are not counted as passing local full-suite evidence. Exact-head Linux CI must pass the full suite and shell checks; its result is recorded on the candidate PR.
+- This is fixture acceptance, not production or Dev rollout acceptance. Signed v1.2.5 evidence below remains historical and unchanged.
+
 ## v1.2.4 candidate gates (historical pre-tag record; v1.2.4 released 2026-10-18)
 
 > สถานะอัปเดต (18 ตุลาคม 2026): v1.2.4 เผยแพร่แล้วผ่าน signed tag พร้อม release assets ที่ตรวจแล้ว (ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)) ข้อความ "not published, not installed" และรายการ "Pending: live Secure MCP Tunnel acceptance" ด้านล่างคงไว้เป็นหลักฐานก่อน tag ตามเดิม; live tunnel acceptance เกิดขึ้นจริงในวันเดียวกันเป็น bounded PASS บน Dev route (ดู [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md))
@@ -91,3 +99,4 @@ Release verification passed for signed tag `v1.2.3` at `c610660637dbdcfa0b8ddb7b
 - Scope: opt-in OpenCode execution from PR #40; release preparation from PR #41. Candidate WSL/archive suite 164/164 and discovery 27/28/33 pass; exact-head CI `39224170181` passes. Work-chat proof remains scoped to the recorded Dev candidate; cancellation remains controller evidence and permission-required remains fixture-only.
 - Production remains v1.2.3; active Dev remains the tested git-worktree candidate. Publishing does not change profiles, runtimes or permission configuration. This post-tag documentation record does not modify the tag or assets.
 - Deployment checkpoint (19 October 2026, ~18:44 +07): production was upgraded to released v1.2.5 later that day. Identity, health, discovery, and the execution API listing were verified read-only through the production plugin (`opencode_recent_tasks` returned an empty `jobs` list; no production model task was submitted during this checkpoint, and the checkpoint does not establish production acceptance). See [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md). The bullet above preserves the post-tag record as written at release time.
+
