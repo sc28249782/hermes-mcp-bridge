@@ -1,6 +1,6 @@
 # Privacy candidate — Dev transport acceptance
 
-สถานะ: เตรียมแล้ว; ยังไม่ผ่าน Dev tunnel acceptance.
+สถานะ: Dev transport fixture ผ่านตามขอบเขตที่บันทึก; restored-route proof และ acceptance review ยังรอ.
 วันที่: 19 ตุลาคม 2026.
 Candidate: `db00968230fd4aee5690c361b11c8bc8fc36dabc` หลัง merge PR #47.
 Directory ที่เตรียม: `~/workspace/hermes-mcp-bridge-privacy-dev` (detached worktree).
@@ -72,3 +72,28 @@ Background task ไม่มี environment key ที่ Dev profile อ้า�
 - Privacy follow-up closure และ gates ของ MCP Events/Local Hands.
 
 ดูข้อกำหนดใน [SPEC.md](SPEC.md), ผล implementation ใน [PRIVACY-CONTRACT-REVIEW-TH.md](PRIVACY-CONTRACT-REVIEW-TH.md) และสถานะใน [ROADMAP.md](ROADMAP.md).
+
+## Dev transport checkpoint — scoped fixture PASS (19 ตุลาคม 2026, ~21:11 +07)
+
+Operator เปิด ephemeral command override แล้ว parent เรียก actual Dev connector ผ่าน Secure MCP Tunnel.
+Fixture ใช้ runtime candidate จริงร่วมกับ in-process fake Hermes transport; ไม่ใช่ actual Hermes HTTP, native approval หรือ model/provider acceptance.
+
+| หลักฐานจาก Dev connector | ผลที่สังเกตได้ |
+| --- | --- |
+| Identity | `source_kind: git-worktree`, revision `db00968230fd4aee5690c361b11c8bc8fc36dabc`; version stamp `1.2.5/v1.2.5` ไม่ใช่ release ใหม่ |
+| Config identity | `config_schema_version: unknown`, embedded schema 1; fixture สร้าง runtime โดยตรงและไม่มี root config file จึงไม่ใช่การตรวจ config migration |
+| State | Disposable fixture state mode `0700`; ไม่ใช่ live repair ของ production directory เดิม |
+| Tool visibility | Parent registry เห็น 27 tools และ version รายงาน canonical default 27; ไม่ใช่ raw wire `tools/list` capture และไม่อ้าง live 28/33 |
+| Synthetic submit/status | `run_1`, `waiting_for_approval`; compact ASCII JSON metadata 416 bytes ≤ 8,192; error เป็นข้อความคงที่ และ approval มีเพียง `required: true` |
+| Sensitive fixture marker | `PRIVATE_MCP_FIXTURE` ไม่ปรากฏใน status/result ที่ตรวจ |
+| Result pages | offset 0/max_chars 4 แล้ว offset 4; ต่อกันตรงกับ full result 29 characters; configured-key replacement marker ยังคงอยู่ |
+| Ownership | Run ที่ไม่ registered ถูกปฏิเสธ (`INVALID_ARGUMENT`) |
+| Replay | Request/input เดิมคืน `run_1` พร้อม `replayed_locally: true` |
+
+ไม่ได้ approve หรือ cancel synthetic pending approval และไม่มี native worker ถูกเริ่ม.
+Hands ที่ available เป็น read-only synthetic fixture workspace เท่านั้น; ไม่ใช่การเปิด Hands ใน Dev configuration เดิมหรือ production.
+Directory repair และ bounded Codex reads อ้างผล real-filesystem tests บน WSL ที่ candidate เดียวกัน; ไม่ได้ probe Codex result ผ่าน Dev tunnel ในรอบนี้.
+สถานะ `PASS` จำกัดเฉพาะรายการในตาราง.
+
+**รอ restored-route proof:** ให้ operator หยุด fixture และเริ่ม Dev โดยไม่ใส่ command override แล้ว parent ต้องตรวจ revision กลับเป็น `e7add7e`.
+Privacy follow-up ยังเปิดรอ restoration, acceptance-record review และ release/deployment decision.
