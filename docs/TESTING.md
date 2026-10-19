@@ -2,6 +2,8 @@
 
 ## Unreleased privacy-hardening candidate (SPEC §19)
 
+Dev transport fixture checkpoint (19 October 2026, ~21:11 +07): parent called the actual Dev connector at `db009682`; filtered status metadata was 416 bytes, explicit result pagination matched all 29 characters, unknown-run ownership was denied, and an identical retry returned the existing run. The parent registry exposed 27 tools; no raw wire discovery or live 28/33 proof is claimed. This used in-process fake Hermes transport, not actual Hermes HTTP/native approval/model execution. Codex bounds and mode repair remain WSL filesystem-test evidence. Restoration verification and acceptance-record review remain pending: [PRIVACY-DEV-ACCEPTANCE-TH.md](PRIVACY-DEV-ACCEPTANCE-TH.md).
+
 WSL preparation checkpoint (19 October 2026): isolated candidate `db009682` passed 183/183 full-suite tests in its own venv, 18/18 privacy regressions and shellcheck. Local SDK stdio fixture discovery was 27; status metadata was 415 bytes with filtered approval/error. This supplements the earlier host limitation below; it is not live Dev transport evidence. Operator handoff: [PRIVACY-DEV-ACCEPTANCE-TH.md](PRIVACY-DEV-ACCEPTANCE-TH.md).
 
 - `tests/test_privacy_hardening.py`: 18 process-free synthetic regressions cover metadata allowlists, numeric/size limits, exact local approval, legacy key exclusion, timeout/error behavior, existing-directory enforcement and failures, bounded snapshot reads, Unicode/newlines/invalid UTF-8, sparse/oversize logs, append/truncate races and read-budget assertions.
