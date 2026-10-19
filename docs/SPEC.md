@@ -241,9 +241,9 @@ This section is a compatibility boundary for the legacy stdio transport only, in
 - Acceptance mapping: `tests/test_stdio_guard.py` proves the synthetic in-memory boundary cases (int/string id preservation, no-param reply shape, notification pass-through, argument-name non-matching, unknown-method unchanged behavior, repeated probes) and its real-stdio section proves the pre-initialize probe, the legacy initialize/initialized/tools-list sequence, unchanged malformed-request validation, and clean EOF shutdown.
 
 
-## 18. OpenCode task execution (unreleased; no assigned release)
+## 18. OpenCode task execution (v1.2.5 release candidate; tag pending)
 
-This section is an unreleased amendment. It is not part of the v1.2.3 baseline and carries no v1.2.4 claim; sections 16 and 17 keep their released history unchanged. This section is the specification update required by sections 3, 4, and 14 for the tool-count change it introduces. It overrides the section 16 rule that the adapter MUST NOT provide task submission, sessions, cancellation, or permission handling ONLY for the explicit execution opt-in defined here. The health-only default behavior of section 16 is unchanged. For this opt-in only, section 17 discovery-count references extend to 33 tools; the stdio guard and initialize capabilities remain unchanged.
+This section is an amendment prepared as the v1.2.5 release candidate (tag pending; no signed tag, release asset, or rollout exists yet). It is not part of the v1.2.3 baseline and carries no v1.2.4 claim; sections 16 and 17 keep their released history unchanged. This section is the specification update required by sections 3, 4, and 14 for the tool-count change it introduces. It overrides the section 16 rule that the adapter MUST NOT provide task submission, sessions, cancellation, or permission handling ONLY for the explicit execution opt-in defined here. The health-only default behavior of section 16 is unchanged. For this opt-in only, section 17 discovery-count references extend to 33 tools; the stdio guard and initialize capabilities remain unchanged.
 
 ### 18.1 Enabling and validation
 

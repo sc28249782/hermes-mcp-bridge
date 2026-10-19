@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased — OpenCode execution
+## v1.2.5 — release candidate (tag pending; not published)
 
 - Add the separate, disabled-by-default `opencode.execution` opt-in. Require the health adapter, existing canonical workspaces and allowed models.
 - Add `opencode_submit_task`, `opencode_task_status`, `opencode_task_result`, `opencode_cancel_task` and `opencode_recent_tasks`. Discovery is 33 only when execution is enabled. The 27-tool default and 28-tool health-only contract remain unchanged.
@@ -8,7 +8,7 @@
 - Keep native OpenCode configuration and permissions. The bridge adds no sandbox and never passes `--auto`. Workspace selection limits cwd, not filesystem or network access. A completed native turn does not prove goal success.
 - Validate the final code on WSL with 164 passing tests, Shellcheck and exact-code-head CI. Regressions cover unconfirmed cleanup and execution config recognition. Real CLI v2.0.32 submission, context/session reuse, replay, cancellation and absolute-path file edits pass. See [TESTING.md](TESTING.md) and [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md).
 - Authenticated Dev Work-chat acceptance passed on 19 October 2026: real-model submit/result, resumed context, request replay/recent and independently byte-verified native file creation. Native permission-required coverage remains fixture-only. No release contains this extension; the OpenCode adapter shipped in v1.2.4 remains health-only.
-
+- Stamp `version_info.py` as `v1.2.5` with build provenance `release` and the reviewed build-input revision `a666d626da1fe716ce4b259d49eedfc3f97acc7d` (`main` with PR #40 merged). Update version/provenance/install/upgrade references to the tag-pending candidate. No signed tag, release asset, committed checksum, or rollout exists yet.
 
 ## v1.2.4 — released (18 October 2026; signed tag, published)
 

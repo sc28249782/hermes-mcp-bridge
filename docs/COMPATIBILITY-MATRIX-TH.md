@@ -12,7 +12,7 @@ This matrix records the released v1.2.4 compatibility baseline (same components 
 | tunnel-client | official profile `hermes-wsl` | `bash tunnel.sh status` | profile ต้องชี้ `bridge.sh` ของ instance เดียวกัน |
 | ChatGPT MCP | canonical count in `TESTING.md` | discovery ในแชทใหม่ | v1.2.1 baseline plus read-only `bridge_version` |
 | Version/provenance | local-only CLI/MCP parity | `./bridge.sh version` และ `bridge_version` | ต้องไม่เรียก Hermes, Codex, tunnel, GitHub หรือ network |
-| OpenCode CLI (optional) | v2.0.32 (health-only, opt-in) | `opencode_health` | disabled by default; live acceptance ครอบคลุมเฉพาะ `--version` (18 ตุลาคม 2026); discovery 27 tools เมื่อปิด, 28 เมื่อเปิด |
+| OpenCode CLI (optional) | v2.0.32 (health-only, opt-in; execution opt-in อยู่ใน release candidate v1.2.5 ที่ยังไม่แท็ก) | `opencode_health` + 5 execution tools | disabled by default; live acceptance: `--version` (18 ตุลาคม 2026) และ Dev Work-chat execution (19 ตุลาคม 2026); discovery 27 tools เมื่อปิด, 28 เมื่อเปิด health, 33 เมื่อเปิด execution |
 
 การเปลี่ยน component นอก matrix ไม่ได้แปลว่าไม่รองรับ แต่ต้องทำ acceptance checklist ซ้ำก่อนใช้งาน production.
 

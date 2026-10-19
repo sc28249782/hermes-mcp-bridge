@@ -1,8 +1,9 @@
-# OpenCode task execution (UNRELEASED — SPEC.md section 18; no assigned release)
+# OpenCode task execution (release candidate v1.2.5 — SPEC.md section 18; tag pending)
 
-เอกสารนี้อธิบายส่วน execution ของ OpenCode adapter ซึ่งเป็น **งานที่ยังไม่เผยแพร่ (unreleased)**
-บน branch `opencode-investigate` เท่านั้น ยังไม่มี release, tag, หรือ version note ใด ๆ
-อ้างสิทธิ์ส่วนนี้ เว้นแต่จะปิด change-control gate ของ `docs/SPEC.md` section 14 ก่อน
+เอกสารนี้อธิบายส่วน execution ของ OpenCode adapter ซึ่งเป็น **release candidate v1.2.5 ที่ยังไม่แท็ก (tag pending)**
+โค้ดรวมใน `main` แล้วผ่าน PR #40 (merge `a666d626`) แต่ยังไม่มี signed tag, ยังไม่เผยแพร่
+และยังไม่มี release asset ใด ๆ อย่าอ้างสิทธิ์ส่วนนี้เป็น released จนกว่าจะ tag/sign/publish
+ตาม `docs/RELEASE-RUNBOOK-TH.md` และ verify asset จริง
 สิ่งที่เผยแพร่แล้วใน v1.2.4 (18 ตุลาคม 2026) คือ **health-only adapter** (`opencode_health`
 tool เดียว) เท่านั้น
 

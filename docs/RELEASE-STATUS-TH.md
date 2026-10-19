@@ -1,5 +1,12 @@
 # Release status
 
+## v1.2.5 — release candidate (tag pending; เตรียม 19 ตุลาคม 2026)
+
+- Scope คือ PR #40 (OpenCode task execution opt-in ตาม `docs/SPEC.md` section 18) ที่ merge ที่ `main` commit `a666d626da1fe716ce4b259d49eedfc3f97acc7d` แล้ว (code head สุดท้าย `e7add7e`) candidate ยังไม่มี signed tag, ไม่เผยแพร่, และไม่ติดตั้งลง runtime การผลิต — production ยังเป็น released v1.2.3
+- สถานะ: implemented + tested — 164/164 offline tests ผ่านด้วย project venv และ `-W error::ResourceWarning`, shellcheck และ `bash -n` ผ่าน, CI ผ่านที่ code head `e7add7e`; live acceptance: authenticated Dev Work-chat ผ่าน 19 ตุลาคม 2026 (real-model submit/result, resume, replay/recent, byte-verified native file creation; ส่วน native permission replies และ event subscriptions ยังไม่รองรับ — permission-required ครอบคลุมเฉพาะ fixture; ดู [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md)) ยังไม่ `released` และยังไม่ติด tag — release gates ที่เหลือ: tag/sign/publish และ asset verification ตาม RELEASE-RUNBOOK-TH.md
+- `version_info.py` stamp: `RELEASE_IDENTIFIER` = `v1.2.5`, `BUILD_PROVENANCE` = `release`, `EMBEDDED_SOURCE_REVISION` = `a666d626da1fe716ce4b259d49eedfc3f97acc7d` (reviewed build input = `main` หลัง merge PR #40; signed tag ในอนาคตคือ authority ของ final commit), `MCP_DISCOVERY_COUNT` = 27 (canonical default; 28 เมื่อเปิด health adapter, 33 เมื่อเปิด execution opt-in ตาม [TESTING.md](TESTING.md))
+- v1.3.0 ยังสงวนไว้สำหรับ Local Hands deferred track ตาม [ROADMAP.md](ROADMAP.md); MCP Events (section 15) ยัง BLOCKED ที่ subscription gate เหมือนเดิมและไม่อยู่ใน candidate นี้
+
 ## v1.2.4 — released (18 ตุลาคม 2026)
 
 - เผยแพร่ผ่าน annotated tag `v1.2.4` ที่เซ็น GPG (EDDSA fingerprint `C4E9AFA9C97FC94CA2448E9218BDAEA561529B86`) บน main commit `213305638c135041c42a3f242d6c5665c49c3fdf` (tag object `191ec44e979739659d042ff7306446a2db0639fc`); `git verify-tag` ผ่านทั้ง local และจาก remote object ที่ fetch สด
