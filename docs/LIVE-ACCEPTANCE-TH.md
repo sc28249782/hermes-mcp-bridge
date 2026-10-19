@@ -313,3 +313,26 @@ Reviewer รายงานผลตรวจจาก fresh inputs ของต
 Reviewer ให้ verdict `APPROVE`; external artifact-audit follow-up ของ v1.2.5 ปิดแล้ว.
 ข้อความ pending ใน checkpoint automation ข้างบนเป็นสถานะก่อน review นี้.
 การอนุมัตินี้ไม่ขยายขอบเขตไปยัง production model-task acceptance หรือ SPEC privacy contract review.
+
+### Privacy candidate preparation only — not Dev tunnel acceptance (19 ตุลาคม 2026)
+
+Candidate pin `db00968230fd4aee5690c361b11c8bc8fc36dabc` เตรียมใน isolated detached worktree บน WSL แล้ว.
+Project-venv full suite 183/183, privacy tests 18/18 และ shellcheck ผ่าน.
+Local SDK stdio fixture แสดง 27 tools และ filtered status metadata 415 bytes; ไม่ส่ง synthetic raw approval/error marker.
+นี่เป็น in-process fake Hermes transport; ไม่ใช่ actual Dev tunnel, Hermes HTTP หรือ model acceptance.
+Dev เดิมยัง pin `e7add7e`; production/profile/auth references ไม่ถูกเปลี่ยน.
+Live step รอ operator เปิด ephemeral command override จาก authenticated terminal.
+วิธีเปิดและคืน route อยู่ใน [PRIVACY-DEV-ACCEPTANCE-TH.md](PRIVACY-DEV-ACCEPTANCE-TH.md).
+Privacy follow-up ยังเปิดอยู่.
+
+### Privacy Dev transport — scoped fixture PASS (~21:11 +07, 19 ตุลาคม 2026)
+
+Parent ตรวจผ่าน actual Dev connector หลัง operator เปิด ephemeral fixture: revision `db009682`, git-worktree; parent registry 27 tools (ไม่ใช่ raw wire discovery).
+Synthetic status metadata 416 bytes มีเฉพาะ constant error/approval-required; ไม่ส่ง private fixture marker.
+Hermes result สองหน้าต่อกันตรงครบ 29 characters พร้อม configured-key substitution; unowned run ถูกปฏิเสธ และ retry input เดิมคืน run เดิม.
+นี่เป็น runtime จริงกับ in-process fake Hermes transport; ไม่ใช่ actual Hermes HTTP/native approval/model acceptance หรือ live Codex read-cap probe.
+State mode 0700 เป็น disposable fixture; directory repair และ bounded reads อ้าง WSL tests แยก.
+Root config schema รายงาน `unknown` ตาม fixture ที่ไม่มี config file; embedded schema 1 และ version stamp เดิมไม่ใช่ release ใหม่.
+Restored-route verification ผ่านจาก Dev connector: pin `e7add7e`, schema 1, state เดิม mode 0700, Hermes/Codex jobs 0, watchdog ทำงาน และ Hands disabled. Recent Hermes/Codex lists ว่าง; ไม่ยืนยัน OpenCode job count หลัง restore เพราะ tool ไม่ปรากฏใน parent registry รอบนี้.
+ตารางหลักฐานและวิธีคืน route: [PRIVACY-DEV-ACCEPTANCE-TH.md](PRIVACY-DEV-ACCEPTANCE-TH.md).
+Privacy follow-up ยังไม่ปิด; production ไม่ถูกเปลี่ยน.
