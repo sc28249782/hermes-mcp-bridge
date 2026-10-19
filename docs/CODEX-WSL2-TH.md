@@ -2,7 +2,7 @@
 
 v1.0.1 มี Hermes tools 10 ตัว, Codex tools 6 ตัว และ operations tools แบบ read-only 3 ตัว (`bridge_diagnostics`, `bridge_audit_recent`, `bridge_status`) รวม 19 tools โดย `codex_submit_task` เลือก model และ reasoning effort ได้ภายใต้นโยบายที่กำหนด
 
-> หมายเหตุสถานะ (18 ตุลาคม 2026): จำนวน 19 tools ด้านบนเป็นบันทึกยุค v1.0.1 สัญญา discovery ปัจจุบันคือ 27 tools (28 เมื่อเปิด OpenCode adapter) ตาม [TESTING.md](TESTING.md) นโยบาย Codex/WSL2 ในหน้านี้ยังใช้กับ released v1.2.4 เพราะ v1.2.4 ไม่แก้นโยบาย Codex
+> หมายเหตุสถานะ (18 ตุลาคม 2026): จำนวน 19 tools ด้านบนเป็นบันทึกยุค v1.0.1 สัญญา discovery ปัจจุบันคือ 27 tools (28 เมื่อเปิด OpenCode adapter, 33 เมื่อเปิด execution opt-in ใน release candidate v1.2.5 ที่ยังไม่แท็ก) ตาม [TESTING.md](TESTING.md) นโยบาย Codex/WSL2 ในหน้านี้ยังใช้กับ released v1.2.4 เพราะ v1.2.4 ไม่แก้นโยบาย Codex
 
 ## ขอบเขตความปลอดภัย
 

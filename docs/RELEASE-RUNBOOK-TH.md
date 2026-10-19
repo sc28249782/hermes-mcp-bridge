@@ -4,7 +4,7 @@
 
 ### Phase A — ก่อนสร้าง signed tag
 
-1. **Documentation gate:** ทบทวนเอกสารที่อธิบาย source, tool discovery, configuration, acceptance, compatibility, roadmap และ upgrade ให้ตรงกับ release candidate. Release status ต้องระบุผล acceptance และ provenance ได้ แต่ให้ใช้สถานะ `tag pending` จนกว่าจะ verify asset จริง. สำหรับ v1.2.2 ให้ตรวจ `./bridge.sh version` และ MCP `bridge_version` ตรงกัน, discovery count ตรง, และไม่มี upstream/network call.
+1. **Documentation gate:** ทบทวนเอกสารที่อธิบาย source, tool discovery, configuration, acceptance, compatibility, roadmap และ upgrade ให้ตรงกับ release candidate. Release status ต้องระบุผล acceptance และ provenance ได้ แต่ให้ใช้สถานะ `tag pending` จนกว่าจะ verify asset จริง. สำหรับ candidate ทุกรุ่น ให้ตรวจ `./bridge.sh version` และ MCP `bridge_version` ตรงกัน, discovery count ตรง, และไม่มี upstream/network call.
 2. Commit เอกสาร Phase A และตรวจ `git diff --check`; รัน test และ acceptance checklist ตาม `V1-ACCEPTANCE-TH.md`.
 3. ตรวจ release checkout ให้สะอาด, ยืนยัน target commit และ version tag ยังไม่มีอยู่, แล้วตรวจว่า WSL มี private GPG key ที่ตรงกับ `user.signingkey`:
 
@@ -18,7 +18,7 @@ git ls-remote --exit-code --tags origin "refs/tags/vX.Y.Z" && exit 1 || true
 
 4. หาก release ใช้ embedded provenance ให้ stamp `version_info.py` ด้วย release identifier/build provenance และ **build-input revision** ตาม release candidate ที่ review แล้ว; build-input revision บอก source ที่ใช้เตรียม stamp ไม่ใช่การอ้างว่าเป็น final tag commit (ซึ่งเป็น self-reference ไม่ได้). signed tag คือ authority ของ final commit. ห้ามใช้ `.git` เป็นเงื่อนไขให้ archive ทำงานได้. ตรวจ output `./bridge.sh version` อีกครั้งก่อน tag.
 
-5. สร้างและตรวจ signed tag ก่อน push:
+5. เลือก signing key ที่ตรวจ fingerprint แล้ว หากไม่ได้ตั้ง `user.signingkey` ให้ใช้ `git -c user.signingkey=<verified-fingerprint> tag -s ...` แทนการปล่อยให้ GPG เลือก default key ตรวจ signer fingerprint ให้ตรงกับ key ที่อนุมัติ แล้วสร้างและตรวจ signed tag ก่อน push:
 
 ```bash
 git tag -s vX.Y.Z -m "hermes-mcp-bridge vX.Y.Z"

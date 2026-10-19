@@ -22,7 +22,7 @@
 
 `opencode_health` (รวมใน released v1.2.4 แล้ว — 18 ตุลาคม 2026; deployment ที่ยังรัน v1.2.3 จะไม่มี adapter นี้จนกว่า operator จะอัปเกรด) เป็น disabled by default: เมื่อไม่กำหนด section `opencode` หรือ `enabled` เป็น `false` ทุก health check fail closed โดยไม่ spawn process และไม่มีการเรียก network/model/auth. การเปิดใช้ต้องกำหนด `opencode.binary` เป็น absolute path (ไม่เกิน 4096 ตัวอักษร ไม่มี control characters ต้องเป็น regular executable file) พร้อม `version_timeout_seconds` (1-120) และ `max_output_bytes` (1024-1048576); ไม่มีการเปิดใช้อัตโนมัติ
 
-ขอบเขต OpenCode ที่เผยแพร่ใน v1.2.4 เป็น health เท่านั้น; execution ที่ยังไม่เผยแพร่อธิบายใน section ด้านล่าง ส่วน native permission replies และ event subscriptions ยังไม่รองรับ. bridge ไม่เพิ่ม sandbox — executable ที่กำหนดรันด้วยสิทธิ์เต็มของ bridge process และอ่าน global configuration/credentials ได้ จึงเปิดใช้เฉพาะ binary ที่ตรวจแล้ว. runner ไม่ส่ง `--auto` และ `--standalone` เป็น exclusive in-process server ไม่ใช่ sandbox
+ขอบเขต OpenCode ที่เผยแพร่ใน v1.2.4 เป็น health เท่านั้น; execution รวมใน `main` แล้วผ่าน PR #40 และเตรียมเป็น release candidate v1.2.5 (ยังไม่แท็ก ยังไม่เผยแพร่) อธิบายใน section ด้านล่าง ส่วน native permission replies และ event subscriptions ยังไม่รองรับ. bridge ไม่เพิ่ม sandbox — executable ที่กำหนดรันด้วยสิทธิ์เต็มของ bridge process และอ่าน global configuration/credentials ได้ จึงเปิดใช้เฉพาะ binary ที่ตรวจแล้ว. runner ไม่ส่ง `--auto` และ `--standalone` เป็น exclusive in-process server ไม่ใช่ sandbox
 
 Local Hands ยังเป็น roadmap ไม่ใช่ production capability ใน v1.0.1 ขอบเขตที่อนุมัติไว้สำหรับ implementation คือ workspace/capability allowlist, local digest-bound approval, protected paths/names, baseline no deletion และไม่มี model-relayed nonce เป็น authorization ห้ามนำ allow-by-default deny-list sandbox, read-anywhere policy, shell-bypass accepted gap หรือ dynamic MCP-to-MCP trust bypass มาใช้
 
@@ -32,9 +32,9 @@ Execution ที่อ้างว่า no-delete/no-unapproved-truncate ต้
 
 `deny_prompt_patterns` ใน workspace policy เป็น guard ก่อนเริ่มงานเท่านั้น ผู้โจมตีอาจเปลี่ยนถ้อยคำเพื่อหลบ pattern ได้ จึงห้ามถือว่าเป็น command sandbox หรือ authorization boundary; allowlist, Codex sandbox และ local approval เป็น controls ที่บังคับใช้จริง.
 
-## OpenCode execution (UNRELEASED — SPEC.md section 18; ยังไม่อยู่ใน release ใด)
+## OpenCode execution (release candidate v1.2.5 — SPEC.md section 18; ยังไม่อยู่ใน release ใด)
 
-ส่วน execution ที่ยังไม่เผยแพร่ (branch `opencode-investigate`) เปิดด้วย opt-in เดี่ยว
+ส่วน execution ที่ยังไม่เผยแพร่ (รวมใน `main` แล้วผ่าน PR #40) เปิดด้วย opt-in เดียว
 `opencode.execution.enabled` ซึ่งต้องมี health adapter เปิดอยู่และมี
 `allowed_workspaces`/`allowed_models` แบบ canonical ที่ไม่ว่าง พร้อมขอบเขตตัวเลขชัดเจน
 ขอบเขตความปลอดภัยแตกต่างจาก Codex: executable รันด้วย **สิทธิ์เต็มของ bridge process**,

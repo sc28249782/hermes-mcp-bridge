@@ -1,6 +1,21 @@
 # คู่มืออัปเกรด Hermes MCP Bridge
 
-release ปัจจุบันคือ v1.2.4 (18 ตุลาคม 2026) — ดูขั้นตอนท้ายเอกสาร หัวข้อ "จาก X เป็น Y" ด้านล่างเป็นบันทึกประวัติรายรุ่นคงไว้ตามเดิม
+release ที่เผยแพร่ล่าสุดคือ v1.2.4 (18 ตุลาคม 2026) — ดูขั้นตอนท้ายเอกสาร หัวข้อ "จาก X เป็น Y" ด้านล่างเป็นบันทึกประวัติรายรุ่นคงไว้ตามเดิม
+
+กำลังเตรียม: release candidate **v1.2.5** (OpenCode task execution opt-in ตาม SPEC.md section 18; รวมใน `main` แล้วผ่าน PR #40) — ยังไม่มี signed tag และยังไม่มี ZIP ให้ดาวน์โหลด ขั้นตอนด้านล่างเตรียมไว้ให้ใช้เมื่อ release assets เผยแพร่และตรวจแล้ว อย่าอ้างว่า v1.2.5 เผยแพร่แล้ว ผลิตจริงยังรัน v1.2.3 ได้ตามดุลยพินิจของ operator
+
+## จาก v1.2.3 หรือ v1.2.4 เป็น v1.2.5
+
+ขั้นตอนนี้เตรียมไว้สำหรับใช้หลัง v1.2.5 มี signed tag และ release assets ที่ตรวจได้จริง
+ขณะเป็น candidate ห้ามถือว่ามีไฟล์พร้อมดาวน์โหลด ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md).
+
+1. ดาวน์โหลด `hermes-mcp-bridge-v1.2.5.zip` กับ external `SHA256SUMS` จาก GitHub Release v1.2.5 เมื่อเผยแพร่แล้ว ตรวจ `sha256sum -c SHA256SUMS`, `unzip -t` และ signed tag ตาม [RELEASE-RUNBOOK-TH.md](RELEASE-RUNBOOK-TH.md).
+2. รอ Hermes, Codex และ OpenCode jobs ของ instance ที่จะอัปเกรดเป็น terminal; ถ้ามี `unknown_exit` ให้ตรวจ process ก่อน หยุดเฉพาะ tunnel ของ instance นั้น แล้วแตก ZIP ไป directory ใหม่ ห้ามเขียนทับ deployment เดิมหรือคัดลอก state ที่ยังมี worker ทำงาน.
+3. คัดลอกเฉพาะ config/state ที่ตรวจแล้วไป directory ใหม่ รักษา mode 0600/0700 ตรวจ relative references ใน `hermes_env`/`hermes_config` ให้ยังชี้ไฟล์เดิมที่ถูกต้อง ไม่คัดลอก key, `.env` หรือ `.venv` รัน `bash install.sh` เพื่อสร้าง venv ใหม่.
+4. ตรวจ `./bridge.sh version` เป็น `1.2.5` / `v1.2.5` และใช้ `doctor`, `codex-doctor`, `diagnostics` ตรวจ config/auth เดิม การอัปเกรดไม่เปิด OpenCode อัตโนมัติ: default 27 tools, เปิด health เป็น 28, เปิด execution แยกเป็น 33 ตาม [OPENCODE-TH.md](OPENCODE-TH.md). Workspace เป็น cwd allowlist ไม่ใช่ filesystem/network sandbox และ native permissions ยังคงมีผล.
+5. เปิด editor ของ profile ที่ต้องการ เปลี่ยนเฉพาะ command ให้ชี้ `bridge.sh` ใหม่ แล้ว restart จาก authenticated terminal เดิม สำหรับ Dev ใช้ `EDITOR=nano tunnel-client profiles edit hermes-wsl-dev` และ `tunnel-client run --profile hermes-wsl-dev --health.listen-addr 127.0.0.1:8081`; ห้ามใช้ `tunnel.sh init/run` ของ baseline เพื่อเปิด Dev เพราะสคริปต์เลือก production profile.
+6. Refresh plugin tools ตรวจ version/revision และจำนวน tools ตาม config ก่อนส่ง benign task; ตรวจ status/result และไฟล์จริงเมื่อทดสอบเขียนไฟล์ Retry งานเดิมใช้ request ID/input เดิม ห้ามส่งซ้ำเพราะ reconnect.
+7. Rollback: รอ/ตรวจงานของ instance ใหม่ให้จบก่อนหยุด tunnel แล้วคืน profile command เป็น deployment เดิม อย่า replay งานที่มีผลข้างเคียง และอย่ารวม state database ต่างชุดโดยเดา หากมี `unknown_exit` ให้ตรวจ process/workspace ก่อน.
 
 ## จาก v1.2.2 เป็น v1.2.3
 

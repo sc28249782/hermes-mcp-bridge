@@ -14,6 +14,8 @@ Operations: [OPERATIONS-TH.md](OPERATIONS-TH.md)
 
 หมายเหตุ (18 ตุลาคม 2026): released v1.2.4 เผยแพร่แล้วผ่าน signed tag (ZIP ตรวจแล้วจากการดาวน์โหลดจริง; ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)) โดยเพิ่ม OpenCode health adapter แบบ disabled by default และ legacy stdio discovery guard คู่มือนี้อัปเดตให้ติดตั้ง released v1.2.4 การอัปเกรด deployment ที่ผลิตจริงเป็นดุลยพินิจของ operator (ยังรัน v1.2.3 เดิมได้)
 
+หมายเหตุ (19 ตุลาคม 2026): source ปัจจุบันเตรียม release candidate **v1.2.5** (OpenCode task execution opt-in ตาม SPEC.md section 18) — ยังไม่มี signed tag และยังไม่มี ZIP ให้ดาวน์โหลด คู่มือนี้ยังแนะนำติดตั้ง released v1.2.4 จนกว่า v1.2.5 จะเผยแพร่จริง
+
 ตัวกลางนี้ทำให้ ChatGPT ส่งงานให้ Hermes ที่รันอยู่บนเครื่องคุณ แล้วตรวจสถานะ อ่านผล และขอหยุดงานได้
 ใช้ Runs API เดียวกับที่ `hermes peer run/status/stop` เรียก แต่เรียก HTTP โดยตรง
 งานใหม่เริ่ม session ใหม่ ไม่ใช้ canonical “Bot Chat” ร่วมกับ peer อื่น
@@ -378,9 +380,10 @@ v1.0.1 ผ่าน regression 48 tests โดยใช้ `-W error::ResourceWa
 
 Use `bridge_context_create` to create an explicit metadata-only context. Pass its `context_id` to later Hermes or Codex submissions. A Hermes context resumes only the bridge-owned `session_id` observed from task status/result; Codex contexts bind workspace/job metadata only and never replay prior prompts or outputs. There is no global active context, so a new ChatGPT chat must explicitly provide the intended `context_id`.
 
-## OpenCode task execution (ยังไม่เผยแพร่ — ห้ามอ้างเป็น release)
+## OpenCode task execution (release candidate v1.2.5 — ห้ามอ้างเป็น release)
 
-ส่วน execution (SPEC.md section 18) บน branch พัฒนาเท่านั้น เพิ่ม 5 tools
+ส่วน execution (SPEC.md section 18) รวมใน `main` แล้วผ่าน PR #40 และเตรียมเป็น
+release candidate v1.2.5 (ยังไม่แท็ก) เพิ่ม 5 tools
 (`opencode_submit_task`, `opencode_task_status`, `opencode_task_result`,
 `opencode_cancel_task`, `opencode_recent_tasks`) เป็น 33 tools ปิด default —
 เปิดได้ด้วย `opencode.execution.enabled=true` ซึ่งต้องมี `opencode.enabled` +

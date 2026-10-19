@@ -3,8 +3,11 @@
 เอกสารนี้อธิบาย bridge ที่เชื่อม ChatGPT ผ่าน Secure MCP Tunnel ไปยัง Hermes Agent ที่ทำงานอยู่ใน WSL2 โดยใช้ Hermes Runs API แบบ HTTP
 
 รุ่นอ้างอิง: Hermes Agent v0.21.1, commit `8d79c2ff`  
-Bridge: `hermes-mcp-bridge-v1.2.4` (signed and GitHub-verified)  
-ปรับปรุงล่าสุด: 18 ตุลาคม 2026
+Bridge: `hermes-mcp-bridge-v1.2.4` (signed and GitHub-verified)
+
+สถานะ source ปัจจุบัน: เตรียม release candidate v1.2.5 (OpenCode execution opt-in; ยังไม่มี signed tag และไม่มี ZIP) — คู่มือนี้อ้างอิง released v1.2.4
+
+ปรับปรุงล่าสุด: 19 ตุลาคม 2026
 
 ## 1. ภาพรวมและขอบเขต
 

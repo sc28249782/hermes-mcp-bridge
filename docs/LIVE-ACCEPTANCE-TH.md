@@ -178,7 +178,7 @@ watchdog timeout และ `unknown_exit` recovery ได้ผ่าน WSL2 li
 ทั้ง timeout watchdog และ restart recovery ผ่านแล้ว; คืน policy production เป็น `max_runtime_seconds: 1800` ก่อนจบ acceptance.
 
 
-## 19 ตุลาคม 2026 — OpenCode execution (unreleased; PR #40)
+## 19 ตุลาคม 2026 — OpenCode execution (release candidate v1.2.5 ที่ยังไม่แท็ก; PR #40)
 
 Code head: `ee62fe84e0474ccd34ccda1b42ba7e59700da479`; source worktree แยกจาก runtime
 ผลนี้ไม่ใช่ release claim และไม่แก้หลักฐาน v1.2.4 ที่บันทึกไว้ก่อนหน้า
