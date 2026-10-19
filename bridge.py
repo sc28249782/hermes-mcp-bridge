@@ -10,10 +10,11 @@ from codex_core import CodexRunner, CodexError
 from hands_core import HandsRuntime, HandsError
 from contexts import ContextRegistry, ContextError
 from opencode_core import OpenCodeRunner, OpenCodeError
+from opencode_tasks import OpenCodeTasks, OpenCodeTaskError
 from version_core import report as bridge_version_report
 
 
-def server(b, c, h, contexts, opencode=None):
+def server(b, c, h, contexts, opencode=None, opencode_tasks=None):
     from mcp.server.fastmcp import FastMCP
     from mcp.types import ToolAnnotations
     c.start_watchdog()
@@ -204,6 +205,34 @@ def server(b, c, h, contexts, opencode=None):
         def opencode_health() -> dict[str, Any]:
             """Check the configured OpenCode CLI executable with a bounded local version probe."""
             return opencode.health()
+    if opencode_tasks is not None and opencode_tasks.enabled:
+        # SPEC section 18: five execution tools, additive and separately
+        # gated; discovery becomes 33 only with the explicit execution opt-in.
+        @m.tool(annotations=write, structured_output=True)
+        def opencode_submit_task(prompt: str, workspace: str, request_id: str,
+                                 session_id: str | None = None, model: str | None = None) -> dict[str, Any]:
+            """Run an allowlisted OpenCode task. Unsanboxed: native policy applies, workspace is an allowlist, not isolation."""
+            return opencode_tasks.submit(prompt, workspace, request_id, session_id, model)
+
+        @m.tool(annotations=read, structured_output=True)
+        def opencode_task_status(job_id: str) -> dict[str, Any]:
+            """Get redacted state for a bridge-owned OpenCode job."""
+            return opencode_tasks.status(job_id)
+
+        @m.tool(annotations=read, structured_output=True)
+        def opencode_task_result(job_id: str, offset: int = 0, max_chars: int = 12000) -> dict[str, Any]:
+            """Read paginated untrusted output for a bridge-owned OpenCode job."""
+            return opencode_tasks.result(job_id, offset, max_chars)
+
+        @m.tool(annotations=write, structured_output=True)
+        def opencode_cancel_task(job_id: str) -> dict[str, Any]:
+            """Request cancellation of a bridge-owned OpenCode job."""
+            return opencode_tasks.cancel(job_id)
+
+        @m.tool(annotations=read, structured_output=True)
+        def opencode_recent_tasks() -> dict[str, Any]:
+            """List the 30 most recent bridge-owned OpenCode jobs, redacted."""
+            return opencode_tasks.recent()
     return m
 
 
@@ -228,10 +257,16 @@ def main():
         b = Bridge.from_config()
         c = CodexRunner.from_config(root)
         oc = OpenCodeRunner.from_config(root)
+        # OpenCodeTasks shares the opencode config; disabled execution keeps
+        # it inert (no state directory, no DB, no process) until enabled.
+        try:
+            ot = OpenCodeTasks.from_config(root)
+        except OpenCodeTaskError:
+            ot = None
         contexts = ContextRegistry(b.state, b.audit)
         if args.action == "serve":
             from stdio_guard import run_stdio_guarded  # SPEC.md section 17
-            run_stdio_guarded(server(b, c, h, contexts, oc))
+            run_stdio_guarded(server(b, c, h, contexts, oc, ot))
             return
         if args.action == "diagnostics":
             output = {"hermes": b.diagnostics(), "codex": c.diagnostics(), "local_hands": h.diagnostics()}

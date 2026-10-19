@@ -142,4 +142,53 @@ def load_bridge_config(root: Path) -> tuple[dict, list[str]]:
             raise ConfigError("opencode.binary must be an absolute path")
     if opencode.get("enabled", False) and not opencode.get("binary"):
         raise ConfigError("opencode.enabled requires an explicit opencode.binary path")
+    execution = opencode.get("execution")
+    if execution is not None:
+        if not isinstance(execution, dict):
+            raise ConfigError("opencode.execution must be an object")
+        known = {"enabled", "allowed_workspaces", "allowed_models", "max_prompt_chars",
+                 "max_runtime_seconds", "max_output_bytes"}
+        unknown = set(execution) - known
+        if unknown:
+            warnings.append("opencode.execution: unknown key(s) ignored: " + ", ".join(sorted(unknown)))
+        if "enabled" in execution and not isinstance(execution["enabled"], bool):
+            raise ConfigError("opencode.execution.enabled must be boolean")
+        for key, low, high in (("max_prompt_chars", 1, 131_072),
+                               ("max_runtime_seconds", 30, 14_400),
+                               ("max_output_bytes", 65_536, 8_388_608)):
+            if key in execution:
+                value = execution[key]
+                if not isinstance(value, int) or isinstance(value, bool) or not low <= value <= high:
+                    raise ConfigError(f"opencode.execution.{key} must be an integer in {low}-{high}")
+        workspaces = execution.get("allowed_workspaces")
+        if workspaces is not None:
+            if not isinstance(workspaces, list):
+                raise ConfigError("opencode.execution.allowed_workspaces must be a list")
+            for value in workspaces:
+                if not isinstance(value, str) or not value:
+                    raise ConfigError("allowed_workspaces entries must be non-empty strings")
+                if any(ord(char) < 0x20 or ord(char) == 0x7F for char in value):
+                    raise ConfigError("allowed_workspaces entries must not contain control characters")
+                if not Path(value).expanduser().is_absolute():
+                    raise ConfigError("allowed_workspaces entries must be absolute paths")
+        models = execution.get("allowed_models")
+        if models is not None:
+            if not isinstance(models, list):
+                raise ConfigError("opencode.execution.allowed_models must be a list")
+            for value in models:
+                if not isinstance(value, str) or not value or len(value) > 128:
+                    raise ConfigError("allowed_models entries must be non-empty strings up to 128 characters")
+                if any(ord(char) < 0x20 or ord(char) == 0x7F for char in value):
+                    raise ConfigError("allowed_models entries must not contain control characters")
+                if value.count("/") != 1 or not value.split("/")[0] or not value.split("/")[1]:
+                    raise ConfigError("allowed_models entries must use the provider/model form")
+        if execution.get("enabled", False):
+            if not opencode.get("enabled", False):
+                raise ConfigError("opencode.execution.enabled requires opencode.enabled")
+            if not opencode.get("binary"):
+                raise ConfigError("opencode.execution.enabled requires opencode.binary")
+            if not workspaces:
+                raise ConfigError("opencode.execution.enabled requires a non-empty allowed_workspaces")
+            if not models:
+                raise ConfigError("opencode.execution.enabled requires a non-empty allowed_models")
     return config, warnings
