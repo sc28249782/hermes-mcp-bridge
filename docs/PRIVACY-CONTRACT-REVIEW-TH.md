@@ -124,3 +124,27 @@ Reviewer ให้ verdict `APPROVE` สำหรับรายงานนี�
 เสนอ implementation และ wording สุดท้ายใน PR ถัดไป พร้อม unreleased contract note และ regression evidence.
 Scope ของงานถัดไปคือ privacy hardening ของ runtime ที่มีอยู่; ไม่เพิ่ม tools, ไม่เปลี่ยน binaries และไม่ deploy production โดยอัตโนมัติ.
 MCP Events และ Local Hands mutation/execution ยังอยู่ใต้ gate เดิม.
+
+
+## Unreleased implementation candidate
+
+SPEC §19 และ candidate ถัดจาก PR #46 กำหนดตัวเลข metadata/timeout/read limits และ implementation ของ exit criteria ทั้งสามแล้ว.
+ข้อความก่อนหน้านี้เป็น historical review ของ source ที่ pin ไว้ ไม่ใช่คำอธิบายว่า candidate ยังใช้ raw forwarding หรือ whole-file reads.
+Final wording และ limits ยังรอ external review; privacy follow-up ยังไม่ปิด และยังไม่ deploy.
+ดู [SPEC.md](SPEC.md), [TESTING.md](TESTING.md) และ [OPERATIONS-TH.md](OPERATIONS-TH.md).
+
+## Candidate review และจุดส่งต่องาน (19 ตุลาคม 2026)
+
+Operator ส่ง external review ของ [PR #47](https://github.com/sc28249782/hermes-mcp-bridge/pull/47) ที่ head `c14cd8c` และให้ verdict `APPROVE`.
+ตารางหลักฐานของ reviewer ยืนยันทั้งสามข้อ: metadata filtering/cap, directory-mode enforcement และ bounded Codex reads.
+Reviewer ตรวจ spec-first commit order และรายงาน full suite 183/183 จาก clean worktree พร้อม independent probes.
+ตัวเลขและ wording ใน SPEC §19 ได้รับ review ในฐานะ unreleased candidate; ไม่ใช่การรับรอง signed v1.2.5 หรือ production ว่ามี hardening นี้แล้ว.
+
+สถานะส่งต่อ:
+
+- เสร็จใน candidate: metadata 8,192 bytes, directory `0700`, Codex snapshot 8,388,608 bytes และ chunk 65,536 bytes พร้อม tests.
+- HTTP decoded-response cap คือ 4,000,000 bytes; connect/inactivity timeouts 5/25 วินาที ไม่ใช่ wall-clock deadline รวม.
+- รอ: candidate live acceptance บน Dev ที่แยกจาก production พร้อม identity/discovery และการทดสอบ privacy boundaries ตาม §19 โดยใช้ synthetic data.
+- รอ: release/deployment decision และบันทึกผลหลัง deployment ที่ตรวจแล้ว. ยังไม่มี release version กำหนดให้ candidate นี้.
+- Production ยังคง signed v1.2.5; อย่าสรุปว่า merge หรือ CI ทำให้ deployment เปลี่ยนแล้ว.
+- Privacy follow-up ยังไม่ปิด. MCP Events และ Local Hands mutation/execution ยังคง gate เดิม.

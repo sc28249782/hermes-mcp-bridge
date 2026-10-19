@@ -62,7 +62,7 @@ Every tool MUST have:
 - a documented unavailable/disabled result where its backend can be unavailable;
 - no secret-bearing fields in normal status, diagnostics, or audit responses.
 
-MCP responses MAY contain operational identifiers needed for follow-up calls, but MUST NOT include API keys, credentials, full prompts, full outputs, or unredacted audit payloads.
+Unreleased privacy amendment (section 19): MCP metadata MUST NOT serialize credential configuration, authentication headers, submitted prompts, raw job output, or unredacted audit payloads. The documented content fields of `hermes_task_result`, `codex_task_result`, `opencode_task_result`, and `hands_read` MAY return untrusted task output or allowed file content within their ownership or workspace-policy checks and response limits. `hands_list` MAY return names and relative paths that pass its policy. A result page MAY contain the complete output of a short task. Pagination MUST NOT be described as redaction. Content can contain sensitive data; this exception MUST NOT authorize raw content in status, diagnostics, audit, or unrelated fields. Existing configured Hermes-key substitution and protected-file rules MUST remain in force. This amendment corrects the earlier blanket full-output prohibition; it does not claim new protection in signed v1.2.5.
 
 The exact generated tool schemas and discovery count are validated by tests/test_mcp.py and TESTING.md. A code change that changes a tool schema is a contract change even when the tool count is unchanged.
 
@@ -137,13 +137,15 @@ The bridge MUST:
 
 - keep state and audit files private;
 - redact credentials and sensitive payloads from audit output;
-- avoid logging prompts, outputs, file contents, or complete user payloads;
+- exclude prompts, outputs, file contents, and complete user payloads from audit and diagnostic logging;
 - reject workspace paths outside explicit policy;
 - avoid shell=True and unrestricted argv;
 - preserve local approval for every workspace-write job;
 - keep backend availability and permissions fail-closed.
 
 Security behavior is part of the public contract. A security relaxation requires a specification amendment, threat-model review, regression tests, live acceptance, and an explicit release note.
+
+Unreleased privacy amendment (section 19): documented bridge-owned operational stores MAY retain submitted job prompts, cached task responses, and captured job output for execution, ownership, recovery, and explicit result retrieval. These stores MUST be protected separately from audit logs. Documentation MUST state their stored fields, permissions, output limits, and retention or cleanup behavior per backend. OS permissions MUST NOT be described as encryption. Audit redaction MUST NOT be described as artifact redaction. Metadata-only contexts MUST NOT store prompts or outputs. This allowance does not permit credential configuration or authentication headers to be copied into job metadata.
 
 ## 11. Persistence and migration
 
@@ -288,3 +290,34 @@ This amendment ships in signed v1.2.5 (2026-10-19); ZIP and external SHA256SUMS 
 - `tests/test_opencode.py` and the section 16 suite MUST pass unchanged; default discovery stays 27, and health-enabled discovery stays 28.
 - A new execution test suite MUST prove: disabled fail-closed; section 18.1 validation; the fixed argv and stdin prompt; session minting and resume rules; idempotency and fingerprint conflict; admission concurrency and busy rejection; a deterministic fixture CLI for error-with-exit-0, streaming events, pause, descendant processes, cancellation race, output caps, worker restart, and bridge-owned sessions; `permission_required` detection; `unknown_exit`; redaction of status and recent; 0600 and 0700 file modes; and discovery 33 through the real stdio fixture.
 - `tests/test_packaging.py` MUST include the new modules. No released surface may claim this section until its own change-control gate closes.
+
+
+## 19. Privacy hardening — unreleased, no assigned release
+
+This amendment follows the review in [PRIVACY-CONTRACT-REVIEW-TH.md](PRIVACY-CONTRACT-REVIEW-TH.md). It changes privacy-contract wording and Hermes metadata response semantics. It MUST NOT be represented as active in signed v1.2.5 or production before deployment acceptance.
+
+### 19.1 Hermes task metadata
+
+- Status MUST use a fixed top-level field allowlist. It MUST NOT forward upstream approval commands, descriptions, request payloads, raw errors, arbitrary usage objects, or unknown event/status strings.
+- The allowlist is `run_id`, `status`, `session_id`, `model`, `usage`, `last_event`, `requested_model`, `requested_provider`, `requested_model_options`, `reported_model`, `output_chars`, `age_seconds`, `stale`, `error`, `approval`, `approval_stale`, and `next`. Result metadata MUST use the same filtering for its shared fields.
+- Identifiers MUST pass the existing identifier patterns: run/session 128 characters, model 256, provider 64, and each of the two allowed model-option values 64. Usage MUST contain only nonnegative integer counters `input_tokens`, `output_tokens`, `total_tokens`, `cache_read_tokens`, and `cache_write_tokens`, each at most 9,007,199,254,740,991; booleans MUST NOT count as integers.
+- Observed status MUST be one of `pending`, `queued`, `started`, `running`, `waiting_for_approval`, `completed`, `failed`, or `cancelled`; other values MUST become `unknown`, never inferred success. Event labels MUST be selected from the implementation's fixed lifecycle label set or become `unknown`.
+- An upstream error MUST produce only the constant message `Hermes reported an error; inspect Hermes locally.`. Pending approval MUST expose only `{"required": true}` and the existing local-review instruction. Local approve/deny MUST continue to fetch and revalidate the exact upstream request in the terminal; public metadata is not authorization.
+- Compact ASCII-escaped JSON of status or shared result metadata MUST be at most 8,192 bytes. Oversize metadata MUST fail with a constant error; output content has its separate 24,000-character page limit.
+- The upstream decoded JSON response cap remains 4,000,000 bytes. HTTP timeouts remain 5 seconds for connection and 25 seconds for read/write/pool inactivity. These are not an absolute end-to-end wall-clock deadline. Filtering adds no backend retry or model call.
+
+### 19.2 Existing directories
+
+Hermes and Codex initialization MUST enforce mode `0700` on the state directory even when it already exists. Codex MUST also enforce `0700` on its log directory. Failure MUST stop initialization with a constant error that does not echo a private path. Database mode `0600` remains required. This change does not claim isolation from other processes running as the same OS user.
+
+### 19.3 Codex result reads
+
+- Each result call MUST snapshot the opened log's byte length. Missing logs retain the existing empty-result behavior.
+- A snapshot larger than 8,388,608 bytes MUST fail before reading content. Reads MUST request at most 65,536 bytes at a time and consume no more than the snapshot length. Later appends MUST NOT extend that call's read budget.
+- The reader MUST decode UTF-8 incrementally with replacement for malformed input and retain universal-newline behavior. It MUST count characters while retaining only the requested page and one bounded decode chunk. It MUST NOT load the whole log or allocate proportional to the requested offset.
+- Character offsets, `total_chars`, `next_offset`, the 1–24,000-character page limit, ownership checks, and terminal-state rules MUST remain intact. A truncated snapshot MUST fail with a constant retry hint. Append-only growth between calls MAY change `total_chars`; pages are not a cross-call immutable snapshot.
+- The read cap bounds work and memory per call; it is not a cap on bytes captured by the worker or a filesystem-call deadline. No automatic artifact cleanup is introduced.
+
+### 19.4 Acceptance and rollout
+
+Regression coverage MUST include unknown/sensitive/oversized metadata, invalid nested values, configured-key exclusion, exact local approval, existing-directory repair and permission failures, multi-chunk Unicode/newline pagination, invalid UTF-8, oversized/sparse logs, append/truncate races, and a read-budget assertion. Existing MCP discovery and task lifecycle tests MUST continue to pass. Fake fixtures do not replace candidate live acceptance. Privacy follow-up remains open until independent review, the applicable live acceptance, and a recorded release/deployment decision pass. Local Hands and MCP Events gates remain unchanged.

@@ -1,5 +1,14 @@
 # คู่มืออัปเกรด Hermes MCP Bridge
 
+## Unreleased privacy hardening — ยังไม่ใช่ release สำหรับอัปเกรด
+
+Candidate ตาม SPEC §19 ยังไม่มี release ที่กำหนด และยังไม่ deploy production.
+เมื่อเสนอ rollout ต้องแจ้งว่า Hermes status/result จะไม่ส่ง raw error และ approval payload; approval details ยังตรวจใน local terminal.
+Init จะ enforce state/Codex-log directories เป็น `0700`; ถ้าเปลี่ยน mode ไม่ได้ ต้องแก้ ownership/permissions ภายในเครื่องก่อนเริ่มใหม่.
+Codex result ของ snapshot เกิน 8,388,608 bytes จะ fail พร้อมคำแนะนำให้ตรวจในเครื่อง; ไม่ตัด output แล้วรายงานเหมือนอ่านครบ.
+Tool count และ binaries ไม่เปลี่ยน.
+อย่าแก้ directory ของ signed deployment เพื่อเปิด candidate ระหว่างงานที่ยังรันอยู่.
+
 release ที่เผยแพร่ล่าสุดคือ v1.2.5 (19 ตุลาคม 2026) — ดูขั้นตอนท้ายเอกสาร หัวข้อ "จาก X เป็น Y" ด้านล่างเป็นบันทึกประวัติรายรุ่นคงไว้ตามเดิม
 
 v1.2.5 เผยแพร่แล้ว พร้อม signed tag และ ZIP/SHA256SUMS ที่ตรวจหลังดาวน์โหลด; OpenCode execution ปิดโดยค่าเริ่มต้น การอัปเกรดไม่สลับ production หรือตั้ง permission ให้อัตโนมัติ.
@@ -173,3 +182,4 @@ release v1.2.4 เผยแพร่แล้ว (18 ตุลาคม 2026) �
 ก่อนเปลี่ยน Dev route ต้องรอ job เดิมจบและเก็บ config/profile เดิมไว้สำหรับ rollback
 restart/refresh เฉพาะ Dev แล้วตรวจ discovery 33 tools และทดสอบหนึ่งงานกับ session reuse
 การ merge PR หรือการเผยแพร่ release ไม่ได้เปิด execution หรือติดตั้ง production ให้อัตโนมัติ
+

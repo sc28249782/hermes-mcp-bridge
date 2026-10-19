@@ -1,4 +1,5 @@
 import asyncio
+import json
 from pathlib import Path
 import sys
 import unittest
@@ -7,6 +8,30 @@ from mcp.client.stdio import stdio_client
 from version_core import report
 
 class TestProtocol(unittest.TestCase):
+    def test_privacy_metadata_is_bounded_on_real_stdio(self):
+        async def run():
+            params = StdioServerParameters(command=sys.executable,
+                args=[str(Path(__file__).with_name('mock_mcp_server.py')), '--privacy-fixture'])
+            async with stdio_client(params) as (read, write):
+                async with ClientSession(read, write) as session:
+                    await session.initialize()
+                    self.assertEqual(len((await session.list_tools()).tools), 27)
+                    start = await session.call_tool('hermes_submit_task', {'prompt': 'fixture', 'request_id': 'privacy-wire'})
+                    rid = start.structuredContent['run_id']
+                    status = await session.call_tool('hermes_task_status', {'run_id': rid})
+                    self.assertFalse(status.isError)
+                    value = status.structuredContent
+                    self.assertEqual(value['approval'], {'required': True})
+                    self.assertEqual(value['usage'], {'total_tokens': 7})
+                    encoded = json.dumps(value, ensure_ascii=True, separators=(',', ':')).encode('ascii')
+                    self.assertLessEqual(len(encoded), 8192)
+                    self.assertNotIn(b'PRIVATE_MCP_FIXTURE', encoded)
+                    result = await session.call_tool('hermes_task_result', {'run_id': rid})
+                    self.assertFalse(result.isError)
+                    self.assertNotIn('PRIVATE_MCP_FIXTURE', json.dumps(result.structuredContent))
+                    self.assertIn('ผลทดสอบ', result.structuredContent['output'])
+        asyncio.run(run())
+
     def test_stdio_initialize_discovery_lifecycle(self):
         async def run():
             params=StdioServerParameters(command=sys.executable,args=[str(Path(__file__).with_name('mock_mcp_server.py'))])
@@ -76,3 +101,4 @@ class TestProtocol(unittest.TestCase):
         asyncio.run(run())
 
 if __name__=='__main__': unittest.main()
+

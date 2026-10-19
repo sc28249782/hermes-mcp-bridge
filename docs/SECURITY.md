@@ -1,5 +1,20 @@
 # Security policy
 
+## Unreleased privacy amendment and hardening (SPEC §19)
+
+Candidate แยก explicit content retrieval ออกจาก metadata/audit และ private operational storage.
+การแก้ข้อห้าม full output แบบครอบทุก response เป็น security-contract change ที่ต้อง review แม้ content APIs มีอยู่แล้ว.
+Result/file content อาจมีข้อมูลอ่อนไหวและยังเป็น untrusted data; pagination ไม่ใช่ redaction.
+Candidate ไม่เพิ่ม generic secret scanner, encryption, sandbox หรือ permission.
+
+Hermes status/result metadata ใช้ field allowlist และ cap 8,192 serialized bytes.
+Raw error/approval bodies ไม่ถูกส่งใน metadata; local terminal ยัง preview/revalidate exact approval.
+Identifier fields ยังคงเป็นข้อมูลที่ user/backend กำหนด; field validation ไม่รับรองว่าข้อความทุกชนิดไม่มี secrets.
+Hermes/Codex enforce directory `0700` และหยุด init หากทำไม่ได้.
+Codex result ใช้ bounded snapshot reads; output เกิน 8 MiB ต้องตรวจในเครื่อง.
+ดู field/storage/timeout limits ใน [SPEC.md](SPEC.md) และ [OPERATIONS-TH.md](OPERATIONS-TH.md).
+ส่วนของ signed v1.2.5 และ production checkpoint ไม่ได้อ้างว่ามี hardening นี้แล้ว.
+
 ## Supported versions
 
 เฉพาะ release ล่าสุดได้รับ security fixes
@@ -70,3 +85,4 @@ Hermes แทนค่าเฉพาะ configured API key ใน upstream JSON
 อย่าถือว่าข้อมูลเหล่านี้เป็น metadata ที่ไม่มีเนื้อหาอ่อนไหว.
 ข้อเสนอแยก audit/metadata ออกจาก content retrieval และ private operational stores อยู่ใน [PRIVACY-CONTRACT-REVIEW-TH.md](PRIVACY-CONTRACT-REVIEW-TH.md).
 รายงานนั้นยังรอ review และไม่เปลี่ยน normative SPEC หรือ runtime permissions.
+

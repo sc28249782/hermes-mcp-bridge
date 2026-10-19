@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 import json
+import codecs
+import io
 import os
 from pathlib import Path
 import signal
@@ -16,6 +18,9 @@ import uuid
 
 from audit import AuditLog
 from config_schema import ConfigError, load_bridge_config
+
+RESULT_READ_MAX_BYTES = 8_388_608
+RESULT_READ_CHUNK_BYTES = 65_536
 
 
 class CodexError(RuntimeError):
@@ -45,11 +50,19 @@ class CodexRunner:
         self._watchdog_stop = threading.Event()
         self._watchdog_thread = None
         self.state = Path(state)
-        self.state.mkdir(parents=True, exist_ok=True, mode=0o700)
+        try:
+            self.state.mkdir(parents=True, exist_ok=True, mode=0o700)
+            self.state.chmod(0o700)
+        except OSError:
+            raise CodexError("Codex state directory could not be secured.") from None
         self.audit_config = config.get("audit")
         self.audit = AuditLog(self.state, self.audit_config)
         self.logs = self.state / "codex-logs"
-        self.logs.mkdir(exist_ok=True, mode=0o700)
+        try:
+            self.logs.mkdir(exist_ok=True, mode=0o700)
+            self.logs.chmod(0o700)
+        except OSError:
+            raise CodexError("Codex log directory could not be secured.") from None
         self.dbpath = self.state / "codex.sqlite3"
         with self.db() as db:
             db.execute("""CREATE TABLE IF NOT EXISTS jobs (
@@ -544,10 +557,41 @@ class CodexRunner:
             raise CodexError("invalid result page: offset must be a non-negative integer and max_chars must be 1-24000")
         row = self._row(job_id)
         path = Path(row["log_path"])
-        data = path.read_text(errors="replace") if path.exists() else ""
-        end = min(len(data), offset + max_chars)
-        return {**self.status(job_id), "output": data[offset:end], "total_chars": len(data),
-                "next_offset": end if end < len(data) else None}
+        try:
+            handle = path.open("rb")
+        except FileNotFoundError:
+            handle = None
+        except OSError:
+            raise CodexError("Codex output is unavailable.") from None
+        total, page = 0, []
+        if handle is not None:
+            try:
+                with handle:
+                    remaining = os.fstat(handle.fileno()).st_size
+                    if remaining > RESULT_READ_MAX_BYTES:
+                        raise CodexError("Codex output exceeds the result read limit; inspect it locally.")
+                    decoder = io.IncrementalNewlineDecoder(codecs.getincrementaldecoder("utf-8")(errors="replace"), True)
+
+                    def accept(text):
+                        nonlocal total
+                        start = max(0, offset - total)
+                        end = min(len(text), offset + max_chars - total)
+                        if end > start:
+                            page.append(text[start:end])
+                        total += len(text)
+
+                    while remaining:
+                        chunk = handle.read(min(RESULT_READ_CHUNK_BYTES, remaining))
+                        if not chunk:
+                            raise CodexError("Codex output changed while reading; retry the result call.")
+                        remaining -= len(chunk)
+                        accept(decoder.decode(chunk, final=False))
+                    accept(decoder.decode(b"", final=True))
+            except OSError:
+                raise CodexError("Codex output is unavailable.") from None
+        end = min(total, offset + max_chars)
+        return {**self.status(job_id), "output": "".join(page), "total_chars": total,
+                "next_offset": end if end < total else None}
 
     def _terminate(self, pid, child, *, child_pid=None, worker_starttime=None, child_starttime=None):
         child_pid = child.pid if child is not None else child_pid
@@ -613,3 +657,4 @@ class CodexRunner:
         with self.db() as db:
             rows = db.execute("SELECT job_id,created,workspace,mode,status,policy_root,approval_expires,model,reasoning_effort FROM jobs ORDER BY created DESC LIMIT 30").fetchall()
         return {"jobs": [dict(x) for x in rows]}
+
