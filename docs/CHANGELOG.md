@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased — privacy contract and runtime hardening (no assigned release)
+
+- Amend SPEC §4/§10 through §19: explicit bounded result/file content can include a full short result and potentially sensitive data. Private operational storage is separate from content-free audit logging. This corrects an overbroad privacy promise and requires security-contract review; it does not add secret scanning, encryption, sandboxing or backend permissions.
+- Filter Hermes task status/result metadata. Replace raw upstream error text with a constant message and approval payloads with `{"required": true}`. Keep exact approval preview and revalidation in the local terminal. Limit metadata to 8,192 serialized bytes; keep upstream decoded JSON at 4,000,000 bytes and HTTP connect/inactivity timeouts at 5/25 seconds (not a total deadline).
+- Enforce `0700` on existing Hermes/Codex state directories and the Codex log directory. Fail initialization when modes cannot be secured.
+- Read Codex result snapshots in 65,536-byte chunks up to 8,388,608 bytes per call. Preserve character pagination, UTF-8 replacement and universal newlines without loading the whole log. Oversize snapshots require local inspection; the read limit does not cap worker log capture or introduce cleanup.
+- Keep tool registrations, binaries, config schema, signed releases and production deployment unchanged. Candidate review, applicable live acceptance and a release decision remain pending.
+
 ## v1.2.5 — released (19 October 2026)
 
 - Add the separate, disabled-by-default `opencode.execution` opt-in. Require the health adapter, existing canonical workspaces and allowed models.
@@ -215,3 +223,4 @@ Release record: released on 18 October 2026 via GPG-signed annotated tag `v1.2.4
 - runtime key ไม่ถูกเขียนใน systemd unit และไม่พิมพ์ใน output
 - model options ใช้ allowlist: `reasoning_effort`, `service_tier`
 - global Hermes model configuration ยังต้องเปลี่ยนจาก local WSL terminal
+
