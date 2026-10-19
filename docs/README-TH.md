@@ -377,3 +377,22 @@ v1.0.1 ผ่าน regression 48 tests โดยใช้ `-W error::ResourceWa
 ## v1.2.1 — work contexts
 
 Use `bridge_context_create` to create an explicit metadata-only context. Pass its `context_id` to later Hermes or Codex submissions. A Hermes context resumes only the bridge-owned `session_id` observed from task status/result; Codex contexts bind workspace/job metadata only and never replay prior prompts or outputs. There is no global active context, so a new ChatGPT chat must explicitly provide the intended `context_id`.
+
+## OpenCode task execution (ยังไม่เผยแพร่ — ห้ามอ้างเป็น release)
+
+ส่วน execution (SPEC.md section 18) บน branch พัฒนาเท่านั้น เพิ่ม 5 tools
+(`opencode_submit_task`, `opencode_task_status`, `opencode_task_result`,
+`opencode_cancel_task`, `opencode_recent_tasks`) เป็น 33 tools ปิด default —
+เปิดได้ด้วย `opencode.execution.enabled=true` ซึ่งต้องมี `opencode.enabled` +
+`opencode.binary`, `allowed_workspaces` (absolute canonical path) และ
+`allowed_models` (เช่น `opencode-go/glm-5.3-flash`) ไม่ว่าง พร้อมขอบเขต
+`max_prompt_chars` / `max_runtime_seconds` / `max_output_bytes` แยกจากของ health
+
+ขอบเขตสำคัญ: executable รันด้วยสิทธิ์เต็มของ bridge process, **ไม่มี sandbox**,
+workspace เป็น cwd allowlist ไม่ใช่ filesystem/network isolation, bridge ไม่ inject
+permission configuration และ native policy ของ OpenCode ทำงานตามปกติ, ห้าม `--auto`,
+bridge ไม่เคยอนุมัติ permission แทน (unresolved ask จบเป็น failed ตาม deadline หรือ
+permission_required เมื่อเห็น protocol event ชัด). `completed` แปลว่า native turn จบ
+ไม่ได้แปลว่าเป้าหมายสำเร็จ — ตรวจ output (untrusted) เอง. session เป็นของ bridge;
+resume ได้เฉพาะ session เดิม workspace/model เดิม; retry ด้วย `request_id` เดิมได้
+acknowledgement เดิมโดยไม่เรียก model ซ้ำ. รายละเอียด: [OPENCODE-TH.md](OPENCODE-TH.md)

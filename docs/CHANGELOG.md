@@ -64,7 +64,9 @@ Release record: released on 18 October 2026 via GPG-signed annotated tag `v1.2.4
 
 ## Unreleased
 
-> Historical note (18 October 2026): every item in this section shipped in v1.2.0 or a later release recorded above; kept here as history.
+- Started (branch `opencode-investigate`, UNRELEASED — no assigned release): OpenCode task execution per SPEC.md section 18 — an explicit `opencode.execution` opt-in (requires the health adapter, canonical `allowed_workspaces`/`allowed_models`, and explicit prompt/runtime/output limits) adding five tools (`opencode_submit_task`, `opencode_task_status`, `opencode_task_result`, `opencode_cancel_task`, `opencode_recent_tasks`; 33 tools when enabled) with a durable detached worker, bridge-owned `ses_` sessions with same-workspace/model resume, `request_id` idempotency, global and per-session concurrency 1, and the WNOWAIT process-group cleanup invariant reused from the health adapter. Boundary: full bridge privileges, no sandbox, cwd allowlist is not isolation, no permission configuration injection, no `--auto`, native policy applies unchanged, `completed` is not goal success, and `permission_required` is only an explicit protocol event (otherwise bounded timeout). Work in progress; tests not yet verified; no released surface may claim any of this. v1.2.4 remains health-only shipped.
+
+> Historical note (18 October 2026): every item below this point shipped in v1.2.0 or a later release recorded above; kept here as history.
 
 - Clarified the two-phase release process: final archive checksums are external GitHub Release assets verified after the signed tag; a follow-up release-record commit documents that outcome without mutating the release tag.
 

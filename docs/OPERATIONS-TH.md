@@ -115,3 +115,19 @@ adapter ถูกรวมแล้วใน released v1.2.4 (PR #34) ซึ่�
 - `initialize` / `notifications/initialized` / `tools/list` ต้องปกติ (27 tools; 28 เมื่อเปิด OpenCode adapter ตาม §16) — ถ้าจำนวน tools เปลี่ยน แปลว่า guard รั่ว ให้หยุดและรีวิว `stdio_guard.py`
 - method อื่นที่ไม่รู้จักยังได้ `-32602` พร้อม warning `Failed to validate request` จาก SDK เหมือนเดิม — guard ไม่กด warning ใด ๆ
 - ปิด stdin (EOF) แล้ว process ต้องออก rc=0; ถ้าค้างให้เช็คว่า `guarded_stdio_streams` finally มีการ cancel forwarder และปิด reply stream ครบ — guard ครอบเฉพาะ `bridge.py serve` (stdio) tunnel/HTTP ไม่เกี่ยว
+
+## OpenCode task execution (ยังไม่เผยแพร่ — branch เท่านั้น)
+
+ส่วน execution ตาม SPEC.md section 18 ยังไม่อยู่ใน release ใด (v1.2.4 ที่เผยแพร่เป็น
+health-only) อย่าเปิดใช้บน production จนกว่าจะปิด change-control gate. หลักการสำหรับ
+operator: เปิดด้วย `opencode.execution.enabled=true` พร้อม `opencode.enabled` +
+`opencode.binary`, `allowed_workspaces` (canonical absolute path) และ `allowed_models`
+(เช่น `opencode-go/glm-5.3-flash`) ไม่ว่าง; จำกัดด้วย `max_prompt_chars`,
+`max_runtime_seconds`, `max_output_bytes` แยกจากของ health. executable รันด้วยสิทธิ์เต็ม
+ของ bridge process — workspace allowlist คือ cwd เท่านั้น ไม่ใช่ filesystem/network
+isolation; bridge ไม่ inject permission และไม่ส่ง `--auto` — native policy ของ OpenCode
+ฝั่งคุณคือชั้นบังคับจริง. lifecycle: submit → status → result (untrusted ตรวจเอง) →
+cancel; `completed` = native turn จบ ไม่ได้แปลว่าเป้าหมายสำเร็จ; `permission_required`
+เกิดเฉพาะเมื่อเห็น protocol event ชัด มิฉะนั้นจบเป็น failed ตาม deadline; retry ด้วย
+`request_id` เดิมได้ acknowledgement เดิมโดยไม่เรียก model ซ้ำ; resume ได้เฉพาะ session
+ที่ bridge เป็นเจ้าของด้วย workspace/model เดิม. รายละเอียดครบ: [OPENCODE-TH.md](OPENCODE-TH.md)

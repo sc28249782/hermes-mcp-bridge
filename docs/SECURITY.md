@@ -31,3 +31,19 @@ Execution ที่อ้างว่า no-delete/no-unapproved-truncate ต้
 รายละเอียด threat model และข้อจำกัดดู `HERMES-MCP-BRIDGE-TECHNICAL-ARCHITECTURE-TH.md`, `CODEX-WSL2-TH.md` และ `LOCAL-HANDS-ARCHITECTURE-TH.md`
 
 `deny_prompt_patterns` ใน workspace policy เป็น guard ก่อนเริ่มงานเท่านั้น ผู้โจมตีอาจเปลี่ยนถ้อยคำเพื่อหลบ pattern ได้ จึงห้ามถือว่าเป็น command sandbox หรือ authorization boundary; allowlist, Codex sandbox และ local approval เป็น controls ที่บังคับใช้จริง.
+
+## OpenCode execution (UNRELEASED — SPEC.md section 18; ยังไม่อยู่ใน release ใด)
+
+ส่วน execution ที่ยังไม่เผยแพร่ (branch `opencode-investigate`) เปิดด้วย opt-in เดี่ยว
+`opencode.execution.enabled` ซึ่งต้องมี health adapter เปิดอยู่และมี
+`allowed_workspaces`/`allowed_models` แบบ canonical ที่ไม่ว่าง พร้อมขอบเขตตัวเลขชัดเจน
+ขอบเขตความปลอดภัยแตกต่างจาก Codex: executable รันด้วย **สิทธิ์เต็มของ bridge process**,
+bridge **ไม่เพิ่ม sandbox**, workspace selection เป็น **cwd allowlist เท่านั้น — ไม่ใช่
+filesystem หรือ network isolation**; bridge **ไม่ inject permission configuration**
+(ไม่ตั้ง `OPENCODE_CONFIG*`, ไม่ส่ง flag ด้าน permission) และ native OpenCode
+configuration/plugins/saved permissions ของ operator ทำงานตามปกติ ห้าม `--auto` และ
+bridge ไม่เคยอนุมัติ native permission แทน: unresolved ask จบเป็น `failed` ตาม bounded
+deadline หรือ `permission_required` เฉพาะเมื่อเห็น protocol event จริง การเปิดใช้จึงเป็น
+trust decision แบบชัดเจนเทียบเท่าการปล่อยให้ model ทำงานในเครื่องโดยตรง output เป็น
+untrusted model output, status/recent ถูก redact และ audit ไม่เก็บ prompt/output/
+credentials. รายละเอียด: [OPENCODE-TH.md](OPENCODE-TH.md)
