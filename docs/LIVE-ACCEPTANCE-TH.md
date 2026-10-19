@@ -324,3 +324,15 @@ Dev เดิมยัง pin `e7add7e`; production/profile/auth references ไ�
 Live step รอ operator เปิด ephemeral command override จาก authenticated terminal.
 วิธีเปิดและคืน route อยู่ใน [PRIVACY-DEV-ACCEPTANCE-TH.md](PRIVACY-DEV-ACCEPTANCE-TH.md).
 Privacy follow-up ยังเปิดอยู่.
+
+### Privacy Dev transport — scoped fixture PASS (~21:11 +07, 19 ตุลาคม 2026)
+
+Parent ตรวจผ่าน actual Dev connector หลัง operator เปิด ephemeral fixture: revision `db009682`, git-worktree; parent registry 27 tools (ไม่ใช่ raw wire discovery).
+Synthetic status metadata 416 bytes มีเฉพาะ constant error/approval-required; ไม่ส่ง private fixture marker.
+Hermes result สองหน้าต่อกันตรงครบ 29 characters พร้อม configured-key substitution; unowned run ถูกปฏิเสธ และ retry input เดิมคืน run เดิม.
+นี่เป็น runtime จริงกับ in-process fake Hermes transport; ไม่ใช่ actual Hermes HTTP/native approval/model acceptance หรือ live Codex read-cap probe.
+State mode 0700 เป็น disposable fixture; directory repair และ bounded reads อ้าง WSL tests แยก.
+Root config schema รายงาน `unknown` ตาม fixture ที่ไม่มี config file; embedded schema 1 และ version stamp เดิมไม่ใช่ release ใหม่.
+Restored-route proof ยังรอ operator คืน Dev เดิมและ parent ตรวจ pin `e7add7e`.
+ตารางหลักฐานและวิธีคืน route: [PRIVACY-DEV-ACCEPTANCE-TH.md](PRIVACY-DEV-ACCEPTANCE-TH.md).
+Privacy follow-up ยังไม่ปิด; production ไม่ถูกเปลี่ยน.
