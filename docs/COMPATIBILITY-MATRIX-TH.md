@@ -1,6 +1,6 @@
-# Compatibility matrix — v1.2.4 release
+# Compatibility matrix — v1.2.5 release
 
-This matrix records the released v1.2.4 compatibility baseline (same components as v1.2.3; v1.2.4 adds only the optional OpenCode health adapter row below). The WSL2 live-acceptance, independent-review, and signed-release gates passed before publication.
+This matrix records released v1.2.5: the v1.2.4 component baseline plus the opt-in OpenCode execution extension. The WSL2 live-acceptance, independent-review, and signed-release gates passed before publication.
 
 | Component | Release baseline | วิธีตรวจ | หมายเหตุ |
 | --- | --- | --- | --- |
@@ -12,11 +12,11 @@ This matrix records the released v1.2.4 compatibility baseline (same components 
 | tunnel-client | official profile `hermes-wsl` | `bash tunnel.sh status` | profile ต้องชี้ `bridge.sh` ของ instance เดียวกัน |
 | ChatGPT MCP | canonical count in `TESTING.md` | discovery ในแชทใหม่ | v1.2.1 baseline plus read-only `bridge_version` |
 | Version/provenance | local-only CLI/MCP parity | `./bridge.sh version` และ `bridge_version` | ต้องไม่เรียก Hermes, Codex, tunnel, GitHub หรือ network |
-| OpenCode CLI (optional) | v2.0.32 (health-only, opt-in; execution opt-in อยู่ใน release candidate v1.2.5 ที่ยังไม่แท็ก) | `opencode_health` + 5 execution tools | disabled by default; live acceptance: `--version` (18 ตุลาคม 2026) และ Dev Work-chat execution (19 ตุลาคม 2026); discovery 27 tools เมื่อปิด, 28 เมื่อเปิด health, 33 เมื่อเปิด execution |
+| OpenCode CLI (optional) | v2.0.32 (health and execution, separate opt-ins; released v1.2.5) | `opencode_health` + 5 execution tools | disabled by default; live acceptance: `--version` (18 ตุลาคม 2026) และ Dev Work-chat execution (19 ตุลาคม 2026); discovery 27 tools เมื่อปิด, 28 เมื่อเปิด health, 33 เมื่อเปิด execution |
 
 การเปลี่ยน component นอก matrix ไม่ได้แปลว่าไม่รองรับ แต่ต้องทำ acceptance checklist ซ้ำก่อนใช้งาน production.
 
-## OpenCode execution — unreleased extension
+## OpenCode execution — released v1.2.5
 
 ส่วน execution ใช้ OpenCode CLI v2.0.32 บน Linux/WSL2 ผ่าน `run --standalone --format json`
 พร้อม stdin prompt และ session ที่ bridge เป็นเจ้าของ ใช้ detached worker และ Linux `waitid(WNOWAIT)`

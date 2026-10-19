@@ -1,4 +1,4 @@
-# v1.x repeatable acceptance (ปรับปรุงสำหรับ v1.2.5 candidate; tag pending)
+# v1.x repeatable acceptance (ปรับปรุงสำหรับ released v1.2.5)
 
 1. ตรวจ SHA-256 ของ archive ก่อนแตกไฟล์ และไม่ใช้ archive ที่มี `.venv`, `state/`, `.env` หรือ `bridge-config.json`.
 2. คัดลอกเฉพาะ `bridge-config.json` และ `state/` ที่ตรวจแล้วจาก release ก่อนหน้า, รัน `bash install.sh`, แล้วตรวจ `./bridge.sh doctor` และ `./bridge.sh codex-doctor`.

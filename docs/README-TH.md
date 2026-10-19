@@ -1,4 +1,4 @@
-# Hermes MCP Bridge v1.2.4 release — Hermes + Codex/WSL2 / ChatGPT
+# Hermes MCP Bridge v1.2.5 release — Hermes + Codex/WSL2 / ChatGPT
 
 [![Tests](https://github.com/sc28249782/hermes-mcp-bridge/actions/workflows/tests.yml/badge.svg)](https://github.com/sc28249782/hermes-mcp-bridge/actions/workflows/tests.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](../LICENSE)
@@ -10,11 +10,11 @@ Operations: [OPERATIONS-TH.md](OPERATIONS-TH.md)
 จุดเริ่มต้นของโครงการ: [Project origin](PROJECT-ORIGIN.md)
 
 จัดทำสำหรับ Hermes Agent v0.21.1, commit `8d79c2ff` ที่ผู้ใช้ยืนยัน
-วันที่ปรับปรุง: 18 ตุลาคม 2026 — v1.2.4 released; signed tag และ release assets ผ่านการตรวจแล้ว
+วันที่ปรับปรุง: 19 ตุลาคม 2026 — v1.2.5 released; signed tag และ release assets ผ่านการตรวจแล้ว
 
 หมายเหตุ (18 ตุลาคม 2026): released v1.2.4 เผยแพร่แล้วผ่าน signed tag (ZIP ตรวจแล้วจากการดาวน์โหลดจริง; ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)) โดยเพิ่ม OpenCode health adapter แบบ disabled by default และ legacy stdio discovery guard คู่มือนี้อัปเดตให้ติดตั้ง released v1.2.4 การอัปเกรด deployment ที่ผลิตจริงเป็นดุลยพินิจของ operator (ยังรัน v1.2.3 เดิมได้)
 
-หมายเหตุ (19 ตุลาคม 2026): source ปัจจุบันเตรียม release candidate **v1.2.5** (OpenCode task execution opt-in ตาม SPEC.md section 18) — ยังไม่มี signed tag และยังไม่มี ZIP ให้ดาวน์โหลด คู่มือนี้ยังแนะนำติดตั้ง released v1.2.4 จนกว่า v1.2.5 จะเผยแพร่จริง
+หมายเหตุ (19 ตุลาคม 2026): เผยแพร่ **v1.2.5** แล้ว พร้อม signed tag และ ZIP/SHA256SUMS ที่ตรวจหลังดาวน์โหลด คู่มือปัจจุบันใช้ v1.2.5; ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md) สำหรับ checksum และ provenance
 
 ตัวกลางนี้ทำให้ ChatGPT ส่งงานให้ Hermes ที่รันอยู่บนเครื่องคุณ แล้วตรวจสถานะ อ่านผล และขอหยุดงานได้
 ใช้ Runs API เดียวกับที่ `hermes peer run/status/stop` เรียก แต่เรียก HTTP โดยตรง
@@ -38,13 +38,13 @@ Operations: [OPERATIONS-TH.md](OPERATIONS-TH.md)
 - ยังต้องสร้าง tunnel ใน OpenAI Platform, ติดตั้ง tunnel-client และเชื่อม Plugin
 - v1.2.1 ผ่าน regression 63/63 โดยใช้ project `.venv/bin/python` พร้อม `-W error::ResourceWarning`, shellcheck และ Bash syntax; Live Acceptance ผ่าน Hermes context ข้าม ChatGPT chat, Codex metadata-only binding, closed-context denial และ audit redaction
 - v1.2.3 ผ่าน 75 regression tests, WSL2 worker-supervision acceptance และ independent review
-- v1.2.4 ผ่าน 129 regression tests รวม stdio-guard และ packaging tests, live tunnel acceptance แบบ bounded PASS บน Dev route และการตรวจ release assets หลังดาวน์โหลด (ดู [TESTING.md](TESTING.md) และ [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)) ดาวน์โหลด production archive และ external `SHA256SUMS` จาก [GitHub Release v1.2.4](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.4) เท่านั้น
+- v1.2.4 ผ่าน 129 regression tests รวม stdio-guard และ packaging tests, live tunnel acceptance แบบ bounded PASS บน Dev route และการตรวจ release assets หลังดาวน์โหลด (ดู [TESTING.md](TESTING.md) และ [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)) ผลข้างต้นเป็นหลักฐาน v1.2.4; สำหรับติดตั้งปัจจุบันใช้ release v1.2.5 ในหัวข้อถัดไป
 
 อัปเกรดจาก bridge รุ่นก่อนใช้ [UPGRADE-TH.md](UPGRADE-TH.md) ก่อนเริ่ม tunnel รุ่นใหม่ โดยเฉพาะหากต้องการเก็บ session/state เดิม
 
 ## 1. ติดตั้งตัวกลางใน WSL2
 
-ดาวน์โหลดทั้ง `hermes-mcp-bridge-v1.2.4.zip` และ `SHA256SUMS` จาก [GitHub Release v1.2.4](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.4) แล้ววางทั้งสองไฟล์ไว้ในโฟลเดอร์บ้านของผู้ใช้ใน WSL เช่น:
+ดาวน์โหลดทั้ง `hermes-mcp-bridge-v1.2.5.zip` และ `SHA256SUMS` จาก [GitHub Release v1.2.5](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.5) แล้ววางทั้งสองไฟล์ไว้ในโฟลเดอร์บ้านของผู้ใช้ใน WSL เช่น:
 
 ```text
 ~
@@ -55,8 +55,8 @@ Operations: [OPERATIONS-TH.md](OPERATIONS-TH.md)
 ```bash
 cd ~
 sha256sum -c SHA256SUMS
-unzip hermes-mcp-bridge-v1.2.4.zip
-cd ~/hermes-mcp-bridge-v1.2.4
+unzip hermes-mcp-bridge-v1.2.5.zip
+cd ~/hermes-mcp-bridge-v1.2.5
 bash install.sh
 ```
 
@@ -76,7 +76,7 @@ bash install.sh
 หาก `.venv` มี Python แต่ยังไม่มี pip ให้ซ่อม environment เดิม:
 
 ```bash
-cd ~/hermes-mcp-bridge-v1.2.4
+cd ~/hermes-mcp-bridge-v1.2.5
 .venv/bin/python -m ensurepip --upgrade
 bash install.sh
 ```
@@ -171,7 +171,7 @@ tunnel-client help quickstart
 คง Hermes gateway ให้รันอยู่ แล้วเปิด terminal อีกหน้าหนึ่ง:
 
 ```bash
-cd ~/hermes-mcp-bridge-v1.2.4
+cd ~/hermes-mcp-bridge-v1.2.5
 bash tunnel.sh init tunnel_แทนด้วยIDจริง [--force]
 ```
 
@@ -200,7 +200,7 @@ Tunnel จะเรียก `bridge.sh` ผ่าน stdio เอง ไม่�
 การเริ่มใหม่ในครั้งต่อไปใช้:
 
 ```bash
-cd ~/hermes-mcp-bridge-v1.2.4
+cd ~/hermes-mcp-bridge-v1.2.5
 bash tunnel.sh run
 ```
 
@@ -380,10 +380,10 @@ v1.0.1 ผ่าน regression 48 tests โดยใช้ `-W error::ResourceWa
 
 Use `bridge_context_create` to create an explicit metadata-only context. Pass its `context_id` to later Hermes or Codex submissions. A Hermes context resumes only the bridge-owned `session_id` observed from task status/result; Codex contexts bind workspace/job metadata only and never replay prior prompts or outputs. There is no global active context, so a new ChatGPT chat must explicitly provide the intended `context_id`.
 
-## OpenCode task execution (release candidate v1.2.5 — ห้ามอ้างเป็น release)
+## OpenCode task execution (released v1.2.5)
 
-ส่วน execution (SPEC.md section 18) รวมใน `main` แล้วผ่าน PR #40 และเตรียมเป็น
-release candidate v1.2.5 (ยังไม่แท็ก) เพิ่ม 5 tools
+ส่วน execution (SPEC.md section 18) รวมใน `main` แล้วผ่าน PR #40 และเผยแพร่ใน
+v1.2.5 เพิ่ม 5 tools
 (`opencode_submit_task`, `opencode_task_status`, `opencode_task_result`,
 `opencode_cancel_task`, `opencode_recent_tasks`) เป็น 33 tools ปิด default —
 เปิดได้ด้วย `opencode.execution.enabled=true` ซึ่งต้องมี `opencode.enabled` +
