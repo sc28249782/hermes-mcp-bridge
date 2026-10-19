@@ -124,3 +124,11 @@ Reviewer ให้ verdict `APPROVE` สำหรับรายงานนี�
 เสนอ implementation และ wording สุดท้ายใน PR ถัดไป พร้อม unreleased contract note และ regression evidence.
 Scope ของงานถัดไปคือ privacy hardening ของ runtime ที่มีอยู่; ไม่เพิ่ม tools, ไม่เปลี่ยน binaries และไม่ deploy production โดยอัตโนมัติ.
 MCP Events และ Local Hands mutation/execution ยังอยู่ใต้ gate เดิม.
+
+
+## Unreleased implementation candidate
+
+SPEC §19 และ candidate ถัดจาก PR #46 กำหนดตัวเลข metadata/timeout/read limits และ implementation ของ exit criteria ทั้งสามแล้ว.
+ข้อความก่อนหน้านี้เป็น historical review ของ source ที่ pin ไว้ ไม่ใช่คำอธิบายว่า candidate ยังใช้ raw forwarding หรือ whole-file reads.
+Final wording และ limits ยังรอ external review; privacy follow-up ยังไม่ปิด และยังไม่ deploy.
+ดู [SPEC.md](SPEC.md), [TESTING.md](TESTING.md) และ [OPERATIONS-TH.md](OPERATIONS-TH.md).
