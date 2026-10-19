@@ -9,6 +9,16 @@
 - Scope: opt-in OpenCode execution from PR #40; release preparation from PR #41. Candidate WSL/archive suite 164/164 and discovery 27/28/33 pass; exact-head CI `39224170181` passes. Work-chat proof remains scoped to the recorded Dev candidate; cancellation remains controller evidence and permission-required remains fixture-only.
 - Production remains v1.2.3; active Dev remains the tested git-worktree candidate. Publishing does not change profiles, runtimes or permission configuration. This post-tag documentation record does not modify the tag or assets.
 
+### Deployment checkpoint (19 October 2026, ~18:44 +07)
+
+The production deployment was upgraded to released v1.2.5 later that day. The bullet above preserves the post-tag record as written at release time, before this upgrade. Full live-record note: [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md).
+
+- Identity: `bridge_version` — version `1.2.5`, release identifier `v1.2.5`, source kind `release-archive`, build provenance `release`, embedded build input `a666d626da1fe716ce4b259d49eedfc3f97acc7d`.
+- State: `bridge_status` — state path `~/hermes-mcp-bridge-v1.2.5/state`, mode `0700`, no config warnings, watchdog running.
+- Health: `hermes_health` authenticated (durable idempotency 86,400 seconds); `codex_health` `0.160.0` ok; `opencode_health` `v2.0.32` ok.
+- Registry: parent tool registry exposes 33 tools (parent-side count, not a raw wire `tools/list` capture); `opencode_recent_tasks` ok with an empty `jobs` list; Local Hands disabled.
+- Scope: identity, health, discovery, and the execution API listing only. No production model task was submitted during this checkpoint; production acceptance is not established by it.
+
 ## v1.2.5 — historical pre-tag candidate (19 ตุลาคม 2026)
 
 - Scope คือ PR #40 (OpenCode task execution opt-in ตาม `docs/SPEC.md` section 18) ที่ merge ที่ `main` commit `a666d626da1fe716ce4b259d49eedfc3f97acc7d` แล้ว (code head สุดท้าย `e7add7e`) candidate ยังไม่มี signed tag, ไม่เผยแพร่, และไม่ติดตั้งลง runtime การผลิต — production ยังเป็น released v1.2.3

@@ -12,6 +12,8 @@
 
 Release record: signed tag `v1.2.5` on `6fbcd7ef278d5e45a95b7328c719c5b01cbcf522`; ZIP SHA-256 `1f1c8a583cf7f51a88ec35ca3023c86342220f5baba37faed3f1724b04bf8d5f`. ZIP and external SHA256SUMS are published and fresh-download verified. See [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md). Production remains v1.2.3.
 
+Deployment checkpoint (19 October 2026, ~18:44 +07): the production deployment was upgraded to v1.2.5 later that day. The "Production remains v1.2.3" sentence above preserves the post-tag release record as written; the upgrade checkpoint with its evidence boundary is in [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md).
+
 ## v1.2.4 — released (18 October 2026; signed tag, published)
 
 - Scope note (18 October 2026): the capability-gated MCP Events track originally planned for v1.2.4 is deferred to an unversioned BLOCKED track with no assigned release and is not part of this maintenance release (OpenCode health adapter disabled by default and legacy stdio discovery guard only).

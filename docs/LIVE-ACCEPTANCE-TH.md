@@ -281,3 +281,14 @@ live permission interaction. No permission configuration was changed by this tes
 - Extracted identity: version `1.2.5`, release identifier `v1.2.5`, source kind `release-archive`, embedded build input `a666d626da1fe716ce4b259d49eedfc3f97acc7d`, canonical default discovery 27. The signed tag identifies the final commit; the embedded revision identifies its reviewed build input.
 - Scope: opt-in OpenCode execution from PR #40; release preparation from PR #41. Candidate WSL/archive suite 164/164 and discovery 27/28/33 pass; exact-head CI `39224170181` passes. Work-chat proof remains scoped to the recorded Dev candidate; cancellation remains controller evidence and permission-required remains fixture-only.
 - Production remains v1.2.3; active Dev remains the tested git-worktree candidate. Publishing does not change profiles, runtimes or permission configuration. This post-tag documentation record does not modify the tag or assets.
+
+### Deployment checkpoint — production อัปเกรดเป็น v1.2.5 (19 ตุลาคม 2026, ~18:44 +07)
+
+Production deployment อัปเกรดเป็น released v1.2.5 แล้วในวันเดียวกัน ตรวจแบบ read-only ผ่าน plugin production จริง ย่อหน้า "Production remains v1.2.3" ข้างบนคือบันทึก ณ วันเผยแพร่ ก่อนการอัปเกรด คงไว้ตามหลักฐานเดิม (checkpoint เดียวกันแบบสังเขปใน [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md))
+
+- Identity: `bridge_version` — version `1.2.5`, release identifier `v1.2.5`, source kind `release-archive`, build provenance `release`, embedded build input `a666d626da1fe716ce4b259d49eedfc3f97acc7d`
+- State/watchdog: `bridge_status` — state path `~/hermes-mcp-bridge-v1.2.5/state`, mode `0700`, ไม่มี config warnings, watchdog ทำงาน
+- Backend health: `hermes_health` — authentication verified, durable idempotency 86,400 วินาที; `codex_health` — `0.160.0` ok; `opencode_health` — `v2.0.32` ok
+- Registry: parent tool registry แสดง 33 tools (นับฝั่ง parent ไม่ใช่ raw `tools/list` บน wire)
+- Jobs: `opencode_recent_tasks` ok พร้อม `jobs` ว่าง; Local Hands disabled
+- Scope: identity/health/discovery และ execution API listing เท่านั้น ไม่มีการส่ง production model task ระหว่าง checkpoint นี้ และ checkpoint นี้ไม่ถือเป็นการยอมรับ production acceptance

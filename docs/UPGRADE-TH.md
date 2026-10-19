@@ -163,6 +163,8 @@ release v1.2.4 เผยแพร่แล้ว (18 ตุลาคม 2026) �
 
 อัปเกรดเป็น v1.2.4: `sha256sum -c SHA256SUMS`, แตก archive ไปยัง directory ใหม่, `bash install.sh` และ health checks ตาม RELEASE-RUNBOOK-TH.md. หัวข้อ `opencode` เป็น optional และ disabled by default — ไม่มีการเปิดใช้อัตโนมัติและไม่ต้องแก้ config ใด ๆ ระหว่างอัปเกรด. stdio guard ทำงานเองบน `bridge.py serve` โดยไม่ต้องแก้ config
 
+หมายเหตุ (19 ตุลาคม 2026): production deployment อัปเกรดเป็น released v1.2.5 แล้ว ข้อความ "production ยัง v1.2.3" ในหัวข้อ v1.2.4 ข้างต้นเป็นบันทึก ณ วันเผยแพร่ v1.2.4 คงไว้ตามหลักฐานเดิม (checkpoint การอัปเกรดอยู่ใน [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)).
+
 ## OpenCode execution — released v1.2.5 (opt-in)
 
 ส่วนส่งงาน OpenCode ใน [OPENCODE-TH.md](OPENCODE-TH.md) เผยแพร่ใน v1.2.5 แล้ว
