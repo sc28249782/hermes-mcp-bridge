@@ -19,6 +19,10 @@ The production deployment was upgraded to released v1.2.5 later that day. The bu
 - Registry: parent tool registry exposes 33 tools (parent-side count, not a raw wire `tools/list` capture); `opencode_recent_tasks` ok with an empty `jobs` list; Local Hands disabled.
 - Scope: identity, health, discovery, and the execution API listing only. No production model task was submitted during this checkpoint; production acceptance is not established by it.
 
+### Fresh artifact re-verification (19 October 2026)
+
+Maintainer-side automation re-verified the full v1.2.5 artifact chain from fresh inputs: a fresh remote tag fetch in a temporary bare repository, a fresh re-download of both release assets, checksum and ZIP-structure checks, and a byte-identical `git archive` rebuild from the signed tag. All checks pass. Full record: [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md). These are automation checks, not an external review; independent external reviewer approval of that record remains pending ([ROADMAP.md](ROADMAP.md)).
+
 ## v1.2.5 — historical pre-tag candidate (19 ตุลาคม 2026)
 
 - Scope คือ PR #40 (OpenCode task execution opt-in ตาม `docs/SPEC.md` section 18) ที่ merge ที่ `main` commit `a666d626da1fe716ce4b259d49eedfc3f97acc7d` แล้ว (code head สุดท้าย `e7add7e`) candidate ยังไม่มี signed tag, ไม่เผยแพร่, และไม่ติดตั้งลง runtime การผลิต — production ยังเป็น released v1.2.3

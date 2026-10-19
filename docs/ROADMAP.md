@@ -134,7 +134,7 @@ Requirements that already bind mutation work (existing, per [SPEC.md](SPEC.md), 
 
 Recommended follow-ups (pending; not blockers; scoped separately from the hard gate above):
 
-- Independent external review of the v1.2.5 artifact chain remains pending per the reviewer's note. The repo records tag, archive, checksum, and CI verification in [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md); those records do not show an independent external review for v1.2.5 (the v1.2.2 and v1.2.3 records include one).
+- The v1.2.5 artifact chain re-verification was completed on 19 October 2026 by maintainer-side automation: a fresh remote tag fetch in a temporary bare repository, a fresh re-download of both release assets, checksum and ZIP-structure checks, and a byte-identical `git archive` rebuild from the signed tag all pass. Record: [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md). These are automation checks, not an external review; independent external reviewer approval of that record remains pending. (The v1.2.2 and v1.2.3 records include such an external review.)
 - SPEC.md sections 4 and 10 privacy contract review remains pending: the shipped execution surface returns paginated untrusted output (`opencode_task_result`) and stores private per-job artifacts; review them against the section 4 bounded-response and no-secret-bearing-field rules and the section 10 privacy invariants.
 - Production OpenCode benign model acceptance has not been performed as part of this checkpoint. The recorded real-model acceptance ran on the Dev route only ([TESTING.md](TESTING.md), [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md)); the 19 October 2026 production plugin checkpoint covers identity, health, discovery, and the execution API listing only.
 
