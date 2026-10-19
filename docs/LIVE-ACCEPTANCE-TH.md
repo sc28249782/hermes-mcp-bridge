@@ -304,3 +304,12 @@ Automation ฝั่ง maintainer ตรวจ artifact chain ของ v1.2.5 
 - แตกไฟล์จาก ZIP ที่ดาวน์โหลดแล้วตรวจ stamp: version `1.2.5`, identifier `v1.2.5`, provenance `release`, embedded build input `a666d626…`, discovery 27 จากนั้นรัน version CLI offline ด้วย venv เดิมของ working copy จาก tree ที่ไม่มี `.git`: `ok: true`, source kind `release-archive`, discovery 27 (ไม่มี network หรือ model call)
 - ยืนยันความต่างสองค่าตาม runbook: signed tag คือ authority ของ final commit `6fbcd7e…` ส่วน embedded revision `a666d626…` คือ reviewed build input ซึ่งเป็น ancestor ของ final commit (ยืนยันด้วย `git merge-base --is-ancestor`)
 - ขอบเขต: ตรวจเฉพาะ artifact chain ไม่มีการแก้ tag, assets, release หรือ runtime สถานะ independent external reviewer approval ยังค้างตาม [ROADMAP.md](ROADMAP.md)
+
+### External artifact audit approval (19 ตุลาคม 2026)
+
+Operator ส่งรายงาน external review ของ Hermes Agent สำหรับ [PR #45](https://github.com/sc28249782/hermes-mcp-bridge/pull/45) ที่ head `c3754c9` เมื่อ 19 ตุลาคม 2026 เวลา 19:32 +07.
+Reviewer รายงานผลตรวจจาก fresh inputs ของตนเอง: fetch tag ใน temporary bare repository, ตรวจ signature, ดาวน์โหลด assets ทั้งสองใหม่, ตรวจ checksum/ZIP structure, rebuild เทียบ byte-identical, ตรวจ ancestry และรัน version CLI offline จาก archive ที่แตกใหม่.
+ผลทุกรายการผ่านและตรงกับ record ของ automation.
+Reviewer ให้ verdict `APPROVE`; external artifact-audit follow-up ของ v1.2.5 ปิดแล้ว.
+ข้อความ pending ใน checkpoint automation ข้างบนเป็นสถานะก่อน review นี้.
+การอนุมัตินี้ไม่ขยายขอบเขตไปยัง production model-task acceptance หรือ SPEC privacy contract review.
