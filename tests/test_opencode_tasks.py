@@ -1,287 +1,322 @@
-"""SPEC section 18 acceptance tests: OpenCode task execution."""
-from __future__ import annotations
-
+"""Execution contract, with real detached workers and deterministic native CLI."""
+from concurrent.futures import ThreadPoolExecutor
 import json
 import os
 from pathlib import Path
-import stat as stat_module
+import signal
 import sys
 import tempfile
+import threading
 import time
 import unittest
 from unittest import mock
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from opencode_tasks import OpenCodeTasks, OpenCodeTaskError, _proc_starttime
+from opencode_worker import Events
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+FIXTURE = str(Path(__file__).parent / "fixtures" / "opencode_fixture_cli.py")
 
-from opencode_tasks import OpenCodeTasks, OpenCodeTaskError
-
-FIXTURE = str(Path(__file__).resolve().parent / "fixtures" / "opencode_fixture_cli.py")
-
-
-def execution_config(**overrides):
-    config = {"enabled": True, "binary": FIXTURE,
-              "execution": {"enabled": True, "allowed_workspaces": [], "allowed_models": []}}
-    config["execution"].update(overrides)
-    return config
-
-
-class OpenCodeExecutionBase(unittest.TestCase):
+class TestOpenCodeTasks(unittest.TestCase):
     def setUp(self):
-        self.root = Path(tempfile.mkdtemp())
-        self.workspace = self.root / "ws"
-        self.workspace.mkdir(mode=0o700)
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.ws = self.root / "workspace"
+        self.ws.mkdir()
+        self.other = self.root / "other"
+        self.other.mkdir()
+        self.config = {"enabled": True, "binary": FIXTURE, "execution": {"enabled": True, "allowed_workspaces": [str(self.ws), str(self.other)], "allowed_models": ["fixture/model", "fixture/other"], "max_runtime_seconds": 2, "max_output_bytes": 65536}}
+        self.tasks = OpenCodeTasks(self.config, self.root / "state")
+        self.addCleanup(self.stop_jobs)
 
-    def make_tasks(self, config, max_runtime=30):
-        config = json.loads(json.dumps(config))
-        execution = config.get("execution") or {}
-        config["execution"] = execution
-        execution["allowed_workspaces"] = [str(self.workspace)]
-        execution["allowed_models"] = ["prov/model-1"]
-        execution["max_runtime_seconds"] = max_runtime
-        return OpenCodeTasks(config, self.root / "state")
+    def stop_jobs(self):
+        for row in self.tasks.recent()["jobs"]:
+            if row["status"] in ("pending", "running"):
+                self.tasks.cancel(row["job_id"])
+                self.wait(row["job_id"])
 
-    def submit_terminal(self, tasks, *args, **kwargs):
-        """Submit and poll until the job leaves pending/running."""
-        ack = tasks.submit(*args, **kwargs)
-        deadline = time.time() + 30
-        while time.time() < deadline:
-            row = tasks._row(ack["job_id"])
-            if row["status"] not in ("pending", "running"):
-                break
-            time.sleep(0.05)
-        return ack, row
+    def wait(self, job, timeout=8):
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            status = self.tasks.status(job)
+            if status["status"] not in ("pending", "running"):
+                return status
+            time.sleep(0.02)
+        self.fail("worker did not reach terminal status")
 
+    def run_prompt(self, prompt, request="one", **kwargs):
+        ack = self.tasks.submit(prompt, str(self.ws), request, **kwargs)
+        return ack, self.wait(ack["job_id"])
 
-class DisabledFailClosed(OpenCodeExecutionBase):
-    def test_disabled_fails_closed(self):
-        tasks = OpenCodeTasks({}, self.root / "state")
-        for call in (lambda: tasks.submit("p", str(self.workspace), "r1"),
-                     lambda: tasks.status("oct_x"), lambda: tasks.result("oct_x"),
-                     lambda: tasks.cancel("oct_x"), lambda: tasks.recent()):
-            with self.assertRaises(OpenCodeTaskError):
-                call()
+    def test_disabled_no_files_or_process(self):
+        path = self.root / "disabled"
+        disabled = OpenCodeTasks({}, path)
+        with mock.patch("subprocess.Popen", side_effect=AssertionError("spawn")):
+            for invoke in (lambda: disabled.submit("p", str(self.ws), "r"), lambda: disabled.status("x"), lambda: disabled.result("x"), lambda: disabled.cancel("x"), disabled.recent):
+                with self.assertRaises(OpenCodeTaskError):
+                    invoke()
+        self.assertFalse(path.exists())
 
-    def test_disabled_never_creates_state(self):
-        OpenCodeTasks({}, self.root / "state")
-        self.assertFalse((self.root / "state" / "opencode-tasks.sqlite3").exists())
+    def test_invalid_direct_configuration(self):
+        for section, key, value in (("root", "enabled", False), ("root", "binary", "relative"), ("execution", "enabled", "true"), ("execution", "allowed_workspaces", []), ("execution", "allowed_models", []), ("execution", "allowed_models", ["p/m\x1b"]), ("execution", "allowed_models", ["-p/m"]), ("execution", "allowed_workspaces", ["relative"]), ("execution", "allowed_workspaces", [str(self.ws) + "\x1b"]), ("execution", "max_prompt_chars", True), ("execution", "max_runtime_seconds", 0), ("execution", "max_output_bytes", 1)):
+            with self.subTest(key=key, value=value):
+                config = json.loads(json.dumps(self.config))
+                (config if section == "root" else config["execution"])[key] = value
+                with self.assertRaises(OpenCodeTaskError):
+                    OpenCodeTasks(config, self.root / "invalid")
 
-
-class Validation(OpenCodeExecutionBase):
-    def test_enabled_requires_opencode_enabled_and_binary(self):
+    def test_state_must_be_outside_workspace(self):
         with self.assertRaises(OpenCodeTaskError):
-            self.make_tasks({"enabled": False, "binary": FIXTURE})
+            OpenCodeTasks(self.config, self.ws / "state")
+
+    def test_private_state_files(self):
+        ack, status = self.run_prompt("ok")
+        self.assertEqual(status["status"], "completed")
+        for path in (self.tasks.state, self.tasks.logs):
+            self.assertEqual(path.stat().st_mode & 0o777, 0o700)
+        for path in (self.tasks.dbpath, *self.tasks.logs.iterdir()):
+            self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+
+    def test_fixed_native_argv_stdin_and_environment(self):
+        with mock.patch.dict(os.environ, {"OPENCODE_CONFIG_CONTENT": "operator-test-policy"}):
+            ack, status = self.run_prompt("inspect")
+        self.assertEqual(status["status"], "completed")
+        event = json.loads(self.tasks.result(ack["job_id"])["content"])
+        output = json.loads(event["part"]["text"])
+        self.assertEqual(output["argv"], ["run", "--standalone", "--format", "json", "--session", ack["session_id"], "--model", "fixture/model"])
+        self.assertEqual(output["stdin"], "inspect")
+        self.assertEqual(output["native_config"], "operator-test-policy")
+
+    def test_large_prompt_delivered_without_pipe_deadlock(self):
+        prompt = "length:" + "p" * 100000
+        self.tasks.max_prompt = len(prompt)
+        ack, status = self.run_prompt(prompt)
+        self.assertEqual(status["status"], "completed")
+        self.assertEqual(json.loads(self.tasks.result(ack["job_id"])["content"])["part"]["text"], str(len(prompt)))
+
+    def test_child_never_reads_stdin_still_times_out(self):
+        self.tasks.max_prompt = 131072
+        self.tasks.max_runtime = 1
+        start = time.monotonic()
+        with mock.patch.dict(os.environ, {"HMB_FIXTURE_NOREAD": "1"}):
+            _, result = self.run_prompt("x" * 131072)
+        self.assertEqual(result["status"], "failed")
+        self.assertEqual(result["transition_reason"], "runtime_deadline")
+        self.assertLess(time.monotonic() - start, 6)
+
+    def test_retry_without_session_does_not_mint_or_spawn_again(self):
+        first, _ = self.run_prompt("ok")
+        with mock.patch.object(self.tasks, "_start", side_effect=AssertionError("duplicate spawn")):
+            replay = self.tasks.submit("ok", str(self.ws), "one")
+        self.assertEqual(first["job_id"], replay["job_id"])
+        self.assertEqual(first["session_id"], replay["session_id"])
+
+    def test_request_conflict(self):
+        self.run_prompt("ok")
         with self.assertRaises(OpenCodeTaskError):
-            self.make_tasks({"enabled": True, "binary": ""})
+            self.tasks.submit("different", str(self.ws), "one")
 
-    def test_empty_workspaces_or_models_rejected(self):
-        with self.assertRaises(OpenCodeTaskError):
-            self.make_tasks(execution_config())
-        config = execution_config()
-        config["execution"]["allowed_workspaces"] = None
-        with self.assertRaises(OpenCodeTaskError):
-            self.make_tasks(config)
-
-    def test_relative_workspace_rejected(self):
-        config = execution_config(allowed_workspaces=["relative/path"], allowed_models=["p/m"])
-        with self.assertRaises(OpenCodeTaskError):
-            self.make_tasks(config)
-
-    def test_control_characters_rejected(self):
-        config = execution_config(allowed_models=["p/m\x1b"])
-        with self.assertRaises(OpenCodeTaskError):
-            self.make_tasks(config)
-
-    def test_model_form_rejected(self):
-        for value in ("nomodel", "a/b/c", "/model"):
-            config = execution_config(allowed_models=[value])
-            with self.assertRaises(OpenCodeTaskError):
-                self.make_tasks(config)
-
-    def test_out_of_range_limits_rejected(self):
-        for key, value in (("max_prompt_chars", 0), ("max_runtime_seconds", 10),
-                           ("max_output_bytes", 1024)):
-            config = execution_config(allowed_workspaces=["/tmp"], allowed_models=["p/m"], **{key: value})
-            with self.assertRaises(OpenCodeTaskError):
-                self.make_tasks(config)
-
-
-class Submission(OpenCodeExecutionBase):
-    def test_session_minted_before_spawn_and_stored(self):
-        tasks = self.make_tasks(execution_config())
-        ack = tasks.submit("hello", str(self.workspace), "r1")
-        self.assertRegex(ack["session_id"], r"^ses_[A-Za-z0-9]{8,64}$")
-        row = tasks._row(ack["job_id"])
-        self.assertEqual(row["session_id"], ack["session_id"])
-        self.assertEqual(row["status"], "completed")
-
-    def test_submit_fixture_completed_exit0(self):
-        tasks = self.make_tasks(execution_config())
-        ack, row = self.submit_terminal(tasks, "OK please", str(self.workspace), "r1")
-        self.assertEqual(row["status"], "completed")
-
-    def test_fixed_argv_and_no_env_injection(self):
-        tasks = self.make_tasks(execution_config())
-        captured = {}
-        real_popen = OpenCodeTasks.__module__
-
-        class FakeWorker:
-            pid = 999999
-
-            def wait(self, timeout=None):
-                return 0
-
-        # Spy on subprocess.Popen in opencode_tasks to capture argv/env
-        import subprocess as sp
-        original = sp.Popen
-
-        def spy(argv, **kwargs):
-            captured["argv"] = argv
-            captured["kwargs"] = kwargs
-            raise OSError("stop before real spawn")
-
-        with mock.patch(f"{real_popen}.subprocess.Popen", spy):
-            with self.assertRaises(OpenCodeTaskError):
-                tasks.submit("hello", str(self.workspace), "r2")
-        argv = captured["argv"]
-        self.assertEqual(argv[1:], ["worker-placeholder"]) if False else None
-        self.assertIn("--standalone", argv)
-        self.assertIn("--format", argv)
-        self.assertNotIn("--auto", argv)
-        self.assertNotIn("--server", argv)
-        self.assertNotIn("--continue", argv)
-        self.assertNotIn("--agent", argv)
-        self.assertNotIn("-f", argv)
-        self.assertEqual(captured["kwargs"].get("shell"), False)
-        self.assertEqual(captured["kwargs"].get("cwd"), str(self.workspace))
-
-    def test_idempotency_same_request_same_fingerprint(self):
-        tasks = self.make_tasks(execution_config())
-        first = tasks.submit("prompt-a", str(self.workspace), "same-req")
-        second = tasks.submit("prompt-a", str(self.workspace), "same-req")
-        self.assertEqual(first["job_id"], second["job_id"])
+    def test_owned_session_reuse(self):
+        first, _ = self.run_prompt("ok")
+        second, result = self.run_prompt("ok", "two", session_id=first["session_id"])
+        self.assertEqual(result["status"], "completed")
         self.assertEqual(first["session_id"], second["session_id"])
-
-    def test_idempotency_conflict_rejected(self):
-        tasks = self.make_tasks(execution_config())
-        tasks.submit("prompt-a", str(self.workspace), "conflict")
-        with self.assertRaises(OpenCodeTaskError):
-            tasks.submit("prompt-b", str(self.workspace), "conflict")
-
-    def test_busy_global_concurrency(self):
-        tasks = self.make_tasks(execution_config(), max_runtime=60)
-        with mock.patch.object(OpenCodeTasks, "_start", side_effect=lambda job_id: {"job_id": job_id, "status": "running", "session_id": "ses_x", "model": "prov/model-1"}):
-            tasks.submit("one", str(self.workspace), "r1")
-            with self.assertRaises(OpenCodeTaskError) as caught:
-                tasks.submit("two", str(self.workspace), "r2")
-        self.assertIn("busy", str(caught.exception))
-
-    def test_unknown_session_rejected(self):
-        tasks = self.make_tasks(execution_config())
-        with self.assertRaises(OpenCodeTaskError):
-            tasks.submit("p", str(self.workspace), "r1", session_id="ses_stranger00")
-
-    def test_resume_completed_session_new_job(self):
-        tasks = self.make_tasks(execution_config())
-        first = tasks.submit("OK 1", str(self.workspace), "r1")
-        second = tasks.submit("OK 2", str(self.workspace), "r2", session_id=first["session_id"])
         self.assertNotEqual(first["job_id"], second["job_id"])
-        self.assertEqual(first["session_id"], second["session_id"])
 
-    def test_resume_requires_canonical_workspace(self):
-        tasks = self.make_tasks(execution_config())
-        first = tasks.submit("OK 1", str(self.workspace), "r1")
-        other = self.root / "ws2"
-        other.mkdir()
+    def test_unknown_session_denied(self):
         with self.assertRaises(OpenCodeTaskError):
-            tasks.submit("OK 2", str(other), "r2", session_id=first["session_id"])
+            self.tasks.submit("ok", str(self.ws), "r", session_id="ses_unknown123")
 
-    def test_prompt_length_enforced(self):
-        tasks = self.make_tasks(execution_config(max_prompt_chars=10))
+    def test_resume_cannot_switch_even_allowlisted_workspace(self):
+        first, _ = self.run_prompt("ok")
         with self.assertRaises(OpenCodeTaskError):
-            tasks.submit("x" * 11, str(self.workspace), "r1")
+            self.tasks.submit("ok", str(self.other), "two", session_id=first["session_id"])
 
-    def test_outside_workspace_rejected(self):
-        tasks = self.make_tasks(execution_config())
+    def test_resume_cannot_switch_even_allowlisted_model(self):
+        first, _ = self.run_prompt("ok")
         with self.assertRaises(OpenCodeTaskError):
-            tasks.submit("p", str(self.root), "r1")
+            self.tasks.submit("ok", str(self.ws), "two", session_id=first["session_id"], model="fixture/other")
 
-
-class Outcomes(OpenCodeExecutionBase):
-    def test_no_completion_evidence_fails_despite_exit0(self):
-        tasks = self.make_tasks(execution_config())
-        ack, row = self.submit_terminal(tasks, "NOEVENT", str(self.workspace), "r1")
-        self.assertEqual(row["status"], "failed")
-
-    def test_error_event_exit0_fails(self):
-        tasks = self.make_tasks(execution_config())
-        ack, row = self.submit_terminal(tasks, "ERREVENT0", str(self.workspace), "r1")
-        self.assertEqual(row["status"], "failed")
-
-    def test_permission_required_detected(self):
-        tasks = self.make_tasks(execution_config(), max_runtime=30)
-        with mock.patch("opencode_worker.POLL_SECONDS", 0.05):
-            ack, row = self.submit_terminal(tasks, "PERMISSION", str(self.workspace), "r1")
-        self.assertEqual(row["status"], "permission_required")
-
-    def test_result_pagination_and_redaction(self):
-        tasks = self.make_tasks(execution_config())
-        ack, row = self.submit_terminal(tasks, "OK please", str(self.workspace), "r1")
-        page = tasks.result(ack["job_id"])
-        self.assertIn("fixture-ok", page["content"])
-        self.assertIn("untrusted", page["note"])
-        page2 = tasks.result(ack["job_id"], offset=page["next_offset"])
-        self.assertFalse(page2["truncated"])
-
-    def test_status_recent_redacted(self):
-        tasks = self.make_tasks(execution_config())
-        ack, row = self.submit_terminal(tasks, "SECRET-CONTENT-MARKER", str(self.workspace), "r1")
-        status = tasks.status(ack["job_id"])
-        self.assertNotIn("SECRET-CONTENT-MARKER", json.dumps(status))
-        self.assertNotIn("SECRET-CONTENT-MARKER", json.dumps(tasks.recent()))
-        for path in (tasks.logs / f"{ack['job_id']}.jsonl", tasks.dbpath):
-            info = path.stat()
-            self.assertTrue(info.st_mode & stat_module.S_IRUSR)
-            self.assertFalse(info.st_mode & (stat_module.S_IRGRP | stat_module.S_IROTH))
-
-    def test_cancel_pending_is_immediate(self):
-        tasks = self.make_tasks(execution_config())
-        with mock.patch.object(OpenCodeTasks, "_start", return_value={"job_id": "oct_x", "status": "pending", "session_id": "ses_x", "model": "prov/model-1"}):
-            with mock.patch.object(OpenCodeTasks, "db", OpenCodeTasks.db):
-                # insert a pending row directly then cancel it
-                with tasks.db() as db:
-                    db.execute(
-                        "INSERT INTO jobs (job_id,request_id,fingerprint,created,workspace,session_id,model,"
-                        "prompt,status,log_path,err_path,binary,max_output_bytes,max_runtime_seconds,cancel_flag) "
-                        "VALUES ('oct_x','r9','fp',?,?,'ses_x','prov/model-1','p','pending','l','e','b',1,30,0)",
-                        (time.time(), str(self.workspace)))
-                result = tasks.cancel("oct_x")
-        self.assertEqual(result["status"], "cancelled")
-
-    def test_terminal_immutable(self):
-        tasks = self.make_tasks(execution_config())
-        ack = tasks.submit("OK please", str(self.workspace), "r1")
+    def test_latest_failed_turn_prevents_resume(self):
+        first, _ = self.run_prompt("ok")
+        self.run_prompt("error0", "two", session_id=first["session_id"])
         with self.assertRaises(OpenCodeTaskError):
-            tasks._set_terminal(ack["job_id"], "failed", last_known_state="running",
-                                actor="test", reason="no", allowed_from=("running",))
+            self.tasks.submit("ok", str(self.ws), "three", session_id=first["session_id"])
 
-    def test_group_cleanup_after_spawnchild(self):
-        tasks = self.make_tasks(execution_config(), max_runtime=30)
-        ack, row = self.submit_terminal(tasks, "SPAWNCHILD", str(self.workspace), "r1")
-        self.assertEqual(row["status"], "completed")
-        time.sleep(0.2)
-        # The fixture descendant must be gone: the worker signaled the group.
-        stray = [pid for pid in os.listdir("/proc") if pid.isdigit()
-                 and _cmdline(pid) == ["sleep", "60"]]
-        self.assertEqual(stray, [])
+    def test_atomic_concurrent_admission(self):
+        barrier = threading.Barrier(2)
+        def submit(index):
+            instance = OpenCodeTasks(self.config, self.tasks.state)
+            barrier.wait()
+            try:
+                return instance.submit("ok", str(self.ws), "request" + str(index))["job_id"]
+            except OpenCodeTaskError:
+                return None
+        with mock.patch.object(OpenCodeTasks, "_start", lambda obj, job: obj._ack(obj._row(job))):
+            with ThreadPoolExecutor(max_workers=2) as pool:
+                results = list(pool.map(submit, (1, 2)))
+        self.assertEqual(sum(result is not None for result in results), 1)
+        self.assertEqual(len(self.tasks.recent()["jobs"]), 1)
 
+    def test_atomic_concurrent_idempotency(self):
+        barrier = threading.Barrier(2)
+        calls = []
+        def start(obj, job):
+            calls.append(job)
+            return obj._ack(obj._row(job))
+        def submit(_):
+            barrier.wait()
+            return self.tasks.submit("ok", str(self.ws), "same")["job_id"]
+        with mock.patch.object(OpenCodeTasks, "_start", start), ThreadPoolExecutor(max_workers=2) as pool:
+            results = list(pool.map(submit, (1, 2)))
+        self.assertEqual(results[0], results[1])
+        self.assertEqual(len(calls), 1)
 
-def _cmdline(pid):
-    try:
-        with open(f"/proc/{pid}/cmdline", "rb") as handle:
-            return handle.read().decode().split("\0")[:-1]
-    except OSError:
-        return []
+    def test_bad_streams_fail_even_when_exit_zero(self):
+        for prompt in ("empty", "error0", "tool_error", "wrong_session", "missing_session", "malformed", "truncated", "tool_calls_only", "nonzero"):
+            with self.subTest(prompt=prompt):
+                _, status = self.run_prompt(prompt, prompt)
+                self.assertEqual(status["status"], "failed")
 
+    def test_stdout_stderr_caps_bound_actual_files(self):
+        for prompt in ("flood", "stderr_flood"):
+            ack, status = self.run_prompt(prompt, prompt)
+            self.assertEqual(status["status"], "failed")
+            row = self.tasks._row(ack["job_id"])
+            for key in ("log_path", "err_path"):
+                self.assertLessEqual(Path(row[key]).stat().st_size, self.tasks.max_output)
+
+    def test_permission_event_stops_promptly(self):
+        start = time.monotonic()
+        _, status = self.run_prompt("permission")
+        self.assertEqual(status["status"], "permission_required")
+        self.assertLess(time.monotonic() - start, 2)
+
+    def test_permission_word_in_text_is_not_permission_request(self):
+        _, status = self.run_prompt("permission_word")
+        self.assertEqual(status["status"], "completed")
+
+    def test_cancel_running_and_repeat(self):
+        ack = self.tasks.submit("slow", str(self.ws), "slow")
+        result = self.tasks.cancel(ack["job_id"])
+        self.assertIn(result["status"], ("running", "cancelled"))
+        self.assertEqual(self.wait(ack["job_id"])["status"], "cancelled")
+        self.assertEqual(self.tasks.cancel(ack["job_id"])["status"], "cancelled")
+
+    def test_cancel_pending_never_spawns(self):
+        with mock.patch.object(self.tasks, "_start", lambda job: self.tasks._ack(self.tasks._row(job))):
+            ack = self.tasks.submit("ok", str(self.ws), "pending")
+        self.assertEqual(self.tasks.cancel(ack["job_id"])["status"], "cancelled")
+
+    def test_terminal_state_immutable(self):
+        ack, _ = self.run_prompt("ok")
+        self.tasks.cancel(ack["job_id"])
+        self.assertFalse(self.tasks._set_terminal(ack["job_id"], "failed", last_known_state="running", actor="test", reason="change"))
+        self.assertEqual(self.tasks.status(ack["job_id"])["status"], "completed")
+
+    def test_normal_exit_kills_own_term_ignoring_descendant(self):
+        ack, status = self.run_prompt("descendant")
+        self.assertEqual(status["status"], "completed")
+        event = json.loads(self.tasks.result(ack["job_id"])["content"])
+        child = int(event["part"]["text"].split("=")[1])
+        deadline = time.monotonic() + 2
+        while _proc_starttime(child) is not None and time.monotonic() < deadline:
+            time.sleep(0.02)
+        self.assertIsNone(_proc_starttime(child))
+
+    def test_new_controller_reads_detached_worker(self):
+        ack = self.tasks.submit("slow", str(self.ws), "slow")
+        replacement = OpenCodeTasks(self.config, self.tasks.state)
+        self.assertEqual(replacement.status(ack["job_id"])["session_id"], ack["session_id"])
+        replacement.cancel(ack["job_id"])
+        self.assertEqual(self.wait(ack["job_id"])["status"], "cancelled")
+
+    def test_lost_worker_identity_becomes_unknown_without_signal(self):
+        with mock.patch.object(self.tasks, "_start", lambda job: self.tasks._ack(self.tasks._row(job))):
+            ack = self.tasks.submit("ok", str(self.ws), "pending")
+        with self.tasks.db() as db:
+            db.execute("UPDATE jobs SET status='running',created=0,pid=?,worker_start_ticks=-1 WHERE job_id=?", (os.getpid(), ack["job_id"]))
+        with mock.patch("os.killpg", side_effect=AssertionError("foreign signal")):
+            self.assertEqual(self.tasks.status(ack["job_id"])["status"], "unknown_exit")
+            with self.assertRaises(OpenCodeTaskError):
+                self.tasks.submit("ok", str(self.ws), "two")
+
+    def test_unicode_pagination_is_lossless(self):
+        ack, _ = self.run_prompt("unicode")
+        content, offset = "", 0
+        while True:
+            page = self.tasks.result(ack["job_id"], offset, 7)
+            content += page["content"]
+            offset = page["next_offset"]
+            if not page["truncated"]:
+                break
+        self.assertEqual(content, self.tasks.result(ack["job_id"])["content"])
+        self.assertIn("ภาษาไทย 😀 中文", content)
+        self.assertNotIn("\ufffd", content)
+
+    def test_redacted_metadata_and_pagination_validation(self):
+        ack, _ = self.run_prompt("sensitive-prompt")
+        metadata = json.dumps([self.tasks.status(ack["job_id"]), self.tasks.recent()])
+        self.assertNotIn("sensitive-prompt", metadata)
+        self.assertNotIn(str(self.ws), metadata)
+        for offset, size in ((-1, 10), (True, 10), (0, False), (0, 24001)):
+            with self.assertRaises(OpenCodeTaskError):
+                self.tasks.result(ack["job_id"], offset, size)
+
+    def test_controller_spawn_failure_releases_slot(self):
+        with mock.patch("opencode_tasks.subprocess.Popen", side_effect=OSError("private error")):
+            with self.assertRaises(OpenCodeTaskError):
+                self.tasks.submit("ok", str(self.ws), "spawn_fail")
+        _, result = self.run_prompt("ok", "after_failure")
+        self.assertEqual(result["status"], "completed")
+
+    def test_signals_precede_the_only_reap_on_success_and_failure(self):
+        from opencode_core import OpenCodeRunner
+        from opencode_worker import _run, _finish
+        import subprocess
+        original_popen = subprocess.Popen
+        original_signal = OpenCodeRunner._signal_group
+        for prompt in ("ok", "error0"):
+            with self.subTest(prompt=prompt):
+                with mock.patch.object(self.tasks, "_start", lambda job: self.tasks._ack(self.tasks._row(job))):
+                    ack = self.tasks.submit(prompt, str(self.ws), "ordering_" + prompt)
+                with self.tasks.db() as db:
+                    db.execute("UPDATE jobs SET status='running',pid=?,worker_start_ticks=? WHERE job_id=?", (os.getpid(), _proc_starttime(os.getpid()), ack["job_id"]))
+                waits, signals = [], []
+                def popen(*args, **kwargs):
+                    proc = original_popen(*args, **kwargs)
+                    original_wait = proc.wait
+                    def wait(*args, **kwargs):
+                        self.assertEqual(signals[-1], signal.SIGKILL)
+                        waits.append(1)
+                        return original_wait(*args, **kwargs)
+                    proc.wait = wait
+                    return proc
+                def send(pgid, sig):
+                    self.assertFalse(waits, "group signaled after leader reap")
+                    signals.append(sig)
+                    original_signal(pgid, sig)
+                with mock.patch("opencode_worker.subprocess.Popen", side_effect=popen), mock.patch.object(OpenCodeRunner, "_signal_group", side_effect=send):
+                    outcome = _run(self.tasks._row(ack["job_id"]), self.tasks.dbpath, ack["job_id"], os.getpid())
+                self.assertEqual(waits, [1])
+                self.assertEqual(signals, [signal.SIGTERM, signal.SIGKILL])
+                _finish(self.tasks.dbpath, ack["job_id"], os.getpid(), *outcome)
+
+    def test_cancel_admitted_before_terminal_commit_wins(self):
+        from opencode_worker import _finish
+        with mock.patch.object(self.tasks, "_start", lambda job: self.tasks._ack(self.tasks._row(job))):
+            ack = self.tasks.submit("ok", str(self.ws), "race")
+        with self.tasks.db() as db:
+            db.execute("UPDATE jobs SET status='running',pid=?,cancel_flag=1 WHERE job_id=?", (os.getpid(), ack["job_id"]))
+        self.assertEqual(_finish(self.tasks.dbpath, ack["job_id"], os.getpid(), "completed", 0, "response_completed"), "cancelled")
+        self.assertIsNone(_finish(self.tasks.dbpath, ack["job_id"], os.getpid(), "failed", 1, "late_failure"))
+        self.assertEqual(self.tasks.status(ack["job_id"])["status"], "cancelled")
+
+class TestExecutionEvents(unittest.TestCase):
+    def test_oversize_line_rejected_before_unbounded_accumulation(self):
+        events = Events("ses_test123")
+        events.feed(b"x" * 65537)
+        self.assertEqual(events.error, "output_line_limit")
 
 if __name__ == "__main__":
     unittest.main()

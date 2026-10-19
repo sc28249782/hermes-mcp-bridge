@@ -98,8 +98,8 @@ class OpenCodeRunner:
                 "execution_scope": ("The probe runs the configured executable with the full privileges of "
                                     "the bridge process. The bridge adds no sandbox and makes no network, "
                                     "model, or authentication calls."),
-                "runner_scope": ("health only; task submission, sessions, events, cancellation, and "
-                                 "permission handling are not implemented")}
+                "runner_scope": ("health probe only; native task execution requires the separate "
+                                 "opencode.execution opt-in; event subscription and native permission replies are not implemented")}
 
     def _version_probe(self):
         # leader_state tracks whether the leader is still an unreaped child of

@@ -259,10 +259,7 @@ def main():
         oc = OpenCodeRunner.from_config(root)
         # OpenCodeTasks shares the opencode config; disabled execution keeps
         # it inert (no state directory, no DB, no process) until enabled.
-        try:
-            ot = OpenCodeTasks.from_config(root)
-        except OpenCodeTaskError:
-            ot = None
+        ot = OpenCodeTasks.from_config(root)
         contexts = ContextRegistry(b.state, b.audit)
         if args.action == "serve":
             from stdio_guard import run_stdio_guarded  # SPEC.md section 17
@@ -307,7 +304,7 @@ def main():
                 return input(f"Type {word} to resolve only this request: ") == word
             output = b.resolve_local(args.run_id, "once" if args.action == "approve" else "deny", confirm)
         print(json.dumps(output, indent=2, ensure_ascii=False))
-    except (BridgeError, CodexError, HandsError, ContextError, OpenCodeError, OSError, ValueError, KeyError) as exc:
+    except (BridgeError, CodexError, HandsError, ContextError, OpenCodeError, OpenCodeTaskError, OSError, ValueError, KeyError) as exc:
         print("Bridge error: " + str(exc), file=sys.stderr)
         raise SystemExit(1)
 

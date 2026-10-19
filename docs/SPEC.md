@@ -246,7 +246,7 @@ This section is an unreleased amendment. It is not part of the v1.2.3 baseline a
 
 - A new subsection `opencode.execution` MUST default to disabled (`enabled` false). While disabled, the bridge MUST NOT register any execution tool, MUST NOT spawn a worker or CLI process, and MUST return an explicit fail-closed disabled result for every execution call. Default MCP discovery MUST remain 27 tools, or 28 when the section 16 adapter is enabled.
 - Enabling execution MUST require all of: `opencode.enabled` true with a valid `binary` under section 16 rules; a nonempty list `allowed_workspaces` whose entries are absolute directory paths with no ASCII control character (0x00-0x1F and 0x7F); a nonempty list `allowed_models` whose entries match the bounded pattern `provider/model` with printable non-control characters and a bounded length. Validation MUST reject empty lists, control characters, relative paths, non-boolean `enabled`, and out-of-range integers. Entries are canonicalized once at load; the canonical forms are the only accepted workspace and model values.
-- The subsection MUST define, with explicit ranges: `max_prompt_chars` (default 32000, range 1-131072), `max_runtime_seconds` (default 1800, range 30-14400), and `max_output_bytes` (default 524288, range 65536-8388608). The execution `max_output_bytes` is independent of the section 16 health `max_output_bytes`; the bridge MUST NOT silently repurpose the health value for execution.
+- The subsection MUST define, with explicit ranges: `max_prompt_chars` (default 32000, range 1-131072), `max_runtime_seconds` (default 1800, range 1-14400), and `max_output_bytes` (default 524288, range 65536-8388608). The execution `max_output_bytes` is independent of the section 16 health `max_output_bytes`; the bridge MUST NOT silently repurpose the health value for execution.
 
 ### 18.2 Tool surface
 
@@ -254,7 +254,7 @@ This section is an unreleased amendment. It is not part of the v1.2.3 baseline a
 
 ### 18.3 Execution boundary
 
-- The bridge MUST NOT inject permission configuration. It MUST NOT set `OPENCODE_CONFIG`, `OPENCODE_CONFIG_CONTENT`, or `OPENCODE_CONFIG_DIR`, and MUST NOT pass flags that alter permission behavior. Rationale: config precedence for permission rules is not proven, so an injected policy MUST NOT be claimed as enforced. Native OpenCode configuration, plugins, and saved permissions apply unchanged.
+- The bridge MUST NOT inject permission configuration. It MUST NOT override or strip operator-provided `OPENCODE_CONFIG`, `OPENCODE_CONFIG_CONTENT`, or `OPENCODE_CONFIG_DIR`, and MUST NOT pass flags that alter permission behavior. Rationale: config precedence for permission rules is not proven, so an injected policy MUST NOT be claimed as enforced. Native OpenCode configuration, plugins, and saved permissions apply unchanged.
 - The configured executable runs with the full privileges of the bridge process. The bridge adds no sandbox. Workspace selection is a current-working-directory allowlist only; it is NOT filesystem isolation and NOT network isolation. All operator-facing documents (README, security, tool help, and operator examples) MUST state this unmistakably.
 - The bridge MUST NOT use `--auto`, `--server`, `--continue`, or any caller-supplied flag, agent, environment variable, or file attachment. The CLI command line MUST be exactly `[binary, "run", "--standalone", "--format", "json", "--session", <session id>, "--model", <allowed model>]` with shell disabled. The prompt MUST be passed on standard input as UTF-8, never as an argv element, and stdin MUST be closed after the prompt.
 
@@ -275,7 +275,7 @@ This section is an unreleased amendment. It is not part of the v1.2.3 baseline a
 ### 18.6 Output contract
 
 - The CLI stdout MUST be JSON lines of bounded objects. Every event MUST carry the job session identifier; a mismatch, malformed line, output overflow, truncation, or empty stream MUST fail the job. Process exit 0 alone is insufficient.
-- A job MAY reach `completed` only when the bridge observed valid response evidence (a text or step-finish event) AND the process exited 0. A text-only refusal or denial from the model MAY still be a `completed` native turn. Documents MUST state that callers inspect the output, and that the bridge cannot infer goal success or permission outcomes from it.
+- A job MAY reach `completed` only when the bridge observed valid response evidence (a nonempty text response or a final step-finish event with a stop reason) AND the process exited 0. A text-only refusal or denial from the model MAY still be a `completed` native turn. Documents MUST state that callers inspect the output, and that the bridge cannot infer goal success or permission outcomes from it.
 - Result pagination returns untrusted content; the caller MUST treat it as model output. `status` and `recent` responses MUST be redacted: no prompt text, output content, credentials, or detailed paths. Audit records MUST NOT contain prompts, output, or credentials.
 
 ### 18.7 Acceptance mapping

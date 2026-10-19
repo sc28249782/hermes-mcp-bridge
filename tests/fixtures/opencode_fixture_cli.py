@@ -1,44 +1,79 @@
 #!/usr/bin/env python3
-"""Deterministic fixture CLI for OpenCode execution tests (SPEC section 18).
-
-Behavior is selected by the single content marker inside the prompt read from
-stdin. It never touches the network and prints bounded JSONL events:
-- marker "OK": step_start + text, exit 0 (completion evidence)
-- marker "NOEVENT": prints nothing, exit 0 (no completion evidence -> failed)
-- marker "ERREVENT0": prints an error event, exit 0 (error with exit 0 -> failed)
-- marker "PERMISSION": prints a permission request event, then blocks until
-  killed (unresolved ask -> permission_required at the deadline)
-- marker "SPAWNCHILD": behaves like OK and also leaves a sleep descendant
-  alive for a moment to prove group cleanup
-"""
+"""Network-free subprocess fixture; only this test's children are created."""
 import json
 import os
+import signal
 import sys
 import time
 
-marker = sys.stdin.read()
-session = os.environ.get("FIXTURE_SESSION", "ses_fixture")
-
-
-def emit(event_type, part):
-    print(json.dumps({"type": event_type, "timestamp": int(time.time() * 1000),
-                      "sessionID": session, "part": part}), flush=True)
-
-
-if "ERREVENT0" in marker:
-    emit("error", {"type": "error", "message": "synthetic error"})
+if "--version" in sys.argv:
+    print("opencode v2.0.32")
     sys.exit(0)
-if "NOEVENT" in marker:
+
+if os.environ.get("HMB_FIXTURE_NOREAD") == "1":
+    time.sleep(60)
+    sys.exit(1)
+prompt = sys.stdin.read()
+session = sys.argv[sys.argv.index("--session") + 1]
+
+def emit(kind, part=None, sid=None):
+    value = {"type": kind, "sessionID": sid or session, "part": part or {}}
+    print(json.dumps(value, ensure_ascii=False), flush=True)
+
+def text(value):
+    emit("text", {"type": "text", "text": value})
+
+if prompt == "empty":
     sys.exit(0)
-if "PERMISSION" in marker:
-    emit("permission", {"type": "permission", "request": "shell"})
-    time.sleep(3600)
-if "SPAWNCHILD" in marker:
-    if os.fork() == 0:
-        time.sleep(60)
+if prompt == "error0":
+    emit("error", {"type": "error"})
+    sys.exit(0)
+if prompt == "tool_error":
+    emit("tool_use", {"type": "tool", "state": {"status": "error"}})
+    sys.exit(0)
+if prompt == "permission":
+    emit("permission", {"request": "shell"})
+    time.sleep(60)
+if prompt == "wrong_session":
+    emit("text", {"type": "text", "text": "bad"}, "ses_foreign123")
+    sys.exit(0)
+if prompt == "missing_session":
+    print('{"type":"text","part":{"type":"text","text":"bad"}}')
+    sys.exit(0)
+if prompt == "malformed":
+    print('not JSON')
+    sys.exit(0)
+if prompt == "truncated":
+    sys.stdout.write(json.dumps({"type": "text", "sessionID": session, "part": {"type": "text", "text": "bad"}}))
+    sys.exit(0)
+if prompt == "flood":
+    sys.stdout.write("x" * 500000)
+    sys.exit(0)
+if prompt == "stderr_flood":
+    sys.stderr.write("x" * 500000)
+    sys.exit(0)
+if prompt == "slow":
     emit("step_start", {"type": "step-start"})
-    emit("text", {"type": "text", "text": "done"})
+    time.sleep(60)
+if prompt == "descendant":
+    child = os.fork()
+    if child == 0:
+        signal.signal(signal.SIGTERM, signal.SIG_IGN)
+        time.sleep(60)
+        os._exit(0)
+    text("child=" + str(child))
     sys.exit(0)
-emit("step_start", {"type": "step-start"})
-emit("text", {"type": "text", "text": "fixture-ok"})
-sys.exit(0)
+if prompt == "inspect":
+    text(json.dumps({"argv": sys.argv[1:], "stdin": prompt, "native_config": os.environ.get("OPENCODE_CONFIG_CONTENT")}))
+elif prompt.startswith("length:"):
+    text(str(len(prompt)))
+elif prompt == "unicode":
+    text("ภาษาไทย 😀 中文")
+elif prompt == "tool_calls_only":
+    emit("step_finish", {"type": "step-finish", "reason": "tool-calls"})
+elif prompt == "permission_word":
+    text('The literal string "permission" is ordinary text.')
+else:
+    text("fixture-ok")
+if prompt == "nonzero":
+    sys.exit(7)

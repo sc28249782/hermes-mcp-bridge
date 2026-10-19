@@ -154,7 +154,7 @@ def load_bridge_config(root: Path) -> tuple[dict, list[str]]:
         if "enabled" in execution and not isinstance(execution["enabled"], bool):
             raise ConfigError("opencode.execution.enabled must be boolean")
         for key, low, high in (("max_prompt_chars", 1, 131_072),
-                               ("max_runtime_seconds", 30, 14_400),
+                               ("max_runtime_seconds", 1, 14_400),
                                ("max_output_bytes", 65_536, 8_388_608)):
             if key in execution:
                 value = execution[key]
@@ -165,8 +165,8 @@ def load_bridge_config(root: Path) -> tuple[dict, list[str]]:
             if not isinstance(workspaces, list):
                 raise ConfigError("opencode.execution.allowed_workspaces must be a list")
             for value in workspaces:
-                if not isinstance(value, str) or not value:
-                    raise ConfigError("allowed_workspaces entries must be non-empty strings")
+                if not isinstance(value, str) or not value or len(value) > 4096:
+                    raise ConfigError("allowed_workspaces entries must be non-empty strings up to 4096 characters")
                 if any(ord(char) < 0x20 or ord(char) == 0x7F for char in value):
                     raise ConfigError("allowed_workspaces entries must not contain control characters")
                 if not Path(value).expanduser().is_absolute():
@@ -180,7 +180,7 @@ def load_bridge_config(root: Path) -> tuple[dict, list[str]]:
                     raise ConfigError("allowed_models entries must be non-empty strings up to 128 characters")
                 if any(ord(char) < 0x20 or ord(char) == 0x7F for char in value):
                     raise ConfigError("allowed_models entries must not contain control characters")
-                if value.count("/") != 1 or not value.split("/")[0] or not value.split("/")[1]:
+                if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._/+:#-]*", value):
                     raise ConfigError("allowed_models entries must use the provider/model form")
         if execution.get("enabled", False):
             if not opencode.get("enabled", False):
