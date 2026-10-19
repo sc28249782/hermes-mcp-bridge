@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 # Root modules bridge.py must import for the v1.2.4 scope (SPEC.md sections
 # 16 and 17). The stdio guard import is function-scoped, so it is easy to
 # drop from the tree by accident; the archive would then not start.
-REQUIRED_ROOT_MODULES = {"opencode_core", "stdio_guard"}
+REQUIRED_ROOT_MODULES = {"opencode_core", "stdio_guard", "opencode_tasks", "opencode_worker"}
 
 # Fixture servers that tests launch as subprocesses from the extracted tree
 # (tests/test_stdio_guard.py, tests/test_opencode.py, tests/test_mcp.py).
@@ -27,6 +27,8 @@ REQUIRED_FIXTURES = (
     "mock_mcp_server.py",
     "mock_hands_off_server.py",
     "mock_opencode_server.py",
+    "mock_opencode_execution_server.py",
+    "fixtures/opencode_fixture_cli.py",
 )
 
 
@@ -56,6 +58,10 @@ class TestPackagingSurface(unittest.TestCase):
 
     def test_bridge_imports_required_root_modules(self):
         imported = _imported_root_modules(ROOT / "bridge.py")
+        # Detached worker is referenced by filename, rather than imported.
+        source = (ROOT / "opencode_tasks.py").read_text()
+        if 'with_name("opencode_worker.py")' in source:
+            imported.add("opencode_worker")
         missing = REQUIRED_ROOT_MODULES - imported
         self.assertEqual(
             missing, set(),

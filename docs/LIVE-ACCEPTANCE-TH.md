@@ -176,3 +176,98 @@ watchdog timeout และ `unknown_exit` recovery ได้ผ่าน WSL2 li
 - คืน runtime policy เป็น 1,800 วินาที, restart tunnel ระหว่างงาน read-only `sleep 30`, แล้วเชื่อมต่อใหม่หลังงานจบ: status เป็น `unknown_exit`, result มี `recovered_after_restart: true` และ audit บันทึก `finish` outcome `unknown_exit` พร้อม `exit_code: null`
 
 ทั้ง timeout watchdog และ restart recovery ผ่านแล้ว; คืน policy production เป็น `max_runtime_seconds: 1800` ก่อนจบ acceptance.
+
+
+## 19 ตุลาคม 2026 — OpenCode execution (unreleased; PR #40)
+
+Code head: `ee62fe84e0474ccd34ccda1b42ba7e59700da479`; source worktree แยกจาก runtime
+ผลนี้ไม่ใช่ release claim และไม่แก้หลักฐาน v1.2.4 ที่บันทึกไว้ก่อนหน้า
+WSL ผ่าน 162/162 tests ด้วย `-W error::ResourceWarning`, shellcheck และ Bash syntax
+[CI ที่ code head เดียวกัน](https://github.com/sc28249782/hermes-mcp-bridge/actions/runs/39209783419) ผ่าน
+
+ใช้ actual `OpenCodeTasks` controller กับ OpenCode CLI v2.0.32 และ
+`opencode-go/glm-5.3-flash` ใน workspace/state ชั่วคราวแยกกัน
+กำหนด runtime 60 วินาที, per-stream output cap 262144 bytes ด้วย in-memory config
+ใช้ native policy เดิม ไม่ส่ง `--auto` และไม่เปลี่ยน permission config
+
+| ข้อทดสอบ | หลักฐานและผล |
+| --- | --- |
+| Submit/status/result | native response parsed จาก JSONL; terminal `completed` |
+| Request replay | input และ request ID เดิมคืน job/session เดิม ไม่เรียก model ซ้ำ |
+| Session context | prompt ถัดไปใช้ session เดิมและตอบ token ที่ให้จำได้จริง |
+| Native read/edit | ใช้ absolute fixture path; tool state `completed`; ตรวจ bytes ว่า `BEFORE → AFTER` จริง |
+| Resumed edit | session เดิมแก้ไฟล์เดิมเป็น `SECOND`; ตรวจ bytes ตรงค่า ไม่อาศัยคำกล่าวของ model |
+| Cancel | พบ CLI child ของ worker ก่อนส่ง cancel; terminal `cancelled` และ child exit ยืนยันด้วย owned process identity |
+| MCP fixture | actual SDK stdio initialize/discovery = 33; submit/replay/status/result/resume/cancel/recent ผ่านด้วย fixture CLI |
+
+ข้อจำกัดที่ยังคงบันทึก:
+
+- การแก้ fixture ด้วย relative path รอบแรก failed เพราะ native tool แจ้ง file not found
+  bridge จัดเป็น `tool_error_event` และไฟล์ไม่เปลี่ยน
+  การทดสอบ absolute path สองรอบผ่าน แต่ยังไม่พิสูจน์สาเหตุภายในของ relative-path failure
+  ให้ระบุ workspace และ absolute target path ในคำขอแก้ไฟล์ที่ต้องการความชัดเจน
+- ไม่อ้าง HTTP API, ACP, native permission reply, read-only sandbox หรือ network isolation
+- การทดสอบ model จริงผ่าน controller และการทดสอบ MCP ผ่าน fixture เป็นคนละชั้น
+  ยังไม่อ้างว่า model จริงถูกสั่งผ่าน authenticated Dev tunnel ใน Work chat รอบนี้
+- Production ยังคง v1.2.3 และ Dev ยังเป็น v1.2.4 candidate เดิม
+  ยังไม่ได้ติดตั้งหรือ restart ทั้งสอง runtime, ไม่แตะ shared OpenCode service
+  temp fixtures และ process ที่สร้างเพื่อทดสอบถูก cleanup
+- Dev ไม่มี supervisor สำหรับ restart อัตโนมัติที่ตรวจพบ
+  การเปิด candidate ใหม่ผ่าน tunnel ต้องใช้ launcher/env เดิมของ operator
+  ห้ามอ่าน/คัดลอก key จาก process environment และห้ามใช้ production profile แทน Dev
+
+ขั้นรับรองที่เหลือ: เปิด Dev candidate ที่เตรียมจาก PR head, refresh discovery
+แล้วตรวจ 33 tools และสั่งงาน benign หนึ่งเที่ยวผ่าน Dev plugin จริง
+ดูขั้นปฏิบัติใน [OPENCODE-TH.md](OPENCODE-TH.md)
+
+Final code head `85e3bcdb8696517c18b48657dfdd2244f43f824a` adds the cleanup-unconfirmed
+regression and redacted audit checks; [CI passes with 163 tests](https://github.com/sc28249782/hermes-mcp-bridge/actions/runs/39210918304).
+The earlier native-model proof above remains scoped to `ee62fe8`.
+New Dev candidate preparation paused at the Hermes local terminal approval gate
+for an operator-launcher draft. That draft contains unverified profile/key assumptions
+and is not an approved activation procedure. At that checkpoint candidate readiness had not been recorded. Authenticated
+Dev tunnel acceptance remains pending. No current Dev/production route was switched.
+
+
+### Final source/candidate checkpoint — 19 October 2026
+
+- Code head `e7add7e594fb2cc0029dd53b628c85f9a7c1a87c`: WSL **164/164** tests and shellcheck pass. [Exact-head CI](https://github.com/sc28249782/hermes-mcp-bridge/actions/runs/39212518227) passes.
+- The isolated git-worktree candidate at `~/hermes-mcp-bridge-opencode-dev` is prepared at that code head with its own venv and fresh private state. Its config is mode 0600; state/workspace are mode 0700.
+- Execution is enabled only for `~/hermes-opencode-dev-workspace` and model `opencode-go/glm-5.3-flash`. Prompt/runtime/output limits are 32000 characters / 1800 seconds / 524288 bytes per stream.
+- Candidate config validation returns an empty warnings list. Actual SDK stdio against its own `bridge.sh serve` discovers **33 tools**. `bridge_version` reports that git revision and `opencode_health` reports `opencode v2.0.32`.
+- The launcher-writing operation was cancelled without approval or execution. No launcher was written, no substitute activation was attempted, and no approval remains pending for that run.
+- Current Dev and production routes remain unchanged. The candidate is ready locally; the remaining gate is operator-controlled Dev profile selection, restart from the existing authenticated environment, plugin discovery refresh and a real Work-chat task over that Dev tunnel.
+- The later documentation-only commit does not change the pinned candidate code. Real model read/edit/context evidence remains scoped to the earlier `ee62fe8` record above; the final source is covered by the full suite and candidate stdio verification.
+
+
+### Work-chat Dev tunnel acceptance — 19 October 2026: PASS within scope
+
+This supersedes the pending-activation status at the preceding historical checkpoint.
+The operator selected the prepared candidate in `hermes-wsl-dev`, restarted the Dev
+tunnel and refreshed plugin tools. Parent Work chat then called the real Dev plugin:
+
+- Callable registry contains **33 Dev tools**, including all six OpenCode tools.
+  This is parent registry evidence, not a raw wire `tools/list` capture.
+- `bridge_version.source_kind` = `git-worktree`; `source_revision` =
+  `e7add7e594fb2cc0029dd53b628c85f9a7c1a87c`; `opencode_health` reports v2.0.32.
+  The version response's canonical `mcp_discovery_count` remains 27 as documented.
+- Model = `opencode-go/glm-5.3-flash`; workspace = `~/hermes-opencode-dev-workspace`.
+- Submit/status/result: `oct_601b8c9f62f8d20254a77dce` completed, exit 0,
+  response `OC_TUNNEL_READY`.
+- Resume: `oct_b2c34f716a3c07be14252aaf` completed in the same bridge-owned
+  session and returned the previously remembered token without it being repeated
+  in the follow-up prompt.
+- Native write in that same session: `oct_740bdef27eed489b36f0afff` completed,
+  exit 0; native glob found no existing target, and native write created
+  `workchat-acceptance-20261019-b7.txt` using its absolute path.
+- Independent read-only verification through Hermes compared actual file bytes:
+  exactly `b'OC_TUNNEL_EDIT_OK\n'` (18 bytes), `exact_match: True`.
+  The verification also observed database mode 0600 and task-log directory 0700.
+- Replaying the identical first request returned its original job/session IDs.
+  `opencode_recent_tasks` then listed exactly the three completed jobs above.
+
+No production activation, release or tag is claimed. This run proves real-model
+submit/result, session continuity, replay/recent and native file creation through
+an authenticated Dev tunnel. Cancellation evidence remains scoped to the earlier
+controller run; native permission-required coverage remains fixture-only, not a
+live permission interaction. No permission configuration was changed by this test.

@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased — OpenCode execution
+
+- Add the separate, disabled-by-default `opencode.execution` opt-in. Require the health adapter, existing canonical workspaces and allowed models.
+- Add `opencode_submit_task`, `opencode_task_status`, `opencode_task_result`, `opencode_cancel_task` and `opencode_recent_tasks`. Discovery is 33 only when execution is enabled. The 27-tool default and 28-tool health-only contract remain unchanged.
+- Store bridge-owned jobs and sessions with request idempotency and atomic admission. A detached worker bounds runtime and I/O. It signals its CLI group before reaping the leader. Unconfirmed cleanup remains `unknown_exit` and blocks new work.
+- Keep native OpenCode configuration and permissions. The bridge adds no sandbox and never passes `--auto`. Workspace selection limits cwd, not filesystem or network access. A completed native turn does not prove goal success.
+- Validate the final code on WSL with 164 passing tests, Shellcheck and exact-code-head CI. Regressions cover unconfirmed cleanup and execution config recognition. Real CLI v2.0.32 submission, context/session reuse, replay, cancellation and absolute-path file edits pass. See [TESTING.md](TESTING.md) and [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md).
+- Authenticated Dev Work-chat acceptance passed on 19 October 2026: real-model submit/result, resumed context, request replay/recent and independently byte-verified native file creation. Native permission-required coverage remains fixture-only. No release contains this extension; the OpenCode adapter shipped in v1.2.4 remains health-only.
+
+
 ## v1.2.4 — released (18 October 2026; signed tag, published)
 
 - Scope note (18 October 2026): the capability-gated MCP Events track originally planned for v1.2.4 is deferred to an unversioned BLOCKED track with no assigned release and is not part of this maintenance release (OpenCode health adapter disabled by default and legacy stdio discovery guard only).
@@ -62,9 +72,11 @@ Release record: released on 18 October 2026 via GPG-signed annotated tag `v1.2.4
 - Aligned schema validation with the Codex runtime: `codex.approval_ttl_seconds` is now rejected below 60 seconds rather than failing later during runner startup.
 - Documented that the timeout watchdog runs in the persistent MCP server process; standalone local CLI approval depends on that server remaining available or on later status polling.
 
-## Unreleased
+## Historical development notes (already shipped)
 
-> Historical note (18 October 2026): every item in this section shipped in v1.2.0 or a later release recorded above; kept here as history.
+
+
+> Historical note (18 October 2026): every item below this point shipped in v1.2.0 or a later release recorded above; kept here as history.
 
 - Clarified the two-phase release process: final archive checksums are external GitHub Release assets verified after the signed tag; a follow-up release-record commit documents that outcome without mutating the release tag.
 

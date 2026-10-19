@@ -112,6 +112,35 @@ adapter ถูกรวมแล้วใน released v1.2.4 (PR #34) ซึ่�
 
 - client ส่ง probe `server/discover` ผ่าน stdio แล้วได้ `-32601 Method not found` — พฤติกรรมตั้งใจตาม SPEC.md §17: guard ตอบที่ boundary ด้วย id เดิม ไม่มี params echo ไม่ถึง low-level server และไม่พิมพ์ payload ลง log ไม่ใช่ความผิดพลาดของ bridge
 - probe ซ้ำยังตอบ `-32601` ทุกครั้งแต่ไม่ flood log (มีแค่ constant-text debug line)
-- `initialize` / `notifications/initialized` / `tools/list` ต้องปกติ (27 tools; 28 เมื่อเปิด OpenCode adapter ตาม §16) — ถ้าจำนวน tools เปลี่ยน แปลว่า guard รั่ว ให้หยุดและรีวิว `stdio_guard.py`
+- `initialize` / `notifications/initialized` / `tools/list` ต้องปกติ (27 tools; 28 เมื่อเปิดเฉพาะ OpenCode health ตาม §16; 33 เมื่อเปิด execution ที่ยังไม่เผยแพร่ตาม §18) — ถ้าจำนวน tools เปลี่ยน แปลว่า guard รั่ว ให้หยุดและรีวิว `stdio_guard.py`
 - method อื่นที่ไม่รู้จักยังได้ `-32602` พร้อม warning `Failed to validate request` จาก SDK เหมือนเดิม — guard ไม่กด warning ใด ๆ
 - ปิด stdin (EOF) แล้ว process ต้องออก rc=0; ถ้าค้างให้เช็คว่า `guarded_stdio_streams` finally มีการ cancel forwarder และปิด reply stream ครบ — guard ครอบเฉพาะ `bridge.py serve` (stdio) tunnel/HTTP ไม่เกี่ยว
+
+## OpenCode task execution (ยังไม่เผยแพร่ — branch เท่านั้น)
+
+ส่วน execution ตาม SPEC.md section 18 ยังไม่อยู่ใน release ใด (v1.2.4 ที่เผยแพร่เป็น
+health-only) อย่าเปิดใช้บน production จนกว่าจะปิด change-control gate. หลักการสำหรับ
+operator: เปิดด้วย `opencode.execution.enabled=true` พร้อม `opencode.enabled` +
+`opencode.binary`, `allowed_workspaces` (canonical absolute path) และ `allowed_models`
+(เช่น `opencode-go/glm-5.3-flash`) ไม่ว่าง; จำกัดด้วย `max_prompt_chars`,
+`max_runtime_seconds`, `max_output_bytes` แยกจากของ health. executable รันด้วยสิทธิ์เต็ม
+ของ bridge process — workspace allowlist คือ cwd เท่านั้น ไม่ใช่ filesystem/network
+isolation; bridge ไม่ inject permission และไม่ส่ง `--auto` — native policy ของ OpenCode
+ฝั่งคุณคือชั้นบังคับจริง. lifecycle: submit → status → result (untrusted ตรวจเอง) →
+cancel; `completed` = native turn จบ ไม่ได้แปลว่าเป้าหมายสำเร็จ; `permission_required`
+เกิดเฉพาะเมื่อเห็น protocol event ชัด มิฉะนั้นจบเป็น failed ตาม deadline; retry ด้วย
+`request_id` เดิมได้ acknowledgement เดิมโดยไม่เรียก model ซ้ำ; resume ได้เฉพาะ session
+ที่ bridge เป็นเจ้าของด้วย workspace/model เดิม. รายละเอียดครบ: [OPENCODE-TH.md](OPENCODE-TH.md)
+
+
+### ข้อมูล OpenCode ที่เก็บในเครื่อง
+
+prompt ของทุกงานเก็บเป็น plaintext ใน `state/opencode-tasks.sqlite3` คอลัมน์
+`jobs.prompt` (mode 0600) ส่วน stdout/stderr เก็บเป็น plaintext ตาม `log_path`/
+`err_path` ใน `state/opencode-task-logs/` (directory 0700, ไฟล์ 0600).
+permission เหล่านี้ไม่ใช่ encryption; audit/status/recent ที่ redact แล้วไม่ได้ทำให้
+ข้อมูลใน database และ task logs ถูก redact ตามไปด้วย ห้ามใส่ credentials ใน prompt
+หรือเผยแพร่ database/task logs เป็นหลักฐานสาธารณะ และต้องป้องกัน backup เช่นเดียวกัน.
+Native OpenCode อาจเก็บ session ของตัวเองตาม configuration เดิมด้วย.
+ดู [SECURITY.md](SECURITY.md). การเลือก workspace จำกัด cwd เท่านั้น ไม่จำกัด
+filesystem หรือ network และไม่เปลี่ยน native permissions.
