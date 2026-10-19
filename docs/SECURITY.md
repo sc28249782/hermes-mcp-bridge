@@ -61,3 +61,12 @@ Do not submit credentials in prompts or publish/copy state databases and task lo
 into public evidence. Protect local backups with the same access controls.
 Native OpenCode may retain its own sessions under its own configuration; bridge
 redaction does not govern those native stores. See [OPERATIONS-TH.md](OPERATIONS-TH.md).
+
+## Content retrieval and privacy-contract review
+
+Result pages และไฟล์ที่ Hands policy อนุญาตอาจมีข้อมูลอ่อนไหว.
+Pagination และ protected filenames ไม่ใช่ generic content-secret redaction.
+Hermes แทนค่าเฉพาะ configured API key ใน upstream JSON; status ยังส่งต่อ upstream error และ approval payload.
+อย่าถือว่าข้อมูลเหล่านี้เป็น metadata ที่ไม่มีเนื้อหาอ่อนไหว.
+ข้อเสนอแยก audit/metadata ออกจาก content retrieval และ private operational stores อยู่ใน [PRIVACY-CONTRACT-REVIEW-TH.md](PRIVACY-CONTRACT-REVIEW-TH.md).
+รายงานนั้นยังรอ review และไม่เปลี่ยน normative SPEC หรือ runtime permissions.
