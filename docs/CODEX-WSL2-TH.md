@@ -2,7 +2,7 @@
 
 v1.0.1 มี Hermes tools 10 ตัว, Codex tools 6 ตัว และ operations tools แบบ read-only 3 ตัว (`bridge_diagnostics`, `bridge_audit_recent`, `bridge_status`) รวม 19 tools โดย `codex_submit_task` เลือก model และ reasoning effort ได้ภายใต้นโยบายที่กำหนด
 
-> หมายเหตุสถานะ (18 ตุลาคม 2026): จำนวน 19 tools ด้านบนเป็นบันทึกยุค v1.0.1 สัญญา discovery ปัจจุบันคือ 27 tools (28 เมื่อเปิด OpenCode adapter, 33 เมื่อเปิด execution opt-in ใน released v1.2.5) ตาม [TESTING.md](TESTING.md) นโยบาย Codex/WSL2 ในหน้านี้ยังใช้กับ released v1.2.4 เพราะ v1.2.4 ไม่แก้นโยบาย Codex
+> หมายเหตุสถานะ (18 ตุลาคม 2026): จำนวน 19 tools ด้านบนเป็นบันทึกยุค v1.0.1 สัญญา discovery ปัจจุบันคือ 27 tools (28 เมื่อเปิด OpenCode adapter, 33 เมื่อเปิด execution opt-in ใน released v1.2.5) ตาม [TESTING.md](TESTING.md) นโยบาย Codex/WSL2 ในหน้านี้ยังใช้กับ released v1.2.4 และ v1.2.5 เพราะทั้งสองรุ่นไม่แก้นโยบาย Codex
 
 ## ขอบเขตความปลอดภัย
 
@@ -100,10 +100,17 @@ codex_submit_task(
 
 เรียก `bridge_diagnostics` หรือรันคำสั่ง local ต่อไปนี้เพื่อตรวจ Hermes, Codex, permission ของ state และสถานะ audit log:
 
-```bash
-./bridge.sh diagnostics
-./bridge.sh audit-recent
-```
+1. ตรวจ Hermes, Codex และสถานะ state/audit:
+
+   ```bash
+   ./bridge.sh diagnostics
+   ```
+
+2. อ่าน audit event ล่าสุดแบบ redacted:
+
+   ```bash
+   ./bridge.sh audit-recent
+   ```
 
 Audit log อยู่ที่ `state/audit.jsonl` ด้วย mode `600` และเป็น JSON Lines แบบหมุนไฟล์ตาม `max_bytes` เก็บย้อนหลังตาม `retention_files` (1–30 ไฟล์) บันทึกเฉพาะ lifecycle เช่น submit/start/approve/deny/finish/cancel, job/run ID, workspace, sandbox mode, ชื่อ model/reasoning effort ที่ร้องขอ และจำนวนตัวอักษรของ prompt
 

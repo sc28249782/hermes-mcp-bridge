@@ -33,8 +33,6 @@ v1.2.5 เผยแพร่แล้ว พร้อม signed tag และ ZI
 4. หากใช้ `codex.workspaces`, ย้าย allowlist เดิมจาก `codex.allowed_workspaces` มาเป็น policy entries ทั้งหมดก่อน restart; เมื่อมี `workspaces` runtime จะไม่รวม legacy allowlist.
 5. restart tunnel ของ instance ที่อัปเกรด, เปิด chat ใหม่ และตรวจ `bridge_version` กับ canonical discovery count ใน `TESTING.md` ก่อน read-only smoke test. workspace-write ยังคงต้อง local approval.
 
-
-
 ## จาก v1.0.0 เป็น v1.0.1
 
 1. แตก package v1.0.1 ไปยังโฟลเดอร์ใหม่ แล้วคัดลอกเฉพาะ `bridge-config.json` และ `state/` ที่ตรวจแล้วจาก v1.0.0.

@@ -12,8 +12,8 @@
 
 - Hermes API ต้อง bind ที่ `127.0.0.1` และใช้ bearer key
 - Codex workspace จำกัดด้วย canonical allowlist
-- ไม่รองรับ `danger-full-access`
-- งาน `workspace-write` ต้องผ่าน local terminal approval
+- ไม่รองรับ `danger-full-access` (Codex)
+- งาน `workspace-write` ของ Codex ต้องผ่าน local terminal approval
 - agent ไม่มี MCP tool สำหรับอนุมัติตัวเอง
 - ห้าม commit `bridge-config.json`, `.env`, `state/`, logs และ tunnel key
 - Release production ต้องเผยแพร่ checksum และ signed tag ที่ตรวจสอบได้; private signing key อยู่กับ maintainer เท่านั้น
@@ -22,11 +22,11 @@
 
 `opencode_health` (รวมใน released v1.2.4 แล้ว — 18 ตุลาคม 2026; deployment ที่ยังรัน v1.2.3 จะไม่มี adapter นี้จนกว่า operator จะอัปเกรด) เป็น disabled by default: เมื่อไม่กำหนด section `opencode` หรือ `enabled` เป็น `false` ทุก health check fail closed โดยไม่ spawn process และไม่มีการเรียก network/model/auth. การเปิดใช้ต้องกำหนด `opencode.binary` เป็น absolute path (ไม่เกิน 4096 ตัวอักษร ไม่มี control characters ต้องเป็น regular executable file) พร้อม `version_timeout_seconds` (1-120) และ `max_output_bytes` (1024-1048576); ไม่มีการเปิดใช้อัตโนมัติ
 
-ขอบเขต OpenCode ที่เผยแพร่ใน v1.2.4 เป็น health เท่านั้น; execution รวมใน `main` แล้วผ่าน PR #40 และเผยแพร่ใน v1.2.5 แล้ว อธิบายใน section ด้านล่าง ส่วน native permission replies และ event subscriptions ยังไม่รองรับ. bridge ไม่เพิ่ม sandbox — executable ที่กำหนดรันด้วยสิทธิ์เต็มของ bridge process และอ่าน global configuration/credentials ได้ จึงเปิดใช้เฉพาะ binary ที่ตรวจแล้ว. runner ไม่ส่ง `--auto` และ `--standalone` เป็น exclusive in-process server ไม่ใช่ sandbox
+ขอบเขต OpenCode ที่เผยแพร่ใน v1.2.4 เป็น health เท่านั้น; execution รวมใน `main` แล้วผ่าน PR #40 และเผยแพร่ใน v1.2.5 แล้ว อธิบายใน section ด้านล่าง ส่วน native permission replies และ event subscriptions ยังไม่รองรับ. bridge ไม่เพิ่ม sandbox — executable ที่กำหนดรันด้วยสิทธิ์เต็มของ bridge process และอ่าน global configuration/credentials ได้ จึงเปิดใช้เฉพาะ binary ที่ตรวจแล้ว. runner ไม่ส่ง `--auto`; flag `--standalone` ทำให้ CLI ทำงานเป็น exclusive in-process server ไม่ใช่ sandbox
 
-Local Hands ยังเป็น roadmap ไม่ใช่ production capability ใน v1.0.1 ขอบเขตที่อนุมัติไว้สำหรับ implementation คือ workspace/capability allowlist, local digest-bound approval, protected paths/names, baseline no deletion และไม่มี model-relayed nonce เป็น authorization ห้ามนำ allow-by-default deny-list sandbox, read-anywhere policy, shell-bypass accepted gap หรือ dynamic MCP-to-MCP trust bypass มาใช้
+Local Hands read-only (`hands_health`/`hands_list`/`hands_read`) released ใน v1.2.0 และ disabled โดยค่าเริ่มต้น; mutation/execution ยังเป็น deferred track ที่ v1.3.0 สงวนไว้ (ดู ROADMAP.md) ขอบเขตที่อนุมัติไว้สำหรับ implementation คือ workspace/capability allowlist, local digest-bound approval, protected paths/names, baseline no deletion และไม่มี model-relayed nonce เป็น authorization ห้ามนำ allow-by-default deny-list sandbox, read-anywhere policy, shell-bypass accepted gap หรือ dynamic MCP-to-MCP trust bypass มาใช้
 
-Execution ที่อ้างว่า no-delete/no-unapproved-truncate ต้องมี kernel enforcement ที่ probe ได้จริง เช่น [Landlock](https://docs.kernel.org/userspace-api/landlock.html) หรือกลไกเทียบเท่า Landlock เริ่มใน Linux 5.13 และยังขึ้นกับ kernel configuration/boot/ABI จึงห้ามสรุปว่ารองรับเพียงเพราะเป็น WSL2 หรือดูเฉพาะเลข kernel หาก enforcement ที่ profile ต้องใช้ไม่มี ให้ปิด profile แบบ fail closed Exact `hands_write`/`hands_patch` ที่ผูก local approval และ digest เป็น operation แยกซึ่งแตะได้เฉพาะ target ที่อนุมัติ
+Execution ที่อ้างว่า no-delete/no-unapproved-truncate ต้องมี kernel enforcement ที่ probe ได้จริง เช่น [Landlock](https://docs.kernel.org/userspace-api/landlock.html) หรือกลไกเทียบเท่า Landlock เริ่มใน Linux 5.13 และยังขึ้นกับ kernel configuration/boot/ABI จึงห้ามสรุปว่ารองรับเพียงเพราะเป็น WSL2 หรือดูเฉพาะเลข kernel หาก enforcement ที่ profile ต้องใช้ไม่มี ให้ปิด profile แบบ fail closed Exact `hands_write`/`hands_patch` ที่วางแผนไว้สำหรับ v1.3.0 (ยังไม่มีใน release ปัจจุบัน) จะผูก local approval และ digest เป็น operation แยกซึ่งแตะได้เฉพาะ target ที่อนุมัติ
 
 รายละเอียด threat model และข้อจำกัดดู `HERMES-MCP-BRIDGE-TECHNICAL-ARCHITECTURE-TH.md`, `CODEX-WSL2-TH.md` และ `LOCAL-HANDS-ARCHITECTURE-TH.md`
 

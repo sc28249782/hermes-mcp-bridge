@@ -21,5 +21,6 @@ For the project purpose and architectural choices, see [Project origin](PROJECT-
 | v1.2.2 | Bridge version and provenance | Added local-only CLI/MCP version identity with embedded provenance and the durable detached Codex worker repair. |
 | v1.2.3 | Worker-supervision maintenance | Kept a job `running` while its Codex child outlives a lost worker; introduced SPEC.md as the normative contract. |
 | v1.2.4 | Maintenance release | Added the disabled-by-default OpenCode health adapter (27-tool default, 28 on opt-in) and the legacy stdio discovery guard; MCP Events remained deferred (BLOCKED). |
+| v1.2.5 | OpenCode task execution opt-in | Added the disabled-by-default `opencode.execution` opt-in with five execution tools (discovery 27 default, 28 with health, 33 with execution), a detached durable worker, bridge-owned sessions, and idempotent submission; no bridge sandbox (cwd allowlist only, native permission policy). |
 
 This repository is the source of record for implementation, tests, issues, releases, and project documentation.

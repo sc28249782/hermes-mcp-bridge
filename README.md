@@ -34,7 +34,7 @@ On the legacy stdio serve path (`./bridge.sh serve`), an incoming `server/discov
 - An advertised Hermes approval-response endpoint does not by itself prove that the API profile can create an interactive approval session; v1.1.0 SSE approval integration is deferred pending an upstream contract.
 - Codex can use only explicitly allowlisted workspaces.
 - Codex permits only `read-only` and `workspace-write`; `danger-full-access` is rejected.
-- Every write job requires interactive approval in the local WSL2 terminal.
+- Every Codex `workspace-write` job requires interactive approval in the local WSL2 terminal. OpenCode execution adds no bridge approval layer; native OpenCode permission policy applies.
 - Approved Codex work is supervised by a durable local worker, which persists its terminal outcome independently of the tunnel process.
 - Workspace policies can restrict sandbox modes, runtime, prompt size, concurrency, approval lifetime, and configured pre-flight prompt patterns.
 - Audit logs are redacted, local-only, rotating JSONL files. Secrets, prompts, and outputs are not written to them.
@@ -42,13 +42,37 @@ On the legacy stdio serve path (`./bridge.sh serve`), an incoming `server/discov
 
 ## Start here
 
-```bash
-bash install.sh
-./bridge.sh doctor
-./bridge.sh codex-doctor
-./bridge.sh diagnostics
-./bridge.sh version
-```
+Run each step in order from the repository root. Stop when a step reports an error and fix the cause before the next step.
+
+1. Create the virtual environment and the initial configuration:
+
+   ```bash
+   bash install.sh
+   ```
+
+2. Verify the Hermes connection:
+
+   ```bash
+   ./bridge.sh doctor
+   ```
+
+3. Verify the Codex workspace policy:
+
+   ```bash
+   ./bridge.sh codex-doctor
+   ```
+
+4. Inspect state permissions and audit configuration (read-only):
+
+   ```bash
+   ./bridge.sh diagnostics
+   ```
+
+5. Verify the installed identity and discovery contract:
+
+   ```bash
+   ./bridge.sh version
+   ```
 
 `./bridge.sh version` is local-only: it does not contact Hermes, Codex, the tunnel, GitHub, or another network service. It reports the installed bridge version, release/provenance fields, config-schema version, and MCP discovery contract. The MCP equivalent is the read-only `bridge_version` tool.
 

@@ -2,7 +2,7 @@
 
 Hermes MCP Bridge was created to let ChatGPT work with a locally running Hermes Agent on a user-controlled Windows 11 and Ubuntu 24.04 WSL2 workstation. Hermes exposes an authenticated loopback Runs API; ChatGPT reaches the local stdio bridge through an OpenAI Secure MCP Tunnel, without a public inbound service.
 
-The project later added Codex CLI for carefully scoped local development work. It deliberately avoids a general remote shell: Codex is limited to approved WSL2 workspaces and sandbox modes, while any file-writing job needs an explicit local human approval.
+The project later added Codex CLI for carefully scoped local development work. It deliberately avoids a general remote shell: Codex is limited to approved WSL2 workspaces and sandbox modes, while any Codex `workspace-write` job needs an explicit local human approval.
 
 ## Local Hands design inspiration
 

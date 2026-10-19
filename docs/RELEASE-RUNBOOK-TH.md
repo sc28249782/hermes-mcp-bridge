@@ -6,42 +6,108 @@
 
 1. **Documentation gate:** ทบทวนเอกสารที่อธิบาย source, tool discovery, configuration, acceptance, compatibility, roadmap และ upgrade ให้ตรงกับ release candidate. Release status ต้องระบุผล acceptance และ provenance ได้ แต่ให้ใช้สถานะ `tag pending` จนกว่าจะ verify asset จริง. สำหรับ candidate ทุกรุ่น ให้ตรวจ `./bridge.sh version` และ MCP `bridge_version` ตรงกัน, discovery count ตรง, และไม่มี upstream/network call.
 2. Commit เอกสาร Phase A และตรวจ `git diff --check`; รัน test และ acceptance checklist ตาม `V1-ACCEPTANCE-TH.md`.
-3. ตรวจ release checkout ให้สะอาด, ยืนยัน target commit และ version tag ยังไม่มีอยู่, แล้วตรวจว่า WSL มี private GPG key ที่ตรงกับ `user.signingkey`:
+3. ตรวจ release checkout ให้สะอาด, ยืนยัน target commit และ version tag ยังไม่มีอยู่, แล้วตรวจว่า WSL มี private GPG key ที่ตรงกับ `user.signingkey` รันทุกขั้นใน shell เดียวกัน:
 
-```bash
-set -euo pipefail
-test -z "$(git status --short)"
-git config --show-origin --get user.signingkey
-gpg --list-secret-keys --keyid-format=long
-git ls-remote --exit-code --tags origin "refs/tags/vX.Y.Z" && exit 1 || true
-```
+   1. เปิด fail-fast สำหรับ shell นี้:
+
+      ```bash
+      set -euo pipefail
+      ```
+
+   2. ต้องไม่มี output; ถ้ามีรายการ ให้หยุดและจัดการ working tree ก่อน:
+
+      ```bash
+      test -z "$(git status --short)"
+      ```
+
+   3. ตรวจว่า `user.signingkey` ถูกตั้งและมาจาก config file ใด:
+
+      ```bash
+      git config --show-origin --get user.signingkey
+      ```
+
+   4. ตรวจว่ามี private key ตรงกับ fingerprint ที่อนุมัติ:
+
+      ```bash
+      gpg --list-secret-keys --keyid-format=long
+      ```
+
+   5. ต้องจบปกติ (tag ยังไม่มีบน origin); ถ้า tag มีอยู่แล้ว คำสั่งจะหยุด:
+
+      ```bash
+      git ls-remote --exit-code --tags origin "refs/tags/vX.Y.Z" && exit 1 || true
+      ```
 
 4. หาก release ใช้ embedded provenance ให้ stamp `version_info.py` ด้วย release identifier/build provenance และ **build-input revision** ตาม release candidate ที่ review แล้ว; build-input revision บอก source ที่ใช้เตรียม stamp ไม่ใช่การอ้างว่าเป็น final tag commit (ซึ่งเป็น self-reference ไม่ได้). signed tag คือ authority ของ final commit. ห้ามใช้ `.git` เป็นเงื่อนไขให้ archive ทำงานได้. ตรวจ output `./bridge.sh version` อีกครั้งก่อน tag.
 
 5. เลือก signing key ที่ตรวจ fingerprint แล้ว หากไม่ได้ตั้ง `user.signingkey` ให้ใช้ `git -c user.signingkey=<verified-fingerprint> tag -s ...` แทนการปล่อยให้ GPG เลือก default key ตรวจ signer fingerprint ให้ตรงกับ key ที่อนุมัติ แล้วสร้างและตรวจ signed tag ก่อน push:
 
-```bash
-git tag -s vX.Y.Z -m "hermes-mcp-bridge vX.Y.Z"
-git verify-tag vX.Y.Z
-git push origin main vX.Y.Z
-```
+1. สร้าง signed tag:
+
+   ```bash
+   git tag -s vX.Y.Z -m "hermes-mcp-bridge vX.Y.Z"
+   ```
+
+2. ต้องแสดง `Good signature` จาก fingerprint ที่อนุมัติก่อนขั้นถัดไป:
+
+   ```bash
+   git verify-tag vX.Y.Z
+   ```
+
+3. push เมื่อ verify ผ่านแล้วเท่านั้น:
+
+   ```bash
+   git push origin main vX.Y.Z
+   ```
 
 ห้ามแทน `-s` ด้วย unsigned tag ใน production release. GitHub authentication token ไม่ใช่ GPG private key และห้ามใส่ private key/passphrase ใน bridge, chat, command history หรือ log.
 
 ### Phase B — สร้างและตรวจ release assets จาก signed tag
 
 6. สร้าง archive จาก tag โดยมี root directory เดียวชื่อ `hermes-mcp-bridge-vX.Y.Z/`; ต้อง exclude `.git/`, `.venv/`, `__pycache__/`, `state/`, `.env` และ `bridge-config.json*`.
-7. สร้าง `SHA256SUMS` เป็น **external release asset** หลังสร้าง archive, แล้วตรวจทั้ง non-empty archive, ZIP structure และ checksum:
+7. สร้าง `SHA256SUMS` เป็น **external release asset** หลังสร้าง archive, แล้วตรวจทั้ง non-empty archive, ZIP structure และ checksum รันทุกขั้นใน shell เดียวกัน:
 
-```bash
-RELEASE_DIR="$(mktemp -d)"
-ZIP="$RELEASE_DIR/hermes-mcp-bridge-vX.Y.Z.zip"
-git archive --format=zip --prefix="hermes-mcp-bridge-vX.Y.Z/" -o "$ZIP" vX.Y.Z
-test -s "$ZIP"
-unzip -t "$ZIP"
-(cd "$RELEASE_DIR" && sha256sum "$(basename "$ZIP")" > SHA256SUMS)
-(cd "$RELEASE_DIR" && sha256sum -c SHA256SUMS)
-```
+   1. เตรียม directory ชั่วคราว:
+
+      ```bash
+      RELEASE_DIR="$(mktemp -d)"
+      ```
+
+   2. กำหนดตำแหน่ง ZIP:
+
+      ```bash
+      ZIP="$RELEASE_DIR/hermes-mcp-bridge-vX.Y.Z.zip"
+      ```
+
+   3. สร้าง archive จาก tag:
+
+      ```bash
+      git archive --format=zip --prefix="hermes-mcp-bridge-vX.Y.Z/" -o "$ZIP" vX.Y.Z
+      ```
+
+   4. ต้องจบปกติโดยไม่มี output (archive ไม่ว่าง):
+
+      ```bash
+      test -s "$ZIP"
+      ```
+
+   5. ตรวจ ZIP structure; ต้องจบด้วย `No errors detected in compressed data`:
+
+      ```bash
+      unzip -t "$ZIP"
+      ```
+
+   6. สร้าง checksum เป็น external asset:
+
+      ```bash
+      (cd "$RELEASE_DIR" && sha256sum "$(basename "$ZIP")" > SHA256SUMS)
+      ```
+
+   7. ต้องรายงาน `OK`:
+
+      ```bash
+      (cd "$RELEASE_DIR" && sha256sum -c SHA256SUMS)
+      ```
 
 ห้าม commit checksum ของ archive ปัจจุบันลง source tree ก่อนสร้าง archive: archive ที่บรรจุ checksum ของตัวเองเป็น self-reference. Root `SHA256SUMS` ไม่ใช่ authoritative manifest สำหรับ release ใหม่; ให้แนบ `SHA256SUMS` เป็น asset เดียวกับ ZIP.
 
@@ -62,16 +128,30 @@ unzip -t "$ZIP"
 
 ## ผู้ติดตั้ง
 
-```bash
-sha256sum -c SHA256SUMS
-unzip -l hermes-mcp-bridge-vX.Y.Z.zip | head
-```
+1. ตรวจ checksum ก่อนแตกไฟล์; ต้องรายงาน `OK`:
+
+   ```bash
+   sha256sum -c SHA256SUMS
+   ```
+
+2. ตรวจ layout ของ archive:
+
+   ```bash
+   unzip -l hermes-mcp-bridge-vX.Y.Z.zip | head
+   ```
 
 รายการแรกต้องเป็น `hermes-mcp-bridge-vX.Y.Z/` และต้องไม่พบ `.venv/`, `state/`, `.env` หรือ `bridge-config.json`. เมื่อรับ public key ของ maintainer แล้วให้ตรวจ tag:
 
-```bash
-git fetch --tags
-git verify-tag vX.Y.Z
-```
+1. ดึง tag ลงเครื่อง:
+
+   ```bash
+   git fetch --tags
+   ```
+
+2. ต้องแสดง `Good signature`:
+
+   ```bash
+   git verify-tag vX.Y.Z
+   ```
 
 หลังตรวจผ่านจึงแตก archive และทำ upgrade ตาม `UPGRADE-TH.md`.

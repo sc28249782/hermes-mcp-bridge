@@ -122,6 +122,8 @@ Exit criteria:
 
 ## 3. Configuration work
 
+รายการที่ Stage 0/1 ลงมือแล้วถือว่าเสร็จตาม [ROADMAP.md](ROADMAP.md); กล่องที่ยังว่างเป็นงาน Stage 2 (v1.3.0) ขึ้นไป
+
 Checklist:
 
 - [x] ใช้ additive `hands` block ใน schema v1 ตาม [ADR-0001](adr/0001-local-hands-foundation.md)

@@ -52,13 +52,34 @@ Operations: [OPERATIONS-TH.md](OPERATIONS-TH.md)
 
 `SHA256SUMS` เป็น external release asset จึงต้องอยู่ข้าง ZIP ก่อนตรวจสอบ หากดาวน์โหลดผ่าน Windows สามารถเปิดโฟลเดอร์บ้าน WSL ใน File Explorer ด้วย `explorer.exe ~` แล้วแตกไฟล์ใน WSL:
 
-```bash
-cd ~
-sha256sum -c SHA256SUMS
-unzip hermes-mcp-bridge-v1.2.5.zip
-cd ~/hermes-mcp-bridge-v1.2.5
-bash install.sh
-```
+1. เปลี่ยนไปที่ home directory:
+
+   ```bash
+   cd ~
+   ```
+
+2. ตรวจ checksum:
+
+   ```bash
+   sha256sum -c SHA256SUMS
+   ```
+
+   ผลต้องขึ้น `OK` ทุกบรรทัด หากไม่ผ่าน ให้ดาวน์โหลดไฟล์ใหม่ก่อนขั้นถัดไป
+3. แตก ZIP:
+
+   ```bash
+   unzip hermes-mcp-bridge-v1.2.5.zip
+   ```
+4. เข้า directory ที่แตกได้:
+
+   ```bash
+   cd ~/hermes-mcp-bridge-v1.2.5
+   ```
+5. ติดตั้ง:
+
+   ```bash
+   bash install.sh
+   ```
 
 รันด้วยผู้ใช้ปกติ ไม่ใช้ sudo ตัวติดตั้ง:
 
@@ -75,19 +96,39 @@ bash install.sh
 
 หาก `.venv` มี Python แต่ยังไม่มี pip ให้ซ่อม environment เดิม:
 
-```bash
-cd ~/hermes-mcp-bridge-v1.2.5
-.venv/bin/python -m ensurepip --upgrade
-bash install.sh
-```
+1. เข้า directory ของ deployment นั้น:
+
+   ```bash
+   cd ~/hermes-mcp-bridge-v1.2.5
+   ```
+2. ซ่อม pip ใน venv เดิม:
+
+   ```bash
+   .venv/bin/python -m ensurepip --upgrade
+   ```
+3. ติดตั้งซ้ำ:
+
+   ```bash
+   bash install.sh
+   ```
 
 หากไม่มี `ensurepip` ด้วย และใช้ Ubuntu/Python 3.12:
 
-```bash
-sudo apt install python3.12-venv
-python3 -m venv --upgrade .venv
-bash install.sh
-```
+1. ติดตั้งแพ็กเกจ venv ของระบบ:
+
+   ```bash
+   sudo apt install python3.12-venv
+   ```
+2. อัปเกรด venv เดิม:
+
+   ```bash
+   python3 -m venv --upgrade .venv
+   ```
+3. ติดตั้งซ้ำ:
+
+   ```bash
+   bash install.sh
+   ```
 
 ตัวติดตั้งฉบับแก้ไขตรวจและ bootstrap pip ก่อนใช้ pip install แล้ว ส่วนเส้นทาง `uv pip install` ไม่ต้องมี pip อยู่ใน venv
 ไม่ต้องลบโฟลเดอร์โครงการหรือสร้าง alias `python`
@@ -168,49 +209,72 @@ tunnel-client help quickstart
 
 ## 4. ตั้งค่าและรัน Tunnel
 
-คง Hermes gateway ให้รันอยู่ แล้วเปิด terminal อีกหน้าหนึ่ง:
+คง Hermes gateway ให้รันอยู่ แล้วเปิด terminal อีกหน้าหนึ่ง
 
-```bash
-cd ~/hermes-mcp-bridge-v1.2.5
-bash tunnel.sh init tunnel_แทนด้วยIDจริง [--force]
-```
+1. บันทึก OpenAI Platform runtime key ก่อนเริ่ม Tunnel (key คนละตัวกับ Hermes `API_SERVER_KEY`):
 
-ก่อนเริ่ม Tunnel ให้บันทึก OpenAI Platform runtime key หนึ่งครั้ง:
+   ```bash
+   bash tunnel.sh key-set
+   ```
 
-```bash
-bash tunnel.sh key-set
-bash tunnel.sh key-status
-```
+2. ตรวจว่า key ถูกบันทึก:
 
-สคริปต์เก็บ key ที่ `~/.config/hermes-mcp-bridge/openai-runtime-api-key` ด้วย mode `600` และอ่านค่านี้อัตโนมัติเมื่อเริ่มใหม่ ไม่ใส่ key ลง command history หรือ systemd unit file
+   ```bash
+   bash tunnel.sh key-status
+   ```
 
-ตรวจ profile และ key ผ่าน wrapper ของโครงการก่อนเริ่ม/หลังแก้ปัญหา:
+   ผลต้องรายงาน key file ที่ `~/.config/hermes-mcp-bridge/openai-runtime-api-key` ด้วย mode `600` สคริปต์อ่านค่านี้อัตโนมัติเมื่อเริ่มใหม่ ไม่ใส่ key ลง command history หรือ systemd unit file
+3. สร้าง profile และเริ่ม Tunnel จาก directory ที่ติดตั้ง bridge ไว้ คำสั่งนี้ต้องมี key จากขั้น 1 จึงรันได้ แล้วสร้าง/แทน profile `hermes-wsl`, รัน `doctor` และเริ่ม `run` แบบ foreground:
 
-```bash
-bash tunnel.sh status
-```
+   ```bash
+   bash tunnel.sh init tunnel_แทนด้วยIDจริง
+   ```
+
+   หาก `doctor` ไม่ผ่าน ให้แก้ตามข้อความแล้วรันใหม่ก่อนเชื่อม Plugin
+4. ใช้ `--force` เฉพาะเมื่อตรวจเป้าหมายของ profile เดิมแล้วยืนยันว่าต้องการแทน เช่น เมื่อเปลี่ยน directory หรือเวอร์ชันของ bridge:
+
+   ```bash
+   bash tunnel.sh init tunnel_แทนด้วยIDจริง --force
+   ```
+
+   อย่าพิมพ์ `[--force]` ตรง ๆ เพราะไม่ใช่ argument จริงของสคริปต์
+5. ตรวจ profile และ key ผ่าน wrapper ของโครงการก่อนเริ่ม/หลังแก้ปัญหา:
+
+   ```bash
+   bash tunnel.sh status
+   ```
 
 อย่าใช้ผล `tunnel-client doctor --profile hermes-wsl` ที่รันตรง ๆ ตัดสินว่า key file ใช้ไม่ได้: profile อ้าง `env:CONTROL_PLANE_API_KEY` ขณะที่ `tunnel.sh` เป็นผู้โหลด key file เข้า environment ให้ `doctor` และ `run` เอง. ถ้าต้องเรียก `tunnel-client` โดยตรง ต้อง export runtime key ใน shell นั้นก่อน และห้ามวาง key ลง chat, command history หรือ log.
 
-สคริปต์จะสร้าง profile `hermes-wsl`, ตรวจ `doctor` และเริ่ม `run`
 Tunnel จะเรียก `bridge.sh` ผ่าน stdio เอง ไม่ต้องเปิด bridge เป็น HTTP server และไม่ต้องรัน `bridge.sh serve` แยก
 อย่าใช้ `hermes mcp serve` แทน เพราะชุดเครื่องมือ messaging ไม่ใช่ Runs bridge ที่เราสร้าง
 
-หาก profile `hermes-wsl` มีอยู่ก่อนแล้วสำหรับงานอื่น ให้เลือกชื่อใหม่ใน `tunnel.sh` ก่อน init เพื่อไม่ทับการตั้งค่าเดิม
-การเริ่มใหม่ในครั้งต่อไปใช้:
+หาก profile `hermes-wsl` มีอยู่ก่อนแล้วสำหรับงานอื่น อย่าแทนโดยไม่ตรวจ: `tunnel.sh` เลือก production profile `hermes-wsl` ไว้ตายตัว และอย่าแก้ `tunnel.sh` เพื่อเลือก profile อื่น; งาน Dev ให้ทำตาม [OPENCODE-TH.md](OPENCODE-TH.md) (profile `hermes-wsl-dev`, health port 8081)
+การเริ่มใหม่ในครั้งต่อไป ให้รันจาก directory ที่ติดตั้ง bridge ไว้:
 
 ```bash
-cd ~/hermes-mcp-bridge-v1.2.5
 bash tunnel.sh run
 ```
 
-เปิด terminal ค้างไว้ในช่วงทดสอบ หากต้องการให้เริ่มแบบ background ใน WSL ที่เปิด systemd แล้ว:
+เปิด terminal ค้างไว้ในช่วงทดสอบ หากต้องการเริ่มแบบ background ใน WSL ที่เปิด systemd แล้ว ให้หยุด process foreground ที่รัน `tunnel.sh run`/`init` อยู่ก่อน (กด `Ctrl+C` ใน terminal นั้น) เพื่อไม่รัน tunnel สอง instance บน profile เดียว แล้ว:
 
-```bash
-bash tunnel.sh service-install
-bash tunnel.sh service-start
-bash tunnel.sh service-status
-```
+1. สร้างและเปิดใช้ systemd user unit (ต้องมี key จากขั้น `key-set` แล้ว):
+
+   ```bash
+   bash tunnel.sh service-install
+   ```
+
+2. เริ่ม service:
+
+   ```bash
+   bash tunnel.sh service-start
+   ```
+
+3. ตรวจว่า service ทำงาน:
+
+   ```bash
+   bash tunnel.sh service-status
+   ```
 
 ดู log ด้วย `bash tunnel.sh service-logs` และหยุดด้วย `bash tunnel.sh service-stop` การหยุด Tunnel ไม่ได้หยุด Hermes run ที่เริ่มไปแล้ว
 ไม่ต้องเปลี่ยน WSL networking mode หรือ forward พอร์ต 8642 ที่เราเตอร์สำหรับการเชื่อมออกนี้
@@ -296,10 +360,17 @@ bridge ไม่เปลี่ยน approval policy ของ Hermes และ
 ถ้านโยบาย Hermes อนุญาตคำสั่งอยู่แล้ว Hermes อาจดำเนินการได้โดยไม่ถาม
 ถ้าสถานะเป็น `waiting_for_approval` ให้ดูรายละเอียดใน ChatGPT หรือใน WSL:
 
-```bash
-./bridge.sh status run_แทนด้วยIDจริง
-./bridge.sh approve run_แทนด้วยIDจริง
-```
+1. ตรวจรายละเอียด request:
+
+   ```bash
+   ./bridge.sh status run_แทนด้วยIDจริง
+   ```
+
+2. อนุมัติเฉพาะ request นั้น:
+
+   ```bash
+   ./bridge.sh approve run_แทนด้วยIDจริง
+   ```
 
 helper แสดง approval จาก API ให้ตรวจ แล้วต้องพิมพ์ `APPROVE` ใน terminal ด้วยตนเอง
 อนุญาตเฉพาะ request_id นั้นแบบครั้งเดียว ไม่มี session/always/resolve-all
