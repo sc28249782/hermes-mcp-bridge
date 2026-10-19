@@ -76,8 +76,6 @@ Release record: released on 18 October 2026 via GPG-signed annotated tag `v1.2.4
 
 ## Historical development notes (already shipped)
 
-
-
 > Historical note (18 October 2026): every item below this point shipped in v1.2.0 or a later release recorded above; kept here as history.
 
 - Clarified the two-phase release process: final archive checksums are external GitHub Release assets verified after the signed tag; a follow-up release-record commit documents that outcome without mutating the release tag.

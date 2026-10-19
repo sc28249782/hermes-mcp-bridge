@@ -226,7 +226,6 @@ The adapter is additive, disabled by default, and health-only. It is absent from
 - The adapter MUST NOT provide task submission, session management, event subscription, cancellation, approval, or permission handling. Such surfaces are outside this contract until separately amended.
 - Acceptance mapping: the requirements above are proven by `tests/test_opencode.py` (disabled fail-closed, enabled validation including regular-executable checks, fixed argv and version reporting, symlink acceptance, malformed-version and nonzero-exit rejection, per-stream oversize caps, timeout termination, descendant cleanup, and the leader-reap ordering regression set `TestOpenCodeCleanupOrdering`), `tests/mock_opencode_server.py` with `tests/test_opencode.py` for enabled stdio discovery at 28 tools, and `tests/test_mcp.py` for the 27-tool default. The sole live acceptance surface is the real OpenCode CLI `--version`, recorded against v2.0.32 in WSL2. No other live surface is accepted, and this section claims no acceptance beyond it.
 
-
 ## 17. Legacy stdio discovery compatibility (v1.2.4; introduced by PR #35)
 
 This section is a compatibility boundary for the legacy stdio transport only, introduced by PR #35. It is not part of the v1.2.3 baseline (the released v1.2.3 bridge predates the guard), so no release or version note may present it as current v1.2.3 behavior. It ships in v1.2.4, released 2026-10-18. It is deliberately narrow:
@@ -239,7 +238,6 @@ This section is a compatibility boundary for the legacy stdio transport only, in
 - Every other message - supported requests, unrelated unknown methods, responses, notifications, transport parse errors - MUST be forwarded unchanged as the same typed object with transport metadata preserved, so SDK validation outcomes (including `-32602` and its `Failed to validate request` warning) remain unchanged and uncovered. The guard MUST NOT add any broad logging filter or warning suppression.
 - The forwarder MUST be cancellation-safe and bounded: when stdin reaches EOF or the session stops consuming, it must stop without leaving detached tasks or hanging the process, and it adds no extra process, network, or dependency surface. Repeated discovery probes in one process MUST NOT flood typical operator logs.
 - Acceptance mapping: `tests/test_stdio_guard.py` proves the synthetic in-memory boundary cases (int/string id preservation, no-param reply shape, notification pass-through, argument-name non-matching, unknown-method unchanged behavior, repeated probes) and its real-stdio section proves the pre-initialize probe, the legacy initialize/initialized/tools-list sequence, unchanged malformed-request validation, and clean EOF shutdown.
-
 
 ## 18. OpenCode task execution (v1.2.5; released 2026-10-19)
 

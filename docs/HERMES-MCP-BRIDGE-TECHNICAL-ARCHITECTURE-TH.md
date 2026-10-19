@@ -301,7 +301,7 @@ Bridge ไม่รับประกัน rollback ของคำสั่ง
 
 `tests/test_mcp.py` เปิด fake MCP server ผ่าน stdio แล้วตรวจ initialize, discovery 19 tools, diagnostics, annotations, model discovery, model-aware submit, usage tools, health, status, result และ foreign run rejection ส่วน `tests/test_codex.py` ตรวจ workspace/model/reasoning allowlist, symlink escape, sandbox mode, write approval, audit และ recovery marker
 
-ชุดนี้เป็น contract/integration test ของ adapter ไม่ใช่ live end-to-end test ของ OpenAI Tunnel และไม่ใช่ visual/runtime test ของ WordPress, Elementor หรือ Hermes model จริง
+ชุดนี้ตรวจ contract และ integration ของ adapter ด้วย fixtures ไม่ใช่ live end-to-end test ผ่าน OpenAI Tunnel และไม่ยืนยันพฤติกรรมของ Hermes model จริง
 
 ## 16. Threat model และข้อจำกัด
 

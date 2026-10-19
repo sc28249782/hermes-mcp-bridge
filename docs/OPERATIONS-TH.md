@@ -10,11 +10,25 @@
 
 ## ตรวจสุขภาพ
 
-```bash
-./bridge.sh doctor
-./bridge.sh codex-doctor
-./bridge.sh diagnostics
-```
+1. ตรวจการเชื่อมต่อ Hermes:
+
+   ```bash
+   ./bridge.sh doctor
+   ```
+
+   ผลต้องมี `"ok": true` และ `"authentication": "verified"`; หากขาด capability ตัวตรวจจะหยุดพร้อมระบุชื่อที่ขาด
+2. ตรวจ Codex workspace policy:
+
+   ```bash
+   ./bridge.sh codex-doctor
+   ```
+
+   ผลต้องแสดง policy ของ workspace ตรงกับที่ตั้งใจ
+3. ตรวจ state และ audit configuration:
+
+   ```bash
+   ./bridge.sh diagnostics
+   ```
 
 `diagnostics` เป็น read-only: ใช้ตรวจ API/auth ของ Hermes, Codex CLI, state directory mode และ audit log configuration เท่านั้น ไม่เริ่ม model turn หรือ Codex job
 
@@ -104,7 +118,7 @@ adapter ถูกรวมแล้วใน released v1.2.4 (PR #34) ซึ่�
 
 เมื่อ disabled จะ fail closed ด้วย error `OpenCode integration is disabled in bridge-config.json; review docs/SECURITY.md before enabling it`
 
-ข้อจำกัด: live acceptance ยืนยันเฉพาะผล `--version` (`opencode v2.0.32`) execution เปิดได้เฉพาะด้วย opt-in แยกตามหัวข้อถัดไป (released v1.2.5) ส่วน native permission replies และ event subscriptions ยังไม่รองรับ bridge ไม่เพิ่ม sandbox — executable ที่กำหนดรันด้วยสิทธิ์เต็มของ bridge process และอ่าน global configuration/credentials ได้ จึงต้องอ่าน `SECURITY.md` ก่อนเปิดใช้ runner ไม่ส่ง `--auto` และ `--standalone` เป็น exclusive in-process private server ไม่ใช่ sandbox OpenCode CLI ต่างจาก provider `opencode-go` ใน Hermes config
+ข้อจำกัด: live acceptance ยืนยันเฉพาะผล `--version` (`opencode v2.0.32`) execution เปิดได้เฉพาะด้วย opt-in แยกตามหัวข้อถัดไป (released v1.2.5) ส่วน native permission replies และ event subscriptions ยังไม่รองรับ bridge ไม่เพิ่ม sandbox — executable ที่กำหนดรันด้วยสิทธิ์เต็มของ bridge process และอ่าน global configuration/credentials ได้ จึงต้องอ่าน `SECURITY.md` ก่อนเปิดใช้ runner ไม่ส่ง `--auto`; flag `--standalone` ทำให้ CLI ทำงานเป็น exclusive in-process private server ไม่ใช่ sandbox OpenCode CLI ต่างจาก provider `opencode-go` ใน Hermes config
 
 ## Legacy stdio discovery guard (released v1.2.4 — ทำงานเองบน stdio ไม่ต้องแก้ config)
 

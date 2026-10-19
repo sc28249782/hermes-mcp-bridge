@@ -2,11 +2,25 @@
 
 ## Development setup
 
-```bash
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
-.venv/bin/python -m unittest discover -s tests -v
-```
+รันทุกขั้นจาก root ของ repository หากคำสั่งล้มเหลว ให้แก้ error ก่อนขั้นถัดไป
+
+1. สร้าง virtual environment:
+
+   ```bash
+   python3 -m venv .venv
+   ```
+
+2. ติดตั้ง dependencies:
+
+   ```bash
+   .venv/bin/python -m pip install -r requirements.txt
+   ```
+
+3. รัน test suite:
+
+   ```bash
+   .venv/bin/python -W error::ResourceWarning -m unittest discover -s tests -v
+   ```
 
 ## Pull requests
 

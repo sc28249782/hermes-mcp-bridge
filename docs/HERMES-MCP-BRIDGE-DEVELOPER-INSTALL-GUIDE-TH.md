@@ -38,7 +38,7 @@ Bridge นี้ทำหน้าที่เป็น adapter และ state 
 - ยอมให้หยุดงานแบบ cooperative stop
 - ไม่สร้าง filesystem sandbox เพิ่ม และไม่เปลี่ยน permission/tool policy ของ Hermes
 
-เครื่องมือ MCP รวม 27 รายการ: Hermes 10 รายการ, Codex 6 รายการ, read-only operations 3 รายการ (`bridge_diagnostics`, `bridge_audit_recent`, `bridge_status`), work contexts 4 รายการ, Local Hands read-only 3 รายการ และ `bridge_version` 1 รายการ (เป็น 28 เมื่อเปิดใช้ OpenCode adapter แบบ opt-in) ตารางด้านล่างแสดงเฉพาะเครื่องมือ Hermes สัญญา discovery ฉบับเต็มอยู่ใน `TESTING.md` รายละเอียด policy และ approval ของ Codex อยู่ใน `CODEX-WSL2-TH.md`.
+เครื่องมือ MCP รวม 27 รายการ: Hermes 10 รายการ, Codex 6 รายการ, read-only operations 3 รายการ (`bridge_diagnostics`, `bridge_audit_recent`, `bridge_status`), work contexts 4 รายการ, Local Hands read-only 3 รายการ และ `bridge_version` 1 รายการ (เป็น 28 เมื่อเปิดใช้ OpenCode adapter แบบ opt-in และเป็น 33 เมื่อเปิด execution opt-in ตาม [OPENCODE-TH.md](OPENCODE-TH.md)) ตารางด้านล่างแสดงเฉพาะเครื่องมือ Hermes สัญญา discovery ฉบับเต็มอยู่ใน `TESTING.md` รายละเอียด policy และ approval ของ Codex อยู่ใน `CODEX-WSL2-TH.md`.
 
 | Tool | หน้าที่ |
 |---|---|
@@ -64,7 +64,7 @@ Bridge นี้ทำหน้าที่เป็น adapter และ state 
 | Hermes `API_SERVER_KEY` | อ่านจาก `/home/<user>/.hermes/.env` เพื่อเรียก Hermes API ใน WSL |
 | OpenAI Platform runtime API key | ใช้โดย `tunnel-client` เพื่อเชื่อม Secure MCP Tunnel |
 
-Bridge บังคับ API URL เป็น `http://127.0.0.1:PORT` เท่านั้น, ไม่ตาม redirect, ปิดการรับ proxy จาก environment และจำกัด HTTP response ต่อครั้งไม่เกิน 4 MB
+Bridge บังคับ API URL เป็น `http://127.0.0.1:PORT` เท่านั้น, ไม่ตาม redirect, ปิดการรับ proxy จาก environment และจำกัด HTTP response ต่อครั้งไม่เกิน 4,000,000 ไบต์
 
 `state/runs.sqlite3` อาจเก็บ prompt และ output ที่มีข้อมูลส่วนตัว จึงตั้ง directory เป็น `700` และไฟล์เป็น `600` ห้ามนำโฟลเดอร์นี้เข้า Git หรือส่งต่อโดยไม่ตรวจข้อมูล
 
@@ -79,15 +79,34 @@ Bridge บังคับ API URL เป็น `http://127.0.0.1:PORT` เท่
 - บัญชี OpenAI Platform ที่สร้างและใช้ Secure MCP Tunnel ได้
 - official `tunnel-client` ใน `/home/<user>/.local/bin/`
 
-ตรวจ Hermes API ก่อน:
+หาก Hermes API ตั้งค่าและรันอยู่แล้ว ให้ข้ามไปตรวจ HTTP ในขั้น 4
+ขั้น 1–3 เปลี่ยน configuration ของ Hermes จึงใช้เฉพาะเมื่อ operator อนุมัติให้ตั้งค่า API ของ instance นี้
+หากคำสั่งใดล้มเหลว ให้หยุดและตรวจรูปแบบ config ของ Hermes รุ่นที่ติดตั้งก่อน
 
-```bash
-hermes config set API_SERVER_ENABLED true
-hermes config set API_SERVER_HOST 127.0.0.1
-hermes config set API_SERVER_PORT 8642
-curl --max-time 10 -sS -o /dev/null -w 'HTTP %{http_code}\n' \
-  http://127.0.0.1:8642/v1/models
-```
+1. เปิด API Server:
+
+   ```bash
+   hermes config set API_SERVER_ENABLED true
+   ```
+
+2. จำกัด bind address เป็น loopback:
+
+   ```bash
+   hermes config set API_SERVER_HOST 127.0.0.1
+   ```
+
+3. กำหนดพอร์ตของ API Server:
+
+   ```bash
+   hermes config set API_SERVER_PORT 8642
+   ```
+
+4. เมื่อ Hermes API รันด้วย configuration นี้แล้ว ให้ตรวจ endpoint โดยไม่ส่ง key:
+
+   ```bash
+   curl --max-time 10 -sS -o /dev/null -w 'HTTP %{http_code}\n' \
+     http://127.0.0.1:8642/v1/models
+   ```
 
 ถ้าไม่มี key จะได้ `401` ซึ่งเป็นพฤติกรรมที่ถูกต้อง ให้ตรวจด้วย key ที่ Hermes ใช้งานจริงโดยไม่แสดง key ในหน้าจอ
 
@@ -95,13 +114,34 @@ curl --max-time 10 -sS -o /dev/null -w 'HTTP %{http_code}\n' \
 
 แตก ZIP ไปยัง path Linux ที่ไม่มีช่องว่าง เช่น:
 
-```bash
-cd ~
-sha256sum -c SHA256SUMS
-unzip hermes-mcp-bridge-v1.2.5.zip
-cd ~/hermes-mcp-bridge-v1.2.5
-bash install.sh
-```
+1. เปลี่ยนไปที่ home directory:
+
+   ```bash
+   cd ~
+   ```
+
+2. ตรวจ checksum:
+
+   ```bash
+   sha256sum -c SHA256SUMS
+   ```
+
+   ผลต้องขึ้น `OK` ทุกบรรทัด หากไม่ผ่าน ให้ดาวน์โหลดไฟล์ใหม่ก่อนขั้นถัดไป
+3. แตก ZIP:
+
+   ```bash
+   unzip hermes-mcp-bridge-v1.2.5.zip
+   ```
+4. เข้า directory ที่แตกได้:
+
+   ```bash
+   cd ~/hermes-mcp-bridge-v1.2.5
+   ```
+5. ติดตั้ง:
+
+   ```bash
+   bash install.sh
+   ```
 
 ให้รันด้วย user ปกติคนเดียวกับที่รัน Hermes และไม่ใช้ `sudo` ตัวติดตั้งจะ:
 
@@ -113,19 +153,41 @@ bash install.sh
 
 ถ้าเจอ `.venv/bin/python: No module named pip`:
 
-```bash
-.venv/bin/python -m ensurepip --upgrade
-bash install.sh
-```
+1. ซ่อม pip ใน venv เดิม:
+
+   ```bash
+   .venv/bin/python -m ensurepip --upgrade
+   ```
+2. ติดตั้งซ้ำ:
+
+   ```bash
+   bash install.sh
+   ```
 
 ถ้าไม่มี `ensurepip`:
 
-```bash
-sudo apt update
-sudo apt install -y python3.12-venv
-python3 -m venv --upgrade .venv
-bash install.sh
-```
+1. อัปเดตรายการแพ็กเกจ หากคำสั่งล้มเหลว ให้แก้ error ก่อนติดตั้ง:
+
+   ```bash
+   sudo apt update
+   ```
+
+2. ติดตั้งแพ็กเกจ venv ของระบบ:
+
+   ```bash
+   sudo apt install -y python3.12-venv
+   ```
+
+3. อัปเกรด venv เดิม:
+
+   ```bash
+   python3 -m venv --upgrade .venv
+   ```
+4. ติดตั้งซ้ำ:
+
+   ```bash
+   bash install.sh
+   ```
 
 ไม่ต้องลบ `.venv` และไม่ต้องสร้าง alias `python`
 
@@ -178,26 +240,77 @@ GET /v1/capabilities 200 OK
 
 ใน OpenAI Platform ให้สร้าง Tunnel, associate กับ ChatGPT workspace และเก็บ `tunnel_id` จากนั้นติดตั้ง official `tunnel-client`:
 
-```bash
-mkdir -p ~/.local/bin
-chmod 700 ~/.local/bin/tunnel-client
-export PATH="$HOME/.local/bin:$PATH"
-tunnel-client help quickstart
-```
+1. เตรียมตำแหน่งติดตั้ง:
+
+   ```bash
+   mkdir -p ~/.local/bin
+   ```
+
+2. จำกัด permission ของ executable:
+
+   ```bash
+   chmod 700 ~/.local/bin/tunnel-client
+   ```
+
+3. เพิ่ม path ใน shell ปัจจุบัน:
+
+   ```bash
+   export PATH="$HOME/.local/bin:$PATH"
+   ```
+
+4. ตรวจว่า client ทำงานได้:
+
+   ```bash
+   tunnel-client help quickstart
+   ```
 
 ตรวจ architecture ด้วย `uname -m` และเลือกแพ็กเกจ Linux ที่ตรงกับ `x86_64` หรือ `aarch64` จาก release เดียวกัน
 
 ก่อนเริ่มครั้งแรก ให้บันทึก OpenAI Platform runtime key (คนละตัวกับ Hermes `API_SERVER_KEY`) โดยไม่แสดงค่าในหน้าจอ:
 
-```bash
-cd ~/hermes-mcp-bridge-v1.2.5
-bash tunnel.sh key-set
-bash tunnel.sh key-status
-```
+1. เข้า directory ที่ติดตั้ง bridge:
+
+   ```bash
+   cd ~/hermes-mcp-bridge-v1.2.5
+   ```
+
+2. บันทึก key:
+
+   ```bash
+   bash tunnel.sh key-set
+   ```
+
+3. ตรวจว่า key file มีอยู่และ mode เป็น `600`; หากไม่ตรง ให้หยุดและแก้ก่อน init:
+
+   ```bash
+   bash tunnel.sh key-status
+   ```
 
 key ถูกเก็บใน `~/.config/hermes-mcp-bridge/openai-runtime-api-key` ด้วย mode `600`; environment variable `CONTROL_PLANE_API_KEY` ยังใช้แทนได้และมีลำดับสูงกว่า key file
 
-ตรวจสถานะด้วย wrapper เสมอ:
+ก่อนเริ่มครั้งแรก ให้ operator ยืนยันว่าไม่มี tunnel ของ profile `hermes-wsl` ทำงานอยู่
+แทน `tunnel_YOUR_ID` ด้วย tunnel ID จริงจาก Platform
+คำสั่งต่อไปนี้ต้องมี key จากขั้นก่อนหน้าจึงรันได้ แล้วสร้าง profile `hermes-wsl`, รัน `doctor` และเริ่ม `run` แบบ foreground หาก `doctor` ไม่ผ่าน ให้แก้ตามข้อความก่อนเชื่อม Plugin:
+
+```bash
+bash tunnel.sh init tunnel_YOUR_ID
+```
+
+ใช้ `--force` เฉพาะเมื่อตรวจเป้าหมายของ profile เดิมแล้วยืนยันว่าต้องการแทน เช่น เมื่อเปลี่ยน directory หรือเวอร์ชันของ bridge:
+
+```bash
+bash tunnel.sh init tunnel_YOUR_ID --force
+```
+
+เลือก init แบบไม่ใส่ `--force` หรือแบบ `--force` เพียงกรณีเดียว ไม่รันทั้งสองตามลำดับ
+เมื่อ init เชื่อมต่อสำเร็จ terminal นั้นจะค้างรัน tunnel อยู่
+ให้คง terminal เดิมไว้ แล้วเปิด terminal อีกหน้าหนึ่งใน directory ของ instance เดียวกันเพื่อตรวจ doctor:
+
+```bash
+cd ~/hermes-mcp-bridge-v1.2.5
+```
+
+ตรวจ profile ด้วย wrapper:
 
 ```bash
 bash tunnel.sh status
@@ -205,17 +318,11 @@ bash tunnel.sh status
 
 คำสั่ง `tunnel-client doctor --profile hermes-wsl` ที่รันตรง ๆ จะไม่โหลด key file ของโครงการ และอาจรายงานว่า `CONTROL_PLANE_API_KEY` ไม่ได้ตั้งแม้ `key-status` จะผ่าน. `tunnel.sh status`/`run` โหลด key file อย่างปลอดภัยก่อนเรียก doctor; อย่าแก้ด้วยการพิมพ์ key ลง command line.
 
-เริ่มครั้งแรก:
+`tunnel.sh` เลือก production profile `hermes-wsl` ไว้ตายตัว อย่าแก้ `tunnel.sh` เพื่อเลือก profile อื่น; งาน Dev route แยกให้ทำตาม [OPENCODE-TH.md](OPENCODE-TH.md) (profile `hermes-wsl-dev`, health port 8081)
+
+เริ่มครั้งถัดไป ให้รันจาก directory ที่ติดตั้ง bridge เมื่อ tunnel เดิมหยุดแล้วเท่านั้น:
 
 ```bash
-cd ~/hermes-mcp-bridge-v1.2.5
-bash tunnel.sh init tunnel_IDจริง --force
-```
-
-เริ่มครั้งถัดไป:
-
-```bash
-cd ~/hermes-mcp-bridge-v1.2.5
 bash tunnel.sh run
 ```
 
@@ -223,13 +330,25 @@ bash tunnel.sh run
 
 Terminal ที่รัน `tunnel.sh run` ต้องเปิดค้างไว้ตลอดเวลาที่ ChatGPT ใช้ plugin เชื่อมต่ออยู่ การปิด terminal จะตัด MCP connection แต่ไม่รับรองว่าจะหยุด Hermes run ที่เริ่มไปแล้ว หากต้องการหยุดงานให้เรียก MCP tool `hermes_cancel_task` แล้วตรวจ status
 
-หาก WSL เปิด systemd user service ได้ ให้รัน tunnel แบบ background:
+หาก WSL เปิด systemd user service ได้ ให้หยุด process foreground ที่รัน `tunnel.sh run`/`init` อยู่ก่อน (กด `Ctrl+C` ใน terminal นั้น) เพื่อไม่รัน tunnel สอง instance บน profile เดียว แล้วรัน tunnel แบบ background:
 
-```bash
-bash tunnel.sh service-install
-bash tunnel.sh service-start
-bash tunnel.sh service-status
-```
+1. สร้างและเปิดใช้ systemd user unit (ต้องมี key แล้ว):
+
+   ```bash
+   bash tunnel.sh service-install
+   ```
+
+2. เริ่ม service:
+
+   ```bash
+   bash tunnel.sh service-start
+   ```
+
+3. ตรวจว่า service ทำงาน:
+
+   ```bash
+   bash tunnel.sh service-status
+   ```
 
 ดู log ด้วย `bash tunnel.sh service-logs`; หยุดด้วย `service-stop`; และลบ unit โดยเก็บ key ไว้ด้วย `service-uninstall`
 
@@ -241,7 +360,7 @@ bash tunnel.sh service-status
 2. Description: `ส่งงานให้ Hermes บน WSL2 ตรวจสถานะ อ่านผล และขอหยุดงาน`
 3. เลือก Tunnel ที่สร้าง หรือระบุ `tunnel_id`
 4. Authentication: **No authentication**
-5. สร้าง connection และตรวจว่าพบ MCP tools ตาม canonical contract ใน `TESTING.md` — 27 รายการ (Hermes 10 + Codex 6 + operations 3 + contexts 4 + Hands 3 + `bridge_version`); 28 รายการเมื่อเปิดใช้ OpenCode adapter แบบ opt-in
+5. สร้าง connection และตรวจว่าพบ MCP tools ตาม canonical contract ใน `TESTING.md` — 27 รายการ (Hermes 10 + Codex 6 + operations 3 + contexts 4 + Hands 3 + `bridge_version`); 28 รายการเมื่อเปิดใช้ OpenCode adapter แบบ opt-in และ 33 รายการเมื่อเปิด execution opt-in ตาม [OPENCODE-TH.md](OPENCODE-TH.md)
 
 MCP target ของ profile นี้เป็น stdio และไม่มี OAuth discovery endpoint. OpenAI Platform runtime API key เป็น credential ของ `tunnel-client` เท่านั้น จึงไม่ใช่เหตุให้ต้องเลือก OAuth ในหน้า Plugin. ห้ามนำ hosted tunnel URL ไปวางใน Server URL; คง Connection เป็น **Tunnel** เสมอ.
 
@@ -343,7 +462,7 @@ MCP target ของ profile นี้เป็น stdio และไม่ม�
 - Hermes API ตอบ `200` เมื่อใช้ key และปฏิเสธ request ที่ไม่มี key
 - `./bridge.sh doctor` ได้ `ok: true`
 - `tunnel-client doctor` ผ่านและ `tunnel.sh run` คง connection ได้
-- ChatGPT ค้นพบเครื่องมือ MCP ครบตาม canonical contract (27 รายการ; 28 เมื่อเปิด OpenCode adapter) รวม Hermes 10, Codex 6, `bridge_diagnostics`, `bridge_audit_recent`, `bridge_status`, contexts 4, Hands read-only 3 และ `bridge_version`
+- ChatGPT ค้นพบเครื่องมือ MCP ครบตาม canonical contract (27 รายการ; 28 เมื่อเปิด OpenCode adapter; 33 เมื่อเปิด execution opt-in) รวม Hermes 10, Codex 6, `bridge_diagnostics`, `bridge_audit_recent`, `bridge_status`, contexts 4, Hands read-only 3 และ `bridge_version`
 - health, response-only task และ read-only task ผ่าน
 - `codex_health` แสดง workspace policy ที่ตั้งใจ; หากเปิด model override ให้ทดสอบ model ID/effort ที่อยู่ใน allowlist ก่อนใช้งานจริง
 - retry ด้วย request เดิมไม่สร้าง run ซ้ำ
