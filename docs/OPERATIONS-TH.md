@@ -1,5 +1,32 @@
 # คู่มือปฏิบัติการ — release v1.2.5
 
+## Unreleased privacy-hardening candidate (SPEC §19)
+
+ส่วนนี้อธิบาย candidate ที่ยังไม่ deploy.
+Hermes task metadata จำกัด compact ASCII-escaped JSON เป็น 8,192 bytes.
+Status ส่งเฉพาะ fields ที่กำหนด; error เป็นข้อความคงที่ และ approval เป็น `{"required": true}`.
+ใช้ `./bridge.sh approve run_ID` หรือ `deny` ใน local terminal ตามขั้นตอนเดิมเพื่อตรวจรายละเอียดและยืนยัน exact request.
+Upstream decoded JSON จำกัด 4,000,000 bytes; HTTP connect timeout 5 วินาที และ read/write/pool inactivity timeout 25 วินาที ไม่ใช่ wall-clock deadline รวม.
+
+Codex result อ่าน snapshot ไม่เกิน 8,388,608 bytes ครั้งละไม่เกิน 65,536 bytes.
+Offset และ page size ยังนับเป็น characters.
+ถ้าเกิน read cap ให้ตรวจ log ในเครื่องตามสิทธิ์ที่มี; ห้ามถือว่า result ว่างหรือส่งงานซ้ำ.
+Append ระหว่างคำขอไม่ขยาย read budget ของคำขอนั้น.
+ผลระหว่างหลายคำขออาจเห็น output เพิ่มขึ้น.
+Cap นี้ไม่จำกัด worker log capture และไม่มี automatic cleanup เพิ่ม.
+
+| Operational store | ข้อมูลที่เก็บ | การควบคุมและ lifecycle |
+| --- | --- | --- |
+| `runs.sqlite3` | Cached upstream JSON รวม output/error/approval ที่ upstream ส่งมา; อาจมี input ที่ upstream echo | Database `0600`, state directory `0700`; ไม่มี artifact retention/deletion ใหม่ใน candidate |
+| `codex.sqlite3`, `codex-logs/` | Prompt และ captured CLI output | Database `0600`, state/log directories `0700`; wrapper ใช้ umask `077`; read cap ไม่ใช่ disk capture cap |
+| `opencode-tasks.sqlite3`, `opencode-task-logs/` | Prompt, stdout และ stderr | Database/files `0600`, directories `0700`, per-stream execution cap เดิม; candidate ไม่เปลี่ยน backend นี้ |
+
+Private operational stores ไม่ใช่ audit log.
+ป้องกัน backup ด้วย access controls เดียวกัน.
+Audit rotation ไม่ลบ job artifacts.
+OS permissions ไม่ใช่ encryption และไม่แยก process ที่ใช้ OS user เดียวกัน.
+Native OpenCode session storage อยู่นอกขอบเขต bridge.
+
 ## Version และ provenance
 
 ```bash
@@ -159,3 +186,4 @@ permission เหล่านี้ไม่ใช่ encryption; audit/status/r
 Native OpenCode อาจเก็บ session ของตัวเองตาม configuration เดิมด้วย.
 ดู [SECURITY.md](SECURITY.md). การเลือก workspace จำกัด cwd เท่านั้น ไม่จำกัด
 filesystem หรือ network และไม่เปลี่ยน native permissions.
+
