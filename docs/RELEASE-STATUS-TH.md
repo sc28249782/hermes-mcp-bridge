@@ -21,7 +21,7 @@ The production deployment was upgraded to released v1.2.5 later that day. The bu
 
 ### Fresh artifact re-verification (19 October 2026)
 
-Maintainer-side automation re-verified the full v1.2.5 artifact chain from fresh inputs: a fresh remote tag fetch in a temporary bare repository, a fresh re-download of both release assets, checksum and ZIP-structure checks, and a byte-identical `git archive` rebuild from the signed tag. All checks pass. Full record: [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md). These are automation checks, not an external review; independent external reviewer approval of that record remains pending ([ROADMAP.md](ROADMAP.md)).
+Maintainer-side automation re-verified the full v1.2.5 artifact chain from fresh inputs: a fresh remote tag fetch in a temporary bare repository, a fresh re-download of both release assets, checksum and ZIP-structure checks, and a byte-identical `git archive` rebuild from the signed tag. All checks pass. Full record: [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md). External review completed on 19 October 2026: the operator supplied the Hermes Agent fresh-input audit report for [PR #45](https://github.com/sc28249782/hermes-mcp-bridge/pull/45) at `c3754c9`. The reviewer repeated the tag, asset, byte-identical rebuild, ancestry, ZIP, and offline identity checks and approved the record. The external artifact-audit follow-up is closed; see [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md).
 
 ## v1.2.5 — historical pre-tag candidate (19 ตุลาคม 2026)
 
