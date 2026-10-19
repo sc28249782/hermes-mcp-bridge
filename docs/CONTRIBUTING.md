@@ -2,7 +2,7 @@
 
 ## Development setup
 
-รันทุกขั้นจาก root ของ repository
+รันทุกขั้นจาก root ของ repository หากคำสั่งล้มเหลว ให้แก้ error ก่อนขั้นถัดไป
 
 1. สร้าง virtual environment:
 
@@ -19,7 +19,7 @@
 3. รัน test suite:
 
    ```bash
-   .venv/bin/python -m unittest discover -s tests -v
+   .venv/bin/python -W error::ResourceWarning -m unittest discover -s tests -v
    ```
 
 ## Pull requests

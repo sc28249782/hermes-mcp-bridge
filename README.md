@@ -2,7 +2,18 @@
 
 Securely connect ChatGPT to a local Hermes Agent and Codex CLI running in WSL2, through an OpenAI Secure MCP Tunnel.
 
-The bridge is a controlled local execution boundary, not a general remote shell. The current signed release is **v1.2.5**; the production deployment remains **v1.2.3** until the operator upgrades. Released v1.2.5 adds the separately gated OpenCode execution opt-in. The bridge has 27 MCP tools by default (28 with the optional OpenCode health adapter enabled, 33 with the execution opt-in also enabled), local-only version/provenance reporting, and durable Codex worker supervision that preserves `running` while a worker is unavailable but its child remains alive.
+The bridge is a controlled local execution boundary. It does not expose a general remote shell.
+The current signed release is **v1.2.5**.
+The production deployment remains **v1.2.3** until the operator upgrades.
+
+Released v1.2.5 adds the separately gated OpenCode execution opt-in.
+Discovery contains 27 MCP tools by default.
+Enabling only the OpenCode health adapter adds one tool, for 28 tools.
+Enabling OpenCode execution adds five more tools, for 33 tools.
+
+The bridge reports version and provenance through local-only operations.
+A durable worker supervises each approved Codex write job.
+Status remains `running` when that worker is unavailable but its child is still alive.
 
 Previous release: **2026-10-18**, **v1.2.4** with a GPG-signed annotated tag on `2133056`. It adds the disabled-by-default OpenCode health adapter (PR #34; discovery stays at the canonical 27 tools unless an operator opts in) and the legacy stdio discovery guard (PR #35). Release assets plus an external SHA256SUMS are published at https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.4 (ZIP SHA-256 `e6deb0e6ab16d669836b0e361e2e875858e19597ef35dc7e4fc19010a6a5f3a9`, download re-verified). MCP Events is not included (deferred, BLOCKED). Production deployment remains v1.2.3; this release requires no rollout, service, or config change. Current installation and upgrade instructions use v1.2.5.
 
@@ -34,9 +45,9 @@ On the legacy stdio serve path (`./bridge.sh serve`), an incoming `server/discov
 - An advertised Hermes approval-response endpoint does not by itself prove that the API profile can create an interactive approval session; v1.1.0 SSE approval integration is deferred pending an upstream contract.
 - Codex can use only explicitly allowlisted workspaces.
 - Codex permits only `read-only` and `workspace-write`; `danger-full-access` is rejected.
-- Every Codex `workspace-write` job requires interactive approval in the local WSL2 terminal. OpenCode execution adds no bridge approval layer; native OpenCode permission policy applies.
+- Every Codex `workspace-write` job requires local terminal approval. The bridge adds no approval layer for OpenCode execution. Native OpenCode permission policy applies.
 - Approved Codex work is supervised by a durable local worker, which persists its terminal outcome independently of the tunnel process.
-- Workspace policies can restrict sandbox modes, runtime, prompt size, concurrency, approval lifetime, and configured pre-flight prompt patterns.
+- Codex workspace policies can restrict sandbox modes, runtime, prompt size, concurrency, approval lifetime, and configured pre-flight prompt patterns.
 - Audit logs are redacted, local-only, rotating JSONL files. Secrets, prompts, and outputs are not written to them.
 - A persistent Codex watchdog enforces each workspace runtime limit even when no client polls job status.
 

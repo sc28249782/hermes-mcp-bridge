@@ -2,7 +2,7 @@
 
 Hermes MCP Bridge was created to let ChatGPT work with a locally running Hermes Agent on a user-controlled Windows 11 and Ubuntu 24.04 WSL2 workstation. Hermes exposes an authenticated loopback Runs API; ChatGPT reaches the local stdio bridge through an OpenAI Secure MCP Tunnel, without a public inbound service.
 
-The project later added Codex CLI for carefully scoped local development work. It deliberately avoids a general remote shell: Codex is limited to approved WSL2 workspaces and sandbox modes, while any Codex `workspace-write` job needs an explicit local human approval.
+The project later added Codex CLI for local development work. Codex runs only in approved WSL2 workspaces and sandbox modes. Each Codex `workspace-write` job requires local terminal approval.
 
 ## Local Hands design inspiration
 
@@ -18,7 +18,7 @@ Endeavor Hands is MIT-licensed, Copyright (c) 2026 Poomwat Jarussri. Local Hands
 | Hermes Runs API | Reuses Hermes authentication, idempotency, run ownership, status, result, and cancellation semantics. |
 | Separate Codex runner | Adds independent workspace, timeout, job-state, audit, and approval controls. |
 | Local Hands as sibling backend | Keeps deterministic local primitives usable without invoking Hermes or Codex while preserving independent policy and health. |
-| No `danger-full-access` | Retains a firm limit on host access. |
+| Codex rejects `danger-full-access` | Preserves the configured Codex sandbox boundary. |
 | Local redacted audit | Supports troubleshooting without publishing secrets, prompts, or outputs. |
 
 For release-by-release evolution, see [Project history](PROJECT-HISTORY.md). For planned work, see [Roadmap](ROADMAP.md).

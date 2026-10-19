@@ -79,15 +79,34 @@ Bridge บังคับ API URL เป็น `http://127.0.0.1:PORT` เท่
 - บัญชี OpenAI Platform ที่สร้างและใช้ Secure MCP Tunnel ได้
 - official `tunnel-client` ใน `/home/<user>/.local/bin/`
 
-ตรวจ Hermes API ก่อน:
+หาก Hermes API ตั้งค่าและรันอยู่แล้ว ให้ข้ามไปตรวจ HTTP ในขั้น 4
+ขั้น 1–3 เปลี่ยน configuration ของ Hermes จึงใช้เฉพาะเมื่อ operator อนุมัติให้ตั้งค่า API ของ instance นี้
+หากคำสั่งใดล้มเหลว ให้หยุดและตรวจรูปแบบ config ของ Hermes รุ่นที่ติดตั้งก่อน
 
-```bash
-hermes config set API_SERVER_ENABLED true
-hermes config set API_SERVER_HOST 127.0.0.1
-hermes config set API_SERVER_PORT 8642
-curl --max-time 10 -sS -o /dev/null -w 'HTTP %{http_code}\n' \
-  http://127.0.0.1:8642/v1/models
-```
+1. เปิด API Server:
+
+   ```bash
+   hermes config set API_SERVER_ENABLED true
+   ```
+
+2. จำกัด bind address เป็น loopback:
+
+   ```bash
+   hermes config set API_SERVER_HOST 127.0.0.1
+   ```
+
+3. กำหนดพอร์ตของ API Server:
+
+   ```bash
+   hermes config set API_SERVER_PORT 8642
+   ```
+
+4. เมื่อ Hermes API รันด้วย configuration นี้แล้ว ให้ตรวจ endpoint โดยไม่ส่ง key:
+
+   ```bash
+   curl --max-time 10 -sS -o /dev/null -w 'HTTP %{http_code}\n' \
+     http://127.0.0.1:8642/v1/models
+   ```
 
 ถ้าไม่มี key จะได้ `401` ซึ่งเป็นพฤติกรรมที่ถูกต้อง ให้ตรวจด้วย key ที่ Hermes ใช้งานจริงโดยไม่แสดง key ในหน้าจอ
 
@@ -147,17 +166,24 @@ curl --max-time 10 -sS -o /dev/null -w 'HTTP %{http_code}\n' \
 
 ถ้าไม่มี `ensurepip`:
 
-1. ติดตั้งแพ็กเกจ venv ของระบบ:
+1. อัปเดตรายการแพ็กเกจ หากคำสั่งล้มเหลว ให้แก้ error ก่อนติดตั้ง:
 
    ```bash
-   sudo apt update && sudo apt install -y python3.12-venv
+   sudo apt update
    ```
-2. อัปเกรด venv เดิม:
+
+2. ติดตั้งแพ็กเกจ venv ของระบบ:
+
+   ```bash
+   sudo apt install -y python3.12-venv
+   ```
+
+3. อัปเกรด venv เดิม:
 
    ```bash
    python3 -m venv --upgrade .venv
    ```
-3. ติดตั้งซ้ำ:
+4. ติดตั้งซ้ำ:
 
    ```bash
    bash install.sh
@@ -254,7 +280,7 @@ GET /v1/capabilities 200 OK
    bash tunnel.sh key-set
    ```
 
-3. ตรวจว่า key ถูกบันทึก:
+3. ตรวจว่า key file มีอยู่และ mode เป็น `600`; หากไม่ตรง ให้หยุดและแก้ก่อน init:
 
    ```bash
    bash tunnel.sh key-status
@@ -262,19 +288,29 @@ GET /v1/capabilities 200 OK
 
 key ถูกเก็บใน `~/.config/hermes-mcp-bridge/openai-runtime-api-key` ด้วย mode `600`; environment variable `CONTROL_PLANE_API_KEY` ยังใช้แทนได้และมีลำดับสูงกว่า key file
 
-เริ่มครั้งแรก คำสั่งนี้ต้องมี key จากขั้นก่อนหน้าจึงรันได้ แล้วสร้าง/แทน profile `hermes-wsl`, รัน `doctor` และเริ่ม `run` แบบ foreground หาก `doctor` ไม่ผ่าน ให้แก้ตามข้อความก่อนเชื่อม Plugin:
+ก่อนเริ่มครั้งแรก ให้ operator ยืนยันว่าไม่มี tunnel ของ profile `hermes-wsl` ทำงานอยู่
+แทน `tunnel_YOUR_ID` ด้วย tunnel ID จริงจาก Platform
+คำสั่งต่อไปนี้ต้องมี key จากขั้นก่อนหน้าจึงรันได้ แล้วสร้าง profile `hermes-wsl`, รัน `doctor` และเริ่ม `run` แบบ foreground หาก `doctor` ไม่ผ่าน ให้แก้ตามข้อความก่อนเชื่อม Plugin:
 
 ```bash
-bash tunnel.sh init tunnel_IDจริง
+bash tunnel.sh init tunnel_YOUR_ID
 ```
 
 ใช้ `--force` เฉพาะเมื่อตรวจเป้าหมายของ profile เดิมแล้วยืนยันว่าต้องการแทน เช่น เมื่อเปลี่ยน directory หรือเวอร์ชันของ bridge:
 
 ```bash
-bash tunnel.sh init tunnel_IDจริง --force
+bash tunnel.sh init tunnel_YOUR_ID --force
 ```
 
-หลัง init ให้ตรวจสถานะด้วย wrapper เสมอ ก่อนเริ่มซ้ำหรือหลังแก้ปัญหา:
+เลือก init แบบไม่ใส่ `--force` หรือแบบ `--force` เพียงกรณีเดียว ไม่รันทั้งสองตามลำดับ
+เมื่อ init เชื่อมต่อสำเร็จ terminal นั้นจะค้างรัน tunnel อยู่
+ให้คง terminal เดิมไว้ แล้วเปิด terminal อีกหน้าหนึ่งใน directory ของ instance เดียวกันเพื่อตรวจ doctor:
+
+```bash
+cd ~/hermes-mcp-bridge-v1.2.5
+```
+
+ตรวจ profile ด้วย wrapper:
 
 ```bash
 bash tunnel.sh status
@@ -284,7 +320,7 @@ bash tunnel.sh status
 
 `tunnel.sh` เลือก production profile `hermes-wsl` ไว้ตายตัว อย่าแก้ `tunnel.sh` เพื่อเลือก profile อื่น; งาน Dev route แยกให้ทำตาม [OPENCODE-TH.md](OPENCODE-TH.md) (profile `hermes-wsl-dev`, health port 8081)
 
-เริ่มครั้งถัดไป ให้รันจาก directory ที่ติดตั้ง bridge:
+เริ่มครั้งถัดไป ให้รันจาก directory ที่ติดตั้ง bridge เมื่อ tunnel เดิมหยุดแล้วเท่านั้น:
 
 ```bash
 bash tunnel.sh run

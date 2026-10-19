@@ -4,6 +4,8 @@
 
 ### Phase A — ก่อนสร้าง signed tag
 
+ในตัวอย่างทุกคำสั่ง ให้แทน `vX.Y.Z` ด้วย tag ของรุ่นที่จะเผยแพร่ก่อนรัน ใช้ shell เดียวกันจาก release checkout ที่ operator เลือก
+
 1. **Documentation gate:** ทบทวนเอกสารที่อธิบาย source, tool discovery, configuration, acceptance, compatibility, roadmap และ upgrade ให้ตรงกับ release candidate. Release status ต้องระบุผล acceptance และ provenance ได้ แต่ให้ใช้สถานะ `tag pending` จนกว่าจะ verify asset จริง. สำหรับ candidate ทุกรุ่น ให้ตรวจ `./bridge.sh version` และ MCP `bridge_version` ตรงกัน, discovery count ตรง, และไม่มี upstream/network call.
 2. Commit เอกสาร Phase A และตรวจ `git diff --check`; รัน test และ acceptance checklist ตาม `V1-ACCEPTANCE-TH.md`.
 3. ตรวจ release checkout ให้สะอาด, ยืนยัน target commit และ version tag ยังไม่มีอยู่, แล้วตรวจว่า WSL มี private GPG key ที่ตรงกับ `user.signingkey` รันทุกขั้นใน shell เดียวกัน:
@@ -14,16 +16,16 @@
       set -euo pipefail
       ```
 
-   2. ต้องไม่มี output; ถ้ามีรายการ ให้หยุดและจัดการ working tree ก่อน:
+   2. ต้องจบด้วย exit code 0 ถ้าไม่ใช่ 0 ให้หยุดแล้วตรวจ `git status --short` ก่อนดำเนินการต่อ:
 
       ```bash
       test -z "$(git status --short)"
       ```
 
-   3. ตรวจว่า `user.signingkey` ถูกตั้งและมาจาก config file ใด:
+   3. ตรวจค่า `user.signingkey` ถ้ามี โดยยอมรับเฉพาะกรณีไม่พบ key (exit 1) เป็นค่าที่ยังไม่ได้ตั้ง:
 
       ```bash
-      git config --show-origin --get user.signingkey
+      git config --show-origin --get user.signingkey || test "$?" -eq 1
       ```
 
    4. ตรวจว่ามี private key ตรงกับ fingerprint ที่อนุมัติ:
@@ -32,33 +34,69 @@
       gpg --list-secret-keys --keyid-format=long
       ```
 
-   5. ต้องจบปกติ (tag ยังไม่มีบน origin); ถ้า tag มีอยู่แล้ว คำสั่งจะหยุด:
+   5. ตรวจ tag บน origin: อนุญาตให้ไปต่อเฉพาะ exit 2 ซึ่งหมายถึงไม่พบ tag ที่ระบุ หากพบ tag หรือเกิด network error ให้หยุด:
 
       ```bash
-      git ls-remote --exit-code --tags origin "refs/tags/vX.Y.Z" && exit 1 || true
+      if git ls-remote --exit-code --tags origin "refs/tags/vX.Y.Z"; then
+        printf '%s\n' 'Tag already exists; stop without replacing it.' >&2
+        exit 1
+      else
+        bridge_tag_status=$?
+        test "$bridge_tag_status" -eq 2 || exit "$bridge_tag_status"
+      fi
       ```
 
 4. หาก release ใช้ embedded provenance ให้ stamp `version_info.py` ด้วย release identifier/build provenance และ **build-input revision** ตาม release candidate ที่ review แล้ว; build-input revision บอก source ที่ใช้เตรียม stamp ไม่ใช่การอ้างว่าเป็น final tag commit (ซึ่งเป็น self-reference ไม่ได้). signed tag คือ authority ของ final commit. ห้ามใช้ `.git` เป็นเงื่อนไขให้ archive ทำงานได้. ตรวจ output `./bridge.sh version` อีกครั้งก่อน tag.
 
-5. เลือก signing key ที่ตรวจ fingerprint แล้ว หากไม่ได้ตั้ง `user.signingkey` ให้ใช้ `git -c user.signingkey=<verified-fingerprint> tag -s ...` แทนการปล่อยให้ GPG เลือก default key ตรวจ signer fingerprint ให้ตรงกับ key ที่อนุมัติ แล้วสร้างและตรวจ signed tag ก่อน push:
+5. เลือก signing key ที่ operator อนุมัติ แล้วทำขั้นตอนต่อไปนี้ใน shell เดิม:
 
-1. สร้าง signed tag:
+   1. กำหนด fingerprint ของ key ที่จะใช้ ตัวอย่างนี้ใช้ key ของ maintainer ที่ตรวจแล้วสำหรับ v1.2.5 หากใช้ key อื่น ต้องให้ operator ตรวจและอนุมัติ fingerprint ก่อน:
 
-   ```bash
-   git tag -s vX.Y.Z -m "hermes-mcp-bridge vX.Y.Z"
-   ```
+      ```bash
+      BRIDGE_SIGNING_FINGERPRINT='C4E9AFA9C97FC94CA2448E9218BDAEA561529B86'
+      ```
 
-2. ต้องแสดง `Good signature` จาก fingerprint ที่อนุมัติก่อนขั้นถัดไป:
+   2. แทน `REPLACE_WITH_REVIEWED_COMMIT_SHA` ด้วย full SHA ของ commit ที่ผ่าน review และอยู่บน origin/main แล้ว:
 
-   ```bash
-   git verify-tag vX.Y.Z
-   ```
+      ```bash
+      BRIDGE_RELEASE_COMMIT='REPLACE_WITH_REVIEWED_COMMIT_SHA'
+      ```
 
-3. push เมื่อ verify ผ่านแล้วเท่านั้น:
+   3. ตรวจว่า commit มีอยู่และ SHA ที่แสดงตรงกับ commit ที่อนุมัติ หากไม่ตรงให้หยุด:
 
-   ```bash
-   git push origin main vX.Y.Z
-   ```
+      ```bash
+      git rev-parse --verify "${BRIDGE_RELEASE_COMMIT}^{commit}"
+      ```
+
+   4. ตรวจว่า SHA ของ origin/main ตรงกับ commit ที่อนุมัติ หากคำสั่งล้มเหลวหรือ SHA ไม่ตรงให้หยุด:
+
+      ```bash
+      test "$(git ls-remote --exit-code origin refs/heads/main | cut -f1)" = "$BRIDGE_RELEASE_COMMIT"
+      ```
+
+   5. สร้าง signed tag จาก commit นี้โดยระบุ key ชัดเจน:
+
+      ```bash
+      git -c user.signingkey="$BRIDGE_SIGNING_FINGERPRINT" tag -s vX.Y.Z "$BRIDGE_RELEASE_COMMIT" -m "hermes-mcp-bridge vX.Y.Z"
+      ```
+
+   6. ตรวจว่าเป็น `Good signature` จาก fingerprint ที่อนุมัติ หากไม่ตรงให้หยุดและไม่ push:
+
+      ```bash
+      git verify-tag vX.Y.Z
+      ```
+
+   7. ตรวจ peeled commit ให้ตรงกับ `BRIDGE_RELEASE_COMMIT`:
+
+      ```bash
+      test "$(git rev-parse 'vX.Y.Z^{commit}')" = "$BRIDGE_RELEASE_COMMIT"
+      ```
+
+   8. Push เฉพาะ tag นี้เมื่อการตรวจทั้งหมดผ่านแล้ว:
+
+      ```bash
+      git push origin vX.Y.Z
+      ```
 
 ห้ามแทน `-s` ด้วย unsigned tag ใน production release. GitHub authentication token ไม่ใช่ GPG private key และห้ามใส่ private key/passphrase ใน bridge, chat, command history หรือ log.
 
@@ -137,10 +175,10 @@
 2. ตรวจ layout ของ archive:
 
    ```bash
-   unzip -l hermes-mcp-bridge-vX.Y.Z.zip | head
+   unzip -Z1 hermes-mcp-bridge-vX.Y.Z.zip
    ```
 
-รายการแรกต้องเป็น `hermes-mcp-bridge-vX.Y.Z/` และต้องไม่พบ `.venv/`, `state/`, `.env` หรือ `bridge-config.json`. เมื่อรับ public key ของ maintainer แล้วให้ตรวจ tag:
+ทุกรายการต้องอยู่ใต้ `hermes-mcp-bridge-vX.Y.Z/` และต้องไม่พบ `.venv/`, `state/`, `.env` หรือ `bridge-config.json`. เมื่อรับ public key ของ maintainer แล้วให้ตรวจ tag:
 
 1. ดึง tag ลงเครื่อง:
 
