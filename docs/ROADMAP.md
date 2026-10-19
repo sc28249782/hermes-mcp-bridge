@@ -135,7 +135,7 @@ Requirements that already bind mutation work (existing, per [SPEC.md](SPEC.md), 
 Follow-up status (not blockers; scoped separately from the hard gate above):
 
 - [x] v1.2.5 artifact-chain audit closed on 19 October 2026. Maintainer automation and the external Hermes Agent review supplied by the operator both passed fresh tag/signature, asset/checksum/ZIP, byte-identical rebuild, ancestry, and offline identity checks. Review target: `c3754c9` ([PR #45](https://github.com/sc28249782/hermes-mcp-bridge/pull/45)). Record: [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md).
-- SPEC.md sections 4 and 10 privacy contract review remains pending: the shipped execution surface returns paginated untrusted output (`opencode_task_result`) and stores private per-job artifacts; review them against the section 4 bounded-response and no-secret-bearing-field rules and the section 10 privacy invariants.
+- SPEC.md sections 4 and 10 privacy follow-up remains open. Source review and synthetic probes are recorded in [PRIVACY-CONTRACT-REVIEW-TH.md](PRIVACY-CONTRACT-REVIEW-TH.md). Proposed wording awaits review; normative SPEC is unchanged. Hermes status error/approval payloads, existing-directory modes, and backend-specific output storage need explicit decisions and focused follow-up fixes before closure.
 - Production OpenCode benign model acceptance has not been performed as part of this checkpoint. The recorded real-model acceptance ran on the Dev route only ([TESTING.md](TESTING.md), [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md)); the 19 October 2026 production plugin checkpoint covers identity, health, discovery, and the execution API listing only.
 
 Proposals pending scoping (prior chat proposals; absent from committed roadmap items):
