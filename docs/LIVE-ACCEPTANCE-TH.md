@@ -225,5 +225,16 @@ regression and redacted audit checks; [CI passes with 163 tests](https://github.
 The earlier native-model proof above remains scoped to `ee62fe8`.
 New Dev candidate preparation paused at the Hermes local terminal approval gate
 for an operator-launcher draft. That draft contains unverified profile/key assumptions
-and is not an approved activation procedure. Candidate readiness and authenticated
-Dev tunnel acceptance are not claimed. No current Dev/production route was switched.
+and is not an approved activation procedure. At that checkpoint candidate readiness had not been recorded. Authenticated
+Dev tunnel acceptance remains pending. No current Dev/production route was switched.
+
+
+### Final source/candidate checkpoint — 19 October 2026
+
+- Code head `e7add7e594fb2cc0029dd53b628c85f9a7c1a87c`: WSL **164/164** tests and shellcheck pass. [Exact-head CI](https://github.com/sc28249782/hermes-mcp-bridge/actions/runs/39212518227) passes.
+- The isolated git-worktree candidate at `~/hermes-mcp-bridge-opencode-dev` is prepared at that code head with its own venv and fresh private state. Its config is mode 0600; state/workspace are mode 0700.
+- Execution is enabled only for `~/hermes-opencode-dev-workspace` and model `opencode-go/glm-5.3-flash`. Prompt/runtime/output limits are 32000 characters / 1800 seconds / 524288 bytes per stream.
+- Candidate config validation returns an empty warnings list. Actual SDK stdio against its own `bridge.sh serve` discovers **33 tools**. `bridge_version` reports that git revision and `opencode_health` reports `opencode v2.0.32`.
+- The launcher-writing operation was cancelled without approval or execution. No launcher was written, no substitute activation was attempted, and no approval remains pending for that run.
+- Current Dev and production routes remain unchanged. The candidate is ready locally; the remaining gate is operator-controlled Dev profile selection, restart from the existing authenticated environment, plugin discovery refresh and a real Work-chat task over that Dev tunnel.
+- The later documentation-only commit does not change the pinned candidate code. Real model read/edit/context evidence remains scoped to the earlier `ee62fe8` record above; the final source is covered by the full suite and candidate stdio verification.
