@@ -131,3 +131,16 @@ cancel; `completed` = native turn จบ ไม่ได้แปลว่าเ
 เกิดเฉพาะเมื่อเห็น protocol event ชัด มิฉะนั้นจบเป็น failed ตาม deadline; retry ด้วย
 `request_id` เดิมได้ acknowledgement เดิมโดยไม่เรียก model ซ้ำ; resume ได้เฉพาะ session
 ที่ bridge เป็นเจ้าของด้วย workspace/model เดิม. รายละเอียดครบ: [OPENCODE-TH.md](OPENCODE-TH.md)
+
+
+### ข้อมูล OpenCode ที่เก็บในเครื่อง
+
+prompt ของทุกงานเก็บเป็น plaintext ใน `state/opencode-tasks.sqlite3` คอลัมน์
+`jobs.prompt` (mode 0600) ส่วน stdout/stderr เก็บเป็น plaintext ตาม `log_path`/
+`err_path` ใน `state/opencode-task-logs/` (directory 0700, ไฟล์ 0600).
+permission เหล่านี้ไม่ใช่ encryption; audit/status/recent ที่ redact แล้วไม่ได้ทำให้
+ข้อมูลใน database และ task logs ถูก redact ตามไปด้วย ห้ามใส่ credentials ใน prompt
+หรือเผยแพร่ database/task logs เป็นหลักฐานสาธารณะ และต้องป้องกัน backup เช่นเดียวกัน.
+Native OpenCode อาจเก็บ session ของตัวเองตาม configuration เดิมด้วย.
+ดู [SECURITY.md](SECURITY.md). การเลือก workspace จำกัด cwd เท่านั้น ไม่จำกัด
+filesystem หรือ network และไม่เปลี่ยน native permissions.

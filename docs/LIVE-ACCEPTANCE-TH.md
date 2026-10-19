@@ -238,3 +238,36 @@ Dev tunnel acceptance remains pending. No current Dev/production route was switc
 - The launcher-writing operation was cancelled without approval or execution. No launcher was written, no substitute activation was attempted, and no approval remains pending for that run.
 - Current Dev and production routes remain unchanged. The candidate is ready locally; the remaining gate is operator-controlled Dev profile selection, restart from the existing authenticated environment, plugin discovery refresh and a real Work-chat task over that Dev tunnel.
 - The later documentation-only commit does not change the pinned candidate code. Real model read/edit/context evidence remains scoped to the earlier `ee62fe8` record above; the final source is covered by the full suite and candidate stdio verification.
+
+
+### Work-chat Dev tunnel acceptance — 19 October 2026: PASS within scope
+
+This supersedes the pending-activation status at the preceding historical checkpoint.
+The operator selected the prepared candidate in `hermes-wsl-dev`, restarted the Dev
+tunnel and refreshed plugin tools. Parent Work chat then called the real Dev plugin:
+
+- Callable registry contains **33 Dev tools**, including all six OpenCode tools.
+  This is parent registry evidence, not a raw wire `tools/list` capture.
+- `bridge_version.source_kind` = `git-worktree`; `source_revision` =
+  `e7add7e594fb2cc0029dd53b628c85f9a7c1a87c`; `opencode_health` reports v2.0.32.
+  The version response's canonical `mcp_discovery_count` remains 27 as documented.
+- Model = `opencode-go/glm-5.3-flash`; workspace = `~/hermes-opencode-dev-workspace`.
+- Submit/status/result: `oct_601b8c9f62f8d20254a77dce` completed, exit 0,
+  response `OC_TUNNEL_READY`.
+- Resume: `oct_b2c34f716a3c07be14252aaf` completed in the same bridge-owned
+  session and returned the previously remembered token without it being repeated
+  in the follow-up prompt.
+- Native write in that same session: `oct_740bdef27eed489b36f0afff` completed,
+  exit 0; native glob found no existing target, and native write created
+  `workchat-acceptance-20261019-b7.txt` using its absolute path.
+- Independent read-only verification through Hermes compared actual file bytes:
+  exactly `b'OC_TUNNEL_EDIT_OK\n'` (18 bytes), `exact_match: True`.
+  The verification also observed database mode 0600 and task-log directory 0700.
+- Replaying the identical first request returned its original job/session IDs.
+  `opencode_recent_tasks` then listed exactly the three completed jobs above.
+
+No production activation, release or tag is claimed. This run proves real-model
+submit/result, session continuity, replay/recent and native file creation through
+an authenticated Dev tunnel. Cancellation evidence remains scoped to the earlier
+controller run; native permission-required coverage remains fixture-only, not a
+live permission interaction. No permission configuration was changed by this test.

@@ -7,7 +7,7 @@
 - Store bridge-owned jobs and sessions with request idempotency and atomic admission. A detached worker bounds runtime and I/O. It signals its CLI group before reaping the leader. Unconfirmed cleanup remains `unknown_exit` and blocks new work.
 - Keep native OpenCode configuration and permissions. The bridge adds no sandbox and never passes `--auto`. Workspace selection limits cwd, not filesystem or network access. A completed native turn does not prove goal success.
 - Validate the final code on WSL with 164 passing tests, Shellcheck and exact-code-head CI. Regressions cover unconfirmed cleanup and execution config recognition. Real CLI v2.0.32 submission, context/session reuse, replay, cancellation and absolute-path file edits pass. See [TESTING.md](TESTING.md) and [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md).
-- Authenticated Dev activation remains pending. No release contains this extension; the OpenCode adapter shipped in v1.2.4 remains health-only.
+- Authenticated Dev Work-chat acceptance passed on 19 October 2026: real-model submit/result, resumed context, request replay/recent and independently byte-verified native file creation. Native permission-required coverage remains fixture-only. No release contains this extension; the OpenCode adapter shipped in v1.2.4 remains health-only.
 
 
 ## v1.2.4 — released (18 October 2026; signed tag, published)

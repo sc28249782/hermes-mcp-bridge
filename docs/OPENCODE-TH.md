@@ -147,7 +147,9 @@ bridge ไม่มี remote force-unblock และไม่ฆ่า PID ท�
 candidate สำหรับการทดสอบครั้งนี้อยู่ที่ `~/hermes-mcp-bridge-opencode-dev`
 เป็น unreleased git worktree ไม่ใช่ release ZIP ใหม่ workspace ที่เปิดไว้มีเพียง
 `~/hermes-opencode-dev-workspace` และ model `opencode-go/glm-5.3-flash`
-stdio ในเครื่องตรวจได้ 33 tools แล้ว แต่ route ที่กำลังทำงานยังชี้ candidate เดิม
+ณ checkpoint เตรียม candidate ตรวจ stdio ได้ 33 tools แต่ route ยังชี้ candidate เดิม.
+หลัง operator เปิด Dev และ refresh แล้ว Work-chat acceptance ผ่านเมื่อ 19 ตุลาคม 2026;
+ดู [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md). ขั้นตอนด้านล่างเก็บไว้สำหรับเปิดใหม่.
 
 1. หยุดเฉพาะ tunnel ของ Dev ใน terminal ที่ใช้เปิด Dev เดิม เก็บ authenticated environment เดิมไว้
 2. เปิด editor ของ Dev profile ด้วยคำสั่งด้านล่าง จดค่า command เดิมไว้สำหรับ rollback
@@ -156,7 +158,7 @@ stdio ในเครื่องตรวจได้ 33 tools แล้ว แ
    `tunnel_id` หรือ key/reference เดิม อย่าใส่ `~` ในค่า command โดยไม่ขยายเป็น absolute path
 
 ```bash
-tunnel-client profiles edit hermes-wsl-dev
+EDITOR=nano tunnel-client profiles edit hermes-wsl-dev
 ```
 
 3. เปิด Dev จาก environment ที่เคย authenticate สำเร็จ คำสั่งนี้ระบุ profile/port ชัดเจน
@@ -169,6 +171,6 @@ tunnel-client run --profile hermes-wsl-dev --health.listen-addr 127.0.0.1:8081
    ให้ตรง code head ที่ติดตั้ง ก่อนส่ง benign task ใน workspace ทดสอบ
    ทดสอบต่อ session เดิมหนึ่งรอบและตรวจไฟล์จริงเมื่อขอให้แก้ไฟล์
 
-ขั้นตอนนี้เป็น manual operator handoff ไม่ได้ถูกรันโดยงานเตรียม candidate
+ขั้นตอนนี้เป็น manual operator handoff; operator เป็นผู้เปิด Dev สำหรับ acceptance ครั้งนี้
 ไม่ต้องสร้าง key ใหม่ และห้ามอ่าน key ออกจาก process environment
 หาก authenticated environment เดิมไม่พร้อม ให้หยุดแทนการใช้ profile production ทดแทน

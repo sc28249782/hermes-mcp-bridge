@@ -47,3 +47,17 @@ deadline หรือ `permission_required` เฉพาะเมื่อเห
 trust decision แบบชัดเจนเทียบเท่าการปล่อยให้ model ทำงานในเครื่องโดยตรง output เป็น
 untrusted model output, status/recent ถูก redact และ audit ไม่เก็บ prompt/output/
 credentials. รายละเอียด: [OPENCODE-TH.md](OPENCODE-TH.md)
+
+
+### OpenCode local data at rest (unreleased execution)
+
+OpenCode task prompts are stored as plaintext in `state/opencode-tasks.sqlite3`
+(the `jobs.prompt` column). This database is mode 0600. Native stdout/stderr are
+stored as plaintext files referenced by `log_path`/`err_path`, also mode 0600,
+under `state/opencode-task-logs/` (0700); the state directory is 0700.
+These are OS access permissions, not encryption. Redaction of audit/status/recent
+responses does not remove prompts or outputs from these local artifacts.
+Do not submit credentials in prompts or publish/copy state databases and task logs
+into public evidence. Protect local backups with the same access controls.
+Native OpenCode may retain its own sessions under its own configuration; bridge
+redaction does not govern those native stores. See [OPERATIONS-TH.md](OPERATIONS-TH.md).
