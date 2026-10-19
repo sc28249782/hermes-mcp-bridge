@@ -23,6 +23,11 @@ MODEL_IDENT = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$")
 PROVIDER_IDENT = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
 OPTION_VALUE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,63}$")
 MODEL_OPTION_KEYS = {"reasoning_effort", "service_tier"}
+METADATA_MAX_BYTES = 8192
+RUN_STATES = {"pending", "queued", "started", "running", "waiting_for_approval", *TERMINAL}
+EVENT_LABELS = {"run.started", "run.completed", "run.failed", "run.cancelled", "run.running",
+                "tool.started", "tool.completed", "tool.failed", "approval.required"}
+USAGE_COUNTERS = {"input_tokens", "output_tokens", "total_tokens", "cache_read_tokens", "cache_write_tokens"}
 
 
 class BridgeError(RuntimeError):
@@ -48,7 +53,11 @@ class Bridge:
                              ("hermes.approval_stale_seconds", self.approval_stale_seconds)):
             if not isinstance(value, int) or not 1 <= value <= 86400:
                 raise BridgeError(f"{label} must be 1-86400")
-        self.state.mkdir(parents=True, exist_ok=True, mode=0o700)
+        try:
+            self.state.mkdir(parents=True, exist_ok=True, mode=0o700)
+            self.state.chmod(0o700)
+        except OSError:
+            raise BridgeError("Bridge state directory could not be secured.") from None
         self.audit = AuditLog(self.state, audit_config)
         self.dbpath = self.state / "runs.sqlite3"
         self.client = httpx.Client(base_url=self.base, timeout=httpx.Timeout(25, connect=5),
@@ -320,7 +329,7 @@ class Bridge:
         row = self.owned(run_id)
         if row["result"]:
             cached = json.loads(row["result"])
-            if cached.get("status") in TERMINAL:
+            if isinstance(cached.get("status"), str) and cached["status"] in TERMINAL:
                 return cached
         result = self.request("GET", f"/v1/runs/{run_id}")
         if result.get("run_id") != run_id:
@@ -334,25 +343,60 @@ class Bridge:
                        (session, reported_model, json.dumps(result, ensure_ascii=False), run_id))
         return result
 
+    def _metadata(self, result, row):
+        """Select bounded metadata; never copy upstream error/approval bodies."""
+        def identifier(value, pattern):
+            return value if isinstance(value, str) and pattern.fullmatch(value) and self.key not in value else None
+
+        state = result.get("status")
+        out = {"run_id": row["run_id"],
+               "status": state if isinstance(state, str) and state in RUN_STATES else "unknown"}
+        for name, value, pattern in (
+                ("session_id", result.get("session_id"), IDENT),
+                ("model", result.get("model"), MODEL_IDENT),
+                ("reported_model", row["reported_model"], MODEL_IDENT)):
+            safe = identifier(value, pattern)
+            if safe is not None:
+                out[name] = safe
+        selected = self.row_selection(row)
+        out["requested_model"] = identifier(selected["requested_model"], MODEL_IDENT)
+        out["requested_provider"] = identifier(selected["requested_provider"], PROVIDER_IDENT)
+        options = selected["requested_model_options"]
+        out["requested_model_options"] = ({key: value for key, value in options.items()
+            if key in MODEL_OPTION_KEYS and identifier(value, OPTION_VALUE) is not None}
+            if isinstance(options, dict) else None)
+        usage = result.get("usage")
+        if isinstance(usage, dict):
+            out["usage"] = {key: value for key, value in usage.items()
+                if key in USAGE_COUNTERS and type(value) is int and 0 <= value <= 2**53 - 1}
+        if "last_event" in result:
+            event = result["last_event"]
+            out["last_event"] = event if isinstance(event, str) and event in EVENT_LABELS else "unknown"
+        if result.get("error"):
+            out["error"] = "Hermes reported an error; inspect Hermes locally."
+        self._check_metadata_size(out)
+        return out
+
+    @staticmethod
+    def _check_metadata_size(value):
+        if len(json.dumps(value, ensure_ascii=True, separators=(",", ":")).encode("ascii")) > METADATA_MAX_BYTES:
+            raise BridgeError("Hermes metadata exceeds the bridge limit.")
+
     def status(self, run_id):
         result = self.fetch(run_id)
         row = self.owned(run_id)
-        out = {k: result[k] for k in ("run_id", "status", "session_id", "model", "usage", "last_event") if k in result}
-        out.update(self.row_selection(row))
-        if row["reported_model"]:
-            out["reported_model"] = row["reported_model"]
+        out = self._metadata(result, row)
         out["output_chars"] = len(str(result.get("output") or ""))
         age_seconds = max(0, int(time.time() - row["created"]))
         out["age_seconds"] = age_seconds
-        if result.get("status") not in TERMINAL and age_seconds >= self.stale_run_seconds:
+        if out["status"] not in TERMINAL and age_seconds >= self.stale_run_seconds:
             out["stale"] = True
-        if result.get("error"):
-            out["error"] = str(result["error"])[:2000]
         if result.get("status") == "waiting_for_approval":
-            out["approval"] = result.get("approval")
+            out["approval"] = {"required": True}
             if age_seconds >= self.approval_stale_seconds:
                 out["approval_stale"] = True
             out["next"] = f"Ask the user to review locally: ./bridge.sh approve {run_id} (or deny). Do not bypass the pending approval."
+        self._check_metadata_size(out)
         return out
 
     def result(self, run_id, offset=0, max_chars=12000):
@@ -360,13 +404,15 @@ class Bridge:
             raise BridgeError("Invalid result page: offset >= 0, max_chars 1-24000.")
         raw = self.fetch(run_id)
         row = self.owned(run_id)
+        metadata = self._metadata(raw, row)
         output = str(raw.get("output") or "")
         end = min(len(output), offset + max_chars)
-        return {"run_id": run_id, "status": raw.get("status"), "session_id": raw.get("session_id"),
+        return {"run_id": run_id, "status": metadata["status"], "session_id": metadata.get("session_id"),
                 "output": output[offset:end], "total_chars": len(output),
                 "next_offset": end if end < len(output) else None,
-                "error": str(raw.get("error") or "")[:2000], "usage": raw.get("usage"),
-                **self.row_selection(row), "reported_model": row["reported_model"]}
+                "error": metadata.get("error", ""), "usage": metadata.get("usage"),
+                **{key: metadata[key] for key in ("requested_model", "requested_provider", "requested_model_options")},
+                "reported_model": metadata.get("reported_model")}
 
     def stop(self, run_id):
         self.owned(run_id)
@@ -432,3 +478,4 @@ class Bridge:
             raise BridgeError("Approval changed during review; review the new request.")
         return self.request("POST", f"/v1/runs/{run_id}/approval",
                             {"choice": choice, "request_id": req_id, "resolve_all": False})
+
