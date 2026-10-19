@@ -132,9 +132,9 @@ Requirements that already bind mutation work (existing, per [SPEC.md](SPEC.md), 
 - Approval stays local and digest-bound (ADR-0001 action digests), with no MCP approval tool.
 - Any execution profile that claims no-delete/no-unapproved-truncate requires kernel-level enforcement that is probed at runtime (for example Landlock), and such a profile fails closed when enforcement is unavailable. This requirement does not make kernel enforcement a prerequisite for exact approved write/patch operations or for design work.
 
-Recommended follow-ups (pending; not blockers; scoped separately from the hard gate above):
+Follow-up status (not blockers; scoped separately from the hard gate above):
 
-- The v1.2.5 artifact chain re-verification was completed on 19 October 2026 by maintainer-side automation: a fresh remote tag fetch in a temporary bare repository, a fresh re-download of both release assets, checksum and ZIP-structure checks, and a byte-identical `git archive` rebuild from the signed tag all pass. Record: [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md). These are automation checks, not an external review; independent external reviewer approval of that record remains pending. (The v1.2.2 and v1.2.3 records include such an external review.)
+- [x] v1.2.5 artifact-chain audit closed on 19 October 2026. Maintainer automation and the external Hermes Agent review supplied by the operator both passed fresh tag/signature, asset/checksum/ZIP, byte-identical rebuild, ancestry, and offline identity checks. Review target: `c3754c9` ([PR #45](https://github.com/sc28249782/hermes-mcp-bridge/pull/45)). Record: [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md).
 - SPEC.md sections 4 and 10 privacy contract review remains pending: the shipped execution surface returns paginated untrusted output (`opencode_task_result`) and stores private per-job artifacts; review them against the section 4 bounded-response and no-secret-bearing-field rules and the section 10 privacy invariants.
 - Production OpenCode benign model acceptance has not been performed as part of this checkpoint. The recorded real-model acceptance ran on the Dev route only ([TESTING.md](TESTING.md), [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md)); the 19 October 2026 production plugin checkpoint covers identity, health, discovery, and the execution API listing only.
 
