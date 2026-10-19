@@ -12,7 +12,7 @@ Operations: [OPERATIONS-TH.md](OPERATIONS-TH.md)
 จัดทำสำหรับ Hermes Agent v0.21.1, commit `8d79c2ff` ที่ผู้ใช้ยืนยัน
 วันที่ปรับปรุง: 19 ตุลาคม 2026 — v1.2.5 released; signed tag และ release assets ผ่านการตรวจแล้ว
 
-หมายเหตุ (18 ตุลาคม 2026): released v1.2.4 เผยแพร่แล้วผ่าน signed tag (ZIP ตรวจแล้วจากการดาวน์โหลดจริง; ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)) โดยเพิ่ม OpenCode health adapter แบบ disabled by default และ legacy stdio discovery guard คู่มือนี้อัปเดตให้ติดตั้ง released v1.2.4 การอัปเกรด deployment ที่ผลิตจริงเป็นดุลยพินิจของ operator (ยังรัน v1.2.3 เดิมได้)
+หมายเหตุ (18 ตุลาคม 2026): released v1.2.4 เผยแพร่แล้วผ่าน signed tag (ZIP ตรวจแล้วจากการดาวน์โหลดจริง; ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)) โดยเพิ่ม OpenCode health adapter แบบ disabled by default และ legacy stdio discovery guard ขณะนั้นคู่มือแนะนำติดตั้ง released v1.2.4 การอัปเกรด deployment ที่ผลิตจริงเป็นดุลยพินิจของ operator (ยังรัน v1.2.3 เดิมได้)
 
 หมายเหตุ (19 ตุลาคม 2026): เผยแพร่ **v1.2.5** แล้ว พร้อม signed tag และ ZIP/SHA256SUMS ที่ตรวจหลังดาวน์โหลด คู่มือปัจจุบันใช้ v1.2.5; ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md) สำหรับ checksum และ provenance
 
