@@ -1,6 +1,6 @@
 # Privacy contract review — SPEC §4 / §10
 
-สถานะ: ข้อเสนอสำหรับ review; ยังไม่แก้ normative SPEC และยังไม่ปิด privacy follow-up.
+สถานะ: review รับหลักการแล้ว; wording สุดท้ายยังรออนุมัติ. ยังไม่แก้ normative SPEC และยังไม่ปิด privacy follow-up.
 วันที่ตรวจ: 19 ตุลาคม 2026.
 Source ที่ตรวจ: `03470cbcb8b4571608dfe6fa712e674ece3180fd` หลัง merge PR #45.
 ใช้เฉพาะ source และ synthetic fixtures; ไม่อ่าน production state, prompts, credentials หรือ task logs.
@@ -107,3 +107,20 @@ Hermes status ส่งต่อ upstream `error` และ `approval` ซึ่
 - Synthetic Hands fixture ยืนยันว่า content ในชื่อไฟล์ที่อนุญาตส่งกลับได้โดยไม่ผ่าน generic secret scanner.
 - Synthetic Codex constructor probe ยืนยัน existing-directory mode ที่อธิบายด้านบน.
 - ไม่ได้อ่าน credential จริง, production job artifacts หรือเรียก model/backend API.
+
+## Review decision และ exit criteria (19 ตุลาคม 2026)
+
+Operator ส่ง external review ของ [PR #46](https://github.com/sc28249782/hermes-mcp-bridge/pull/46) ที่ head `abba74f`.
+Reviewer ให้ verdict `APPROVE` สำหรับรายงานนี้และรับหลักการแยก explicit result content, status/audit metadata และ private operational storage.
+การอนุมัตินี้ยังไม่ใช่การอนุมัติ wording สุดท้ายของ normative SPEC.
+
+ต้องส่งรายละเอียดและหลักฐานของสามข้อต่อไปนี้ให้ review ก่อนปิด privacy follow-up:
+
+1. Hermes status/error/approval ต้องใช้ field allowlist และขอบเขต payload ที่กำหนดตัวเลขชัดเจน. Candidate ต้องระบุ timeout budget ที่ใช้จริง พร้อม tests สำหรับ oversized และ sensitive upstream payload. ห้ามใช้ raw approval/error เป็นข้อยกเว้นตามปกติ.
+2. Init ของ Hermes/Codex ต้อง enforce state directory mode `0700` แม้ directory มีอยู่แล้ว เช่นเดียวกับ OpenCode. ต้องมี tests เริ่มจาก directory ที่ mode กว้างกว่า policy และตรวจผลหลัง init. ไม่ย้ายหน้าที่ enforcement นี้ไปให้ operator.
+3. Codex result ต้องอ่าน log ด้วย memory bound ที่ระบุชัดเจน แทน `read_text` ทั้งไฟล์ก่อน slice. ต้องระบุ cap/หน่วย และพิสูจน์ pagination, Unicode และพฤติกรรมเมื่อ output โตขึ้นหรือเกินขอบเขตที่เลือก.
+
+ทำข้อกำหนดและ acceptance criteria แบบ spec-first ตาม SPEC §14 ก่อน merge implementation ที่เปลี่ยน contract.
+เสนอ implementation และ wording สุดท้ายใน PR ถัดไป พร้อม unreleased contract note และ regression evidence.
+Scope ของงานถัดไปคือ privacy hardening ของ runtime ที่มีอยู่; ไม่เพิ่ม tools, ไม่เปลี่ยน binaries และไม่ deploy production โดยอัตโนมัติ.
+MCP Events และ Local Hands mutation/execution ยังอยู่ใต้ gate เดิม.
