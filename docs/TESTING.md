@@ -6,6 +6,7 @@
 - `tests/test_mcp.py::test_privacy_metadata_is_bounded_on_real_stdio` checks the actual SDK stdio boundary with fake Hermes data. It verifies no raw approval/error fixture reaches metadata and discovery remains at the canonical default.
 - Focused local suite: 40/40 pass with the project venv and `-W error::ResourceWarning` (`test_privacy_hardening`, `test_bridge`, `test_mcp`). No real model/provider call is made.
 - Four pre-existing Codex process/identity tests fail in this execution environment on both baseline and candidate: unreaped-zombie detection, detached-approver result, model override forwarding, and fixed-argv result capture. The baseline comparison also failed to obtain a start-ticks identity. These are not counted as passing local full-suite evidence. Exact-head Linux CI must pass the full suite and shell checks; its result is recorded on the candidate PR.
+- External review supplied by the operator on 19 October 2026 approved `c14cd8c` ([PR #47](https://github.com/sc28249782/hermes-mcp-bridge/pull/47)). The reviewer reported 183/183 tests on a clean worktree, independent metadata/directory/Unicode/read-limit probes, and exact-head CI `39260476787` passing. This supplements, and does not replace, the local-environment limitation recorded above.
 - This is fixture acceptance, not production or Dev rollout acceptance. Signed v1.2.5 evidence below remains historical and unchanged.
 
 ## v1.2.4 candidate gates (historical pre-tag record; v1.2.4 released 2026-10-18)
