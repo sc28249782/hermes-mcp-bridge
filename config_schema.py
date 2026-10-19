@@ -122,7 +122,7 @@ def load_bridge_config(root: Path) -> tuple[dict, list[str]]:
     if hands.get("enabled", False) and not hands.get("workspaces", []):
         raise ConfigError("hands.enabled requires at least one workspace")
     opencode = _object(config.get("opencode", {}), "opencode")
-    _unknown(opencode, {"enabled", "binary", "version_timeout_seconds", "max_output_bytes"},
+    _unknown(opencode, {"enabled", "binary", "version_timeout_seconds", "max_output_bytes", "execution"},
              "opencode", warnings)
     if "enabled" in opencode and not isinstance(opencode["enabled"], bool):
         raise ConfigError("opencode.enabled must be boolean")

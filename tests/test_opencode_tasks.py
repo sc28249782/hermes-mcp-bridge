@@ -65,6 +65,21 @@ class TestOpenCodeTasks(unittest.TestCase):
                 with self.assertRaises(OpenCodeTaskError):
                     OpenCodeTasks(config, self.root / "invalid")
 
+    def test_execution_config_loads_without_false_unknown_key_warning(self):
+        from config_schema import load_bridge_config
+        config = {"schema_version": 1, "api_url": "http://127.0.0.1:8642", "hermes_env": "/unused/test.env", "opencode": self.config}
+        path = self.root / "bridge-config.json"
+        path.write_text(json.dumps(config))
+        _, warnings = load_bridge_config(self.root)
+        self.assertEqual(warnings, [])
+        loaded = OpenCodeTasks.from_config(self.root)
+        self.assertTrue(loaded.enabled)
+        self.assertEqual(loaded.allowed_models, self.tasks.allowed_models)
+        config["opencode"]["execution"]["unexpected_key"] = 1
+        path.write_text(json.dumps(config))
+        _, warnings = load_bridge_config(self.root)
+        self.assertTrue(any("unexpected_key" in message for message in warnings))
+
     def test_state_must_be_outside_workspace(self):
         with self.assertRaises(OpenCodeTaskError):
             OpenCodeTasks(self.config, self.ws / "state")
