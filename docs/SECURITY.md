@@ -22,7 +22,7 @@
 
 `opencode_health` (รวมใน released v1.2.4 แล้ว — 18 ตุลาคม 2026; deployment ที่ยังรัน v1.2.3 จะไม่มี adapter นี้จนกว่า operator จะอัปเกรด) เป็น disabled by default: เมื่อไม่กำหนด section `opencode` หรือ `enabled` เป็น `false` ทุก health check fail closed โดยไม่ spawn process และไม่มีการเรียก network/model/auth. การเปิดใช้ต้องกำหนด `opencode.binary` เป็น absolute path (ไม่เกิน 4096 ตัวอักษร ไม่มี control characters ต้องเป็น regular executable file) พร้อม `version_timeout_seconds` (1-120) และ `max_output_bytes` (1024-1048576); ไม่มีการเปิดใช้อัตโนมัติ
 
-ขอบเขตเป็น health เท่านั้น: ยังไม่มี task submission, sessions, events, cancellation หรือ permission integration. bridge ไม่เพิ่ม sandbox — executable ที่กำหนดรันด้วยสิทธิ์เต็มของ bridge process และอ่าน global configuration/credentials ได้ จึงเปิดใช้เฉพาะ binary ที่ตรวจแล้ว. runner ไม่ส่ง `--auto` และ `--standalone` เป็น exclusive in-process server ไม่ใช่ sandbox
+ขอบเขต OpenCode ที่เผยแพร่ใน v1.2.4 เป็น health เท่านั้น; execution ที่ยังไม่เผยแพร่อธิบายใน section ด้านล่าง ส่วน native permission replies และ event subscriptions ยังไม่รองรับ. bridge ไม่เพิ่ม sandbox — executable ที่กำหนดรันด้วยสิทธิ์เต็มของ bridge process และอ่าน global configuration/credentials ได้ จึงเปิดใช้เฉพาะ binary ที่ตรวจแล้ว. runner ไม่ส่ง `--auto` และ `--standalone` เป็น exclusive in-process server ไม่ใช่ sandbox
 
 Local Hands ยังเป็น roadmap ไม่ใช่ production capability ใน v1.0.1 ขอบเขตที่อนุมัติไว้สำหรับ implementation คือ workspace/capability allowlist, local digest-bound approval, protected paths/names, baseline no deletion และไม่มี model-relayed nonce เป็น authorization ห้ามนำ allow-by-default deny-list sandbox, read-anywhere policy, shell-bypass accepted gap หรือ dynamic MCP-to-MCP trust bypass มาใช้
 

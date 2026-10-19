@@ -176,3 +176,54 @@ watchdog timeout และ `unknown_exit` recovery ได้ผ่าน WSL2 li
 - คืน runtime policy เป็น 1,800 วินาที, restart tunnel ระหว่างงาน read-only `sleep 30`, แล้วเชื่อมต่อใหม่หลังงานจบ: status เป็น `unknown_exit`, result มี `recovered_after_restart: true` และ audit บันทึก `finish` outcome `unknown_exit` พร้อม `exit_code: null`
 
 ทั้ง timeout watchdog และ restart recovery ผ่านแล้ว; คืน policy production เป็น `max_runtime_seconds: 1800` ก่อนจบ acceptance.
+
+
+## 19 ตุลาคม 2026 — OpenCode execution (unreleased; PR #40)
+
+Code head: `ee62fe84e0474ccd34ccda1b42ba7e59700da479`; source worktree แยกจาก runtime
+ผลนี้ไม่ใช่ release claim และไม่แก้หลักฐาน v1.2.4 ที่บันทึกไว้ก่อนหน้า
+WSL ผ่าน 162/162 tests ด้วย `-W error::ResourceWarning`, shellcheck และ Bash syntax
+[CI ที่ code head เดียวกัน](https://github.com/sc28249782/hermes-mcp-bridge/actions/runs/39209783419) ผ่าน
+
+ใช้ actual `OpenCodeTasks` controller กับ OpenCode CLI v2.0.32 และ
+`opencode-go/glm-5.3-flash` ใน workspace/state ชั่วคราวแยกกัน
+กำหนด runtime 60 วินาที, per-stream output cap 262144 bytes ด้วย in-memory config
+ใช้ native policy เดิม ไม่ส่ง `--auto` และไม่เปลี่ยน permission config
+
+| ข้อทดสอบ | หลักฐานและผล |
+| --- | --- |
+| Submit/status/result | native response parsed จาก JSONL; terminal `completed` |
+| Request replay | input และ request ID เดิมคืน job/session เดิม ไม่เรียก model ซ้ำ |
+| Session context | prompt ถัดไปใช้ session เดิมและตอบ token ที่ให้จำได้จริง |
+| Native read/edit | ใช้ absolute fixture path; tool state `completed`; ตรวจ bytes ว่า `BEFORE → AFTER` จริง |
+| Resumed edit | session เดิมแก้ไฟล์เดิมเป็น `SECOND`; ตรวจ bytes ตรงค่า ไม่อาศัยคำกล่าวของ model |
+| Cancel | พบ CLI child ของ worker ก่อนส่ง cancel; terminal `cancelled` และ child exit ยืนยันด้วย owned process identity |
+| MCP fixture | actual SDK stdio initialize/discovery = 33; submit/replay/status/result/resume/cancel/recent ผ่านด้วย fixture CLI |
+
+ข้อจำกัดที่ยังคงบันทึก:
+
+- การแก้ fixture ด้วย relative path รอบแรก failed เพราะ native tool แจ้ง file not found
+  bridge จัดเป็น `tool_error_event` และไฟล์ไม่เปลี่ยน
+  การทดสอบ absolute path สองรอบผ่าน แต่ยังไม่พิสูจน์สาเหตุภายในของ relative-path failure
+  ให้ระบุ workspace และ absolute target path ในคำขอแก้ไฟล์ที่ต้องการความชัดเจน
+- ไม่อ้าง HTTP API, ACP, native permission reply, read-only sandbox หรือ network isolation
+- การทดสอบ model จริงผ่าน controller และการทดสอบ MCP ผ่าน fixture เป็นคนละชั้น
+  ยังไม่อ้างว่า model จริงถูกสั่งผ่าน authenticated Dev tunnel ใน Work chat รอบนี้
+- Production ยังคง v1.2.3 และ Dev ยังเป็น v1.2.4 candidate เดิม
+  ยังไม่ได้ติดตั้งหรือ restart ทั้งสอง runtime, ไม่แตะ shared OpenCode service
+  temp fixtures และ process ที่สร้างเพื่อทดสอบถูก cleanup
+- Dev ไม่มี supervisor สำหรับ restart อัตโนมัติที่ตรวจพบ
+  การเปิด candidate ใหม่ผ่าน tunnel ต้องใช้ launcher/env เดิมของ operator
+  ห้ามอ่าน/คัดลอก key จาก process environment และห้ามใช้ production profile แทน Dev
+
+ขั้นรับรองที่เหลือ: เปิด Dev candidate ที่เตรียมจาก PR head, refresh discovery
+แล้วตรวจ 33 tools และสั่งงาน benign หนึ่งเที่ยวผ่าน Dev plugin จริง
+ดูขั้นปฏิบัติใน [OPENCODE-TH.md](OPENCODE-TH.md)
+
+Final code head `85e3bcdb8696517c18b48657dfdd2244f43f824a` adds the cleanup-unconfirmed
+regression and redacted audit checks; [CI passes with 163 tests](https://github.com/sc28249782/hermes-mcp-bridge/actions/runs/39210918304).
+The earlier native-model proof above remains scoped to `ee62fe8`.
+New Dev candidate preparation paused at the Hermes local terminal approval gate
+for an operator-launcher draft. That draft contains unverified profile/key assumptions
+and is not an approved activation procedure. Candidate readiness and authenticated
+Dev tunnel acceptance are not claimed. No current Dev/production route was switched.

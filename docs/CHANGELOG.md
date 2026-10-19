@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased — OpenCode execution
+
+- Add the separate, disabled-by-default `opencode.execution` opt-in. Require the health adapter, existing canonical workspaces and allowed models.
+- Add `opencode_submit_task`, `opencode_task_status`, `opencode_task_result`, `opencode_cancel_task` and `opencode_recent_tasks`. Discovery is 33 only when execution is enabled. The 27-tool default and 28-tool health-only contract remain unchanged.
+- Store bridge-owned jobs and sessions with request idempotency and atomic admission. A detached worker bounds runtime and I/O. It signals its CLI group before reaping the leader. Unconfirmed cleanup remains `unknown_exit` and blocks new work.
+- Keep native OpenCode configuration and permissions. The bridge adds no sandbox and never passes `--auto`. Workspace selection limits cwd, not filesystem or network access. A completed native turn does not prove goal success.
+- Validate the initial code on WSL with 162 passing tests. Final code-head CI passes 163 tests, including the added cleanup-confirmation regression. Real CLI v2.0.32 submission, context/session reuse, replay, cancellation and absolute-path file edits pass. See [TESTING.md](TESTING.md) and [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md).
+- Authenticated Dev activation remains pending. No release contains this extension; the OpenCode adapter shipped in v1.2.4 remains health-only.
+
+
 ## v1.2.4 — released (18 October 2026; signed tag, published)
 
 - Scope note (18 October 2026): the capability-gated MCP Events track originally planned for v1.2.4 is deferred to an unversioned BLOCKED track with no assigned release and is not part of this maintenance release (OpenCode health adapter disabled by default and legacy stdio discovery guard only).
@@ -62,9 +72,9 @@ Release record: released on 18 October 2026 via GPG-signed annotated tag `v1.2.4
 - Aligned schema validation with the Codex runtime: `codex.approval_ttl_seconds` is now rejected below 60 seconds rather than failing later during runner startup.
 - Documented that the timeout watchdog runs in the persistent MCP server process; standalone local CLI approval depends on that server remaining available or on later status polling.
 
-## Unreleased
+## Historical development notes (already shipped)
 
-- Started (branch `opencode-investigate`, UNRELEASED — no assigned release): OpenCode task execution per SPEC.md section 18 — an explicit `opencode.execution` opt-in (requires the health adapter, canonical `allowed_workspaces`/`allowed_models`, and explicit prompt/runtime/output limits) adding five tools (`opencode_submit_task`, `opencode_task_status`, `opencode_task_result`, `opencode_cancel_task`, `opencode_recent_tasks`; 33 tools when enabled) with a durable detached worker, bridge-owned `ses_` sessions with same-workspace/model resume, `request_id` idempotency, global and per-session concurrency 1, and the WNOWAIT process-group cleanup invariant reused from the health adapter. Boundary: full bridge privileges, no sandbox, cwd allowlist is not isolation, no permission configuration injection, no `--auto`, native policy applies unchanged, `completed` is not goal success, and `permission_required` is only an explicit protocol event (otherwise bounded timeout). Work in progress; tests not yet verified; no released surface may claim any of this. v1.2.4 remains health-only shipped.
+
 
 > Historical note (18 October 2026): every item below this point shipped in v1.2.0 or a later release recorded above; kept here as history.
 

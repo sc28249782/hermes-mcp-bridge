@@ -15,3 +15,11 @@ This matrix records the released v1.2.4 compatibility baseline (same components 
 | OpenCode CLI (optional) | v2.0.32 (health-only, opt-in) | `opencode_health` | disabled by default; live acceptance ครอบคลุมเฉพาะ `--version` (18 ตุลาคม 2026); discovery 27 tools เมื่อปิด, 28 เมื่อเปิด |
 
 การเปลี่ยน component นอก matrix ไม่ได้แปลว่าไม่รองรับ แต่ต้องทำ acceptance checklist ซ้ำก่อนใช้งาน production.
+
+## OpenCode execution — unreleased extension
+
+ส่วน execution ใช้ OpenCode CLI v2.0.32 บน Linux/WSL2 ผ่าน `run --standalone --format json`
+พร้อม stdin prompt และ session ที่ bridge เป็นเจ้าของ ใช้ detached worker และ Linux `waitid(WNOWAIT)`
+จึงไม่มี Windows-native acceptance ฟีเจอร์นี้ไม่อยู่ใน signed v1.2.4 และไม่อ้าง HTTP v1/v2 API,
+ACP, MCP Events หรือ native permission replies เป็น surface ที่รองรับ
+ดู [OPENCODE-TH.md](OPENCODE-TH.md) และผลตรวจใน [TESTING.md](TESTING.md)

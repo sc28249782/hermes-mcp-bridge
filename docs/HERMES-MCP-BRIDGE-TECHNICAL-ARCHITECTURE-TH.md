@@ -366,3 +366,17 @@ accepted + run_id
 ```
 
 จุดสำคัญคือแถว SQLite ถูกสร้างก่อน upstream submission เพื่อให้ timeout หลัง upstream รับงานแล้วสามารถใช้ idempotent replay ที่ปลอดภัยได้ และ terminal result ถูก cache เพื่อให้การอ่านผลยังทำได้หลังข้อมูล upstream หมดอายุ
+
+## OpenCode execution extension (unreleased; SPEC §18)
+
+`bridge.py` เปิดห้า execution tools เฉพาะเมื่อ operator เปิด `opencode.execution`
+`opencode_tasks.py` ตรวจ workspace/model, จอง global slot ด้วย SQLite transaction
+และบันทึก request fingerprint/job/session ก่อนเริ่ม `opencode_worker.py`
+worker เป็น parent ของ private OpenCode CLI, ส่ง prompt ผ่าน stdin, จำกัด pipe/log/runtime
+และรับ cancel flag ผ่าน SQLite จึงทำงานต่อได้เมื่อ MCP disconnect
+ทุก group signal เกิดก่อน reap CLI leader ตาม WNOWAIT invariant
+controller ไม่ส่ง signal ไปยัง PID ที่อ่านจากฐานข้อมูล; ถ้า worker identity หายให้เป็น `unknown_exit`
+
+เส้นทางนี้ไม่ผ่าน Hermes API และไม่เพิ่ม sandbox นโยบาย OpenCode ของ operator ยังคงมีผล
+workspace allowlist จำกัด cwd ไม่ใช่ขอบเขต filesystem/network
+ผลลัพธ์เป็น JSONL ที่ไม่ควรถือเป็นคำสั่งของ bridge ดูขั้นใช้งานใน [OPENCODE-TH.md](OPENCODE-TH.md)

@@ -1,6 +1,7 @@
 # Hermes MCP Bridge Specification
 
-Status: normative contract for the released baselines (v1.2.3, extended by v1.2.4 sections 16-17) and explicitly marked future requirements  
+Status: normative contract for the released baselines (v1.2.3, extended by v1.2.4 sections 16-17) and explicitly marked unreleased/future requirements
+
 Current released baseline: v1.2.4 (released 2026-10-18)  
 Canonical companion: TESTING.md for the MCP discovery count
 
@@ -18,11 +19,13 @@ The terms MUST, MUST NOT, SHOULD, SHOULD NOT, and MAY are normative.
 
 ## 2. Architectural boundaries
 
-The bridge has three independent backend paths:
+The released bridge has three independent backend paths:
 
 1. Hermes path: authenticated requests to the configured loopback Hermes Runs API.
 2. Codex path: policy-checked subprocess jobs executed only in configured workspaces.
 3. Local Hands path: bounded local read-only filesystem operations that do not invoke Hermes or Codex.
+
+Section 18 adds a separately enabled, unreleased fourth path for native OpenCode CLI tasks. It does not run through the Hermes API or Codex sandbox.
 
 A backend being unavailable MUST NOT cause an unrelated backend to be advertised as available. Local Hands health/list/read MUST remain independently callable when Hermes is unavailable or Codex is unavailable, subject to its own configuration and strict resolver checks.
 
@@ -240,7 +243,7 @@ This section is a compatibility boundary for the legacy stdio transport only, in
 
 ## 18. OpenCode task execution (unreleased; no assigned release)
 
-This section is an unreleased amendment. It is not part of the v1.2.3 baseline and carries no v1.2.4 claim; sections 16 and 17 keep their released history unchanged. This section is the specification update required by sections 3, 4, and 14 for the tool-count change it introduces. It overrides the section 16 rule that the adapter MUST NOT provide task submission, sessions, cancellation, or permission handling ONLY for the explicit execution opt-in defined here. The health-only default behavior of section 16 is unchanged.
+This section is an unreleased amendment. It is not part of the v1.2.3 baseline and carries no v1.2.4 claim; sections 16 and 17 keep their released history unchanged. This section is the specification update required by sections 3, 4, and 14 for the tool-count change it introduces. It overrides the section 16 rule that the adapter MUST NOT provide task submission, sessions, cancellation, or permission handling ONLY for the explicit execution opt-in defined here. The health-only default behavior of section 16 is unchanged. For this opt-in only, section 17 discovery-count references extend to 33 tools; the stdio guard and initialize capabilities remain unchanged.
 
 ### 18.1 Enabling and validation
 
@@ -251,6 +254,10 @@ This section is an unreleased amendment. It is not part of the v1.2.3 baseline a
 ### 18.2 Tool surface
 
 - When execution is enabled, the bridge MUST register exactly five tools and discovery becomes 33 tools under the change-control rules: `opencode_submit_task(prompt, workspace, request_id, session_id=None, model=None)`, `opencode_task_status(job_id)`, `opencode_task_result(job_id, offset=0, max_chars=12000)`, `opencode_cancel_task(job_id)`, and `opencode_recent_tasks()`. Tool annotations follow the existing read/write split: submit and cancel are write; the others are read.
+
+- Acknowledgements contain `job_id`, `status`, `session_id`, and `model`; the job/session identifiers remain stable on replay, while status may advance.
+- Status contains `job_id`, `status`, `session_id`, `model`, `created`, `started`, `finished`, `exit_code`, `transition_actor`, `transition_reason`, and `result_reason`. Timestamps are Unix seconds; unobserved timestamps and exit codes are null.
+- Result contains the acknowledgement fields plus `offset`, `next_offset`, `content`, `truncated`, and `note`. Cancel contains the acknowledgement fields plus `note`. Recent contains `jobs` (at most 30 redacted entries with job/status/session/model/created/finished/transition_reason) and `redacted` true.
 
 ### 18.3 Execution boundary
 
@@ -268,15 +275,15 @@ This section is an unreleased amendment. It is not part of the v1.2.3 baseline a
 - A separate detached worker module owns each job. The worker remains the parent of the CLI process after the bridge disconnects and writes the terminal record to a private SQLite state database owned by the bridge. State files and output files MUST have mode 0600; private state directories MUST have mode 0700. Job outputs MUST be stored outside every allowed workspace.
 - Job states are `pending`, `running`, and the terminal states `completed`, `failed`, `cancelled`, `permission_required`, and `unknown_exit`. A runtime deadline produces `failed` with a bounded timeout reason. An observed native permission request produces `permission_required`; the bridge MUST NEVER auto-approve. An unresolved ask that outlives the bounded deadline produces `failed` with the timeout reason, never success.
 - Admission MUST be atomic. Concurrency is 1 globally and 1 per session. The bridge MUST NOT queue jobs without bound: when the global slot is busy, submission fails with an explicit busy result.
-- Idempotency: a submission whose `request_id` matches a stored job with the same canonical input fingerprint (prompt, workspace, model, session) MUST return the original acknowledgement. The same `request_id` with a different fingerprint MUST be rejected without a second model invocation.
-- Cancellation is owned by the worker through a database cancel flag. Every `killpg` MUST be sent only by the direct parent of the CLI leader, only while the leader is still an unreaped child of that parent (the section 16 WNOWAIT invariant), and the leader MUST be reaped exactly once, by handle, after the final group signal. The controller MUST NOT signal a stored PID or PGID. A timeout is enforced by the worker independently of controller polling.
+- Idempotency: a submission whose `request_id` matches a stored job with the same canonical input fingerprint (prompt, workspace, model, session) MUST return the original job and session identifiers with their current status. The same `request_id` with a different fingerprint MUST be rejected without a second model invocation.
+- Cancellation is owned by the worker through a database cancel flag. Every `killpg` MUST be sent only by the direct parent of the CLI leader, only while the leader is still an unreaped child of that parent (the section 16 WNOWAIT invariant), and the leader MUST be reaped exactly once, by handle, after the final group signal. The controller MUST NOT signal a stored PID or PGID. A timeout is enforced by the worker independently of controller polling, including when the CLI never reads stdin. TERM/KILL/reap and post-cleanup pipe drain use separately bounded grace periods.
 - If the worker crashes or its identity is uncertain, the job MUST become `unknown_exit`. The bridge MUST NOT invent a success or a cancel, MUST NOT signal a process it cannot prove it owns, and MUST reject new submissions conservatively while a job is `running` or `unknown_exit`. Cancellation reaches `cancelled` only after the worker confirms cleanup. Terminal states are immutable.
 
 ### 18.6 Output contract
 
-- The CLI stdout MUST be JSON lines of bounded objects. Every event MUST carry the job session identifier; a mismatch, malformed line, output overflow, truncation, or empty stream MUST fail the job. Process exit 0 alone is insufficient.
+- The CLI stdout MUST be JSON lines of bounded objects (at most 65536 bytes per line). Per-stream disk output MUST NOT exceed execution `max_output_bytes`. Every event MUST carry the job session identifier; a mismatch, malformed line, output overflow, truncation, or empty stream MUST fail the job. Process exit 0 alone is insufficient.
 - A job MAY reach `completed` only when the bridge observed valid response evidence (a nonempty text response or a final step-finish event with a stop reason) AND the process exited 0. A text-only refusal or denial from the model MAY still be a `completed` native turn. Documents MUST state that callers inspect the output, and that the bridge cannot infer goal success or permission outcomes from it.
-- Result pagination returns untrusted content; the caller MUST treat it as model output. `status` and `recent` responses MUST be redacted: no prompt text, output content, credentials, or detailed paths. Audit records MUST NOT contain prompts, output, or credentials.
+- Result pagination uses character offsets and a `max_chars` range of 1-24000. `next_offset` advances by returned characters; `truncated` describes currently stored output, not whether a running job can produce more. Result pagination returns untrusted content; the caller MUST treat it as model output. `status` and `recent` responses MUST be redacted: no prompt text, output content, credentials, or detailed paths. Audit records MUST NOT contain prompts, output, or credentials.
 
 ### 18.7 Acceptance mapping
 

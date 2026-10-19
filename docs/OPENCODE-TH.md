@@ -6,15 +6,18 @@
 สิ่งที่เผยแพร่แล้วใน v1.2.4 (18 ตุลาคม 2026) คือ **health-only adapter** (`opencode_health`
 tool เดียว) เท่านั้น
 
-## สถานะ tool count (provisional)
+## Tool count
 
 - Baseline canonical: **27 tools** (default)
 - เปิด `opencode` health adapter: **28 tools** (released v1.2.4)
 - เปิด `opencode.execution` (เอกสารนี้): เพิ่ม 5 tools → **33 tools**
-  - ตัวเลข 27/28/33 เป็นค่าตาม contract; ยังไม่ยืนยันผ่าน test suite ขั้นสุดท้าย
-    จนกว่าการตรวจสอบจะเสร็จ อย่าอ้างว่า "ผ่านแล้ว"
+  - พิสูจน์ discovery ผ่าน SDK stdio fixture ทั้งสามรูปแบบ; ผล suite เต็มและ live acceptance ดู [TESTING.md](TESTING.md)
 
-## Schema `opencode.execution` (opt-in เดี่ยวชัดเจน)
+## Configuration
+
+Merge fragment นี้เข้า `bridge-config.json` เดิม ห้ามแทนที่ไฟล์ทั้งฉบับ
+แทนค่า binary และ workspace ด้วย absolute path จริงที่ operator ตรวจแล้ว
+workspace ต้องเป็น directory ที่มีอยู่ และ state/output ของ bridge ต้องอยู่นอก workspace ทุกแห่ง
 
 ```json
 {
@@ -40,7 +43,7 @@ tool เดียว) เท่านั้น
 - `allowed_models` ต้องเป็น list ที่ไม่ว่าง รูปแบบ `provider/model` (เช่น
   `opencode-go/glm-5.3-flash`)
 - ขอบเขตจำกัด: `max_prompt_chars` 1-131072 (default 32000), `max_runtime_seconds`
-  30-14400 (default 1800), `max_output_bytes` 65536-8388608 (default 524288) —
+  1-14400 (default 1800), `max_output_bytes` 65536-8388608 (default 524288) —
   **เป็นค่าลงท้ายแยกจาก** `opencode.max_output_bytes` ของ health adapter ห้าม reuse กัน
 
 ## ขอบเขตความปลอดภัย (อ่านก่อนเปิดใช้ — ไม่มี sandbox)
@@ -48,7 +51,7 @@ tool เดียว) เท่านั้น
 - CLI ที่กำหนดรันด้วย **สิทธิ์เต็มของ bridge process** bridge ไม่เพิ่ม sandbox ใด ๆ
 - การเลือก workspace เป็น **cwd allowlist เท่านั้น** ไม่ใช่ filesystem isolation
   และไม่ใช่ network isolation; process ที่รันอ่านไฟล์อื่นและออกเน็ตได้ตามสิทธิ์ OS
-- bridge **ไม่ inject permission configuration** ไม่ตั้ง `OPENCODE_CONFIG`,
+- bridge **ไม่ inject permission configuration** ไม่เปลี่ยนหรือลบค่าของ operator ใน `OPENCODE_CONFIG`,
   `OPENCODE_CONFIG_CONTENT`, `OPENCODE_CONFIG_DIR` และไม่ใช้ flag ที่เปลี่ยนพฤติกรรม
   permission — config, plugins และ saved permissions ของ OpenCode ฝั่ง operator ทำงาน
   ตามปกติ (native policy)
@@ -81,6 +84,55 @@ model ซ้ำ. Concurrency 1 ทั้งระบบและต่อ sessio
 - `unknown_exit` เมื่อ worker เสียการควบคุม process — ไม่มีการสรุป success/cancel แทน
 - stderr/stdout มี cap ตาม `max_output_bytes`; state/log เก็บ 0600, ไดเรกทอรี 0700,
   output อยู่นอก workspace ทั้งหมด; audit ไม่มี prompt/output/credentials
+
+## ตัวอย่างการสั่งงาน
+
+หลังติดตั้ง branch สำหรับ Dev และเปิด config ให้ restart เฉพาะ Dev instance
+ตรวจว่า profile `hermes-wsl-dev` ชี้ `bridge.sh` ของ candidate ใหม่ และใช้ health port 8081
+ห้ามเรียก `tunnel.sh init/run` เดิมเพื่อเปิด Dev เพราะสคริปต์ใน baseline กำหนด
+profile `hermes-wsl` ของ production ไว้ตายตัว ให้ใช้ launcher ของ operator ที่ระบุ
+`hermes-wsl-dev` ชัดเจนและใช้ authenticated environment เดิม
+แล้ว refresh plugin discovery ให้พบ 33 tools ก่อนส่งงานจริง
+release v1.2.4 เดิมไม่มี execution tools เหล่านี้
+
+เรียก `opencode_submit_task`:
+
+```json
+{
+  "prompt": "อธิบายโครงสร้างโปรเจกต์นี้ ห้ามแก้ไฟล์",
+  "workspace": "/absolute/canonical/workspace/path",
+  "request_id": "opencode-20261019-01",
+  "model": "opencode-go/glm-5.3-flash"
+}
+```
+
+คำขอใน prompt ไม่ใช่ permission policy หรือ sandbox
+ใช้ `job_id` ที่ตอบกลับเรียก `opencode_task_status` แล้ว `opencode_task_result`
+`offset` เป็นจำนวนตัวอักษร เริ่มจาก 0 และใช้ `next_offset` ของหน้าก่อน
+`max_chars` อยู่ในช่วง 1-24000; `truncated` บอกว่ายังมี output ที่เก็บไว้ให้อ่านต่อ
+ถ้างานยัง `running` ต้องติดตาม status และอ่าน output ที่เพิ่มภายหลังด้วย
+
+งานถัดไปใช้ request ID ใหม่ พร้อม `session_id` จากงานที่ completed ล่าสุด
+และ workspace เดิม ไม่ต้องระบุ model อีกเพราะ bridge ใช้ model เดิม
+ห้ามสร้าง session ID เองหรือใช้ session ของ OpenCode ที่สร้างนอก bridge
+เมื่อ retry งานเดิมให้ใช้ request ID และ input เดิมทุก field รวมถึงการละ `session_id`
+ถ้าคำขอครั้งแรกไม่ได้ระบุ field นี้; job/session เดิมจะถูกคืนพร้อมสถานะปัจจุบัน
+
+เรียก `opencode_cancel_task` ด้วย job ID เพื่อขอหยุด แล้วติดตาม status จน terminal
+การยกเลิกไม่ undo ไฟล์หรือผลข้างเคียงที่เกิดแล้ว
+ใช้ `opencode_recent_tasks` กู้ job/session IDs หลัง reconnect
+
+Resume รองรับเฉพาะ session ที่งานล่าสุด completed
+ถ้าเป็น failed/cancelled/permission_required ให้ตรวจผลก่อนเริ่ม session ใหม่
+ถ้าเป็น `unknown_exit` ให้หยุดส่งงานและให้ operator ตรวจ process ที่เกี่ยวข้อง
+bridge ไม่มี remote force-unblock และไม่ฆ่า PID ที่พิสูจน์ ownership ไม่ได้
+อย่าลบฐานข้อมูลเพื่อหลบด่านนี้ขณะอาจยังมีงานทำงานอยู่
+
+ข้อจำกัด output: JSONL แต่ละบรรทัดไม่เกิน 65536 bytes; stdout/stderr แต่ละ stream
+ไม่เกิน execution cap ที่กำหนด แม้ตั้ง cap สูงกว่านี้ก็ไม่ขยายขนาดต่อบรรทัด
+หลัง deadline อาจใช้เวลาสั้นเพิ่มเติมตาม cleanup grace และการ drain ที่มีขอบเขต
+`bridge_version.mcp_discovery_count` ยังคงรายงาน canonical default 27
+ให้ตรวจ `tools/list`/discovery จริงเพื่อยืนยัน 33 tools ของ configuration ที่เปิด execution
 
 ## ข้อควรระวังสำหรับ operator
 
