@@ -132,3 +132,8 @@ PR #59 ผ่าน external APPROVE ที่ `b7ff97a` และ operator ย�
 ## Live Dev checkpoint
 
 เมื่อ 20 ตุลาคม 2026 parent ตรวจ P1 aggregate ผ่าน real Dev connector ที่ pin `27030bb` และตรวจ restoration กลับ `e7add7e`. ผล healthy/missing/locked และข้อจำกัดอยู่ใน [live record](CONTEXT-P1-DEV-ACCEPTANCE-TH.md). รอ external review ของ record; ยังไม่มี P1 release/deployment หรือ dedicated read-only mount acceptance. Scope/value ของ P1 และ P2 gates ไม่เปลี่ยน.
+
+
+## Release scope proposal checkpoint
+
+PR #61 ผ่าน external APPROVE ที่ `6d93808` และ operator ยืนยัน merge ที่ `4513b30`; สถานะรอ review ข้างต้นเป็น historical checkpoint. [ข้อเสนอ release v1.2.7](V1.2.7-RELEASE-DECISION-TH.md) รวม P1 กับ Codex read-ahead fix แต่ยังไม่มี operator scope decision. ไม่มี P2/apply/delete หรือ release/deployment จาก checkpoint นี้.
