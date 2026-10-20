@@ -190,10 +190,10 @@ Native OpenCode อาจเก็บ session ของตัวเองตา�
 filesystem หรือ network และไม่เปลี่ยน native permissions.
 
 
-## Context soft-cap / prune — proposal only
+## Context P1 — scope approved, implementation pending
 
-[Scope proposal](CONTEXT-RETENTION-SCOPE-TH.md) แยก registry metadata ออกจาก model/chat history.
+[Scope decision](CONTEXT-RETENTION-SCOPE-TH.md) บันทึก operator approval ของ P1 เมื่อ 20 ตุลาคม 2026 เวลา 15:57:29 +07. [SPEC §20](SPEC.md#20-context-p1--approved-scope-future-implementation-no-assigned-release) กำหนด contract สำหรับ review ก่อน implementation และแยก registry metadata ออกจาก model/chat history.
 ยังไม่มี soft-cap หรือ prune CLI ใน production.
 Baseline close เก็บ row ไว้ และ recent จำกัดเฉพาะผลลัพธ์ที่คืน.
-ข้อเสนอ P1 มี warning กับ read-only preview; ไม่มีการลบ rows หรือแก้ backend session.
+P1 scope มี warning กับ read-only preview; ยังไม่มีการลบ rows หรือแก้ backend session. Config/CLI/fields ใหม่ใน §20 ยังใช้ไม่ได้ใน signed v1.2.6; อย่าอ้างว่า scope approval เปิดใช้งานให้แล้ว.
 การเปิด apply ต้องผ่าน lifecycle/concurrency review และ SPEC amendment แยก.

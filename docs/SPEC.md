@@ -335,3 +335,81 @@ Post-tag checkpoint (20 October 2026): signed v1.2.6 at `cee144e14e53d971d986de3
 Deployment checkpoint (20 October 2026): the operator separately approved the production deployment and maintenance window at 13:52:34 +07. Production now reports v1.2.6/release-archive with embedded build input `e3e698a7a220bf14a8bb4d1260bf2ded7e666b56`. Scoped deployment evidence and the section 19.4 follow-up closure are recorded in [V1.2.6-DEPLOYMENT-TH.md](V1.2.6-DEPLOYMENT-TH.md). Earlier post-tag statements describe the checks before this deployment. Sections 19.1–19.4 and the Local Hands/MCP Events gates are unchanged.
 
 Privacy follow-up closure checkpoint (20 October 2026): the operator supplied external review with verdict APPROVE for PR #54 at `7b2886d`, including read-only production verification. Together with the recorded independent implementation review, scoped live Dev acceptance, signed-release audit and separately approved deployment, this closes the section 19.4 privacy follow-up within the documented evidence limits. This checkpoint does not establish production OpenCode model-task acceptance or resolve the Python 3.14 truncate-race observation. Local Hands and MCP Events gates remain unchanged. The approval at `7b2886d` does not cover closure notes added later.
+
+## 20. Context P1 — approved scope, future implementation (no assigned release)
+
+The operator approved P1 warning plus read-only preview on 20 October 2026 at 15:57:29 +07 after review of [the scope proposal](CONTEXT-RETENTION-SCOPE-TH.md). This section defines the SPEC section 14 amendment for implementation review. It MUST NOT be represented as implemented, released or deployed until the applicable implementation and acceptance steps pass. P2 apply/delete remains deferred.
+
+### 20.1 Scope and configuration
+
+- P1 MUST observe registry metadata only. It MUST NOT compact or replay ChatGPT/model history, modify native sessions, cancel tasks, evict/close contexts, prune rows, or clean backend/audit artifacts.
+- The configuration MAY contain an optional `contexts` object with `soft_cap`. The default MUST be 1,000. The value MUST be an integer in 1–100,000; booleans MUST be rejected. Invalid values MUST fail validation. Unknown keys MUST follow the existing schema-warning convention without echoing their values.
+- Reaching the soft-cap MUST remain a warning. It MUST NOT reject an otherwise valid create/submission or change continuation, ownership or backend permissions.
+- The existing registry table, config schema version, tool names/signatures and discovery counts 27/28/33 MUST remain unchanged. No P1 deletion, scheduler, retention mutation, plan file or MCP preview/apply tool is permitted.
+
+### 20.2 Bounded registry observation
+
+The observation MUST use an at-most-`soft_cap + 1` logical-row sample from the registry. It MUST NOT fetch labels, bindings or full context rows into the observer. If the sample reaches that limit, the count is a lower bound, not an exact total. The cap does not bound filesystem bytes or total query latency.
+
+The implementation MUST add the same fixed-shape `registry` object to `bridge_status.contexts` and to the successful `bridge_context_create` response:
+
+| Field | Available observation | Unavailable observation |
+| --- | --- | --- |
+| `state` | `"ok"` | `"unavailable"` |
+| `soft_cap` | Validated integer | Same validated integer |
+| `rows_lower_bound` | Sample count, 0 through cap+1 | `null` |
+| `count_capped` | `true` iff sample count = cap+1 | `null` |
+| `soft_cap_reached` | `true` iff sample count ≥ cap | `null` |
+| `warning` | `"context_soft_cap_reached"` when reached, otherwise `null` | `"context_registry_unavailable"` |
+
+- The object MUST contain only these scalar fields and MUST fit within 512 compact ASCII-escaped JSON bytes. This is not a whole-MCP-envelope limit and does not redact existing create metadata.
+- Storage/query/lock errors MUST produce the unavailable shape. The observer MUST NOT substitute zero, echo exception details, or claim that the registry is healthy.
+- `bridge_status` MUST retain its existing fields and `contexts.explicit_only=true`. Registry unavailability MUST make its root `ok=false`; a soft-cap warning alone MUST NOT make it false. Observation failure MUST remain a structured result, not a tool exception. This is a local-only check, with no upstream health request.
+- Create MUST perform the normal durable create first, then observe. Observation failure after a successful create MUST return that created context plus the unavailable observation; it MUST NOT turn the successful create into a rejected operation or retry it. Existing create/ownership/storage failures retain their prior behavior.
+- `bridge_context_status` and `bridge_context_recent` response semantics MUST remain unchanged. Observations MUST NOT update timestamps, bindings, registry rows or audit logs; the existing create audit event remains.
+- Observation reads MUST use a read-only connection and a lock-wait timeout of at most one second. They MUST NOT initialize/migrate schema, chmod files, or fall back to write mode. Existing normal bridge initialization is outside this observation operation.
+
+### 20.3 Local preview entry point
+
+P1 MUST add only this local CLI action; it is not a currently implemented command:
+
+`bridge.sh context-prune-preview --state-dir ABSOLUTE_DIRECTORY [--older-than-days N] [--limit N]`
+
+| Argument | Contract |
+| --- | --- |
+| `--state-dir` | Required existing absolute directory; select only its existing regular `contexts.sqlite3` |
+| `--older-than-days` | Default 30; integer 30–36,500 |
+| `--limit` | Default 100; integer 1–1,000 |
+
+- Argument errors MUST NOT echo caller values. `--apply` or other mutation options MUST be rejected.
+- An explicit preview action MUST NOT be redirected into events-probe/server mode by wrapper environment overrides, including `BRIDGE_EVENTS_PROBE`.
+- The action MUST dispatch before configuration/credential loading and before constructing Bridge, Codex, Hands, OpenCode or ContextRegistry runtimes. It MUST NOT load provider env/config, start a server/worker, or call upstream/native/model/process-control APIs.
+- It MUST open only the existing registry using a safely encoded SQLite URI with `mode=ro` and a lock-wait timeout of at most one second. It MUST validate the existing ordinary `contexts` table and its nine expected columns: `context_id` TEXT primary key; `label` TEXT NOT NULL; `created`/`updated` REAL NOT NULL; `closed` REAL; and the four TEXT reference columns listed below. Extra/missing columns or incompatible declared types/constraints are unsupported. Missing/unsupported schema MUST fail without creating or migrating it.
+- It MUST NOT use `immutable=1` or `nolock=1`, disable change/locking checks, change journal mode, request a checkpoint/VACUUM, or fall back to read-write mode.
+- It MUST NOT explicitly create/delete/change registry, audit, backup, plan or sidecar files or permissions. SQLite-managed locking/shared-memory/temporary-file effects MUST NOT be described as impossible. A read-only connection is not a filesystem-wide no-write guarantee.
+- If SQLite cannot safely read the current journal/WAL state, preview MUST fail with the constant unavailable result. It MUST NOT bypass that failure by ignoring WAL/locks or modifying permissions.
+- The implementation MUST document and test rollback-journal and WAL/sidecar behavior. See [SQLite URI parameters](https://sqlite.org/uri.html) and [read-only WAL databases](https://sqlite.org/wal.html#read_only_databases).
+
+### 20.4 Preview selection and result
+
+- Preview MUST capture one finite UTC wall-clock instant and calculate `cutoff_utc = now - older_than_days * 86,400` for that call. It MUST NOT infer backend inactivity from timestamps or upstream 404 responses.
+- A candidate MUST have a numeric finite non-negative `closed` timestamp at or before the cutoff and all four reference columns NULL: `hermes_session_id`, `hermes_run_id`, `codex_workspace`, `codex_job_id`. Open rows, bound rows and malformed closed timestamps MUST be excluded without type coercion.
+- Selection MUST use `closed ASC, context_id ASC` ordering and materialize at most limit+1 candidate markers, not complete rows or identifiers. SQLite may scan/sort more than the output batch; P1 does not promise a total scan/I/O/time bound.
+- `candidate_count` MUST be the smaller of the materialized count and limit. `has_more` MUST be true iff the extra candidate marker was obtained. This is a bounded summary, not a reusable deletion plan or a cross-call immutable snapshot.
+- The successful JSON result MUST contain exactly `ok=true`, `mode="preview_only"`, `cutoff_utc` (Unix seconds), `older_than_days`, `limit`, `candidate_count`, `has_more` and the constant `note`: `"Preview only; no rows are deleted. SQLite may use locks or sidecar files."`
+- No label, row ID, backend reference, workspace/state path, prompt or output content MAY appear in preview output. Success MUST exit 0 and fit within 1,024 compact ASCII-escaped JSON bytes.
+- Invalid arguments MUST exit 2 with only `{"ok":false,"error":"Invalid context preview arguments."}`. Missing/unreadable/unsupported/locked storage or an invalid clock MUST exit 1 with only `{"ok":false,"error":"Context preview is unavailable."}`. Expected failure output MUST be JSON on stdout with no traceback, path or raw exception on stderr. Static `--help` MAY retain normal help text and exit 0.
+- Preview MUST NOT perform data/schema writes, mutations in any backend, audit writes, cleanup or row deletion. Native SQLite sidecar effects remain subject to the explicit scope above.
+
+### 20.5 Acceptance and deferred work
+
+Implementation acceptance MUST cover:
+
+- Configuration defaults/range/type/boolean rejection; counts below/at/above cap, capped lower bounds, output size/field limits, unavailable/error paths and non-blocking create acknowledgement after an observation failure.
+- Read-only observation/preview connections, bounded logical sampling/materialization, one-second lock waits, unchanged source row data, no schema/permission changes and no explicit sidecar mutations.
+- Early CLI dispatch with credential/config/backend constructors and upstream/native/process-control calls instrumented to fail if invoked.
+- Missing/invalid DB/schema, special characters in the state path, read-only filesystem, rollback-journal, WAL/sidecar and contention cases. Tests MUST report observed SQLite/sidecar behavior without claiming no filesystem effects.
+- Cutoff equality, default/min/max age and batch, malformed/non-finite/negative timestamps, each reference field, open/closed cases, deterministic ordering and one extra candidate for `has_more`.
+- Explicit context continuation and current status/recent/ownership semantics, discovery 27/28/33, and full suites on Python 3.12 and 3.14, plus isolated local CLI acceptance before release claims.
+
+P1 does not repair the documented close/bind/submission interleaving. P2 apply/delete MUST remain absent until a separate SPEC section 14 review defines lifecycle linearization, no-lost-acknowledgement handling, atomic eligibility and local approval/recovery. Observation counters/annotations, native context compaction, Local Hands and MCP Events remain separate.

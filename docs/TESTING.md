@@ -144,3 +144,7 @@ Release verification passed for signed tag `v1.2.3` at `c610660637dbdcfa0b8ddb7b
 ## Context retention scope — baseline inspection (20 October 2026)
 
 Source `e24fa3e`: context tests 2/2 ผ่านบน Python 3.12.14. Temporary-state probe ยืนยัน recent limit เป็น response limit และ close ไม่ลบ row. Synthetic precheck/close interleaving เขียน binding หลัง close ได้; ไม่อ้าง production incident หรือ native-task reproduction. ดู [scope proposal](CONTEXT-RETENTION-SCOPE-TH.md) สำหรับ phase boundaries และ acceptance ที่ยังต้องทำ. ไม่มี runtime/schema/config/SPEC change และไม่มี full WSL-suite rerun claim จาก docs-only proposal นี้.
+
+## Context P1 — future acceptance contract (SPEC §20)
+
+Operator อนุมัติ scope เมื่อ 20 ตุลาคม 2026 เวลา 15:57:29 +07. [SPEC §20](SPEC.md#20-context-p1--approved-scope-future-implementation-no-assigned-release) กำหนด aggregate output, warning/error shape, preview-only CLI, cutoff/batch predicate และ read-only/WAL acceptance สำหรับ implementation review. ต้องทดสอบ early dispatch รวม wrapper override, ไม่มี credential/backend initialization, create acknowledgement เมื่อ observation อ่านไม่ได้, 512/1,024-byte output limits และ no-data-mutation ก่อนอ้าง implemented/accepted. ยังไม่มี P1 tests/runtime หรือผล live preview acceptance จาก amendment นี้; evidence baseline ใน PR #57 คงขอบเขตเดิม.
