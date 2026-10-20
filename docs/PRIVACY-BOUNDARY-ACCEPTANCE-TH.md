@@ -1,7 +1,7 @@
 # Privacy metadata — boundary connection probe
 
 เตรียม: 19 ตุลาคม 2026. Dev transport probe: 20 ตุลาคม 2026 (~10:13 +07).
-สถานะ: Dev transport ผ่านตามขอบเขต fixture/fault injection; restoration รอบนี้ยังรอตรวจ.
+สถานะ: Dev transport และ restoration ผ่านตามขอบเขต fixture/fault injection; รอ independent review และ release/deployment decision.
 ฐาน: `f4f500967463a77adf737535825ab27bc3092fc8` หลัง merge PR #48.
 
 ## ขอบเขต
@@ -66,7 +66,7 @@ Approval cases และ cap faults เป็น synthetic tests; อย่า a
 
 - Local SDK stdio regression ตรวจ exact 8,191/8,192 success และ 8,193 error พร้อม approval ทั้งห้ารูปแบบ.
 - Candidate `f570d03f998657a11fe77069120175030cc3c0d3`: WSL full suite 184/184, exit 0; focused privacy 19/19, shellcheck, Bash syntax และ whitespace checks ผ่าน. Code-head CI [39271455485](https://github.com/sc28249782/hermes-mcp-bridge/actions/runs/39271455485) ผ่าน. หลักฐานเป็น maintainer automation ไม่ใช่ external review.
-- Dev tunnel activation, exact-head identity และ live boundary/approval checks ผ่านตามตารางด้านล่าง; restored-route proof ยัง pending.
+- Dev tunnel activation, exact-head identity และ live boundary/approval checks ผ่านตามตารางด้านล่าง; restored-route proof ผ่านตาม checkpoint ด้านล่าง.
 - Privacy follow-up ยังเปิดจน independent review, applicable live acceptance และ release/deployment decision ผ่านตาม [SPEC.md](SPEC.md) §19.4.
 - Local Hands mutation และ MCP Events gates คงเดิม. ดู [ROADMAP.md](ROADMAP.md) และ scoped acceptance รอบก่อนใน [PRIVACY-DEV-ACCEPTANCE-TH.md](PRIVACY-DEV-ACCEPTANCE-TH.md).
 
@@ -100,5 +100,5 @@ Boundary PASS นี้เป็น post-filter fault injection เข้า pro
 Approval PASS ใช้ in-process fake upstream; ไม่ใช่ actual Hermes HTTP หรือ native permission/approval acceptance.
 ผลไม่ได้เปลี่ยน release, production, directory-repair หรือ Codex read-cap acceptance scope.
 
-**Restoration ยัง pending:** operator ต้องคืน Dev โดยไม่ใส่ override แล้ว parent ตรวจ pin `e7add7e` และสถานะเดิม.
-Privacy follow-up ยังเปิดรอ restoration, independent review และ release/deployment decision.
+**Restoration: ผ่าน.** หลัง operator คืน route แล้ว parent ตรวจผ่าน Dev connector: source `git-worktree`, revision `e7add7e594fb2cc0029dd53b628c85f9a7c1a87c`, stamp `1.2.4/v1.2.4`, schema 1 และ canonical default discovery 27. Hermes/Codex health ok, registered runs/jobs 0, state เดิม mode 0700, watchdog ทำงานทุก 15 วินาที และ Hands disabled. Recent Hermes/Codex lists ว่าง. ไม่ตรวจ OpenCode job count เพราะ recent tool ไม่ปรากฏใน parent registry; ไม่อ้างว่าจำนวนเป็น 0.
+Privacy follow-up ยังเปิดรอ independent review และ release/deployment decision.
