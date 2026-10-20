@@ -1,5 +1,9 @@
 # Release status
 
+## v1.2.7 — proposed scope, unassigned (20 October 2026)
+
+[Scope proposal](V1.2.7-RELEASE-DECISION-TH.md) เสนอรวม Codex read-ahead fix (PR #56) กับ Context P1 (PR #58–#61). Operator decision ยัง pending; ไม่มี stamp/tag/assets/deployment ใหม่. Production identity ที่ตรวจ read-only ล่าสุดยังเป็น 1.2.6/release-archive/input `e3e698a7`, schema 1/default 27. Build input/final target สำหรับรุ่นถัดไปยังไม่ถูกเลือก. Scoped P1 Dev/restoration record ผ่าน external APPROVE ที่ `6d93808` และ merge แล้วที่ `4513b30`; ไม่ใช่ production P1 acceptance.
+
 ## Production v1.2.6 — deployment checkpoint (20 October 2026)
 
 Operator อนุมัติ deployment และ maintenance window เมื่อ 13:52:34 +07. Production อัปเกรดเป็น v1.2.6 แล้ว. Parent connector ยืนยัน release-archive/input `e3e698a7`, schema 1, state `0700`, watchdog ทำงาน, Hermes authentication verified และ OpenCode v2.0.32. Parent registry มี 33 tools ตาม config; ไม่ใช่ raw wire `tools/list` capture. Hands ยัง disabled. ดู [deployment record](V1.2.6-DEPLOYMENT-TH.md) สำหรับผลทดสอบ ข้อจำกัด และ rollback. ข้อความ deployment pending/v1.2.5 ด้านล่างเป็น checkpoint ก่อนอัปเกรด. Privacy follow-up ปิดตาม §19.4 หลัง external reviewer ให้ APPROVE แก่ PR #54 ที่ `7b2886d` เมื่อ 20 ตุลาคม 2026 ตามรายงานที่ operator ส่งในแชต; production OpenCode benign-model acceptance ผ่านแยกแล้วเมื่อ 20 ตุลาคม 2026 ตาม [acceptance record](OPENCODE-PRODUCTION-ACCEPTANCE-TH.md); ไม่ขยายเป็น write/cancel/native-permission acceptance.
