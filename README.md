@@ -1,11 +1,13 @@
 # Hermes MCP Bridge
 
-## v1.2.6 privacy scope approved — unreleased
+## v1.2.6 release candidate — unreleased
 
 A separate candidate implements the reviewed privacy requirements in [SPEC section 19](docs/SPEC.md).
 It filters Hermes metadata, enforces private directory modes and bounds Codex result reads.
 The operator approved v1.2.6 as its target scope on 20 October 2026.
-Release preparation is next; signed assets and production deployment remain pending.
+The candidate is stamped 1.2.6/v1.2.6 with reviewed build input `e3e698a7a220bf14a8bb4d1260bf2ded7e666b56`.
+Signed assets and production deployment remain pending.
+See the [release-preparation record](docs/V1.2.6-RELEASE-PREP-TH.md) for verification gates.
 See the [scope decision record](docs/PRIVACY-RELEASE-DECISION-TH.md).
 The signed v1.2.5 release and its acceptance records remain unchanged.
 
