@@ -190,10 +190,25 @@ Native OpenCode อาจเก็บ session ของตัวเองตา�
 filesystem หรือ network และไม่เปลี่ยน native permissions.
 
 
-## Context P1 — scope approved, implementation pending
+## Context P1 — candidate, review pending
 
 [Scope decision](CONTEXT-RETENTION-SCOPE-TH.md) บันทึก operator approval ของ P1 เมื่อ 20 ตุลาคม 2026 เวลา 15:57:29 +07. [SPEC §20](SPEC.md#20-context-p1--approved-scope-future-implementation-no-assigned-release) กำหนด contract สำหรับ review ก่อน implementation และแยก registry metadata ออกจาก model/chat history.
 ยังไม่มี soft-cap หรือ prune CLI ใน production.
 Baseline close เก็บ row ไว้ และ recent จำกัดเฉพาะผลลัพธ์ที่คืน.
 P1 scope มี warning กับ read-only preview; ยังไม่มีการลบ rows หรือแก้ backend session. Config/CLI/fields ใหม่ใน §20 ยังใช้ไม่ได้ใน signed v1.2.6; อย่าอ้างว่า scope approval เปิดใช้งานให้แล้ว.
 การเปิด apply ต้องผ่าน lifecycle/concurrency review และ SPEC amendment แยก.
+
+
+### ทดลอง P1 เฉพาะ candidate checkout
+
+PR #59 เพิ่ม `contexts.soft_cap` แบบ optional (default 1,000; integer 1–100,000 และไม่รับ boolean). ค่านี้เป็น warning ไม่ใช่ hard cap. `bridge_status.contexts.registry` กับผล create มี aggregate 6 fields ตาม §20. ค่า unavailable ใช้ count เป็น null และทำให้ status root `ok=false`. Create ที่บันทึกสำเร็จยังคืน acknowledgement แม้ observation อ่านไม่ได้.
+
+ใช้คำสั่งต่อไปนี้จาก candidate checkout ที่ติดตั้ง dependencies แล้ว. กำหนด `BRIDGE_STATE_DIR` เป็น absolute path ของ state ที่ต้องการตรวจ. คำสั่งอ่านเฉพาะ `contexts.sqlite3` ที่มีอยู่ ไม่โหลด config/credentials และไม่เรียก backend.
+
+```bash
+./bridge.sh context-prune-preview --state-dir "$BRIDGE_STATE_DIR" --older-than-days 30 --limit 100
+```
+
+ผลสำเร็จมี `mode=preview_only`, aggregate count และ `has_more`; exit 0. Argument ไม่ถูกต้องคืน constant JSON และ exit 2. Storage/schema/lock/clock อ่านไม่ได้คืน constant JSON และ exit 1. อย่าส่งงานหรือ retry create เพียงเพราะ observation unavailable. ตรวจ registry ในเครื่องก่อน.
+
+Preview ไม่ลบ row และไม่มี apply option. SQLite อาจใช้ locks/shared memory/sidecar files. คำสั่งไม่รับรองว่า filesystem ไม่มีผลข้างเคียงทุกแบบ. ยังใช้ P1 ไม่ได้ใน signed v1.2.6/production. ดู [acceptance และข้อจำกัด](CONTEXT-P1-ACCEPTANCE-TH.md).
