@@ -1,11 +1,11 @@
-# Context soft-cap / prune — P1 scope approved, implementation pending
+# Context soft-cap / prune — P1 candidate, review pending
 
 วันที่: 20 ตุลาคม 2026.
 สถานะ: **operator อนุมัติ P1 scope แล้วเมื่อ 20 ตุลาคม 2026 เวลา 15:57:29 +07**.
 PR #57 ผ่าน external review ที่ `a38d319` และ merge แล้วที่ `6c85432`. Operator ตอบ “ยืนยัน” ต่อคำขอ merge และอนุมัติ P1 ตามค่าที่เสนอ.
 Contract สำหรับ implementation review อยู่ใน [SPEC §20](SPEC.md#20-context-p1--approved-scope-future-implementation-no-assigned-release).
 Source baseline: `e24fa3eec00fd9d1f5d0e38561fb2d044346bc72`.
-ยังไม่มี implementation, config ใหม่, release หรือ deployment จากข้อเสนอนี้.
+Checkpoint หลัง merge SPEC §20 ใน PR #58 (`64eb0a1`): PR #59 เพิ่ม P1 candidate สำหรับ review. ยังไม่มี release หรือ deployment ของ P1; signed v1.2.6 ยังไม่มี config/CLI/fields ใหม่นี้.
 
 ## เป้าหมายและความหมายของ context
 
@@ -43,8 +43,8 @@ Synthetic interleaving หลัง precheck ทำให้เขียน bind
 
 ## P1 ที่แนะนำ — warning + read-only preview
 
-Operator อนุมัติเฉพาะ P1 warning + read-only preview ตาม scope นี้. SPEC §20 ต้องผ่าน review ก่อนเริ่ม implementation.
-ค่าด้านล่างได้รับอนุมัติเป็นค่าเริ่มต้นของ P1 scope; ยังไม่ใช่ค่าที่ใช้งานอยู่หรือผล capacity benchmark.
+Operator อนุมัติเฉพาะ P1 warning + read-only preview ตาม scope นี้. SPEC §20 ผ่าน external review และ merge ใน PR #58 ก่อนเริ่ม implementation แล้ว.
+ค่าด้านล่างได้รับอนุมัติเป็นค่าเริ่มต้นของ P1 scope; ยังไม่ใช่ค่าที่ใช้งานใน production หรือผล capacity benchmark.
 
 | รายการ | ค่าเริ่มต้นที่อนุมัติสำหรับ P1 |
 | --- | --- |
@@ -58,7 +58,7 @@ Operator อนุมัติเฉพาะ P1 warning + read-only preview ต
 
 เสนอ count/warning แบบ scalar metadata ใน `bridge_status` และ warning code คงที่ใน create response.
 Count ที่อ่านไม่ได้ต้องแสดง unavailable ด้วย constant error; ห้ามแทนเป็น 0 หรืออ้างว่า registry ปกติ.
-ชื่อ fields/config และ error mapping ต้องกำหนดใน SPEC ก่อน implementation.
+SPEC §20 กำหนดชื่อ fields/config และ error mapping ก่อน implementation แล้ว.
 ไม่ส่ง label, backend references, workspace paths หรือ row IDs ใน warning.
 
 Preview เป็น local CLI แยก ไม่เพิ่ม MCP tool.
@@ -117,3 +117,8 @@ Operator ยืนยันเมื่อ 20 ตุลาคม 2026 เวล�
 การอนุมัติ scope ยังไม่อนุมัติให้ลบ rows, เปลี่ยน production config, release หรือ deploy.
 SPEC §20 ระบุ contract สำหรับ review ก่อน implementation; P2, model-context compaction และ observation work ยังแยกติดตาม.
 ข้อเสนอทบทวนค่า 30 วันหลังใช้จริงเป็นคำแนะนำ ไม่ใช่ gate หรือ schedule ใหม่.
+
+
+## P1 candidate checkpoint (20 October 2026)
+
+PR #59 เพิ่ม warning/status aggregate และ local preview ตาม §20. ดู [candidate acceptance](CONTEXT-P1-ACCEPTANCE-TH.md) สำหรับวิธีทดสอบและข้อจำกัด. ยังรอ external implementation review; ไม่มี apply/delete และไม่มีการเปลี่ยน production. คำอธิบาย baseline ข้างต้นเป็นหลักฐานก่อน P1.
