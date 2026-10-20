@@ -1,5 +1,9 @@
 # Release status
 
+## Privacy hardening — v1.2.6 proposed, not assigned or released (20 October 2026)
+
+Contract/implementation review and scoped Dev transport acceptance/restoration passed through PR #47–#49. The [release decision proposal](PRIVACY-RELEASE-DECISION-TH.md) records evidence, limits and remaining release/deployment gates. It does not change `version_info.py`, create a signed tag or assets, or upgrade production. Production's last recorded deployment checkpoint remains signed v1.2.5 below. Local Hands mutation and MCP Events gates remain unchanged.
+
 ## v1.2.5 — released (19 October 2026)
 
 - Signed annotated tag `v1.2.5`: object `11420f1ae968244195701b296db2f8ce419b793a`, peeled commit `6fbcd7ef278d5e45a95b7328c719c5b01cbcf522`; EDDSA fingerprint `C4E9AFA9C97FC94CA2448E9218BDAEA561529B86`. Local and fresh-fetch remote `git verify-tag` pass; GitHub reports the signature valid.

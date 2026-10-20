@@ -6,7 +6,7 @@
 - Filter Hermes task status/result metadata. Replace raw upstream error text with a constant message and approval payloads with `{"required": true}`. Keep exact approval preview and revalidation in the local terminal. Limit metadata to 8,192 serialized bytes; keep upstream decoded JSON at 4,000,000 bytes and HTTP connect/inactivity timeouts at 5/25 seconds (not a total deadline).
 - Enforce `0700` on existing Hermes/Codex state directories and the Codex log directory. Fail initialization when modes cannot be secured.
 - Read Codex result snapshots in 65,536-byte chunks up to 8,388,608 bytes per call. Preserve character pagination, UTF-8 replacement and universal newlines without loading the whole log. Oversize snapshots require local inspection; the read limit does not cap worker log capture or introduce cleanup.
-- Keep tool registrations, binaries, config schema, signed releases and production deployment unchanged. Candidate review, applicable live acceptance and a release decision remain pending.
+- Keep tool registrations, binaries, config schema, signed releases and production deployment unchanged. Contract/implementation review and scoped Dev fixture acceptance/restoration passed through PR #47–#49. A release/deployment decision remains pending. The proposed v1.2.6 scope is documented in [PRIVACY-RELEASE-DECISION-TH.md](PRIVACY-RELEASE-DECISION-TH.md); no version is assigned or released by that proposal.
 
 ## v1.2.5 — released (19 October 2026)
 
