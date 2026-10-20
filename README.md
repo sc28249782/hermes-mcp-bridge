@@ -1,5 +1,12 @@
 # Hermes MCP Bridge
 
+## Unreleased — Codex result read-ahead fix
+
+The candidate disables binary read-ahead to enforce the existing snapshot byte budget in SPEC §19.3.
+Regression tests cover truncation and appends on Python 3.12 and 3.14.
+This fix has no assigned release and is not deployed in production v1.2.6.
+See [testing evidence](docs/TESTING.md#unreleased--codex-result-read-ahead-fix).
+
 ## v1.2.6 — released (20 October 2026)
 
 Released v1.2.6 implements the reviewed privacy requirements in [SPEC section 19](docs/SPEC.md).
