@@ -1,7 +1,9 @@
-# Context soft-cap / prune — scope proposal
+# Context soft-cap / prune — P1 scope approved, implementation pending
 
 วันที่: 20 ตุลาคม 2026.
-สถานะ: **proposal สำหรับ review; scope ยังไม่ได้รับอนุมัติ**.
+สถานะ: **operator อนุมัติ P1 scope แล้วเมื่อ 20 ตุลาคม 2026 เวลา 15:57:29 +07**.
+PR #57 ผ่าน external review ที่ `a38d319` และ merge แล้วที่ `6c85432`. Operator ตอบ “ยืนยัน” ต่อคำขอ merge และอนุมัติ P1 ตามค่าที่เสนอ.
+Contract สำหรับ implementation review อยู่ใน [SPEC §20](SPEC.md#20-context-p1--approved-scope-future-implementation-no-assigned-release).
 Source baseline: `e24fa3eec00fd9d1f5d0e38561fb2d044346bc72`.
 ยังไม่มี implementation, config ใหม่, release หรือ deployment จากข้อเสนอนี้.
 
@@ -41,10 +43,10 @@ Synthetic interleaving หลัง precheck ทำให้เขียน bind
 
 ## P1 ที่แนะนำ — warning + read-only preview
 
-ขออนุมัติเฉพาะ P1 เป็นงานถัดไปหลัง proposal ผ่าน review.
-ค่าด้านล่างเป็นตัวเลขที่เสนอ ไม่ใช่ค่าที่ใช้งานอยู่หรือผล capacity benchmark.
+Operator อนุมัติเฉพาะ P1 warning + read-only preview ตาม scope นี้. SPEC §20 ต้องผ่าน review ก่อนเริ่ม implementation.
+ค่าด้านล่างได้รับอนุมัติเป็นค่าเริ่มต้นของ P1 scope; ยังไม่ใช่ค่าที่ใช้งานอยู่หรือผล capacity benchmark.
 
-| รายการ | ข้อเสนอเริ่มต้น |
+| รายการ | ค่าเริ่มต้นที่อนุมัติสำหรับ P1 |
 | --- | --- |
 | Soft-cap | 1,000 stored rows; warning เมื่อ count ≥ cap |
 | Validation | Integer 1–100,000; ไม่รับ boolean |
@@ -98,7 +100,7 @@ P2 ต้องมี scope/SPEC review แยกก่อน implementation.
 
 ## Acceptance ก่อน P1 merge
 
-- SPEC-first ตาม §14 สำหรับ config/response/CLI semantics; proposal นี้ไม่แก้ normative SPEC.
+- SPEC-first ตาม §14 สำหรับ config/response/CLI semantics; companion amendment ใน §20 ต้องผ่าน review ก่อน implementation. บันทึก scoping เดิมยังแยกจาก normative contract.
 - Test ต่ำกว่า/เท่ากับ/เกิน cap; create ยังสำเร็จ และ count/error output ไม่มี sensitive fields.
 - ตรวจ actual scan/batch bounds และ deterministic ordering.
 - Preview บน missing/invalid DB, read-only filesystem และ WAL cases; ไม่ initialize backend หรือสร้าง schema.
@@ -108,8 +110,10 @@ P2 ต้องมี scope/SPEC review แยกก่อน implementation.
 - Full suites/CI บน Python 3.12 และ 3.14; synthetic local preview acceptance ตามขอบเขต.
 - ก่อน P2 ต้องมี deterministic close/bind/submission interleavings; P1 preview ไม่อ้างว่าซ่อม race นี้แล้ว.
 
-## Operator decision ที่ขอ
+## Operator decision ที่ได้รับ
 
-เลือก scope P1 warning + read-only preview พร้อมค่าที่เสนอ หรือปรับค่าก่อนเขียน SPEC amendment.
-การอนุมัติ proposal ไม่ใช่การอนุมัติให้ลบ rows, เปลี่ยน production config, release หรือ deploy.
-P2, model-context compaction และ observation work ยังแยกติดตาม.
+Operator ยืนยันเมื่อ 20 ตุลาคม 2026 เวลา 15:57:29 +07 ให้ merge PR #57 และอนุมัติ P1 ตามค่าที่เสนอ.
+ขอบเขตคือ warning 1,000 rows, preview closed อย่างน้อย 30 วัน, batch default 100 และสูงสุด 1,000, predicate แบบ unbound และไม่มี apply/delete.
+การอนุมัติ scope ยังไม่อนุมัติให้ลบ rows, เปลี่ยน production config, release หรือ deploy.
+SPEC §20 ระบุ contract สำหรับ review ก่อน implementation; P2, model-context compaction และ observation work ยังแยกติดตาม.
+ข้อเสนอทบทวนค่า 30 วันหลังใช้จริงเป็นคำแนะนำ ไม่ใช่ gate หรือ schedule ใหม่.
