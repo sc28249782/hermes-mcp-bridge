@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.2.7 — release candidate, tag pending (20 October 2026)
+
+- Prepare the two unreleased scopes below with stamp `1.2.7/v1.2.7`, provenance `release`, and reviewed build input `07ec0069b952f08a49adbd0ec778c204f85ee282` (PR #63 merge). This input is not the final signed-tag commit.
+- Keep schema version 1, discovery 27/28/33 and backend permissions unchanged. Source/extracted verification and candidate ZIP receipt belong to the [preparation PR](V1.2.7-RELEASE-PREP-TH.md). No signed tag, publication or deployment is performed.
+- Production and the current signed release remain v1.2.6. Historical decision/release checkpoints below retain their original scope and time.
+
 Scope decision checkpoint (20 October 2026, 18:47:56 +07): the operator approved [v1.2.7 target scope](V1.2.7-RELEASE-DECISION-TH.md), combining the two unreleased sections below. Release preparation, final-target signing/publication and deployment remain separate. No stamp, signed release or deployment is created by this checkpoint.
 
 ## Unreleased — Context P1 registry warning and preview
@@ -14,7 +20,7 @@ Scope decision checkpoint (20 October 2026, 18:47:56 +07): the operator approved
 - Open Codex result logs with `buffering=0`. Buffered readers could fetch appended bytes beyond the captured length and could serve prefetched data after truncation. Enforce the existing SPEC §19.3 byte budget at the raw read boundary.
 - Add a deterministic append-before-read regression that observes the raw descriptor offset. Keep the existing truncate/error, decoding and pagination tests.
 - Run CI on Python 3.12 and 3.14. The public candidate passed WSL 185/185 on both 3.12.3 and 3.14.7.
-- Keep the 8,388,608-byte snapshot cap, 65,536-byte read limit, tool/schema contracts and stamp unchanged. This patch is not in signed v1.2.6 or production. Target scope v1.2.7 is approved; release preparation and deployment remain pending.
+- Keep the 8,388,608-byte snapshot cap, 65,536-byte read limit, tool/schema contracts and stamp unchanged. This patch is not in signed v1.2.6 or production. Target scope v1.2.7 is approved and preparation is recorded above; signing/publication and deployment remain pending.
 
 ## v1.2.6 — released privacy contract and runtime hardening (20 October 2026)
 
