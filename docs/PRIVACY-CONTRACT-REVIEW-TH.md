@@ -148,3 +148,11 @@ Reviewer ตรวจ spec-first commit order และรายงาน full s
 - รอ: release/deployment decision และบันทึกผลหลัง deployment ที่ตรวจแล้ว. ยังไม่มี release version กำหนดให้ candidate นี้.
 - Production ยังคง signed v1.2.5; อย่าสรุปว่า merge หรือ CI ทำให้ deployment เปลี่ยนแล้ว.
 - Privacy follow-up ยังไม่ปิด. MCP Events และ Local Hands mutation/execution ยังคง gate เดิม.
+
+## Acceptance review checkpoint (20 ตุลาคม 2026)
+
+ข้อความสถานะรอใน checkpoint 19 ตุลาคมข้างบนเก็บเหตุการณ์ก่อน acceptance.
+Scoped Dev transport และ restoration ผ่านและได้รับ external APPROVE ใน PR #48/#49 แล้ว.
+PR #49 ตรวจ metadata boundary แบบ post-filter fault injection และ approval payload ห้ารูปแบบตามขอบเขตใน [PRIVACY-BOUNDARY-ACCEPTANCE-TH.md](PRIVACY-BOUNDARY-ACCEPTANCE-TH.md).
+ยังไม่อ้าง actual Hermes HTTP/native approval หรือ production privacy rollout.
+Privacy follow-up ยังเปิดสำหรับ release/deployment decision. ดู [PRIVACY-RELEASE-DECISION-TH.md](PRIVACY-RELEASE-DECISION-TH.md); v1.2.6 เป็นข้อเสนอ ยังไม่ assigned หรือ released.
