@@ -4,7 +4,7 @@
 
 ### Phase A — ก่อนสร้าง signed tag
 
-ในตัวอย่างทุกคำสั่ง ให้แทน `vX.Y.Z` ด้วย tag ของรุ่นที่จะเผยแพร่ก่อนรัน ใช้ shell เดียวกันจาก release checkout ที่ operator เลือก
+ในตัวอย่างทุกคำสั่ง ให้แทน `vX.Y.Z` ด้วย tag ของรุ่นที่จะเผยแพร่ก่อนรัน ใช้ interactive shell เดียวกันจาก release checkout ที่ operator เลือก. ทำ TTY/identity preflight ในหัวข้อท้ายเอกสารก่อนเรียก GPG; หากตรวจไม่ผ่านให้หยุดก่อนสร้าง tag.
 
 1. **Documentation gate:** ทบทวนเอกสารที่อธิบาย source, tool discovery, configuration, acceptance, compatibility, roadmap และ upgrade ให้ตรงกับ release candidate. Release status ต้องระบุผล acceptance และ provenance ได้ แต่ให้ใช้สถานะ `tag pending` จนกว่าจะ verify asset จริง. สำหรับ candidate ทุกรุ่น ให้ตรวจ `./bridge.sh version` และ MCP `bridge_version` ตรงกัน, discovery count ตรง, และไม่มี upstream/network call.
 2. Commit เอกสาร Phase A และตรวจ `git diff --check`; รัน test และ acceptance checklist ตาม `V1-ACCEPTANCE-TH.md`.
@@ -193,3 +193,52 @@
    ```
 
 หลังตรวจผ่านจึงแตก archive และทำ upgrade ตาม `UPGRADE-TH.md`.
+
+## Operator terminal — TTY และ identity preflight
+
+ทำใน terminal ของ operator ที่จะลงนามเท่านั้น. ไม่ทำผ่าน background bridge task และไม่ส่ง passphrase/private key เข้า chat.
+ก่อนใช้ชุดคำสั่ง fail-fast ให้ตรวจว่า terminal มี TTY:
+
+```bash
+tty
+```
+
+ต้องได้ device เช่น `/dev/pts/0`. หากรายงาน `not a tty` ให้เปิด interactive terminal ใหม่แล้วเริ่ม preflight อีกครั้ง.
+ผูก GnuPG กับ TTY ของ shell นี้:
+
+```bash
+GPG_TTY="$(tty)"
+```
+
+ส่งค่านี้ให้ process ที่เรียกจาก shell:
+
+```bash
+export GPG_TTY
+```
+
+อัปเดต startup TTY ของ agent:
+
+```bash
+gpg-connect-agent updatestartuptty /bye
+```
+
+ต้องได้ `OK`. หากเกิด error ให้หยุดและแก้ terminal ก่อนลงนาม.
+เมื่อเปิด terminal ใหม่ ให้ตั้ง TTY อีกครั้ง.
+ถ้ารันชุด fail-fast ใน shell ที่เปิดใหม่ สามารถครอบด้วย subshell `( ... )` เพื่อจำกัด `set -e` อยู่ในชุดนั้น.
+
+ตรวจ Git identity ที่จะใช้เป็น tagger ใน release checkout:
+
+```bash
+git var GIT_COMMITTER_IDENT
+```
+
+Operator ต้องตรวจชื่อ/email ที่เลือก และยืนยันว่า email ผูกกับ GitHub account ของตนก่อน tag.
+หากไม่ตรง ให้แก้ `user.name`/`user.email` แบบ local ใน release checkout ก่อนลงนาม; ไม่แก้ identity ของ checkout อื่นหรือ global configuration โดยอัตโนมัติ.
+เก็บผล identity inspection ไว้ใน terminal; public record ใช้เฉพาะข้อมูลที่จำเป็นต่อ signature verification.
+
+กรณี v1.2.6: การลงนามครั้งแรกหยุดด้วย `Inappropriate ioctl for device` ก่อน verify/push.
+Operator ตั้ง TTY ตามขั้นตอนนี้แล้วลงนามและ push สำเร็จ.
+GitHub API ของ tag ที่เผยแพร่รายงาน `no_user` แม้ expected-signer cryptographic verification ผ่าน.
+บันทึกสองผลแยกกัน. ห้ามแทนหรือ force-push tag ที่เผยแพร่แล้วเพื่อเปลี่ยน badge; ตรวจ identity ให้ครบสำหรับ tag ถัดไป.
+
+อ้างอิง: [GnuPG agent invocation](https://gnupg.org/documentation/manuals/gnupg-devel/Invoking-GPG_002dAGENT.html), [UPDATESTARTUPTTY](https://gnupg.org/documentation/manuals/gnupg-devel/Agent-UPDATESTARTUPTTY.html) และ [GitHub tag verification reasons](https://docs.github.com/en/rest/git/tags).
