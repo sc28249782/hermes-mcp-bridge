@@ -358,5 +358,9 @@ Maintainer automation fetch tag ใหม่ลง scratch bare repo และ�
 
 Source และ extracted-tree suites 184/184 เป็นหลักฐานที่ reviewed prep head `42d27b5`; final commit มี tree เดียวกัน. ไม่ rerun suites ใน publication task.
 Native/backend/tunnel acceptance ไม่ถูกขยายจาก artifact verification นี้.
-Deployment decision และ external signed-release fresh-input audit ยังรอ; privacy follow-up ยังเปิด.
+### External fresh-input audit — 20 ตุลาคม 2026
+
+Operator ส่งรายงาน external reviewer ในแชตสำหรับ PR #53 ที่ head `88fb58f`; verdict **APPROVE**. External reviewer fetch tag และดาวน์โหลด assets ใหม่ แล้วตรวจ signature, checksum, byte-identical rebuild, ZIP structure และ offline identity ผ่านทั้งหมด. Extracted full suite ใน venv ใหม่ผ่าน **184/184**. ตรวจ production แบบ read-only แล้วยังเป็น v1.2.5/release-archive/input `a666d626`.
+
+External release audit เสร็จแล้ว. หลักฐานนี้แยกจาก maintainer automation และไม่ใช่ production acceptance. การอนุมัติที่ `88fb58f` ไม่ครอบคลุมข้อความ audit note ที่เพิ่มภายหลัง. Deployment decision/acceptance ยังรอ; privacy follow-up ยังเปิดตาม SPEC §19.4.
 รายละเอียดการเผยแพร่และ authority: [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md).
