@@ -163,3 +163,8 @@ PR #59 ผ่าน operator-supplied external APPROVE ที่ `b7ff97a` แ�
 ## Context P1 — scoped live Dev checkpoint (20 October 2026)
 
 Candidate `27030bb` บน WSL Python 3.12.3 ผ่าน full suite 206/206, focused context 22/22 และ packaging 3/3 ไม่มี skips; shellcheck/Bash syntax ผ่าน. Parent ตรวจ real Dev connector: cap=3, count+1 lower bound, six successful creates รวม injected-observation failure พร้อม readback/recent 6, missing/locked unavailable อย่างละ 2 calls และ restoration กลับ `e7add7e`. [Live record](CONTEXT-P1-DEV-ACCEPTANCE-TH.md) แยก SDK/source proof จาก operator-selected scenarios และระบุขอบเขต restoration. ยังรอ external review; ไม่ใช่ release/production/native-backend/CLI-through-MCP/read-only-mount acceptance. ไม่มี WSL-suite rerun บน docs-only record head นี้; ผลข้างต้นผูกกับ candidate ที่ทดสอบ.
+
+
+## v1.2.7 proposal / P1 review status
+
+External live-record review ของ PR #61 ผ่านที่ `6d93808` และ merge ที่ `4513b30`. ผล preparation/live/CI ก่อนหน้ายังคงผูกกับ candidate/reviewed heads เดิม; review นี้ไม่ครอบคลุม proposal note ที่เพิ่มภายหลัง. [Release scope proposal](V1.2.7-RELEASE-DECISION-TH.md) ยังรอ operator decision. ไม่มี WSL-suite rerun หรือ release/production acceptance ใหม่จาก docs-only proposal นี้.

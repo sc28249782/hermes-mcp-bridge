@@ -1,7 +1,7 @@
 # Context P1 — scoped Dev transport acceptance
 
 วันที่: 20 ตุลาคม 2026.
-สถานะ: **live Dev aggregate checks และ restoration ผ่านตามขอบเขตด้านล่าง; รอ external review**.
+สถานะ: **scoped live Dev/restoration ผ่าน external review แล้ว; P1 unreleased และ undeployed**.
 ฐาน runtime: PR #59 merge `5685e11` หลัง external APPROVE ที่ `b7ff97a` และ operator ยืนยัน merge.
 เอกสารนี้ไม่อนุมัติการเปลี่ยน Dev route, release หรือ production deployment.
 
@@ -146,3 +146,8 @@ OpenCode count ไม่ได้ recheck หลัง restoration เพรา�
 ### สิ่งที่ checkpoint นี้ไม่ปิด
 
 P1 ยังไม่มี release assigned หรือ deployment decision. Live result นี้ไม่ใช่ production acceptance, native backend health/task acceptance, production audit persistence, CLI preview ผ่าน MCP หรือ dedicated read-only mount probe. ไม่พิสูจน์ generic secret scanning, no-filesystem-effects, no-network isolation หรือ process-restart persistence ของ temporary fixture. P2 close/bind/submission race, observation counters/annotations และ Hands/Events gates ไม่เปลี่ยน.
+
+
+## External review checkpoint (20 October 2026)
+
+Operator ส่ง verdict APPROVE สำหรับ PR #61 ที่ `6d93808`. Reviewer รายงาน read-only machine verification ของ restored pin/version/schema/default count, state mode, watchdog, Hands และ registration counts พร้อมตรวจตาราง live results/limits/hygiene และ CI. Operator ยืนยัน merge ที่ `4513b30`. Scoped live acceptance/restoration review loop จบแล้ว; การอนุมัติที่ head เดิมไม่ครอบคลุม checkpoint นี้หรือ [release scope proposal](V1.2.7-RELEASE-DECISION-TH.md) ที่เพิ่มภายหลัง. ข้อจำกัด OpenCode post-restore count, config/profile comparison, read-only mount และ release/deployment ไม่เปลี่ยน.
