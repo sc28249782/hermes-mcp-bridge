@@ -1,5 +1,7 @@
 # Changelog
 
+Scope proposal checkpoint (20 October 2026): [v1.2.7](V1.2.7-RELEASE-DECISION-TH.md) is proposed and unassigned. It would combine the two unreleased sections below. Operator scope decision, release preparation, signing/publication and deployment remain separate. No stamp or release is assigned by this checkpoint.
+
 ## Unreleased — Context P1 registry warning and preview
 
 - Add optional `contexts.soft_cap` (default 1,000; range 1–100,000). Observe at most cap+1 logical rows through a read-only SQLite connection. Reaching the cap is a warning; it does not reject create or submission.
