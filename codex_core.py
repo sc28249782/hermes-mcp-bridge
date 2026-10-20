@@ -558,7 +558,8 @@ class CodexRunner:
         row = self._row(job_id)
         path = Path(row["log_path"])
         try:
-            handle = path.open("rb")
+            # Disable read-ahead so raw reads obey the captured byte budget.
+            handle = path.open("rb", buffering=0)
         except FileNotFoundError:
             handle = None
         except OSError:

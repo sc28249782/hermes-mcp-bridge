@@ -1,5 +1,13 @@
 # คู่มือเชิงเทคนิค: สถาปัตยกรรมและกลไก Hermes MCP Bridge v1.0.1
 
+## Unreleased — Codex result raw reads
+
+Candidate เปิด log แบบ unbuffered เพื่อไม่ให้ binary buffer อ่านล่วงหน้าเกิน snapshot budget.
+ลำดับเดิมยังเป็น open → fstat length → capped raw reads → incremental decode → character pagination.
+ขนาด snapshot สูงสุด 8,388,608 bytes และแต่ละ read ไม่เกิน 65,536 bytes.
+การแก้นี้บังคับ contract เดิมใน SPEC §19.3; ไม่เพิ่ม tool, schema หรือ permission.
+Patch ยังไม่อยู่ใน signed v1.2.6 หรือ production.
+
 เอกสารนี้อธิบายฐาน Hermes และ MCP adapter ของ `hermes-mcp-bridge-v1.0.1.zip`; ส่วน Codex/WSL2, model policy, audit และ approval gate ดู `CODEX-WSL2-TH.md` และ `OPERATIONS-TH.md`
 
 > หมายเหตุสถานะ (18 ตุลาคม 2026): เอกสารนี้คงบันทึกสถาปัตยกรรมยุค v1.0.1 ไว้ตามเดิม released v1.2.4 เพิ่ม `stdio_guard.py` (legacy stdio discovery guard — SPEC.md section 17) และ `opencode_core.py` (OpenCode health adapter, disabled by default — SPEC.md section 16) สัญญา discovery ปัจจุบันคือ 27 tools (28 เมื่อเปิด OpenCode health, 33 เมื่อเปิด execution opt-in ใน released v1.2.5) ตาม `TESTING.md` สถานะ release ล่าสุดอยู่ใน `RELEASE-STATUS-TH.md`

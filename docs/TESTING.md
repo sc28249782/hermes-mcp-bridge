@@ -1,5 +1,32 @@
 # Validation record — v1.2.5 released (2026-10-19)
 
+## Unreleased — Codex result read-ahead fix
+
+Public baseline: `b3fa3b7`. Runtime/test/CI candidate: `799acc3d131e60a65fe085ff1e0c48d1e7c73f76`.
+เอกสารที่เพิ่มภายหลังไม่เปลี่ยน code head นี้.
+หลักฐานด้านล่างเป็น maintainer validation ของ public source และ synthetic files; ไม่ใช่ external review หรือ production acceptance.
+
+| Check | ผล |
+| --- | --- |
+| Baseline truncate test, 3 runs | Python 3.12.3 ผ่าน 3/3; Python 3.14.7 ไม่ผ่าน 3/3 เพราะ error ที่คาดไม่เกิด |
+| Buffer probe | 3.14.7 default buffer 131,072 bytes อ่าน raw ถึง 131,072 เมื่อขอ 65,536; หลัง truncate ยังคืนอีก 65,536 จาก buffer |
+| Buffered snapshot characterization | เคสข้างต้นคืนครบ initial snapshot 131,072 bytes; ไม่ใช่ partial result แต่ไม่มี short read ให้ guard ตรวจพบ |
+| New regression negative control | Snapshot 70,000 bytes แล้ว append ก่อน read: runtime เดิมอ่าน raw ถึง 73,728 บน 3.12.3 และ 131,072 บน 3.14.7; test ใหม่ fail ทั้งคู่ |
+| Candidate WSL full suites | Python 3.12.3: 185/185; Python 3.14.7: 185/185, ResourceWarning-as-error, no skips |
+| Focused chat-runtime tests | Python 3.12.14: privacy hardening 19/19 และ MCP boundary 1/1; รวม 20/20 |
+| Chat-runtime full-suite limitation | Main เดิม 184 tests และ candidate 185 tests ต่างมี 4 failures/35 errors ในชุด process/executable checks; ไม่อ้าง full-suite pass ใน runtime นี้ |
+| Shell checks | WSL shellcheck, Bash syntax และ whitespace ผ่าน |
+| CI | เพิ่ม matrix Python 3.12/3.14; ผล exact-head ของ PR บันทึกใน PR body |
+
+ใช้ `path.open("rb", buffering=0)` เพื่อไม่ให้ read-ahead ดึงข้อมูลเกิน snapshot budget.
+Contract §19.3 เดิมกำหนด read budget อยู่แล้ว; PR นี้ไม่แก้ normative SPEC.
+Guard ยัง fail เมื่ออ่าน snapshot ไม่ครบ.
+การแก้นี้ไม่สร้าง atomic filesystem snapshot และไม่ตรวจ concurrent overwrite, shrink-and-regrow หรือการเปลี่ยนไฟล์หลังอ่านครบ.
+Raw read calls ยังมีขอบเขตไม่เกิน 65,536 bytes และ cap รวม 8,388,608 bytes; decoding/pagination ไม่เปลี่ยน.
+Stamp ยังคงค่าเดิมจาก v1.2.6 แต่ patch นี้ unreleased และไม่ deploy production.
+
+แหล่งอ้างอิง: [Python 3.14 open buffering](https://docs.python.org/3.14/library/functions.html#open) และ [BufferedReader read-ahead](https://docs.python.org/3.14/library/io.html#io.BufferedReader).
+
 ## Production v1.2.6 — deployment checkpoint (20 October 2026)
 
 Operator อนุมัติ deployment และ maintenance window เมื่อ 13:52:34 +07. Production อัปเกรดเป็น v1.2.6 แล้ว. Parent connector ยืนยัน release-archive/input `e3e698a7`, schema 1, state `0700`, watchdog ทำงาน, Hermes authentication verified และ OpenCode v2.0.32. Parent registry มี 33 tools ตาม config; ไม่ใช่ raw wire `tools/list` capture. Hands ยัง disabled. ดู [deployment record](V1.2.6-DEPLOYMENT-TH.md) สำหรับผลทดสอบ ข้อจำกัด และ rollback. ข้อความ deployment pending/v1.2.5 ด้านล่างเป็น checkpoint ก่อนอัปเกรด. Privacy follow-up ปิดตาม §19.4 หลัง external reviewer ให้ APPROVE แก่ PR #54 ที่ `7b2886d` เมื่อ 20 ตุลาคม 2026 ตามรายงานที่ operator ส่งในแชต; production OpenCode benign-model acceptance ผ่านแยกแล้วเมื่อ 20 ตุลาคม 2026 ตาม [acceptance record](OPENCODE-PRODUCTION-ACCEPTANCE-TH.md); ไม่ขยายเป็น write/cancel/native-permission acceptance.

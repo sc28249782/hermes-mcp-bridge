@@ -222,4 +222,4 @@ Optional follow-ups, lower priority:
 - Multi-user credential management, payment automation, secure-desktop control, or unattended credential entry
 
 
-- Python 3.14 compatibility follow-up: preparation observed `test_truncate_during_read_never_returns_a_partial_success` fail because the expected error was not raised. The cause is unproven. Production v1.2.6 uses Python 3.12.3 and passed 184/184 tests. Do not infer support or a runtime defect from this fixture result alone; investigate the read/truncate behavior before changing the deployment interpreter.
+- Python 3.14 truncate-race: root cause reproduced as binary read-ahead. The unreleased candidate uses unbuffered Codex result reads to enforce the existing snapshot budget. A new regression also detects append read-ahead beyond the snapshot on 3.12.3 and 3.14.7; WSL candidate suites pass 185/185 on each. See [TESTING.md](TESTING.md#unreleased--codex-result-read-ahead-fix). Code/CI review remains pending; no release/deployment is assigned. Production stays on signed v1.2.6/Python 3.12.3.

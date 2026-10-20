@@ -1,5 +1,13 @@
 # คู่มืออัปเกรด Hermes MCP Bridge
 
+## Unreleased — Codex result read-ahead fix
+
+Candidate แก้การอ่าน Codex result เป็น unbuffered ตาม byte budget เดิมของ SPEC §19.3.
+WSL ทดสอบผ่านทั้ง Python 3.12.3 และ 3.14.7; ดู [TESTING.md](TESTING.md#unreleased--codex-result-read-ahead-fix).
+Patch นี้ยังไม่มี release และยังไม่ deploy; production คง signed v1.2.6 บน Python 3.12.3.
+อย่าสรุปว่า stamp v1.2.6 ที่สืบทอดมาใน candidate หมายถึง signed release มี patch นี้แล้ว.
+การเปลี่ยน production interpreter หรือ rollout ยังต้องผ่าน review/release/deployment decision ตามขั้นตอนเดิม.
+
 ## v1.2.6 — released; deployment ต้องได้รับอนุมัติแยก
 
 Signed v1.2.6 และ ZIP/SHA256SUMS ผ่านการตรวจหลังดาวน์โหลดแล้วเมื่อ 20 ตุลาคม 2026. GPG verification ผ่าน; GitHub badge เป็น `no_user`.
