@@ -1,6 +1,8 @@
-# Compatibility matrix — v1.2.7 candidate and signed v1.2.6 baseline
+# Compatibility matrix — released v1.2.7 and signed v1.2.6 production baseline
 
 Candidate v1.2.7 contains the reviewed Codex read-ahead fix and Context P1. The [preparation record](V1.2.7-RELEASE-PREP-TH.md) defines exact-head source/extracted verification and Python 3.12/3.14 CI. Stamp/build input are 1.2.7/v1.2.7/`07ec0069b952f08a49adbd0ec778c204f85ee282`; publication/deployment are pending. No component, permission, schema-version or discovery-count change is required. Python 3.14 CI evidence does not by itself change the production interpreter.
+
+Status update (20 October 2026): v1.2.7 is released via signed tag `625ea117aa693f577872638a6353b1408fb405aa`; the sentence above preserves the pre-release state. Production remains v1.2.6; the deployment decision, including the not-deploy option, is pending. See the [release record](V1.2.7-RELEASE-RECORD-TH.md).
 
 Released v1.2.6 adds SPEC §19 privacy hardening without changing component requirements, tool schemas or discovery counts. Signed-tag assets passed post-download verification; production was later upgraded to signed v1.2.6 as recorded in [the deployment checkpoint](V1.2.6-DEPLOYMENT-TH.md). Historical preparation gates are in [V1.2.6-RELEASE-PREP-TH.md](V1.2.6-RELEASE-PREP-TH.md).
 

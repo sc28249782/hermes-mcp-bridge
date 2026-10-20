@@ -5,7 +5,7 @@
 รุ่นอ้างอิง: Hermes Agent v0.21.1, commit `8d79c2ff`  
 Bridge: `hermes-mcp-bridge-v1.2.6` (GPG signature verified; GitHub badge `no_user`)
 
-สถานะ source ปัจจุบัน: candidate stamp `1.2.7/v1.2.7`, reviewed build input `07ec0069b952f08a49adbd0ec778c204f85ee282`; ยังไม่ signed/released/deployed. คำสั่งติดตั้ง release ในเอกสารนี้ยังอ้าง signed v1.2.6 และ production checkpoint เป็น v1.2.6. ทดสอบ candidate ใน checkout/venv แยกโดยไม่ copy config/state/credentials ของ deployment. ดู [candidate preparation](V1.2.7-RELEASE-PREP-TH.md) และ [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)
+สถานะ source ปัจจุบัน: released stamp `1.2.7/v1.2.7`, embedded build input `07ec0069b952f08a49adbd0ec778c204f85ee282`; v1.2.7 เผยแพร่ผ่าน signed tag ที่ `625ea117aa693f577872638a6353b1408fb405aa` แล้ว. คำสั่งติดตั้ง release ในเอกสารนี้ยังอ้าง signed v1.2.6 และ production checkpoint เป็น v1.2.6 เพราะ deployment decision รวมตัวเลือกไม่อัปเกรดยังรอ operator. ทดสอบ release ใหม่ใน checkout/venv แยกโดยไม่ copy config/state/credentials ของ deployment. ดู [release record](V1.2.7-RELEASE-RECORD-TH.md), [candidate preparation](V1.2.7-RELEASE-PREP-TH.md) และ [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)
 
 ปรับปรุงล่าสุด: 20 ตุลาคม 2026
 

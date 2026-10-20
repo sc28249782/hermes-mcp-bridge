@@ -4,6 +4,8 @@
 
 Source stamp 1.2.7/v1.2.7 ใช้ reviewed input `07ec0069b952f08a49adbd0ec778c204f85ee282`. [Preparation record](V1.2.7-RELEASE-PREP-TH.md) กำหนด source/extracted suite, packaging/identity/discovery และ CI 3.12/3.14; ผลของ exact tested head กับ candidate checksum อยู่ใน PR receipt. ข้อความนี้ไม่เพิ่มผล PASS ล่วงหน้า. หลักฐาน P1 ที่ `27030bb` และ Codex fix ที่ reviewed head เดิมยังคงขอบเขตเดิม. Candidate ZIP ไม่ใช่ signed release.
 
+อัปเดตสถานะ (20 ตุลาคม 2026): v1.2.7 เผยแพร่ผ่าน signed tag ที่ `625ea117aa693f577872638a6353b1408fb405aa`; prep evidence ด้านบนคงผูกกับ prep head `013fd28` ตามเดิม. External fresh-input audit ผ่าน (extracted suite 206/206 จาก fresh venv); ไม่มี WSL-suite rerun ใหม่จาก record นี้. ดู [release record](V1.2.7-RELEASE-RECORD-TH.md).
+
 ## Unreleased — Codex result read-ahead fix
 
 Public baseline: `b3fa3b7`. Runtime/test/CI candidate: `799acc3d131e60a65fe085ff1e0c48d1e7c73f76`.

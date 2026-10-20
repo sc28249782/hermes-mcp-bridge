@@ -1,8 +1,10 @@
 # Roadmap
 
-## Approved maintenance target — v1.2.7 (unreleased)
+## Approved maintenance target — v1.2.7 (released)
 
 [Scope decision](V1.2.7-RELEASE-DECISION-TH.md) records operator approval at 18:47:56 +07 on 20 October 2026 for the reviewed Codex read-ahead fix and Context P1. Preparation, final-target signing/publication and production deployment require their separate steps. [Release preparation](V1.2.7-RELEASE-PREP-TH.md) stamps candidate 1.2.7/v1.2.7 with reviewed input `07ec0069b952f08a49adbd0ec778c204f85ee282`. Production remains signed v1.2.6; no signed tag/publication/deployment is performed. Dedicated read-only mount evidence and the existing P2/Hands/Events boundaries remain as documented.
+
+Status update (20 October 2026): v1.2.7 is released via signed tag `625ea117aa693f577872638a6353b1408fb405aa`; the external fresh-input audit passed. The sentences above preserve the pre-release roadmap state. The deployment decision, including the not-deploy option, is pending; see the [release record](V1.2.7-RELEASE-RECORD-TH.md).
 
 ## Completed
 

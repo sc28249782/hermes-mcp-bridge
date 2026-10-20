@@ -1,6 +1,13 @@
 # Changelog
 
-## v1.2.7 — release candidate, tag pending (20 October 2026)
+## v1.2.7 — released (20 October 2026)
+
+- Release scope combines the reviewed Codex read-ahead fix (PR #56) and Context P1 (PR #58–#61) per the approved [scope decision](V1.2.7-RELEASE-DECISION-TH.md). Schema version 1, discovery 27/28/33 and backend permissions stay unchanged.
+- Release record: signed annotated tag `v1.2.7` on `625ea117aa693f577872638a6353b1408fb405aa`; tag object `5a652cbf44c768cec70b3555686bbaaa93383d75`; signer fingerprint `C4E9AFA9C97FC94CA2448E9218BDAEA561529B86` passed local cryptographic verification; the GitHub badge reports `verified: true`, reason `valid` (recorded separately). ZIP `hermes-mcp-bridge-v1.2.7.zip` (385,401 bytes, SHA-256 `5026695e42f54d224a7c69423ad5479dab2e2a109866529d6683ad7fd4d00a92`) and external SHA256SUMS (95 bytes, SHA-256 `1d050a17e6f0826970b914a0b5b622ce71d7113c305ebb03ec81dba4736f8c43`) passed fresh-download checksum/structure checks and a byte-identical signed-tag rebuild. The extracted offline identity reports `1.2.7/v1.2.7`, `release-archive`, embedded build input `07ec0069b952f08a49adbd0ec778c204f85ee282`. The external fresh-input audit passed (operator-supplied report, 2026-10-20 21:48 +07); its scope limits, the prep-to-final checksum difference and the unavailable repo-event receipt are recorded in [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md) and the [release record](V1.2.7-RELEASE-RECORD-TH.md). This is a post-tag record, outside the signed archive.
+- Production remains v1.2.6. The deployment decision, including the not-deploy option, is pending. No live deployment, production P1 acceptance, migration acceptance or model/backend acceptance is claimed by this record.
+- The two scope sections below were recorded as `Unreleased` before the signed tag; both ship in released v1.2.7. Historical decision/release checkpoints retain their original scope and time.
+
+Historical preparation checkpoint (20 October 2026): the candidate bullets below preserve the preparation record as written before the signed tag.
 
 - Prepare the two unreleased scopes below with stamp `1.2.7/v1.2.7`, provenance `release`, and reviewed build input `07ec0069b952f08a49adbd0ec778c204f85ee282` (PR #63 merge). This input is not the final signed-tag commit.
 - Keep schema version 1, discovery 27/28/33 and backend permissions unchanged. Source/extracted verification and candidate ZIP receipt belong to the [preparation PR](V1.2.7-RELEASE-PREP-TH.md). No signed tag, publication or deployment is performed.

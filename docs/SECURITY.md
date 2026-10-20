@@ -1,8 +1,10 @@
 # Security policy
 
-## v1.2.7 candidate — existing read budget and metadata-only P1
+## v1.2.7 released — existing read budget and metadata-only P1
 
 Candidate preparation ใช้ scope ที่ operator อนุมัติ: Codex unbuffered reads enforce budget เดิม และ Context P1 warning/local preview ตาม §20. ไม่มี deletion, new backend permission, native compaction, encryption หรือ sandbox เพิ่ม. Observer ไม่ส่ง label/ref/ID แต่ metadata เดิมของ context APIs ยังคงอยู่. Read-only SQLite อาจใช้ locks/sidecars; preview ไม่ใช่ filesystem-wide no-write guarantee. ดู [scope/limits](V1.2.7-RELEASE-DECISION-TH.md) และ [preparation record](V1.2.7-RELEASE-PREP-TH.md). ยังไม่ signed/released/deployed; ข้อกำหนดของ signed v1.2.6 ด้านล่างไม่ถูกเปลี่ยนโดย stamp นี้.
+
+อัปเดตสถานะ (20 ตุลาคม 2026): v1.2.7 เผยแพร่ผ่าน signed tag ที่ `625ea117aa693f577872638a6353b1408fb405aa` แล้ว; ข้อความ "ยังไม่ signed/released/deployed" ด้านบนคงเป็นสถานะช่วง preparation. Production deployment ยังเป็น v1.2.6; deployment decision ยังรอ operator. ขอบเขต security เดิมไม่เปลี่ยน; ดู [release record](V1.2.7-RELEASE-RECORD-TH.md).
 
 ## v1.2.6 — released privacy amendment and hardening (SPEC §19)
 

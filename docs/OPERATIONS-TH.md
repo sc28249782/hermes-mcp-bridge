@@ -1,8 +1,10 @@
-# คู่มือปฏิบัติการ — candidate v1.2.7 / production checkpoint v1.2.6
+# คู่มือปฏิบัติการ — released v1.2.7 / production v1.2.6
 
 ## v1.2.7 — preparation checkpoint
 
 Candidate stamp 1.2.7/v1.2.7 ใช้ reviewed build input `07ec0069b952f08a49adbd0ec778c204f85ee282`; ไม่ใช่ final tag commit. ดู [preparation record](V1.2.7-RELEASE-PREP-TH.md). Scope รวม Codex raw read-ahead fix และ Context P1. ยังไม่ released/deployed; production คง signed v1.2.6 และต้องมี deployment approval แยกก่อน upgrade.
+
+อัปเดตสถานะ (20 ตุลาคม 2026): v1.2.7 เผยแพร่ผ่าน signed tag ที่ `625ea117aa693f577872638a6353b1408fb405aa` และ external fresh-input audit ผ่าน; ข้อความ "ยังไม่ released" ด้านบนคงเป็นสถานะช่วง preparation. Production deployment ยังเป็น v1.2.6; deployment decision รวมตัวเลือกไม่อัปเกรดยังรอ operator. ดู [release record](V1.2.7-RELEASE-RECORD-TH.md).
 
 P1 เพิ่ม registry aggregate บน status/create โดย default soft-cap 1,000. แยก warning ที่ cap จาก registry unavailable ซึ่งทำให้ root ok=false. Create ที่ persisted/acknowledged แล้วห้าม retry เพราะ observation unavailable. Preview เป็น local-only, ไม่มี apply/delete และไม่ใช่ native history compaction. Metadata เดิมของ create/status/recent ไม่ถูก redact ทั้ง response. ขอบเขต plaintext storage และ SQLite sidecars เดิมคงอยู่.
 

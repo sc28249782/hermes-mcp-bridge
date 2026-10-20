@@ -1,8 +1,8 @@
 # คู่มืออัปเกรด Hermes MCP Bridge
 
-## จาก v1.2.6 เป็น v1.2.7 — candidate plan, ยังห้าม rollout
+## จาก v1.2.6 เป็น v1.2.7 — released; rollout ต้องได้รับอนุมัติแยก
 
-ส่วนนี้เป็นแผนสำหรับ [v1.2.7 candidate](V1.2.7-RELEASE-PREP-TH.md). Source stamp เป็น 1.2.7/v1.2.7, build input `07ec0069b952f08a49adbd0ec778c204f85ee282`. ยังไม่มี signed release/assets หรือ deployment approval. อย่าใช้ candidate ZIP แทน signed release และอย่าแก้ directory ของ production v1.2.6.
+ส่วนนี้เป็นแผนอัปเกรดจาก [v1.2.7 released](V1.2.7-RELEASE-RECORD-TH.md). Source stamp เป็น 1.2.7/v1.2.7, embedded build input `07ec0069b952f08a49adbd0ec778c204f85ee282`. Signed release และ assets เผยแพร่แล้ว และ external fresh-input audit ผ่าน. ยังไม่มี deployment approval; deployment decision รวมตัวเลือกไม่อัปเกรดยังรอ operator. อย่าแก้ directory ของ production v1.2.6.
 
 1. เริ่ม upgrade ได้หลัง signed-tag/assets verification ผ่าน และ operator อนุมัติ deployment กับ maintenance window แยกแล้วเท่านั้น. หากยังไม่อนุมัติ ให้ใช้ production เดิม.
 2. ตรวจ active/unknown jobs และ terminal evidence ตาม runbook; HTTP 404 ไม่ใช่ terminal evidence. เตรียม private backup ของ config/state ตาม modes เดิม. ห้ามเผยแพร่ state/log/config เป็นหลักฐานสาธารณะ.
@@ -14,12 +14,11 @@
 8. Preview เป็น local-only และไม่มี apply/delete. SQLite mode=ro อาจใช้ locks/sidecars; ไม่ใช่ no-filesystem-effects guarantee. ไม่ลด native/chat token history. Codex raw reads คง byte cap เดิม แต่ไม่คืน prefetched data หลัง truncate แทน error.
 9. หากผิด target หรือ acceptance ไม่ผ่าน ให้ห้ามเริ่มงานใหม่, ตรวจงานที่กำลังรันก่อนหยุด instance, คืน original v1.2.6 launch แล้วตรวจ identity/health อีกครั้ง. ห้าม state-merge/replay. บันทึก deployment decision/ผลจริงแยกจาก release verification.
 
-## Unreleased — Codex result read-ahead fix
+## Codex result read-ahead fix — shipped in v1.2.7, not deployed
 
 Candidate แก้การอ่าน Codex result เป็น unbuffered ตาม byte budget เดิมของ SPEC §19.3.
 WSL ทดสอบผ่านทั้ง Python 3.12.3 และ 3.14.7; ดู [TESTING.md](TESTING.md#unreleased--codex-result-read-ahead-fix).
-Patch นี้อยู่ใน candidate v1.2.7 และยังไม่ deploy; production คง signed v1.2.6 บน Python 3.12.3.
-Candidate stamp v1.2.7 ไม่ใช่หลักฐาน signed release หรือ deployment. Signed v1.2.6 ไม่มี patch นี้.
+Patch นี้อยู่ใน released v1.2.7 และยังไม่ deploy; production คง signed v1.2.6 บน Python 3.12.3.
 การเปลี่ยน production interpreter หรือ rollout ยังต้องผ่าน review/release/deployment decision ตามขั้นตอนเดิม.
 
 ## v1.2.6 — released; deployment ต้องได้รับอนุมัติแยก
@@ -33,7 +32,7 @@ Codex result ของ snapshot เกิน 8,388,608 bytes จะ fail พร�
 Tool count และ binaries ไม่เปลี่ยน.
 อย่าแก้ directory ของ deployment เดิมเพื่อเปิดรุ่นใหม่ระหว่างงานที่ยังรันอยู่.
 
-release ที่เผยแพร่ล่าสุดคือ v1.2.6 (20 ตุลาคม 2026) — ดูขั้นตอนท้ายเอกสาร หัวข้อ "จาก X เป็น Y" ด้านล่างเป็นบันทึกประวัติรายรุ่นคงไว้ตามเดิม
+release ที่เผยแพร่ล่าสุดคือ v1.2.7 (20 ตุลาคม 2026) — ดูขั้นตอนท้ายเอกสาร หัวข้อ "จาก X เป็น Y" ด้านล่างเป็นบันทึกประวัติรายรุ่นคงไว้ตามเดิม
 
 v1.2.5 เผยแพร่แล้ว พร้อม signed tag และ ZIP/SHA256SUMS ที่ตรวจหลังดาวน์โหลด; OpenCode execution ปิดโดยค่าเริ่มต้น การอัปเกรดไม่สลับ production หรือตั้ง permission ให้อัตโนมัติ.
 

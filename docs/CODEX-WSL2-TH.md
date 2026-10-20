@@ -1,8 +1,10 @@
 # Codex/WSL2 แบบควบคุมสิทธิ์ — v1.0.1
 
-## v1.2.7 candidate checkpoint
+## v1.2.7 released checkpoint
 
 Candidate รวม raw result reads แบบ unbuffered เพื่อ enforce snapshot budget เดิมของ §19.3. Cap 8,388,608 bytes, read chunk 65,536 bytes, ownership/approval/decoding/pagination เดิมคงอยู่. ไม่รับรอง immutable snapshot หรือการตรวจ overwrite ทุกแบบ. ดู [release preparation](V1.2.7-RELEASE-PREP-TH.md). ยังไม่ released/deployed; production คง v1.2.6 และ model/workspace permissions ไม่เปลี่ยน. จำนวน tools ยุค v1.0.1 ด้านล่างเป็น historical baseline.
+
+อัปเดตสถานะ (20 ตุลาคม 2026): v1.2.7 เผยแพร่ผ่าน signed tag ที่ `625ea117aa693f577872638a6353b1408fb405aa`; ข้อความ "ยังไม่ released/deployed" ด้านบนคงเป็นสถานะช่วง preparation. Production ยังเป็น v1.2.6; deployment decision รวมตัวเลือกไม่อัปเกรดยังรอ operator. ดู [release record](V1.2.7-RELEASE-RECORD-TH.md).
 
 v1.0.1 มี Hermes tools 10 ตัว, Codex tools 6 ตัว และ operations tools แบบ read-only 3 ตัว (`bridge_diagnostics`, `bridge_audit_recent`, `bridge_status`) รวม 19 tools โดย `codex_submit_task` เลือก model และ reasoning effort ได้ภายใต้นโยบายที่กำหนด
 

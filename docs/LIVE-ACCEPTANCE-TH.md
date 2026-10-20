@@ -1,5 +1,25 @@
 # ผล Live Acceptance
 
+## v1.2.7 — released; release verification และ external fresh-input audit (20 October 2026)
+
+v1.2.7 เผยแพร่ผ่าน signed annotated tag `v1.2.7` (object `5a652cbf44c768cec70b3555686bbaaa93383d75`, peeled commit `625ea117aa693f577872638a6353b1408fb405aa`) และ [GitHub Release](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.7) เมื่อ 2026-10-20T14:33:56Z (`draft: false`, `prerelease: false`). ผลการตรวจสอบแยกเป็นสองชั้น:
+
+| รายการตรวจ | ผล | ผู้ตรวจ |
+| --- | --- | --- |
+| signature/tag target/tree/modes/forbidden ZIP structure/three same-tag byte-identical builds/fresh downloads (checksum/integrity/cmp/identity) | ผ่าน | maintainer automation (Phase B) |
+| fresh bare tag fetch: object/peeled ตรง `5a652cbf`/`625ea11` | ผ่าน | external reviewer (fresh input) |
+| `git verify-tag` Good EDDSA fingerprint `C4E9AFA9C97FC94CA2448E9218BDAEA561529B86` | ผ่าน | external reviewer (fresh input) |
+| fresh download สอง assets: checksum/unzip | ผ่าน | external reviewer (fresh input) |
+| same-tag rebuild `cmp` byte-identical | ผ่าน | external reviewer (fresh input) |
+| ZIP 98 unique entries, single root, forbidden scan ว่าง | ผ่าน | external reviewer (fresh input) |
+| offline identity และ ancestry `07ec0069` → `625ea11` | ผ่าน | external reviewer (fresh input) |
+| extracted full suite จาก fresh venv | 206/206 | external reviewer (fresh input) |
+| production read-only probe | v1.2.6/input `e3e698a7` ไม่เปลี่ยน | external reviewer (fresh input) |
+
+Operator ส่งรายงาน external reviewer มาในแชตเมื่อ 20 ตุลาคม 2026 เวลา 21:48 +07. รายงานไม่ใช่ GitHub review และไม่มี repo-event receipt ที่ตรวจได้ (connector ปฏิเสธ `/events` endpoint); record จึงไม่อ้าง independent repo-event audit. Reviewer รายงาน isolated Python 3.14 runs ผ่านบางชุด แต่ไม่ส่ง exact interpreter matrix ครบสำหรับทุก run ภายนอก; record ไม่สร้าง matrix เพิ่มและไม่อ้างว่าปัญหา Python 3.14 ทั้งระบบหมดไป. หัวเรื่องรายงานอ้าง object `a9a15e08` แต่ตารางรายละเอียดและผล fetch สดระบุ `5a652cbf`; record ใช้ object ที่ตรวจได้จริง.
+
+สิ่งที่ยังไม่อ้าง: live deployment ของ v1.2.7, production P1 acceptance, migration acceptance และ model/backend acceptance. Production deployment ยังเป็น v1.2.6; deployment decision ยังรอ operator รวมตัวเลือกไม่อัปเกรด. ดู [release record](V1.2.7-RELEASE-RECORD-TH.md) และ [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md).
+
 ## Production v1.2.6 — deployment checkpoint (20 October 2026)
 
 Operator อนุมัติ deployment และ maintenance window เมื่อ 13:52:34 +07. Production อัปเกรดเป็น v1.2.6 แล้ว. Parent connector ยืนยัน release-archive/input `e3e698a7`, schema 1, state `0700`, watchdog ทำงาน, Hermes authentication verified และ OpenCode v2.0.32. Parent registry มี 33 tools ตาม config; ไม่ใช่ raw wire `tools/list` capture. Hands ยัง disabled. ดู [deployment record](V1.2.6-DEPLOYMENT-TH.md) สำหรับผลทดสอบ ข้อจำกัด และ rollback. ข้อความ deployment pending/v1.2.5 ด้านล่างเป็น checkpoint ก่อนอัปเกรด. Privacy follow-up ปิดตาม §19.4 หลัง external reviewer ให้ APPROVE แก่ PR #54 ที่ `7b2886d` เมื่อ 20 ตุลาคม 2026 ตามรายงานที่ operator ส่งในแชต; production OpenCode benign-model acceptance ผ่านแยกแล้วเมื่อ 20 ตุลาคม 2026 ตาม [acceptance record](OPENCODE-PRODUCTION-ACCEPTANCE-TH.md); ไม่ขยายเป็น write/cancel/native-permission acceptance.
