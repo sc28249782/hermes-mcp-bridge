@@ -1,20 +1,28 @@
 # คู่มืออัปเกรด Hermes MCP Bridge
 
-## v1.2.6 release candidate — ยังไม่มี signed release สำหรับอัปเกรด
+## v1.2.6 — released; deployment ต้องได้รับอนุมัติแยก
 
-Operator อนุมัติ v1.2.6 เป็นรุ่นเป้าหมายของ candidate ตาม SPEC §19 แล้วเมื่อ 20 ตุลาคม 2026.
-Candidate stamp เป็น `1.2.6/v1.2.6` และกำลังเตรียมผลตรวจ exact-head/archive ตาม [release-preparation record](V1.2.6-RELEASE-PREP-TH.md).
-ยังรอ signed assets และ deployment decision. การอนุมัติ scope ไม่ใช่การอนุมัติอัปเกรด production.
-ใช้ขั้นตอนอัปเกรด v1.2.6 ได้หลัง final release ผ่าน verification และ operator อนุมัติ deployment แล้วเท่านั้น. ดู [scope decision record](PRIVACY-RELEASE-DECISION-TH.md).
+Signed v1.2.6 และ ZIP/SHA256SUMS ผ่านการตรวจหลังดาวน์โหลดแล้วเมื่อ 20 ตุลาคม 2026. GPG verification ผ่าน; GitHub badge เป็น `no_user`.
+Operator อนุมัติ signing/publication แล้ว แต่ยังไม่อนุมัติ deployment. Production identity ที่ตรวจหลัง publication ยังเป็น v1.2.5.
+ใช้ขั้นตอนอัปเกรด v1.2.6 ได้เมื่อ operator อนุมัติ deployment แยกแล้วเท่านั้น. ดู [release record](RELEASE-STATUS-TH.md) และ [decision record](PRIVACY-RELEASE-DECISION-TH.md).
 เมื่อเสนอ rollout ต้องแจ้งว่า Hermes status/result จะไม่ส่ง raw error และ approval payload; approval details ยังตรวจใน local terminal.
 Init จะ enforce state/Codex-log directories เป็น `0700`; ถ้าเปลี่ยน mode ไม่ได้ ต้องแก้ ownership/permissions ภายในเครื่องก่อนเริ่มใหม่.
 Codex result ของ snapshot เกิน 8,388,608 bytes จะ fail พร้อมคำแนะนำให้ตรวจในเครื่อง; ไม่ตัด output แล้วรายงานเหมือนอ่านครบ.
 Tool count และ binaries ไม่เปลี่ยน.
-อย่าแก้ directory ของ signed deployment เพื่อเปิด candidate ระหว่างงานที่ยังรันอยู่.
+อย่าแก้ directory ของ deployment เดิมเพื่อเปิดรุ่นใหม่ระหว่างงานที่ยังรันอยู่.
 
-release ที่เผยแพร่ล่าสุดคือ v1.2.5 (19 ตุลาคม 2026) — ดูขั้นตอนท้ายเอกสาร หัวข้อ "จาก X เป็น Y" ด้านล่างเป็นบันทึกประวัติรายรุ่นคงไว้ตามเดิม
+release ที่เผยแพร่ล่าสุดคือ v1.2.6 (20 ตุลาคม 2026) — ดูขั้นตอนท้ายเอกสาร หัวข้อ "จาก X เป็น Y" ด้านล่างเป็นบันทึกประวัติรายรุ่นคงไว้ตามเดิม
 
 v1.2.5 เผยแพร่แล้ว พร้อม signed tag และ ZIP/SHA256SUMS ที่ตรวจหลังดาวน์โหลด; OpenCode execution ปิดโดยค่าเริ่มต้น การอัปเกรดไม่สลับ production หรือตั้ง permission ให้อัตโนมัติ.
+
+## จาก v1.2.5 เป็น v1.2.6
+
+1. เริ่มได้เมื่อ operator อนุมัติ deployment และกำหนด maintenance window แล้ว. หากยังไม่อนุมัติ ให้ใช้ deployment เดิม.
+2. ดาวน์โหลด `hermes-mcp-bridge-v1.2.6.zip` และ external `SHA256SUMS` จาก [release v1.2.6](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.6). ตรวจ `sha256sum -c SHA256SUMS`, `unzip -t` และ signed tag/fingerprint ตาม [RELEASE-RUNBOOK-TH.md](RELEASE-RUNBOOK-TH.md). ต้องผ่านทุกข้อก่อนแตกไฟล์; GitHub badge ไม่ใช่ตัวแทน cryptographic verification.
+3. รอ jobs ของ instance เดิมเป็น terminal และตรวจ process ของ `unknown_exit` ก่อนหยุด instance นั้น. Backup config/state แบบ private ตาม mode 0600/0700. เก็บไดเรกทอรีเดิมไว้ใช้ rollback.
+4. แตก ZIP ใน directory ใหม่. คัดลอกเฉพาะ config/state ที่ตรวจแล้ว พร้อมรักษาสิทธิ์. ตรวจ relative key/config references ให้ยังชี้เป้าหมายที่ถูกต้อง. ไม่คัดลอก `.env` หรือ `.venv`; ใช้ installer สร้าง venv ใหม่. ห้ามคัดลอก state ขณะที่มี worker ทำงาน.
+5. ตรวจ `./bridge.sh version` เป็น `1.2.6/v1.2.6`, source `release-archive`, embedded build input `e3e698a7a220bf14a8bb4d1260bf2ded7e666b56` และ default count 27. ตรวจ config, state/Codex-log mode 0700 และ backend health ตาม configuration เดิมก่อนเปลี่ยน tunnel ไป directory ใหม่. การอัปเกรดไม่เปิด OpenCode หรือ Hands ให้เอง.
+6. ตรวจ identity, status, configured discovery 27/28/33 และ applicable privacy acceptance หลังสลับ instance. บันทึกเฉพาะผลที่ตรวจได้; identity/health ไม่ใช่ production model-task acceptance. หากตรวจไม่ผ่าน ห้ามเริ่มงานใหม่และคืน instance เดิม. หากมีงานเริ่มไปแล้ว ให้ตรวจ process/state ก่อน rollback; ห้ามเขียนทับ state ที่มี worker ทำงาน.
 
 ## จาก v1.2.3 หรือ v1.2.4 เป็น v1.2.5
 

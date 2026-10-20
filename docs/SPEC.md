@@ -1,8 +1,8 @@
 # Hermes MCP Bridge Specification
 
-Status: normative contract for the released baselines (v1.2.3, extended by v1.2.4 sections 16-17 and v1.2.5 section 18) and explicitly marked unreleased/future requirements
+Status: normative contract for the released baselines (v1.2.3, extended by v1.2.4 sections 16-17 and v1.2.5 section 18 and v1.2.6 section 19) and explicitly marked unreleased/future requirements
 
-Current released baseline: v1.2.5 (released 2026-10-19)
+Current released baseline: v1.2.6 (released 2026-10-20); production deployment acceptance is separate
 Canonical companion: TESTING.md for the MCP discovery count
 
 Historical release record: v1.2.4 released 2026-10-18 via a GPG-signed annotated tag on `213305638c135041c42a3f242d6c5665c49c3fdf` and published with a download-verified ZIP plus an external SHA256SUMS asset. The MCP Events amendment (section 15), originally the v1.2.4 target requirement, is deferred with no assigned release and remains blocked.
@@ -62,7 +62,7 @@ Every tool MUST have:
 - a documented unavailable/disabled result where its backend can be unavailable;
 - no secret-bearing fields in normal status, diagnostics, or audit responses.
 
-Unreleased privacy amendment (section 19): MCP metadata MUST NOT serialize credential configuration, authentication headers, submitted prompts, raw job output, or unredacted audit payloads. The documented content fields of `hermes_task_result`, `codex_task_result`, `opencode_task_result`, and `hands_read` MAY return untrusted task output or allowed file content within their ownership or workspace-policy checks and response limits. `hands_list` MAY return names and relative paths that pass its policy. A result page MAY contain the complete output of a short task. Pagination MUST NOT be described as redaction. Content can contain sensitive data; this exception MUST NOT authorize raw content in status, diagnostics, audit, or unrelated fields. Existing configured Hermes-key substitution and protected-file rules MUST remain in force. This amendment corrects the earlier blanket full-output prohibition; it does not claim new protection in signed v1.2.5.
+Privacy amendment (section 19, released in v1.2.6): MCP metadata MUST NOT serialize credential configuration, authentication headers, submitted prompts, raw job output, or unredacted audit payloads. The documented content fields of `hermes_task_result`, `codex_task_result`, `opencode_task_result`, and `hands_read` MAY return untrusted task output or allowed file content within their ownership or workspace-policy checks and response limits. `hands_list` MAY return names and relative paths that pass its policy. A result page MAY contain the complete output of a short task. Pagination MUST NOT be described as redaction. Content can contain sensitive data; this exception MUST NOT authorize raw content in status, diagnostics, audit, or unrelated fields. Existing configured Hermes-key substitution and protected-file rules MUST remain in force. This amendment corrects the earlier blanket full-output prohibition; it does not claim new protection in signed v1.2.5.
 
 The exact generated tool schemas and discovery count are validated by tests/test_mcp.py and TESTING.md. A code change that changes a tool schema is a contract change even when the tool count is unchanged.
 
@@ -145,7 +145,7 @@ The bridge MUST:
 
 Security behavior is part of the public contract. A security relaxation requires a specification amendment, threat-model review, regression tests, live acceptance, and an explicit release note.
 
-Unreleased privacy amendment (section 19): documented bridge-owned operational stores MAY retain submitted job prompts, cached task responses, and captured job output for execution, ownership, recovery, and explicit result retrieval. These stores MUST be protected separately from audit logs. Documentation MUST state their stored fields, permissions, output limits, and retention or cleanup behavior per backend. OS permissions MUST NOT be described as encryption. Audit redaction MUST NOT be described as artifact redaction. Metadata-only contexts MUST NOT store prompts or outputs. This allowance does not permit credential configuration or authentication headers to be copied into job metadata.
+Privacy amendment (section 19, released in v1.2.6): documented bridge-owned operational stores MAY retain submitted job prompts, cached task responses, and captured job output for execution, ownership, recovery, and explicit result retrieval. These stores MUST be protected separately from audit logs. Documentation MUST state their stored fields, permissions, output limits, and retention or cleanup behavior per backend. OS permissions MUST NOT be described as encryption. Audit redaction MUST NOT be described as artifact redaction. Metadata-only contexts MUST NOT store prompts or outputs. This allowance does not permit credential configuration or authentication headers to be copied into job metadata.
 
 ## 11. Persistence and migration
 
@@ -294,7 +294,7 @@ This amendment ships in signed v1.2.5 (2026-10-19); ZIP and external SHA256SUMS 
 - `tests/test_packaging.py` MUST include the new modules. No released surface may claim this section until its own change-control gate closes.
 
 
-## 19. Privacy hardening — v1.2.6 release candidate, unreleased
+## 19. Privacy hardening — released in v1.2.6 (2026-10-20)
 
 This amendment follows the review in [PRIVACY-CONTRACT-REVIEW-TH.md](PRIVACY-CONTRACT-REVIEW-TH.md). It changes privacy-contract wording and Hermes metadata response semantics. It MUST NOT be represented as active in signed v1.2.5 or production before deployment acceptance.
 
@@ -329,3 +329,5 @@ Regression coverage MUST include unknown/sensitive/oversized metadata, invalid n
 The section 19 contract and implementation passed external review in PR #47. The scoped Dev transport records in PR #48 and PR #49 passed external review, including metadata boundary fault injection, approval-shape filtering and route restoration. The recorded limits in sections 19.1–19.4 remain unchanged. Candidate tests and fixture acceptance do not establish a signed release or production rollout. The operator approved v1.2.6 as the target scope on 20 October 2026. The decision, evidence limits and remaining release verification/deployment decision are recorded in [PRIVACY-RELEASE-DECISION-TH.md](PRIVACY-RELEASE-DECISION-TH.md). Scope approval permits release preparation; it does not establish a signed release or authorize publication or production deployment.
 
 Release-preparation checkpoint (20 October 2026): the v1.2.6 candidate is stamped with reviewed build input `e3e698a7a220bf14a8bb4d1260bf2ded7e666b56`. This is not a signed-tag identity or a claim that section 19 is active in production. Candidate verification and remaining release gates are recorded in [V1.2.6-RELEASE-PREP-TH.md](V1.2.6-RELEASE-PREP-TH.md).
+
+Post-tag checkpoint (20 October 2026): signed v1.2.6 at `cee144e14e53d971d986de346aab58c51bca97f0` and its downloaded assets passed maintainer cryptographic/checksum/structure/rebuild verification. GitHub's signature badge remains `no_user`; no GitHub-verified claim is made. The release record is in [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md). Production still reports v1.2.5 and has not received this hardening; the deployment decision and privacy follow-up remain open.

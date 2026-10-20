@@ -1,13 +1,13 @@
 # Security policy
 
-## v1.2.6 release candidate — unreleased privacy amendment and hardening (SPEC §19)
+## v1.2.6 — released privacy amendment and hardening (SPEC §19)
 
-Operator อนุมัติ scope v1.2.6 เมื่อ 20 ตุลาคม 2026; ยังไม่ใช่ signed release หรือ production rollout. ดู [scope decision record](PRIVACY-RELEASE-DECISION-TH.md).
-Candidate stamp เป็น `1.2.6/v1.2.6`; ไม่ใช่หลักฐานว่า signed release หรือ production มี hardening นี้แล้ว. ดู [release-preparation record](V1.2.6-RELEASE-PREP-TH.md).
-Candidate แยก explicit content retrieval ออกจาก metadata/audit และ private operational storage.
+Operator อนุมัติ scope v1.2.6 เมื่อ 20 ตุลาคม 2026; signed release และ assets ผ่านการตรวจแล้ว แต่ยังไม่ deploy production. ดู [scope decision record](PRIVACY-RELEASE-DECISION-TH.md).
+Signed release stamp เป็น `1.2.6/v1.2.6`; cryptographic signature ผ่าน แต่ GitHub badge เป็น `no_user`. Production checkpoint ยังเป็น v1.2.5. ดู [release-preparation record](V1.2.6-RELEASE-PREP-TH.md).
+v1.2.6 แยก explicit content retrieval ออกจาก metadata/audit และ private operational storage.
 การแก้ข้อห้าม full output แบบครอบทุก response เป็น security-contract change ที่ต้อง review แม้ content APIs มีอยู่แล้ว.
 Result/file content อาจมีข้อมูลอ่อนไหวและยังเป็น untrusted data; pagination ไม่ใช่ redaction.
-Candidate ไม่เพิ่ม generic secret scanner, encryption, sandbox หรือ permission.
+v1.2.6 ไม่เพิ่ม generic secret scanner, encryption, sandbox หรือ permission.
 
 Hermes status/result metadata ใช้ field allowlist และ cap 8,192 serialized bytes.
 Raw error/approval bodies ไม่ถูกส่งใน metadata; local terminal ยัง preview/revalidate exact approval.

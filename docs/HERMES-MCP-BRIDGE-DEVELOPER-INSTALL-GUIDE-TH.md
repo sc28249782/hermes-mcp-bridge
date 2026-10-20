@@ -3,9 +3,9 @@
 เอกสารนี้อธิบาย bridge ที่เชื่อม ChatGPT ผ่าน Secure MCP Tunnel ไปยัง Hermes Agent ที่ทำงานอยู่ใน WSL2 โดยใช้ Hermes Runs API แบบ HTTP
 
 รุ่นอ้างอิง: Hermes Agent v0.21.1, commit `8d79c2ff`  
-Bridge: `hermes-mcp-bridge-v1.2.5` (signed and GitHub-verified)
+Bridge: `hermes-mcp-bridge-v1.2.6` (GPG signature verified; GitHub badge `no_user`)
 
-สถานะ source ปัจจุบัน: v1.2.6 privacy-hardening candidate, stamp `1.2.6/v1.2.6`, ยังไม่ released หรือ deployed. Signed release ล่าสุดยังเป็น v1.2.5 (OpenCode execution opt-in); คำสั่งติดตั้ง release ในเอกสารนี้อ้าง v1.2.5. ดู [release-preparation record](V1.2.6-RELEASE-PREP-TH.md) และ [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)
+สถานะ source ปัจจุบัน: signed release v1.2.6, stamp `1.2.6/v1.2.6`; assets ผ่านการตรวจหลังดาวน์โหลด. คำสั่งติดตั้ง release ในเอกสารนี้อ้าง v1.2.6. Production identity ที่ตรวจหลัง publication ยังเป็น v1.2.5; ยังไม่ upgrade. ดู [release-preparation record](V1.2.6-RELEASE-PREP-TH.md) และ [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)
 
 ปรับปรุงล่าสุด: 20 ตุลาคม 2026
 
@@ -130,12 +130,12 @@ Bridge บังคับ API URL เป็น `http://127.0.0.1:PORT` เท่
 3. แตก ZIP:
 
    ```bash
-   unzip hermes-mcp-bridge-v1.2.5.zip
+   unzip hermes-mcp-bridge-v1.2.6.zip
    ```
 4. เข้า directory ที่แตกได้:
 
    ```bash
-   cd ~/hermes-mcp-bridge-v1.2.5
+   cd ~/hermes-mcp-bridge-v1.2.6
    ```
 5. ติดตั้ง:
 
@@ -271,7 +271,7 @@ GET /v1/capabilities 200 OK
 1. เข้า directory ที่ติดตั้ง bridge:
 
    ```bash
-   cd ~/hermes-mcp-bridge-v1.2.5
+   cd ~/hermes-mcp-bridge-v1.2.6
    ```
 
 2. บันทึก key:
@@ -307,7 +307,7 @@ bash tunnel.sh init tunnel_YOUR_ID --force
 ให้คง terminal เดิมไว้ แล้วเปิด terminal อีกหน้าหนึ่งใน directory ของ instance เดียวกันเพื่อตรวจ doctor:
 
 ```bash
-cd ~/hermes-mcp-bridge-v1.2.5
+cd ~/hermes-mcp-bridge-v1.2.6
 ```
 
 ตรวจ profile ด้วย wrapper:

@@ -1,4 +1,6 @@
-# Hermes MCP Bridge — v1.2.6 candidate / v1.2.5 signed release
+# Hermes MCP Bridge — v1.2.6 signed release / production v1.2.5
+
+Release checkpoint (20 ตุลาคม 2026): v1.2.6 เผยแพร่แล้วพร้อม ZIP/SHA256SUMS ที่ตรวจหลังดาวน์โหลด. GPG signature ผ่าน; GitHub badge เป็น `no_user`. Production identity ที่ตรวจหลัง publication ยังเป็น v1.2.5; ยังไม่มี upgrade. ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md). Checkpoint เกี่ยวกับ candidate ด้านล่างเป็นบันทึกก่อน publication.
 
 Candidate checkpoint (20 ตุลาคม 2026): source นี้ stamp `1.2.6/v1.2.6` สำหรับ privacy hardening ตาม SPEC §19. ยังไม่ released หรือ deployed. Release ที่เผยแพร่ล่าสุดและ production checkpoint ยังคง v1.2.5. ดู [release-preparation record](V1.2.6-RELEASE-PREP-TH.md) สำหรับ candidate verification และ gates ก่อน tag.
 
@@ -12,7 +14,7 @@ Operations: [OPERATIONS-TH.md](OPERATIONS-TH.md)
 จุดเริ่มต้นของโครงการ: [Project origin](PROJECT-ORIGIN.md)
 
 จัดทำสำหรับ Hermes Agent v0.21.1, commit `8d79c2ff` ที่ผู้ใช้ยืนยัน
-วันที่ปรับปรุง: 19 ตุลาคม 2026 — v1.2.5 released; signed tag และ release assets ผ่านการตรวจแล้ว
+วันที่ปรับปรุง: 20 ตุลาคม 2026 — v1.2.6 released; signed tag และ release assets ผ่านการตรวจแล้ว
 
 หมายเหตุ (18 ตุลาคม 2026): released v1.2.4 เผยแพร่แล้วผ่าน signed tag (ZIP ตรวจแล้วจากการดาวน์โหลดจริง; ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)) โดยเพิ่ม OpenCode health adapter แบบ disabled by default และ legacy stdio discovery guard ขณะนั้นคู่มือแนะนำติดตั้ง released v1.2.4 การอัปเกรด deployment ที่ผลิตจริงเป็นดุลยพินิจของ operator (ยังรัน v1.2.3 เดิมได้)
 
@@ -40,13 +42,13 @@ Operations: [OPERATIONS-TH.md](OPERATIONS-TH.md)
 - ยังต้องสร้าง tunnel ใน OpenAI Platform, ติดตั้ง tunnel-client และเชื่อม Plugin
 - v1.2.1 ผ่าน regression 63/63 โดยใช้ project `.venv/bin/python` พร้อม `-W error::ResourceWarning`, shellcheck และ Bash syntax; Live Acceptance ผ่าน Hermes context ข้าม ChatGPT chat, Codex metadata-only binding, closed-context denial และ audit redaction
 - v1.2.3 ผ่าน 75 regression tests, WSL2 worker-supervision acceptance และ independent review
-- v1.2.4 ผ่าน 129 regression tests รวม stdio-guard และ packaging tests, live tunnel acceptance แบบ bounded PASS บน Dev route และการตรวจ release assets หลังดาวน์โหลด (ดู [TESTING.md](TESTING.md) และ [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)) ผลข้างต้นเป็นหลักฐาน v1.2.4; สำหรับติดตั้งปัจจุบันใช้ release v1.2.5 ในหัวข้อถัดไป
+- v1.2.4 ผ่าน 129 regression tests รวม stdio-guard และ packaging tests, live tunnel acceptance แบบ bounded PASS บน Dev route และการตรวจ release assets หลังดาวน์โหลด (ดู [TESTING.md](TESTING.md) และ [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)) ผลข้างต้นเป็นหลักฐาน v1.2.4; สำหรับติดตั้งปัจจุบันใช้ release v1.2.6 ในหัวข้อถัดไป
 
 อัปเกรดจาก bridge รุ่นก่อนใช้ [UPGRADE-TH.md](UPGRADE-TH.md) ก่อนเริ่ม tunnel รุ่นใหม่ โดยเฉพาะหากต้องการเก็บ session/state เดิม
 
 ## 1. ติดตั้งตัวกลางใน WSL2
 
-ดาวน์โหลดทั้ง `hermes-mcp-bridge-v1.2.5.zip` และ `SHA256SUMS` จาก [GitHub Release v1.2.5](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.5) แล้ววางทั้งสองไฟล์ไว้ในโฟลเดอร์บ้านของผู้ใช้ใน WSL เช่น:
+ดาวน์โหลดทั้ง `hermes-mcp-bridge-v1.2.6.zip` และ `SHA256SUMS` จาก [GitHub Release v1.2.6](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.6) แล้ววางทั้งสองไฟล์ไว้ในโฟลเดอร์บ้านของผู้ใช้ใน WSL เช่น:
 
 ```text
 ~
@@ -70,12 +72,12 @@ Operations: [OPERATIONS-TH.md](OPERATIONS-TH.md)
 3. แตก ZIP:
 
    ```bash
-   unzip hermes-mcp-bridge-v1.2.5.zip
+   unzip hermes-mcp-bridge-v1.2.6.zip
    ```
 4. เข้า directory ที่แตกได้:
 
    ```bash
-   cd ~/hermes-mcp-bridge-v1.2.5
+   cd ~/hermes-mcp-bridge-v1.2.6
    ```
 5. ติดตั้ง:
 
@@ -101,7 +103,7 @@ Operations: [OPERATIONS-TH.md](OPERATIONS-TH.md)
 1. เข้า directory ของ deployment นั้น:
 
    ```bash
-   cd ~/hermes-mcp-bridge-v1.2.5
+   cd ~/hermes-mcp-bridge-v1.2.6
    ```
 2. ซ่อม pip ใน venv เดิม:
 
@@ -238,7 +240,7 @@ Hermes ยังคงใช้ provider/model และการคิดค่
 1. เข้า directory ของ bridge ที่จะเชื่อมต่อ:
 
    ```bash
-   cd ~/hermes-mcp-bridge-v1.2.5
+   cd ~/hermes-mcp-bridge-v1.2.6
    ```
 
 2. บันทึก OpenAI Platform runtime key ซึ่งเป็นคนละตัวกับ Hermes `API_SERVER_KEY`:
@@ -283,7 +285,7 @@ Hermes ยังคงใช้ provider/model และการคิดค่
 เข้า directory ของ instance เดิม:
 
 ```bash
-cd ~/hermes-mcp-bridge-v1.2.5
+cd ~/hermes-mcp-bridge-v1.2.6
 ```
 
 ตรวจ doctor ผ่าน wrapper:

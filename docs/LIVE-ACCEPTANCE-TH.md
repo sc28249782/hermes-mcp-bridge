@@ -336,3 +336,31 @@ Root config schema รายงาน `unknown` ตาม fixture ที่ไ�
 Restored-route verification ผ่านจาก Dev connector: pin `e7add7e`, schema 1, state เดิม mode 0700, Hermes/Codex jobs 0, watchdog ทำงาน และ Hands disabled. Recent Hermes/Codex lists ว่าง; ไม่ยืนยัน OpenCode job count หลัง restore เพราะ tool ไม่ปรากฏใน parent registry รอบนี้.
 ตารางหลักฐานและวิธีคืน route: [PRIVACY-DEV-ACCEPTANCE-TH.md](PRIVACY-DEV-ACCEPTANCE-TH.md).
 Privacy follow-up ยังไม่ปิด; production ไม่ถูกเปลี่ยน.
+
+## v1.2.6 — signed release artifact verification (20 ตุลาคม 2026)
+
+Operator ลงนามและ push tag สำเร็จหลังตั้ง `GPG_TTY` และอัปเดต startup TTY ของ agent ใน terminal.
+Final target `cee144e14e53d971d986de346aab58c51bca97f0` ตรงกับที่อนุมัติ.
+Maintainer automation fetch tag ใหม่ลง scratch bare repo และตรวจ artifact chain; ไม่ใช่ external fresh-input audit.
+
+| Gate | ผลที่ตรวจ |
+| --- | --- |
+| Signed tag | Object `a9a15e08aa7259b0bde667392b382d56ac031a8e`, peeled `cee144e14e53d971d986de346aab58c51bca97f0` |
+| Cryptographic verification | `git verify-tag --raw` exit 0; GOODSIG/VALIDSIG, fingerprint `C4E9AFA9C97FC94CA2448E9218BDAEA561529B86` |
+| GitHub badge | `verified: false`, `no_user`; ไม่อ้าง GitHub-verified และไม่แทน tag |
+| Final assets | ZIP 321,434 bytes และ external SHA256SUMS 95 bytes; published stable release, ไม่ใช่ draft/prerelease |
+| ZIP SHA-256 | `acf6c38ca371acd73d31099c5448d6ef9c3588020e74d0c0bfe3769736b1664e` |
+| Fresh download | Checksum และ unzip ผ่าน; ZIP/manifest เท่ากับ local assets ทุก byte; rebuild จาก signed tag เท่ากับ downloaded ZIP |
+| Structure | 87 unique entries, root เดียว; ไม่มี traversal, symlink, private config/state/env/venv/git/cache |
+| Extracted identity | `1.2.6/v1.2.6`, release-archive, embedded input `e3e698a7a220bf14a8bb4d1260bf2ded7e666b56`, embedded schema 1/default 27 |
+| Config identity | ไม่มี root config จึงเป็น `unknown` fallback; ไม่ใช่ migration proof |
+| Production read-only checkpoint | ยังเป็น `1.2.5/v1.2.5`, release-archive, embedded input `a666d626da1fe716ce4b259d49eedfc3f97acc7d`, schema 1/default 27 |
+
+Source และ extracted-tree suites 184/184 เป็นหลักฐานที่ reviewed prep head `42d27b5`; final commit มี tree เดียวกัน. ไม่ rerun suites ใน publication task.
+Native/backend/tunnel acceptance ไม่ถูกขยายจาก artifact verification นี้.
+### External fresh-input audit — 20 ตุลาคม 2026
+
+Operator ส่งรายงาน external reviewer ในแชตสำหรับ PR #53 ที่ head `88fb58f`; verdict **APPROVE**. External reviewer fetch tag และดาวน์โหลด assets ใหม่ แล้วตรวจ signature, checksum, byte-identical rebuild, ZIP structure และ offline identity ผ่านทั้งหมด. Extracted full suite ใน venv ใหม่ผ่าน **184/184**. ตรวจ production แบบ read-only แล้วยังเป็น v1.2.5/release-archive/input `a666d626`.
+
+External release audit เสร็จแล้ว. หลักฐานนี้แยกจาก maintainer automation และไม่ใช่ production acceptance. การอนุมัติที่ `88fb58f` ไม่ครอบคลุมข้อความ audit note ที่เพิ่มภายหลัง. Deployment decision/acceptance ยังรอ; privacy follow-up ยังเปิดตาม SPEC §19.4.
+รายละเอียดการเผยแพร่และ authority: [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md).
