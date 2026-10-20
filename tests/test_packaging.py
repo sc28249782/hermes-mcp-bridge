@@ -25,6 +25,7 @@ REQUIRED_ROOT_MODULES = {"opencode_core", "stdio_guard", "opencode_tasks", "open
 REQUIRED_FIXTURES = (
     "mock_mcp_server.py",
     "mock_privacy_boundary_server.py",
+    "mock_context_p1_server.py",
     "mock_hands_off_server.py",
     "mock_opencode_server.py",
     "mock_opencode_execution_server.py",

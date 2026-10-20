@@ -1,7 +1,7 @@
 # Context P1 — candidate acceptance
 
 วันที่: 20 ตุลาคม 2026.
-สถานะ: **candidate สำหรับ external implementation review; unreleased และ undeployed**.
+สถานะ: **P1 ผ่าน external implementation review และ merge แล้ว; unreleased และ undeployed**.
 Contract: [SPEC §20](SPEC.md#20-context-p1--approved-scope-future-implementation-no-assigned-release).
 SPEC ผ่าน review และ merge ใน PR #58 ที่ `64eb0a1` ก่อน implementation ใน PR #59.
 บันทึกนี้เป็น maintainer automation ไม่ใช่ external review.
@@ -49,3 +49,10 @@ Permission tests ใช้ file/directory ที่ปิด write bits สำ�
 ทั้งหมดใช้ public source และ isolated temporary state. ไม่มีการอ่าน production config/state, Dev route switch หรือส่ง model task. ไม่มี live Dev-tunnel/production acceptance ของ P1. ไม่มี release assigned, signed assets หรือ deployment จาก PR นี้. Signed v1.2.6 และ production คงเดิม.
 
 P1 ไม่แก้ close/bind/submission race ที่บันทึกใน scope proposal. P2 apply/delete, observation counters/annotations, native history compaction, Hands และ MCP Events ยังแยกติดตามตาม gates เดิม.
+
+
+## Implementation review และ merge checkpoint (20 October 2026)
+
+Operator ส่ง external review verdict APPROVE สำหรับ PR #59 ที่ `b7ff97a`. Reviewer รายงาน full suite 203 tests บน Python 3.12, focused context 19/19 และตรวจ CI matrix 3.12/3.14 ที่ exact head. Reviewer probe aggregate shape, bool/range rejection, CLI exit/stderr/error shapes, limit+1 และ wrapper override ด้วยตนเอง. ผลนี้แยกจาก maintainer automation ข้างต้น.
+
+Operator ยืนยัน merge แล้ว; PR #59 merge ที่ `5685e11`. การอนุมัติที่ `b7ff97a` ไม่ครอบคลุม checkpoint ที่เพิ่มภายหลังนี้. คำว่า review pending ในบันทึกเตรียม candidate เดิมเป็นสถานะ ณ เวลานั้น. P1 อยู่บน main แต่ยังไม่มี release/deployment. ขั้นถัดไปคือ [Dev transport acceptance](CONTEXT-P1-DEV-ACCEPTANCE-TH.md); live Dev และ dedicated read-only mount probe ยังไม่ได้ดำเนินการ.
