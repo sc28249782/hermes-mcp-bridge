@@ -2,7 +2,7 @@
 
 ## Approved maintenance target — v1.2.7 (unreleased)
 
-[Scope decision](V1.2.7-RELEASE-DECISION-TH.md) records operator approval at 18:47:56 +07 on 20 October 2026 for the reviewed Codex read-ahead fix and Context P1. Preparation, final-target signing/publication and production deployment require their separate steps. Production remains the recorded signed v1.2.6; no new stamp or release is assigned. Dedicated read-only mount evidence and the existing P2/Hands/Events boundaries remain as documented.
+[Scope decision](V1.2.7-RELEASE-DECISION-TH.md) records operator approval at 18:47:56 +07 on 20 October 2026 for the reviewed Codex read-ahead fix and Context P1. Preparation, final-target signing/publication and production deployment require their separate steps. [Release preparation](V1.2.7-RELEASE-PREP-TH.md) stamps candidate 1.2.7/v1.2.7 with reviewed input `07ec0069b952f08a49adbd0ec778c204f85ee282`. Production remains signed v1.2.6; no signed tag/publication/deployment is performed. Dedicated read-only mount evidence and the existing P2/Hands/Events boundaries remain as documented.
 
 ## Completed
 
