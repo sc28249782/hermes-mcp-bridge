@@ -14,7 +14,7 @@ Scope คือ implementation จาก PR #47 และ regression/acceptance 
 การอนุมัติครอบคลุม scope และลำดับ release preparation ตาม PR #50 ที่ผ่าน review แล้ว.
 Release-preparation PR ใช้ reviewed build input `e3e698a7a220bf14a8bb4d1260bf2ded7e666b56` พร้อม stamp และ exact-head/archive verification ตาม [preparation record](V1.2.6-RELEASE-PREP-TH.md).
 การอนุมัติ scope เวลา 11:26 ไม่ครอบคลุม signed tag, publish assets หรือ production upgrade. การอนุมัติเวลา 12:49 เพิ่ม final-target signing/publication เท่านั้น; deployment ยังรอ decision แยก.
-Release verification ผ่านตาม [release record](RELEASE-STATUS-TH.md). Privacy follow-up ยังเปิดสำหรับ deployment decision/acceptance; independent signed-release fresh-input audit ยังรอรายงาน.
+Release verification ผ่านตาม [release record](RELEASE-STATUS-TH.md). Privacy follow-up ยังเปิดสำหรับ deployment decision/acceptance; independent signed-release fresh-input audit ผ่านแล้วตามรายงาน external reviewer ที่ operator ส่งในแชตสำหรับ PR #53 ที่ head `88fb58f` เมื่อ 20 ตุลาคม 2026 (fresh tag/assets, byte-identical rebuild, offline identity และ extracted suite 184/184). การอนุมัติที่ head นี้ไม่ครอบคลุม audit note ที่เพิ่มภายหลัง. ยังรอ deployment decision/acceptance ตาม SPEC §19.4.
 
 | รายการ | Decision / สถานะ |
 | --- | --- |
