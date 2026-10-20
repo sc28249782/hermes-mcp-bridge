@@ -1,8 +1,8 @@
 # Release status
 
-## Privacy hardening — v1.2.6 proposed, not assigned or released (20 October 2026)
+## Privacy hardening — v1.2.6 scope approved, unreleased (20 October 2026)
 
-Contract/implementation review and scoped Dev transport acceptance/restoration passed through PR #47–#49. The [release decision proposal](PRIVACY-RELEASE-DECISION-TH.md) records evidence, limits and remaining release/deployment gates. It does not change `version_info.py`, create a signed tag or assets, or upgrade production. Production's last recorded deployment checkpoint remains signed v1.2.5 below. Local Hands mutation and MCP Events gates remain unchanged.
+Contract/implementation review and scoped Dev transport acceptance/restoration passed through PR #47–#49. The operator approved the v1.2.6 target scope at 11:26 +07 on 20 October 2026. The [scope decision record](PRIVACY-RELEASE-DECISION-TH.md) records evidence, limits and remaining gates. Release preparation is next; stamp/archive verification, signing/publication and the production deployment decision remain pending. It does not change `version_info.py`, create a signed tag or assets, or upgrade production. Production's last recorded deployment checkpoint remains signed v1.2.5 below. Local Hands mutation and MCP Events gates remain unchanged.
 
 ## v1.2.5 — released (19 October 2026)
 
