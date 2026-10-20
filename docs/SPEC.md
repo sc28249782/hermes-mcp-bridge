@@ -198,6 +198,8 @@ The MCP Events amendment (section 15) is capability-gated and deferred with no a
 
 Separately, PR #34 (merged 2026-10-18) and PR #35 (merged 2026-10-18) amend this specification by adding section 16 for the OpenCode health adapter and section 17 for the legacy stdio discovery guard: additive surfaces that are not part of the v1.2.3 baseline and carry no v1.2.4 Events claim. Both sections ship in v1.2.4, released 2026-10-18 via a GPG-signed tag on `2133056` and published with a download-verified archive; the bounded-pass live tunnel acceptance limitation (guard outcome unobserved on the tunnel) is preserved in [LIVE-ACCEPTANCE-TH.md](LIVE-ACCEPTANCE-TH.md).
 
+Privacy change-control checkpoint (20 October 2026): PR #47 introduced the section 4/10/19 security-contract amendment in `7781d980` before runtime commits `3af56652` and `ca08d749`. External review approved the unreleased contract and implementation. PR #48 and PR #49 then recorded scoped Dev transport acceptance and restoration; their external reviews approved those records. The final review and proposed v1.2.6 release decision are in [PRIVACY-RELEASE-DECISION-TH.md](PRIVACY-RELEASE-DECISION-TH.md). This checkpoint adds no runtime requirement, assigns no release, and does not claim production deployment.
+
 ## 15. MCP Events capability gate (deferred — no assigned release; BLOCKED)
 
 This section is a future requirement, originally planned as the v1.2.4 target requirement; it is now deferred with no assigned release and remains blocked at the subscription gate. The released v1.2.3 bridge has no MCP Events capability, subscription state, callback sender, or event delivery.
@@ -321,3 +323,7 @@ Hermes and Codex initialization MUST enforce mode `0700` on the state directory 
 ### 19.4 Acceptance and rollout
 
 Regression coverage MUST include unknown/sensitive/oversized metadata, invalid nested values, configured-key exclusion, exact local approval, existing-directory repair and permission failures, multi-chunk Unicode/newline pagination, invalid UTF-8, oversized/sparse logs, append/truncate races, and a read-budget assertion. Existing MCP discovery and task lifecycle tests MUST continue to pass. Fake fixtures do not replace candidate live acceptance. Privacy follow-up remains open until independent review, the applicable live acceptance, and a recorded release/deployment decision pass. Local Hands and MCP Events gates remain unchanged.
+
+### 19.5 Review checkpoint and proposed release
+
+The section 19 contract and implementation passed external review in PR #47. The scoped Dev transport records in PR #48 and PR #49 passed external review, including metadata boundary fault injection, approval-shape filtering and route restoration. The recorded limits in sections 19.1–19.4 remain unchanged. Candidate tests and fixture acceptance do not establish a signed release or production rollout. The proposed v1.2.6 scope, evidence limits and remaining release/deployment decision are recorded in [PRIVACY-RELEASE-DECISION-TH.md](PRIVACY-RELEASE-DECISION-TH.md); no release is assigned by this checkpoint.
