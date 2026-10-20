@@ -153,3 +153,8 @@ Operator อนุมัติ scope เมื่อ 20 ตุลาคม 2026 
 ## Context P1 candidate — PR #59
 
 PR #58 merge `64eb0a1` เป็น contract ก่อน implementation. [Candidate acceptance](CONTEXT-P1-ACCEPTANCE-TH.md) แม็ป tests กับ §20: config/threshold/error/ack, read-only URI/lock wait, early CLI dispatch รวม wrapper override, cutoff/reference/batch และ WAL/permission cases. MCP fixture ตรวจ warning กับ unavailable ผ่าน stdio จริง. เป็น synthetic/local evidence ไม่ใช่ Dev tunnel หรือ production acceptance. ยังไม่อ้าง full-suite pass จาก runtime ของแชต; ใช้ exact-head CI matrix 3.12/3.14 เป็นหลักฐานแยก.
+
+
+## Context P1 — implementation merged / Dev preparation
+
+PR #59 ผ่าน operator-supplied external APPROVE ที่ `b7ff97a` และ merge ที่ `5685e11`; full suite 203 และ focused context 19/19 เป็นผลที่ reviewer รายงาน. PR ถัดไปเพิ่ม `mock_context_p1_server.py` กับ SDK stdio tests สำหรับ threshold/create acknowledgement และ actual missing/locked DB. Fixture ใช้ isolated registry กับ backend stubs; local/CI ผ่านไม่ใช่ live Secure MCP Tunnel acceptance. ดู [Dev plan](CONTEXT-P1-DEV-ACCEPTANCE-TH.md). Production และ release คงเดิม.
