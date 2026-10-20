@@ -81,7 +81,7 @@ Parent registry มี 27 tools และ version รายงาน canonical d
 | Case | Run | ผลจาก connection จริง |
 | --- | --- | --- |
 | `boundary-8191` | `run_1` | Success; structured metadata เป็น ASCII JSON 8,191 bytes |
-| `boundary-8192` | `run_2` | Success; structured metadataเป็น ASCII JSON 8,192 bytes |
+| `boundary-8192` | `run_2` | Success; structured metadata เป็น ASCII JSON 8,192 bytes |
 | `boundary-8193` | `run_3` | `isError: true`; constant limit error พร้อม tool-name prefix และ connector `error_code: INVALID_ARGUMENT`; ไม่ส่ง padding/private marker |
 | `approval-object` | `run_4` | Status/result ผ่าน checks ของ approval matrix |
 | `approval-list` | `run_5` | Status/result ผ่าน checks ของ approval matrix |
