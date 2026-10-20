@@ -1,10 +1,15 @@
 # Hermes MCP Bridge
 
+## v1.2.7 — release candidate, tag pending
+
+The operator approved scope for the Codex read-ahead fix and Context P1. Source is stamped `1.2.7/v1.2.7` with reviewed build input `07ec0069b952f08a49adbd0ec778c204f85ee282`. This is preparation, not a signed release or deployment. The current signed release and production checkpoint remain v1.2.6.
+See the [preparation record](docs/V1.2.7-RELEASE-PREP-TH.md) and [scope decision](docs/V1.2.7-RELEASE-DECISION-TH.md). P1 adds aggregate status/create warnings and a local preview; registry unavailability makes heartbeat `ok=false`, while a cap warning alone does not. No deletion or native history compaction is added.
+
 ## Unreleased — Codex result read-ahead fix
 
 The candidate disables binary read-ahead to enforce the existing snapshot byte budget in SPEC §19.3.
 Regression tests cover truncation and appends on Python 3.12 and 3.14.
-This fix has no assigned release and is not deployed in production v1.2.6.
+This fix is included in the v1.2.7 candidate and is not deployed in production v1.2.6.
 See [testing evidence](docs/TESTING.md#unreleased--codex-result-read-ahead-fix).
 
 ## v1.2.6 — released (20 October 2026)
