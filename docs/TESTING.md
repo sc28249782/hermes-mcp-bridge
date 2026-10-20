@@ -158,3 +158,8 @@ PR #58 merge `64eb0a1` เป็น contract ก่อน implementation. [Candi
 ## Context P1 — implementation merged / Dev preparation
 
 PR #59 ผ่าน operator-supplied external APPROVE ที่ `b7ff97a` และ merge ที่ `5685e11`; full suite 203 และ focused context 19/19 เป็นผลที่ reviewer รายงาน. PR ถัดไปเพิ่ม `mock_context_p1_server.py` กับ SDK stdio tests สำหรับ threshold/create acknowledgement และ actual missing/locked DB. Fixture ใช้ isolated registry กับ backend stubs; local/CI ผ่านไม่ใช่ live Secure MCP Tunnel acceptance. ดู [Dev plan](CONTEXT-P1-DEV-ACCEPTANCE-TH.md). Production และ release คงเดิม.
+
+
+## Context P1 — scoped live Dev checkpoint (20 October 2026)
+
+Candidate `27030bb` บน WSL Python 3.12.3 ผ่าน full suite 206/206, focused context 22/22 และ packaging 3/3 ไม่มี skips; shellcheck/Bash syntax ผ่าน. Parent ตรวจ real Dev connector: cap=3, count+1 lower bound, six successful creates รวม injected-observation failure พร้อม readback/recent 6, missing/locked unavailable อย่างละ 2 calls และ restoration กลับ `e7add7e`. [Live record](CONTEXT-P1-DEV-ACCEPTANCE-TH.md) แยก SDK/source proof จาก operator-selected scenarios และระบุขอบเขต restoration. ยังรอ external review; ไม่ใช่ release/production/native-backend/CLI-through-MCP/read-only-mount acceptance. ไม่มี WSL-suite rerun บน docs-only record head นี้; ผลข้างต้นผูกกับ candidate ที่ทดสอบ.
