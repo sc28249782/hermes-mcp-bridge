@@ -61,3 +61,8 @@ Operator ยืนยัน merge แล้ว; PR #59 merge ที่ `5685e11`
 ## Live transport checkpoint
 
 Candidate pin `27030bb` ผ่าน healthy threshold/create-ack probes, missing/locked unavailable และ restoration กลับ `e7add7e` ผ่าน Dev connector จริง. WSL preparation ผ่าน 206/206, focused 22/22 และ packaging 3/3 บน Python 3.12.3 ไม่มี skips. [Live record](CONTEXT-P1-DEV-ACCEPTANCE-TH.md) ระบุ fault injection, stub backend/audit, operator-selected scenarios, object byte sizes และข้อจำกัด post-restoration OpenCode count/config comparison. เป็น maintainer/parent evidence ไม่ใช่ external review; release/deployment และ read-only mount probe ยังแยกอยู่.
+
+
+## External live-record review checkpoint
+
+ข้อความรอ external review ใน checkpoint ก่อนหน้าเป็นสถานะก่อน PR #61 ผ่าน APPROVE ที่ `6d93808` และ merge ที่ `4513b30`. Scoped P1 live review loop ปิดแล้ว. [ข้อเสนอ v1.2.7](V1.2.7-RELEASE-DECISION-TH.md) ยังรอ operator scope decision; ไม่ใช่ release/deployment หรือ dedicated read-only mount acceptance.
