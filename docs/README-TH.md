@@ -1,6 +1,6 @@
-# Hermes MCP Bridge — v1.2.6 signed release / production v1.2.5
+# Hermes MCP Bridge — v1.2.6 signed release / production v1.2.6
 
-Release checkpoint (20 ตุลาคม 2026): v1.2.6 เผยแพร่แล้วพร้อม ZIP/SHA256SUMS ที่ตรวจหลังดาวน์โหลด. GPG signature ผ่าน; GitHub badge เป็น `no_user`. Production identity ที่ตรวจหลัง publication ยังเป็น v1.2.5; ยังไม่มี upgrade. ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md). Checkpoint เกี่ยวกับ candidate ด้านล่างเป็นบันทึกก่อน publication.
+Release checkpoint (20 ตุลาคม 2026): v1.2.6 เผยแพร่แล้วพร้อม ZIP/SHA256SUMS ที่ตรวจหลังดาวน์โหลด. GPG signature ผ่าน; GitHub badge เป็น `no_user`. Production เป็น v1.2.5 ตอนตรวจหลัง publication. Operator อนุมัติ deployment แยกเมื่อ 13:52:34 +07 และอัปเกรดเป็น v1.2.6 แล้วในวันเดียวกัน. ดู [deployment record](V1.2.6-DEPLOYMENT-TH.md) สำหรับ acceptance และข้อจำกัด. ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md). Checkpoint เกี่ยวกับ candidate ด้านล่างเป็นบันทึกก่อน publication.
 
 Candidate checkpoint (20 ตุลาคม 2026): source นี้ stamp `1.2.6/v1.2.6` สำหรับ privacy hardening ตาม SPEC §19. ยังไม่ released หรือ deployed. Release ที่เผยแพร่ล่าสุดและ production checkpoint ยังคง v1.2.5. ดู [release-preparation record](V1.2.6-RELEASE-PREP-TH.md) สำหรับ candidate verification และ gates ก่อน tag.
 
