@@ -55,4 +55,9 @@ P1 ไม่แก้ close/bind/submission race ที่บันทึกใ�
 
 Operator ส่ง external review verdict APPROVE สำหรับ PR #59 ที่ `b7ff97a`. Reviewer รายงาน full suite 203 tests บน Python 3.12, focused context 19/19 และตรวจ CI matrix 3.12/3.14 ที่ exact head. Reviewer probe aggregate shape, bool/range rejection, CLI exit/stderr/error shapes, limit+1 และ wrapper override ด้วยตนเอง. ผลนี้แยกจาก maintainer automation ข้างต้น.
 
-Operator ยืนยัน merge แล้ว; PR #59 merge ที่ `5685e11`. การอนุมัติที่ `b7ff97a` ไม่ครอบคลุม checkpoint ที่เพิ่มภายหลังนี้. คำว่า review pending ในบันทึกเตรียม candidate เดิมเป็นสถานะ ณ เวลานั้น. P1 อยู่บน main แต่ยังไม่มี release/deployment. ขั้นถัดไปคือ [Dev transport acceptance](CONTEXT-P1-DEV-ACCEPTANCE-TH.md); live Dev และ dedicated read-only mount probe ยังไม่ได้ดำเนินการ.
+Operator ยืนยัน merge แล้ว; PR #59 merge ที่ `5685e11`. การอนุมัติที่ `b7ff97a` ไม่ครอบคลุม checkpoint ที่เพิ่มภายหลังนี้. คำว่า review pending ในบันทึกเตรียม candidate เดิมเป็นสถานะ ณ เวลานั้น. P1 อยู่บน main แต่ยังไม่มี release/deployment. ขั้นถัดไป ณ checkpoint นั้นคือ [Dev transport acceptance](CONTEXT-P1-DEV-ACCEPTANCE-TH.md). Live Dev aggregate checks และ restoration ผ่านตาม scoped checkpoint เมื่อ 20 ตุลาคม 2026; ยังรอ external review ของ live record. Dedicated read-only mount probe ยังไม่ได้ดำเนินการ.
+
+
+## Live transport checkpoint
+
+Candidate pin `27030bb` ผ่าน healthy threshold/create-ack probes, missing/locked unavailable และ restoration กลับ `e7add7e` ผ่าน Dev connector จริง. WSL preparation ผ่าน 206/206, focused 22/22 และ packaging 3/3 บน Python 3.12.3 ไม่มี skips. [Live record](CONTEXT-P1-DEV-ACCEPTANCE-TH.md) ระบุ fault injection, stub backend/audit, operator-selected scenarios, object byte sizes และข้อจำกัด post-restoration OpenCode count/config comparison. เป็น maintainer/parent evidence ไม่ใช่ external review; release/deployment และ read-only mount probe ยังแยกอยู่.
