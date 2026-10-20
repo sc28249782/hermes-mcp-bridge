@@ -1,4 +1,4 @@
-# Context soft-cap / prune — P1 candidate, review pending
+# Context soft-cap / prune — P1 merged, unreleased
 
 วันที่: 20 ตุลาคม 2026.
 สถานะ: **operator อนุมัติ P1 scope แล้วเมื่อ 20 ตุลาคม 2026 เวลา 15:57:29 +07**.
@@ -122,3 +122,8 @@ SPEC §20 ระบุ contract สำหรับ review ก่อน implement
 ## P1 candidate checkpoint (20 October 2026)
 
 PR #59 เพิ่ม warning/status aggregate และ local preview ตาม §20. ดู [candidate acceptance](CONTEXT-P1-ACCEPTANCE-TH.md) สำหรับวิธีทดสอบและข้อจำกัด. ยังรอ external implementation review; ไม่มี apply/delete และไม่มีการเปลี่ยน production. คำอธิบาย baseline ข้างต้นเป็นหลักฐานก่อน P1.
+
+
+## Implementation review checkpoint
+
+PR #59 ผ่าน external APPROVE ที่ `b7ff97a` และ operator ยืนยัน merge ที่ `5685e11`. Candidate checkpoint ข้างต้นเป็นประวัติก่อน review. ดู [acceptance record](CONTEXT-P1-ACCEPTANCE-TH.md) และ [แผน Dev transport](CONTEXT-P1-DEV-ACCEPTANCE-TH.md). ไม่มี release/deployment decision ของ P1; P2 และ capability gates เดิมไม่เปลี่ยน.
