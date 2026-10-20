@@ -1,5 +1,9 @@
 # คู่มือเชิงเทคนิค: สถาปัตยกรรมและกลไก Hermes MCP Bridge v1.0.1
 
+## v1.2.7 candidate checkpoint
+
+Source เตรียม 1.2.7/v1.2.7 ด้วย reviewed build input `07ec0069b952f08a49adbd0ec778c204f85ee282`. เพิ่ม Context P1 aggregate/local preview ตาม §20 และ Codex raw read fix ตาม §19.3; [preparation record](V1.2.7-RELEASE-PREP-TH.md) แยก source/extracted evidence จาก signed release. Production คง v1.2.6. ฐานสถาปัตยกรรมและ checkpoint เก่าด้านล่างเป็นประวัติตามเวลาที่ระบุ.
+
 ## Unreleased — Codex result raw reads
 
 Candidate เปิด log แบบ unbuffered เพื่อไม่ให้ binary buffer อ่านล่วงหน้าเกิน snapshot budget.

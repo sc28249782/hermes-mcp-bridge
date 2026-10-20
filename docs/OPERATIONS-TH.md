@@ -1,4 +1,10 @@
-# คู่มือปฏิบัติการ — release v1.2.6 / production checkpoint v1.2.6
+# คู่มือปฏิบัติการ — candidate v1.2.7 / production checkpoint v1.2.6
+
+## v1.2.7 — preparation checkpoint
+
+Candidate stamp 1.2.7/v1.2.7 ใช้ reviewed build input `07ec0069b952f08a49adbd0ec778c204f85ee282`; ไม่ใช่ final tag commit. ดู [preparation record](V1.2.7-RELEASE-PREP-TH.md). Scope รวม Codex raw read-ahead fix และ Context P1. ยังไม่ released/deployed; production คง signed v1.2.6 และต้องมี deployment approval แยกก่อน upgrade.
+
+P1 เพิ่ม registry aggregate บน status/create โดย default soft-cap 1,000. แยก warning ที่ cap จาก registry unavailable ซึ่งทำให้ root ok=false. Create ที่ persisted/acknowledged แล้วห้าม retry เพราะ observation unavailable. Preview เป็น local-only, ไม่มี apply/delete และไม่ใช่ native history compaction. Metadata เดิมของ create/status/recent ไม่ถูก redact ทั้ง response. ขอบเขต plaintext storage และ SQLite sidecars เดิมคงอยู่.
 
 ## v1.2.6 — released privacy hardening (SPEC §19)
 
@@ -190,7 +196,7 @@ Native OpenCode อาจเก็บ session ของตัวเองตา�
 filesystem หรือ network และไม่เปลี่ยน native permissions.
 
 
-## Context P1 — candidate, review pending
+## Context P1 — implementation reviewed, candidate v1.2.7
 
 [Scope decision](CONTEXT-RETENTION-SCOPE-TH.md) บันทึก operator approval ของ P1 เมื่อ 20 ตุลาคม 2026 เวลา 15:57:29 +07. [SPEC §20](SPEC.md#20-context-p1--v127-target-scope-approved-unreleased) กำหนด contract สำหรับ review ก่อน implementation และแยก registry metadata ออกจาก model/chat history.
 ยังไม่มี soft-cap หรือ prune CLI ใน production.

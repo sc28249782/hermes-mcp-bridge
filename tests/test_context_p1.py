@@ -1,5 +1,5 @@
 """SPEC §20: synthetic registry/CLI acceptance, without any native backend."""
-from contextlib import ExitStack, redirect_stdout, redirect_stderr
+from contextlib import ExitStack, closing, redirect_stdout, redirect_stderr
 from io import StringIO
 import json
 import os
@@ -183,7 +183,8 @@ class TestContextP1(unittest.TestCase):
                  'CREATE TABLE contexts(context_id TEXT PRIMARY KEY, label TEXT NOT NULL, created REAL NOT NULL, updated REAL NOT NULL, closed REAL, hermes_session_id TEXT, hermes_run_id TEXT, codex_workspace TEXT, codex_job_id TEXT, extra TEXT)',
                  'CREATE TABLE contexts(context_id TEXT PRIMARY KEY, label TEXT NOT NULL, created REAL NOT NULL, updated REAL NOT NULL, closed REAL CHECK(closed>=0), hermes_session_id TEXT, hermes_run_id TEXT, codex_workspace TEXT, codex_job_id TEXT)']
         for sql in cases:
-            with sqlite3.connect(self.path) as db:
+            # The connection context commits/rolls back; closing releases it.
+            with closing(sqlite3.connect(self.path)) as db, db:
                 db.execute(sql)
             before = self.path.read_bytes()
             code, result = self.cli('--state-dir', str(self.state))

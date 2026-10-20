@@ -1,6 +1,8 @@
-# Compatibility matrix — v1.2.6 release and v1.2.5 component baseline
+# Compatibility matrix — v1.2.7 candidate and signed v1.2.6 baseline
 
-Released v1.2.6 adds SPEC §19 privacy hardening without changing component requirements, tool schemas or discovery counts. Signed-tag assets passed post-download verification; production remains at its v1.2.5 checkpoint. Historical preparation gates are in [V1.2.6-RELEASE-PREP-TH.md](V1.2.6-RELEASE-PREP-TH.md).
+Candidate v1.2.7 contains the reviewed Codex read-ahead fix and Context P1. The [preparation record](V1.2.7-RELEASE-PREP-TH.md) defines exact-head source/extracted verification and Python 3.12/3.14 CI. Stamp/build input are 1.2.7/v1.2.7/`07ec0069b952f08a49adbd0ec778c204f85ee282`; publication/deployment are pending. No component, permission, schema-version or discovery-count change is required. Python 3.14 CI evidence does not by itself change the production interpreter.
+
+Released v1.2.6 adds SPEC §19 privacy hardening without changing component requirements, tool schemas or discovery counts. Signed-tag assets passed post-download verification; production was later upgraded to signed v1.2.6 as recorded in [the deployment checkpoint](V1.2.6-DEPLOYMENT-TH.md). Historical preparation gates are in [V1.2.6-RELEASE-PREP-TH.md](V1.2.6-RELEASE-PREP-TH.md).
 
 The baseline below records released v1.2.5: the v1.2.4 component baseline plus the opt-in OpenCode execution extension. The WSL2 live-acceptance, independent-review, and signed-release gates passed before publication.
 

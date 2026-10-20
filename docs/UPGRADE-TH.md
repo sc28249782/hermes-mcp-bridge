@@ -1,11 +1,25 @@
 # คู่มืออัปเกรด Hermes MCP Bridge
 
+## จาก v1.2.6 เป็น v1.2.7 — candidate plan, ยังห้าม rollout
+
+ส่วนนี้เป็นแผนสำหรับ [v1.2.7 candidate](V1.2.7-RELEASE-PREP-TH.md). Source stamp เป็น 1.2.7/v1.2.7, build input `07ec0069b952f08a49adbd0ec778c204f85ee282`. ยังไม่มี signed release/assets หรือ deployment approval. อย่าใช้ candidate ZIP แทน signed release และอย่าแก้ directory ของ production v1.2.6.
+
+1. เริ่ม upgrade ได้หลัง signed-tag/assets verification ผ่าน และ operator อนุมัติ deployment กับ maintenance window แยกแล้วเท่านั้น. หากยังไม่อนุมัติ ให้ใช้ production เดิม.
+2. ตรวจ active/unknown jobs และ terminal evidence ตาม runbook; HTTP 404 ไม่ใช่ terminal evidence. เตรียม private backup ของ config/state ตาม modes เดิม. ห้ามเผยแพร่ state/log/config เป็นหลักฐานสาธารณะ.
+3. หลังเผยแพร่จริง ดาวน์โหลด ZIP กับ external SHA256SUMS จาก release ที่อนุมัติ. ตรวจ signature/peeled commit, checksum และ ZIP ตาม [release runbook](RELEASE-RUNBOOK-TH.md). ถ้าข้อใดไม่ผ่านให้หยุด.
+4. แตกไฟล์ลง directory ใหม่และสร้าง project venv. ถ้า directory มีอยู่แล้วให้หยุดก่อน overwrite. เก็บไดเรกทอรี v1.2.6 เดิมไว้ใช้ rollback; อย่า merge/replay state ระหว่างสอง deployment.
+5. Copy config/state จาก private backup ตามขั้นตอนที่ operator อนุมัติ. ตรวจ schema/modes และ dependency installation ใน directory ใหม่. Config เดิมไม่ต้องมี contexts block; default soft-cap คือ 1,000. หากกำหนด contexts.soft_cap ต้องเป็น integer 1–100,000 และไม่รับ boolean.
+6. ตรวจ archive identity 1.2.7/v1.2.7, release-archive, embedded build input `07ec0069b952f08a49adbd0ec778c204f85ee282`, schema 1 และ canonical default 27. ตรวจ configured discovery 27/28/33 แยกจาก stamp default; ไม่เปิด execution/Hands เพิ่มให้อัตโนมัติ.
+7. หลังสลับ route ตาม approved launch command ตรวจ health/watchdog และ P1 acceptance ด้วย isolated synthetic state. Registry unavailable ทำให้ status root ok=false; cap warning อย่างเดียวไม่ทำให้ false. Create ที่ acknowledged แล้วห้าม retry เพราะ observation fail.
+8. Preview เป็น local-only และไม่มี apply/delete. SQLite mode=ro อาจใช้ locks/sidecars; ไม่ใช่ no-filesystem-effects guarantee. ไม่ลด native/chat token history. Codex raw reads คง byte cap เดิม แต่ไม่คืน prefetched data หลัง truncate แทน error.
+9. หากผิด target หรือ acceptance ไม่ผ่าน ให้ห้ามเริ่มงานใหม่, ตรวจงานที่กำลังรันก่อนหยุด instance, คืน original v1.2.6 launch แล้วตรวจ identity/health อีกครั้ง. ห้าม state-merge/replay. บันทึก deployment decision/ผลจริงแยกจาก release verification.
+
 ## Unreleased — Codex result read-ahead fix
 
 Candidate แก้การอ่าน Codex result เป็น unbuffered ตาม byte budget เดิมของ SPEC §19.3.
 WSL ทดสอบผ่านทั้ง Python 3.12.3 และ 3.14.7; ดู [TESTING.md](TESTING.md#unreleased--codex-result-read-ahead-fix).
-Patch นี้ยังไม่มี release และยังไม่ deploy; production คง signed v1.2.6 บน Python 3.12.3.
-อย่าสรุปว่า stamp v1.2.6 ที่สืบทอดมาใน candidate หมายถึง signed release มี patch นี้แล้ว.
+Patch นี้อยู่ใน candidate v1.2.7 และยังไม่ deploy; production คง signed v1.2.6 บน Python 3.12.3.
+Candidate stamp v1.2.7 ไม่ใช่หลักฐาน signed release หรือ deployment. Signed v1.2.6 ไม่มี patch นี้.
 การเปลี่ยน production interpreter หรือ rollout ยังต้องผ่าน review/release/deployment decision ตามขั้นตอนเดิม.
 
 ## v1.2.6 — released; deployment ต้องได้รับอนุมัติแยก

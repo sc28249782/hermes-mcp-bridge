@@ -346,6 +346,8 @@ The operator approved P1 warning plus read-only preview on 20 October 2026 at 15
 
 Release-scope checkpoint (20 October 2026): after external review of PR #62 at `e405392`, the operator approved v1.2.7 target scope at 18:47:56 +07, including the Codex section 19.3 read-ahead fix and Context P1. The [decision record](V1.2.7-RELEASE-DECISION-TH.md) defines scope and evidence limits. Implementation and scoped Dev acceptance are reviewed; release preparation, final-target signing/publication and production deployment remain separate steps. This checkpoint does not change sections 20.1–20.5 or their acceptance requirements.
 
+Preparation checkpoint (20 October 2026): source is stamped 1.2.7/v1.2.7 with reviewed build input `07ec0069b952f08a49adbd0ec778c204f85ee282` (PR #63 merge). The [preparation record](V1.2.7-RELEASE-PREP-TH.md) defines verification receipts. This is not a signed tag, publication or production deployment; sections 20.1–20.5 remain unchanged.
+
 ### 20.1 Scope and configuration
 
 - P1 MUST observe registry metadata only. It MUST NOT compact or replay ChatGPT/model history, modify native sessions, cancel tasks, evict/close contexts, prune rows, or clean backend/audit artifacts.
