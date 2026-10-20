@@ -151,3 +151,8 @@ P1 ยังไม่มี release assigned หรือ deployment decision. L
 ## External review checkpoint (20 October 2026)
 
 Operator ส่ง verdict APPROVE สำหรับ PR #61 ที่ `6d93808`. Reviewer รายงาน read-only machine verification ของ restored pin/version/schema/default count, state mode, watchdog, Hands และ registration counts พร้อมตรวจตาราง live results/limits/hygiene และ CI. Operator ยืนยัน merge ที่ `4513b30`. Scoped live acceptance/restoration review loop จบแล้ว; การอนุมัติที่ head เดิมไม่ครอบคลุม checkpoint นี้หรือ [release scope proposal](V1.2.7-RELEASE-DECISION-TH.md) ที่เพิ่มภายหลัง. ข้อจำกัด OpenCode post-restore count, config/profile comparison, read-only mount และ release/deployment ไม่เปลี่ยน.
+
+
+## Release scope decision checkpoint
+
+Operator อนุมัติ [target scope v1.2.7](V1.2.7-RELEASE-DECISION-TH.md) เมื่อ 20 ตุลาคม 2026 เวลา 18:47:56 +07 หลัง external review ของ PR #62. การอนุมัติครอบคลุม Codex read-ahead fix กับ P1 scope; ไม่ใช่ release/deployment หรือการขยายขอบเขต live acceptance ข้างต้น. ยังรอ release preparation และการอนุมัติ final target/signing/publication/deployment ตามขั้นตอนแยก.
