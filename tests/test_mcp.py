@@ -8,6 +8,35 @@ from mcp.client.stdio import stdio_client
 from version_core import report
 
 class TestProtocol(unittest.TestCase):
+    def test_context_registry_warning_and_unavailable_on_real_stdio(self):
+        async def run(unavailable):
+            args = [str(Path(__file__).with_name('mock_mcp_server.py'))]
+            if unavailable:
+                args.append('--context-unavailable')
+            params = StdioServerParameters(command=sys.executable, args=args)
+            async with stdio_client(params) as (read, write):
+                async with ClientSession(read, write) as session:
+                    await session.initialize()
+                    self.assertEqual(len((await session.list_tools()).tools), 27)
+                    status = await session.call_tool('bridge_status', {})
+                    self.assertFalse(status.isError)
+                    value = status.structuredContent
+                    self.assertEqual(value['ok'], not unavailable)
+                    self.assertTrue(value['contexts']['explicit_only'])
+                    registry = value['contexts']['registry']
+                    self.assertEqual(registry['state'], 'unavailable' if unavailable else 'ok')
+                    self.assertEqual(registry['rows_lower_bound'], None if unavailable else 0)
+                    if not unavailable:
+                        created = await session.call_tool('bridge_context_create', {'label': 'fixture'})
+                        self.assertFalse(created.isError)
+                        registry = created.structuredContent['registry']
+                        self.assertEqual(registry['warning'], 'context_soft_cap_reached')
+                        status = await session.call_tool('bridge_status', {})
+                        self.assertTrue(status.structuredContent['ok'])
+                        self.assertEqual(status.structuredContent['contexts']['registry'], registry)
+        for unavailable in (False, True):
+            asyncio.run(run(unavailable))
+
     def test_privacy_metadata_is_bounded_on_real_stdio(self):
         async def run():
             params = StdioServerParameters(command=sys.executable,
