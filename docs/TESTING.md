@@ -1,5 +1,9 @@
 # Validation record — v1.2.5 released (2026-10-19)
 
+## v1.2.7 preparation — exact-head receipt
+
+Source stamp 1.2.7/v1.2.7 ใช้ reviewed input `07ec0069b952f08a49adbd0ec778c204f85ee282`. [Preparation record](V1.2.7-RELEASE-PREP-TH.md) กำหนด source/extracted suite, packaging/identity/discovery และ CI 3.12/3.14; ผลของ exact tested head กับ candidate checksum อยู่ใน PR receipt. ข้อความนี้ไม่เพิ่มผล PASS ล่วงหน้า. หลักฐาน P1 ที่ `27030bb` และ Codex fix ที่ reviewed head เดิมยังคงขอบเขตเดิม. Candidate ZIP ไม่ใช่ signed release.
+
 ## Unreleased — Codex result read-ahead fix
 
 Public baseline: `b3fa3b7`. Runtime/test/CI candidate: `799acc3d131e60a65fe085ff1e0c48d1e7c73f76`.
