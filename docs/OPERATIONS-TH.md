@@ -189,3 +189,11 @@ Native OpenCode อาจเก็บ session ของตัวเองตา�
 ดู [SECURITY.md](SECURITY.md). การเลือก workspace จำกัด cwd เท่านั้น ไม่จำกัด
 filesystem หรือ network และไม่เปลี่ยน native permissions.
 
+
+## Context soft-cap / prune — proposal only
+
+[Scope proposal](CONTEXT-RETENTION-SCOPE-TH.md) แยก registry metadata ออกจาก model/chat history.
+ยังไม่มี soft-cap หรือ prune CLI ใน production.
+Baseline close เก็บ row ไว้ และ recent จำกัดเฉพาะผลลัพธ์ที่คืน.
+ข้อเสนอ P1 มี warning กับ read-only preview; ไม่มีการลบ rows หรือแก้ backend session.
+การเปิด apply ต้องผ่าน lifecycle/concurrency review และ SPEC amendment แยก.
