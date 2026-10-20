@@ -11,7 +11,7 @@
 - Extracted offline identity: `1.2.6/v1.2.6`, provenance `release`, source `release-archive`, embedded build input `e3e698a7a220bf14a8bb4d1260bf2ded7e666b56`, revision source `embedded-build-input`, embedded schema 1, canonical default discovery 27. Root config is absent, so `config_schema_version: unknown` is the expected fallback, not migration evidence.
 - Preparation evidence remains source and extracted-tree 184/184 at `42d27b5`, focused privacy 19/19 and CI `39371714408`. Its tree equals the final signed commit tree. Suites were not rerun during publication; no new full-suite claim is made.
 - Scope: SPEC §4/§10/§19 privacy hardening. Live boundary/approval evidence remains fake-upstream/post-filter fault injection; directory/Codex read-budget evidence remains filesystem tests/probes. No actual Hermes HTTP/native approval, live Codex read-cap or production model acceptance is added.
-- Production identity was checked read-only after publication on 20 October 2026: still `1.2.5/v1.2.5`, release-archive, embedded input `a666d626da1fe716ce4b259d49eedfc3f97acc7d`, schema 1/default 27. No upgrade was performed. Deployment decision and signed-release external audit remain pending; privacy follow-up is open. Local Hands mutation/MCP Events gates are unchanged.
+- Production identity was checked read-only after publication on 20 October 2026: still `1.2.5/v1.2.5`, release-archive, embedded input `a666d626da1fe716ce4b259d49eedfc3f97acc7d`, schema 1/default 27. No upgrade was performed. The external signed-release audit passed in the operator-supplied review of PR #53 at `88fb58f` on 20 October 2026. Deployment decision/acceptance remains pending; privacy follow-up is open. Local Hands mutation/MCP Events gates are unchanged.
 - This Phase C record follows the signed tag. It does not change the tag or assets.
 
 
@@ -184,3 +184,9 @@ release commit คือ `bd56bafd4fcefcfbdf26699ab281cc1a6798bfc9`, จาก s
 - read-only job จบสำเร็จ; `bridge_audit_recent` แสดง `submit → start → finish` โดยมี workspace/policy root/prompt length เท่านั้น ไม่มี prompt, output หรือ credential
 - write job คืน `pending_local_approval` พร้อม `expires_at` และ policy root; cancel job ที่ยัง pending เปลี่ยนเป็น `denied` โดยไม่เริ่ม process
 - probe workspace `/mnt/e` ถูกปฏิเสธด้วย `workspace is outside allowed_workspaces`
+
+### External fresh-input audit — 20 October 2026
+
+Operator ส่งรายงาน external reviewer ในแชตสำหรับ PR #53 ที่ head `88fb58f`. External reviewer ให้ verdict **APPROVE** หลัง fetch tag และดาวน์โหลด assets ใหม่ในพื้นที่ชั่วคราวแยกต่างหาก. ผลตรวจ signature, checksum, ZIP structure, byte-identical rebuild และ offline identity ผ่านทั้งหมด. Tag object, final commit, ZIP checksum และ embedded build input ตรงกับ release record ข้างต้น.
+
+External reviewer สร้าง venv ใหม่จาก archive ที่ดาวน์โหลด และรัน extracted full suite ผ่าน **184/184**. ตรวจ production แบบ read-only แล้วพบว่ายังเป็น v1.2.5/release-archive/input `a666d626`. รายงานนี้ปิด external release audit; ยังรอ deployment decision/acceptance ตาม SPEC §19.4. เป็นหลักฐานจาก external reviewer แยกจาก maintainer automation. การอนุมัติที่ `88fb58f` ไม่ใช่การรีวิวข้อความ audit note ที่เพิ่มภายหลัง.
