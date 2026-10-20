@@ -140,3 +140,7 @@ Release verification passed for signed tag `v1.2.3` at `c610660637dbdcfa0b8ddb7b
 - Production remains v1.2.3; active Dev remains the tested git-worktree candidate. Publishing does not change profiles, runtimes or permission configuration. This post-tag documentation record does not modify the tag or assets.
 - Deployment checkpoint (19 October 2026, ~18:44 +07): production was upgraded to released v1.2.5 later that day. Identity, health, discovery, and the execution API listing were verified read-only through the production plugin (`opencode_recent_tasks` returned an empty `jobs` list; no production model task was submitted during this checkpoint, and the checkpoint does not establish production acceptance). See [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md). The bullet above preserves the post-tag record as written at release time.
 
+
+## Context retention scope — baseline inspection (20 October 2026)
+
+Source `e24fa3e`: context tests 2/2 ผ่านบน Python 3.12.14. Temporary-state probe ยืนยัน recent limit เป็น response limit และ close ไม่ลบ row. Synthetic precheck/close interleaving เขียน binding หลัง close ได้; ไม่อ้าง production incident หรือ native-task reproduction. ดู [scope proposal](CONTEXT-RETENTION-SCOPE-TH.md) สำหรับ phase boundaries และ acceptance ที่ยังต้องทำ. ไม่มี runtime/schema/config/SPEC change และไม่มี full WSL-suite rerun claim จาก docs-only proposal นี้.
