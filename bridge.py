@@ -5,6 +5,11 @@ import json
 import sys
 from pathlib import Path
 from typing import Any
+# Preview exits before importing/configuring any backend runtime.
+if __name__ == "__main__" and len(sys.argv) > 1 and sys.argv[1] == "context-prune-preview":
+    from context_read import preview_cli
+    raise SystemExit(preview_cli(sys.argv[2:]))
+
 from core import Bridge, BridgeError
 from codex_core import CodexRunner, CodexError
 from hands_core import HandsRuntime, HandsError
@@ -49,7 +54,8 @@ def server(b, c, h, contexts, opencode=None, opencode_tasks=None):
     @m.tool(annotations=read, structured_output=True)
     def bridge_status() -> dict[str, Any]:
         """Fast local-only bridge heartbeat; does not call Hermes or Codex upstream APIs."""
-        return {"ok": True, "hermes": b.local_status(), "codex": c.local_status(), "local_hands": h.local_status(), "contexts": {"explicit_only": True}}
+        registry = contexts.observation()
+        return {"ok": registry["state"] == "ok", "hermes": b.local_status(), "codex": c.local_status(), "local_hands": h.local_status(), "contexts": {"explicit_only": True, "registry": registry}}
 
     @m.tool(annotations=write, structured_output=True)
     def bridge_context_create(label: str) -> dict[str, Any]:
@@ -243,6 +249,9 @@ def server(b, c, h, contexts, opencode=None, opencode_tasks=None):
 
 
 def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "context-prune-preview":
+        from context_read import preview_cli
+        raise SystemExit(preview_cli(sys.argv[2:]))
     p = argparse.ArgumentParser()
     p.add_argument("action", choices=["serve", "events-probe", "version", "doctor", "diagnostics", "audit-recent", "status", "result", "recent", "usage", "usage-export", "models", "model-info", "approve", "deny", "codex-doctor", "codex-approve", "codex-deny", "hands-doctor"], nargs="?", default="serve")
     p.add_argument("run_id", nargs="?")
@@ -266,7 +275,9 @@ def main():
         # OpenCodeTasks shares the opencode config; disabled execution keeps
         # it inert (no state directory, no DB, no process) until enabled.
         ot = OpenCodeTasks.from_config(root)
-        contexts = ContextRegistry(b.state, b.audit)
+        from config_schema import load_bridge_config
+        config, _ = load_bridge_config(root)
+        contexts = ContextRegistry(b.state, b.audit, config.get("contexts", {}).get("soft_cap", 1000))
         if args.action == "serve":
             from stdio_guard import run_stdio_guarded  # SPEC.md section 17
             run_stdio_guarded(server(b, c, h, contexts, oc, ot))
