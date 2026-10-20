@@ -140,7 +140,7 @@ Follow-up status (not blockers; scoped separately from the hard gate above):
 
 Scoped work and proposals awaiting decisions:
 
-- Context P1 scope approved by the operator on 20 October 2026 at 15:57:29 +07 after PR #57 review/merge. [SPEC §20](SPEC.md#20-context-p1--approved-scope-future-implementation-no-assigned-release) defines the warning and read-only-preview amendment for review before implementation. P1 is not implemented/released/deployed; P2 apply/delete remains deferred pending lifecycle/concurrency design. [Decision and scope](CONTEXT-RETENTION-SCOPE-TH.md). This concerns metadata rows, not ChatGPT/model token history.
+- Context P1 scope approved by the operator on 20 October 2026 at 15:57:29 +07 after PR #57 review/merge. [SPEC §20](SPEC.md#20-context-p1--approved-scope-future-implementation-no-assigned-release) defines the warning and read-only-preview amendment for review before implementation. PR #58 merged the reviewed amendment at `64eb0a1` before implementation. PR #59 adds a P1 candidate with [synthetic acceptance](CONTEXT-P1-ACCEPTANCE-TH.md); external implementation review remains pending. P1 is unreleased/undeployed; P2 apply/delete remains deferred pending lifecycle/concurrency design. [Decision and scope](CONTEXT-RETENTION-SCOPE-TH.md). This concerns metadata rows, not ChatGPT/model token history.
 - Observation annotations and an observation counter remain separate proposals awaiting scoping.
 
 Optional follow-ups, lower priority:
