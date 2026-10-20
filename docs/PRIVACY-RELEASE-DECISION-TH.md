@@ -1,9 +1,9 @@
 # Privacy hardening — ข้อเสนอ release decision
 
 วันที่: 20 ตุลาคม 2026.
-สถานะ: proposal สำหรับ review; ยังไม่มี release decision ที่อนุมัติ.
+สถานะ: proposal สำหรับ review; ยังไม่มี release decision ที่ได้รับการอนุมัติ.
 รุ่นที่เสนอ: `v1.2.6`. ยังไม่ assigned, stamped, tagged, published หรือ deployed.
-ฐานเอกสาร: `290a9d6a98182a4b248de349d2ad2f4383860518` หลัง merge PR #49.
+เอกสารตั้งต้น: `290a9d6a98182a4b248de349d2ad2f4383860518` หลัง merge PR #49.
 
 ## การตัดสินใจที่เสนอ
 
@@ -19,7 +19,7 @@ Operator ต้องระบุ release/deployment decision ก่อนปิ
 | Release scope | Hermes metadata allowlist/cap, directory-mode enforcement และ bounded Codex result reads |
 | Contract | ใช้ wording และ limits ที่ผ่าน review ใน SPEC §4/§10/§19 |
 | Target version | เสนอ `v1.2.6`; กำหนดจริงใน release-preparation PR หลัง decision ผ่าน |
-| Production | คง deployment เดิมระหว่าง preparation; checkpoint ล่าสุดที่บันทึกคือ signed v1.2.5 |
+| Production | คง deployment เดิมระหว่าง preparation; checkpoint ล่าสุดที่บันทึกไว้คือ signed v1.2.5 |
 | Local Hands / MCP Events | คง hard gates เดิม; ไม่อยู่ใน release scope |
 
 ## SPEC §14 — change-control record
@@ -35,7 +35,8 @@ SPEC §19 กำหนด behavior และ limits ก่อน merge implement
 3. `ca08d74995238daa6f387f0e5d7c1e2c7eb7dade`: แก้ Codex runtime.
 
 Reviewer อนุมัติ contract/implementation ที่ `c14cd8c` ใน PR #47.
-ข้อเสนอนี้บันทึก final review status; ไม่ใช่การอนุมัติย้อนหลังให้ implementation ที่ข้าม spec-first.
+ลำดับ commit ข้างต้นยืนยันว่าเพิ่ม SPEC ก่อนแก้ runtime ตามข้อกำหนด spec-first แล้ว.
+ข้อเสนอนี้บันทึกผลรีวิวที่เสร็จสิ้นแล้ว.
 ไม่เปลี่ยน MUST/MAY, allowlist, limits, permissions หรือ acceptance requirements ใน §19.
 
 ## หลักฐานและขอบเขตที่ review แล้ว
@@ -49,7 +50,8 @@ Reviewer อนุมัติ contract/implementation ที่ `c14cd8c` ใ�
 | Regression suite | PR #49 code head `f570d03`: WSL 184/184, focused privacy 19/19 และ external reviewer rerun | ใช้ synthetic fixtures; ไม่มี production model task |
 | Scoped Dev transport / restoration | PR #48 final `3004653b`; PR #49 final `04a0616`, CI `39363590669`, external APPROVE | คืน Dev pin `e7add7e`, schema 1, Hermes/Codex 0 registrations, mode 0700, watchdog และ Hands disabled; ไม่ recheck OpenCode count เพราะ tool ไม่อยู่ใน parent registry |
 
-รายงาน external review ในตารางคือรายงานที่ operator ส่งมาและอนุมัติแล้ว.
+Operator ส่งรายงาน external review ที่อ้างในตารางมาในแชต.
+External reviewer เป็นผู้ให้ verdict `APPROVE` สำหรับขอบเขตที่ระบุในแต่ละรายงาน.
 ไม่ใช่การเรียกผล maintainer automation ว่า external review.
 รายละเอียด: [PRIVACY-CONTRACT-REVIEW-TH.md](PRIVACY-CONTRACT-REVIEW-TH.md), [PRIVACY-DEV-ACCEPTANCE-TH.md](PRIVACY-DEV-ACCEPTANCE-TH.md) และ [PRIVACY-BOUNDARY-ACCEPTANCE-TH.md](PRIVACY-BOUNDARY-ACCEPTANCE-TH.md).
 
@@ -59,7 +61,7 @@ Reviewer อนุมัติ contract/implementation ที่ `c14cd8c` ใ�
 - Public approval indicator ไม่ใช่ authorization. Exact approve/deny ยังคง fetch และ revalidate request ใน local terminal.
 - Result/file content เป็น untrusted content และอาจมีข้อมูลอ่อนไหว. หน้าเดียวอาจมี output สั้นครบทั้งชิ้น. Pagination ไม่ใช่ redaction.
 - Prompt/output ใน operational stores ยังคงเป็น plaintext ที่ป้องกันด้วย OS permissions. ไม่มี at-rest encryption, generic secret scanner หรือ automatic artifact cleanup เพิ่ม.
-- Directory เดิมต้องเปลี่ยนเป็น mode 0700 ได้. Init จะ fail closed หากทำไม่ได้; operator ต้องแก้สิทธิ์ก่อนเริ่มใหม่.
+- Directory เดิมต้องเปลี่ยนเป็น mode 0700 ได้. Init จะ fail closed หากทำไม่ได้; operator ต้องแก้สิทธิ์ก่อนรัน bridge ใหม่.
 - Codex result snapshot เกิน 8,388,608 bytes จะคืน error ให้ตรวจในเครื่อง. Cap นี้ไม่จำกัด worker log capture, disk growth หรือ filesystem-call duration.
 - HTTP cap 4,000,000 decoded bytes และ connect/inactivity timeouts 5/25 วินาทียังคงเดิม. ไม่ใช่ total wall-clock deadline.
 - Tool/schema/config permissions ไม่เพิ่ม. Default discovery ยังคง 27; OpenCode health/execution opt-ins ยังคง 28/33 ตาม configuration เดิม.
@@ -74,9 +76,9 @@ Reviewer อนุมัติ contract/implementation ที่ `c14cd8c` ใ�
 5. เมื่อ operator อนุมัติ final target และ signing/publish แล้ว ให้ทำ Phase A/B ตาม runbook. ใช้ GPG private key ผ่าน operator terminal. ห้ามส่ง key/passphrase เข้า chat หรือ bridge.
 6. สร้าง final archive จาก signed tag. ตรวจ signature, peeled commit, ZIP, external checksum และ fresh-download byte comparison ก่อนประกาศ released. ถ้าตรวจไม่ผ่าน ให้หยุด; ห้ามแทน tag ที่เผยแพร่แล้ว.
 7. เปิด Phase C release-record PR. บันทึก tag authority, build input, assets และผล verification โดยไม่แก้ signed tag/assets.
-8. ทำ production upgrade เฉพาะเมื่อ operator อนุมัติ deployment แยก. Backup config/state ตาม private permissions. ตรวจไม่มี active jobs ก่อนหยุด instance และเก็บ rollback directory เดิม.
-9. ตรวจ deployed archive identity/stamp, config, state/log modes, health และ configured discovery. บันทึก applicable privacy acceptance ด้วย synthetic data ใน isolated state. การตรวจ identity/health อย่างเดียวไม่ใช่ production model-task acceptance. หากผิด target หรือ acceptance ไม่ผ่าน ให้หยุดงานใหม่และคืน deployment เดิมตาม upgrade runbook.
-10. บันทึก release/deployment decision และผล acceptance ที่สังเกตได้ก่อนปิด privacy follow-up ตาม §19.4. หากเลือกยังไม่ deploy ให้ระบุ decision นั้นชัดเจนและคงสถานะ production acceptance ตามหลักฐานจริง.
+8. ทำ production upgrade เฉพาะเมื่อ operator อนุมัติ deployment แยก. Backup config/state ตาม private permissions. ตรวจไม่มี active jobs ก่อนหยุด instance และเก็บไดเรกทอรีเดิมไว้ใช้ rollback.
+9. ตรวจ deployed archive identity/stamp, config, state/log modes, health และ configured discovery. บันทึก applicable privacy acceptance ด้วย synthetic data ใน isolated state. การตรวจ identity/health อย่างเดียวไม่ใช่ production model-task acceptance. หากผิด target หรือ acceptance ไม่ผ่าน ห้ามเริ่มงานใหม่ และให้คืน deployment เดิมตาม upgrade runbook.
+10. บันทึก release/deployment decision และผล acceptance ที่ตรวจสอบได้จริงก่อนปิด privacy follow-up ตาม §19.4. หากเลือกยังไม่ deploy ให้ระบุ decision นั้นชัดเจนและคงสถานะ production acceptance ตามหลักฐานจริง.
 
 Production OpenCode benign-model acceptance ยังคงเป็น follow-up แยก.
-Local Hands mutation/execution และ MCP Events subscription gate ไม่ถูกปลดด้วย release นี้.
+Local Hands mutation/execution และ MCP Events subscription gate ไม่ถูกปลดล็อกด้วย release นี้.
