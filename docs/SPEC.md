@@ -294,7 +294,7 @@ This amendment ships in signed v1.2.5 (2026-10-19); ZIP and external SHA256SUMS 
 - `tests/test_packaging.py` MUST include the new modules. No released surface may claim this section until its own change-control gate closes.
 
 
-## 19. Privacy hardening — v1.2.6 target scope approved, unreleased
+## 19. Privacy hardening — v1.2.6 release candidate, unreleased
 
 This amendment follows the review in [PRIVACY-CONTRACT-REVIEW-TH.md](PRIVACY-CONTRACT-REVIEW-TH.md). It changes privacy-contract wording and Hermes metadata response semantics. It MUST NOT be represented as active in signed v1.2.5 or production before deployment acceptance.
 
@@ -327,3 +327,5 @@ Regression coverage MUST include unknown/sensitive/oversized metadata, invalid n
 ### 19.5 Review checkpoint and approved release scope
 
 The section 19 contract and implementation passed external review in PR #47. The scoped Dev transport records in PR #48 and PR #49 passed external review, including metadata boundary fault injection, approval-shape filtering and route restoration. The recorded limits in sections 19.1–19.4 remain unchanged. Candidate tests and fixture acceptance do not establish a signed release or production rollout. The operator approved v1.2.6 as the target scope on 20 October 2026. The decision, evidence limits and remaining release verification/deployment decision are recorded in [PRIVACY-RELEASE-DECISION-TH.md](PRIVACY-RELEASE-DECISION-TH.md). Scope approval permits release preparation; it does not establish a signed release or authorize publication or production deployment.
+
+Release-preparation checkpoint (20 October 2026): the v1.2.6 candidate is stamped with reviewed build input `e3e698a7a220bf14a8bb4d1260bf2ded7e666b56`. This is not a signed-tag identity or a claim that section 19 is active in production. Candidate verification and remaining release gates are recorded in [V1.2.6-RELEASE-PREP-TH.md](V1.2.6-RELEASE-PREP-TH.md).
