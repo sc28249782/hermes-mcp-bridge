@@ -1,4 +1,12 @@
-# Hermes MCP Bridge — v1.2.6 signed release / production v1.2.6
+# Hermes MCP Bridge — v1.2.7 candidate / production v1.2.6
+
+## v1.2.7 — candidate, tag pending
+
+Scope ได้รับอนุมัติแล้ว. Source stamp เป็น `1.2.7/v1.2.7`, reviewed build input `07ec0069b952f08a49adbd0ec778c204f85ee282`. รวม Codex read-ahead fix และ Context P1 warning/status/local preview. ยังไม่ signed/released/deployed; production คง v1.2.6. ดู [preparation record](V1.2.7-RELEASE-PREP-TH.md) และ [scope decision](V1.2.7-RELEASE-DECISION-TH.md).
+
+## Signed v1.2.6 และ historical checkpoints
+
+ข้อความ candidate v1.2.6 ด้านล่างเป็นบันทึกก่อน publication ของรุ่นนั้น; ไม่ใช่ stamp ปัจจุบันของ candidate v1.2.7.
 
 Release checkpoint (20 ตุลาคม 2026): v1.2.6 เผยแพร่แล้วพร้อม ZIP/SHA256SUMS ที่ตรวจหลังดาวน์โหลด. GPG signature ผ่าน; GitHub badge เป็น `no_user`. Production เป็น v1.2.5 ตอนตรวจหลัง publication. Operator อนุมัติ deployment แยกเมื่อ 13:52:34 +07 และอัปเกรดเป็น v1.2.6 แล้วในวันเดียวกัน. ดู [deployment record](V1.2.6-DEPLOYMENT-TH.md) สำหรับ acceptance และข้อจำกัด. ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md). Checkpoint เกี่ยวกับ candidate ด้านล่างเป็นบันทึกก่อน publication.
 
