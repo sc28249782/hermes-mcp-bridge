@@ -2,7 +2,7 @@
 
 วันที่: 20 ตุลาคม 2026.
 สถานะ: operator อนุมัติ scope สำหรับ release preparation แล้วเมื่อ 20 ตุลาคม 2026 เวลา 11:26 +07.
-รุ่นเป้าหมาย: `v1.2.6`. ยังไม่ stamped, tagged, published หรือ deployed.
+รุ่นเป้าหมาย: `v1.2.6`. Candidate stamp เป็น `1.2.6/v1.2.6` แล้วใน release preparation; ยังไม่ tagged, published หรือ deployed.
 เอกสารตั้งต้น: `290a9d6a98182a4b248de349d2ad2f4383860518` หลัง merge PR #49.
 
 ## Operator decision
@@ -11,7 +11,7 @@ Operator ยืนยันในแชตว่า “อนุมัติ sco
 จึงกำหนด privacy hardening ตาม SPEC §4/§10/§19 เป็น scope ของ maintenance release เป้าหมาย `v1.2.6`.
 Scope คือ implementation จาก PR #47 และ regression/acceptance จาก PR #48/#49.
 การอนุมัติครอบคลุม scope และลำดับ release preparation ตาม PR #50 ที่ผ่าน review แล้ว.
-ขั้นถัดไปคือ release-preparation PR พร้อม stamp และ exact-head verification ตาม runbook.
+Release-preparation PR ใช้ reviewed build input `e3e698a7a220bf14a8bb4d1260bf2ded7e666b56` พร้อม stamp และ exact-head/archive verification ตาม [preparation record](V1.2.6-RELEASE-PREP-TH.md).
 การอนุมัติ scope ไม่ครอบคลุม signed tag, publish assets หรือ production upgrade.
 Privacy follow-up ยังเปิดสำหรับ release verification และ deployment decision; operator ต้องยืนยันสองส่วนนี้ก่อนปิดตาม §19.4.
 
