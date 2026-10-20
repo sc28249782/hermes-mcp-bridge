@@ -40,13 +40,17 @@ def load_bridge_config(root: Path) -> tuple[dict, list[str]]:
     elif version != 1:
         raise ConfigError("unsupported schema_version; expected 1")
     _unknown(config, {"schema_version", "api_url", "hermes_env", "hermes_config", "hermes", "audit", "codex", "hands",
-                      "opencode"},
+                      "opencode", "contexts"},
              "bridge-config", warnings)
     for key in ("api_url", "hermes_env"):
         if not isinstance(config.get(key), str) or not config[key]:
             raise ConfigError(f"{key} must be a non-empty string")
     if "hermes_config" in config and not isinstance(config["hermes_config"], str):
         raise ConfigError("hermes_config must be a string")
+    contexts = _object(config.get("contexts", {}), "contexts")
+    _unknown(contexts, {"soft_cap"}, "contexts", warnings)
+    if "soft_cap" in contexts:
+        _integer(contexts["soft_cap"], "contexts.soft_cap", 1, 100000)
     hermes = _object(config.get("hermes", {}), "hermes")
     _unknown(hermes, {"stale_run_seconds", "approval_stale_seconds"}, "hermes", warnings)
     for key in ("stale_run_seconds", "approval_stale_seconds"):
