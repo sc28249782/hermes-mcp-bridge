@@ -1,10 +1,10 @@
-# คู่มือปฏิบัติการ — release v1.2.5
+# คู่มือปฏิบัติการ — release v1.2.6 / production checkpoint v1.2.5
 
-## v1.2.6 release candidate — unreleased privacy hardening (SPEC §19)
+## v1.2.6 — released privacy hardening (SPEC §19)
 
-ส่วนนี้อธิบาย candidate ที่ stamp เป็น `1.2.6/v1.2.6` แล้ว แต่ยังไม่ deploy.
+ส่วนนี้อธิบาย hardening ใน signed release `1.2.6/v1.2.6` ที่ยังไม่ deploy production. Release assets ผ่านการตรวจหลังดาวน์โหลดแล้ว; GitHub badge เป็น `no_user` แยกจากผล GPG ที่ผ่าน. ดู [release record](RELEASE-STATUS-TH.md).
 Build input คือ `e3e698a7a220bf14a8bb4d1260bf2ded7e666b56`; ไม่ใช่ final tag commit. ดู [release-preparation record](V1.2.6-RELEASE-PREP-TH.md).
-Operator อนุมัติ scope v1.2.6 เมื่อ 20 ตุลาคม 2026; release preparation, signing/publication และ deployment decision ยังแยกกันตาม [scope decision record](PRIVACY-RELEASE-DECISION-TH.md).
+Operator อนุมัติ scope v1.2.6 เมื่อ 20 ตุลาคม 2026; release preparation และ signing/publication ผ่านแล้ว; deployment decision ยังแยกกันตาม [scope decision record](PRIVACY-RELEASE-DECISION-TH.md).
 Hermes task metadata จำกัด compact ASCII-escaped JSON เป็น 8,192 bytes.
 Status ส่งเฉพาะ fields ที่กำหนด; error เป็นข้อความคงที่ และ approval เป็น `{"required": true}`.
 ใช้ `./bridge.sh approve run_ID` หรือ `deny` ใน local terminal ตามขั้นตอนเดิมเพื่อตรวจรายละเอียดและยืนยัน exact request.
@@ -19,9 +19,9 @@ Cap นี้ไม่จำกัด worker log capture และไม่ม�
 
 | Operational store | ข้อมูลที่เก็บ | การควบคุมและ lifecycle |
 | --- | --- | --- |
-| `runs.sqlite3` | Cached upstream JSON รวม output/error/approval ที่ upstream ส่งมา; อาจมี input ที่ upstream echo | Database `0600`, state directory `0700`; ไม่มี artifact retention/deletion ใหม่ใน candidate |
+| `runs.sqlite3` | Cached upstream JSON รวม output/error/approval ที่ upstream ส่งมา; อาจมี input ที่ upstream echo | Database `0600`, state directory `0700`; ไม่มี artifact retention/deletion ใหม่ใน v1.2.6 |
 | `codex.sqlite3`, `codex-logs/` | Prompt และ captured CLI output | Database `0600`, state/log directories `0700`; wrapper ใช้ umask `077`; read cap ไม่ใช่ disk capture cap |
-| `opencode-tasks.sqlite3`, `opencode-task-logs/` | Prompt, stdout และ stderr | Database/files `0600`, directories `0700`, per-stream execution cap เดิม; candidate ไม่เปลี่ยน backend นี้ |
+| `opencode-tasks.sqlite3`, `opencode-task-logs/` | Prompt, stdout และ stderr | Database/files `0600`, directories `0700`, per-stream execution cap เดิม; v1.2.6 ไม่เปลี่ยน backend นี้ |
 
 Private operational stores ไม่ใช่ audit log.
 ป้องกัน backup ด้วย access controls เดียวกัน.
@@ -163,7 +163,7 @@ adapter ถูกรวมแล้วใน released v1.2.4 (PR #34) ซึ่�
 
 ส่วน execution ตาม SPEC.md section 18 เผยแพร่ใน signed v1.2.5 แล้ว (v1.2.4 ยังคงเป็น
 health-only ตามประวัติ) โค้ดรวมผ่าน PR #40 และ release preparation ผ่าน PR #41.
-การเปิด execution ต้องเป็นการเลือก config โดย operator; production ยังไม่ถูกอัปเกรด. หลักการสำหรับ
+การเปิด execution ต้องเป็นการเลือก config โดย operator. Production checkpoint เป็น v1.2.5; publication ของ v1.2.6 ไม่เปลี่ยน configuration หรือ deployment นี้. หลักการสำหรับ
 operator: เปิดด้วย `opencode.execution.enabled=true` พร้อม `opencode.enabled` +
 `opencode.binary`, `allowed_workspaces` (canonical absolute path) และ `allowed_models`
 (เช่น `opencode-go/glm-5.3-flash`) ไม่ว่าง; จำกัดด้วย `max_prompt_chars`,
