@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased — Context P1 registry warning and preview
+
+- Add optional `contexts.soft_cap` (default 1,000; range 1–100,000). Observe at most cap+1 logical rows through a read-only SQLite connection. Reaching the cap is a warning; it does not reject create or submission.
+- Add the six-field `registry` aggregate to `bridge_status.contexts` and successful context creates. Report unavailable counts as null. Keep a successful create acknowledged when observation fails. Status root `ok` becomes false for registry unavailability, but remains true for a cap warning alone.
+- Add local `context-prune-preview` before backend imports/configuration. Use an existing absolute state directory, closed/unbound predicates, fixed JSON errors and bounded result materialization. Retain SQLite locking and WAL checks. SQLite may use sidecar files; read-only SQL is not a filesystem-wide no-write guarantee.
+- Keep existing status/recent semantics, schema version, discovery counts and signed v1.2.6 unchanged. No deletion, native compaction, release or deployment is included. P2 lifecycle/apply work remains deferred.
+
 ## Unreleased — Codex result read-ahead fix
 
 - Open Codex result logs with `buffering=0`. Buffered readers could fetch appended bytes beyond the captured length and could serve prefetched data after truncation. Enforce the existing SPEC §19.3 byte budget at the raw read boundary.
