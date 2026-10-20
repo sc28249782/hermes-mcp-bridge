@@ -6,7 +6,7 @@ Released v1.2.6 implements the reviewed privacy requirements in [SPEC section 19
 It filters Hermes metadata, enforces private directory modes and bounds Codex result reads.
 The operator approved v1.2.6 as its target scope on 20 October 2026.
 The release is stamped 1.2.6/v1.2.6 with reviewed build input `e3e698a7a220bf14a8bb4d1260bf2ded7e666b56`.
-[Signed release assets](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.6) passed fresh-download verification. Production deployment remains unchanged.
+[Signed release assets](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.6) passed fresh-download verification. The operator separately approved deployment on 20 October 2026; production now runs v1.2.6.
 Cryptographic tag verification passed; GitHub's badge reports `no_user`. See the [release record](docs/RELEASE-STATUS-TH.md).
 See the [release-preparation record](docs/V1.2.6-RELEASE-PREP-TH.md) for verification gates.
 See the [scope decision record](docs/PRIVACY-RELEASE-DECISION-TH.md).
@@ -16,7 +16,7 @@ Securely connect ChatGPT to a local Hermes Agent and Codex CLI running in WSL2, 
 
 The bridge is a controlled local execution boundary. It does not expose a general remote shell.
 The current signed release is **v1.2.6**.
-The production deployment is **v1.2.5** (operator upgraded on 2026-10-19).
+The production deployment is **v1.2.6** (operator upgraded on 2026-10-20).
 The production upgrade checkpoint is recorded in [release status](docs/RELEASE-STATUS-TH.md).
 
 Released v1.2.5 adds the separately gated OpenCode execution opt-in.
@@ -30,7 +30,7 @@ Status remains `running` when that worker is unavailable but its child is still 
 
 Earlier release: **2026-10-18**, **v1.2.4** with a GPG-signed annotated tag on `2133056`. It adds the disabled-by-default OpenCode health adapter (PR #34; discovery stays at the canonical 27 tools unless an operator opts in) and the legacy stdio discovery guard (PR #35). Release assets plus an external SHA256SUMS are published at https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.4 (ZIP SHA-256 `e6deb0e6ab16d669836b0e361e2e875858e19597ef35dc7e4fc19010a6a5f3a9`, download re-verified). MCP Events is not included (deferred, BLOCKED). Production deployment remains v1.2.3; this release requires no rollout, service, or config change. Current installation and upgrade instructions use v1.2.6.
 
-Deployment note (dated): the "Production deployment remains v1.2.3" statement in the paragraph above describes 2026-10-18, the v1.2.4 release date. The production deployment is v1.2.5 as of 2026-10-19; see [release status](docs/RELEASE-STATUS-TH.md).
+Deployment note (dated): the "Production deployment remains v1.2.3" statement in the paragraph above describes 2026-10-18, the v1.2.4 release date. A later checkpoint records production v1.2.6 on 2026-10-20; see [release status](docs/RELEASE-STATUS-TH.md).
 
 Released **2026-10-19** as **v1.2.5** with a signed annotated tag on `6fbcd7e`. [Release ZIP and external SHA256SUMS](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.5) were downloaded and verified (ZIP SHA-256 `1f1c8a583cf7f51a88ec35ca3023c86342220f5baba37faed3f1724b04bf8d5f`). See [release status](docs/RELEASE-STATUS-TH.md).
 

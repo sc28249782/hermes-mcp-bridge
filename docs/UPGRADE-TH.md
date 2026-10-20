@@ -3,7 +3,7 @@
 ## v1.2.6 — released; deployment ต้องได้รับอนุมัติแยก
 
 Signed v1.2.6 และ ZIP/SHA256SUMS ผ่านการตรวจหลังดาวน์โหลดแล้วเมื่อ 20 ตุลาคม 2026. GPG verification ผ่าน; GitHub badge เป็น `no_user`.
-Operator อนุมัติ signing/publication แล้ว แต่ยังไม่อนุมัติ deployment. Production identity ที่ตรวจหลัง publication ยังเป็น v1.2.5.
+Checkpoint: operator อนุมัติ deployment และ maintenance window เมื่อ 20 ตุลาคม 2026 เวลา 13:52:34 +07. Production อัปเกรดจาก v1.2.5 เป็น v1.2.6 แล้ว. ดู [deployment record](V1.2.6-DEPLOYMENT-TH.md). ขั้นตอนด้านล่างยังต้องได้รับอนุมัติสำหรับ rollout ครั้งใหม่.
 ใช้ขั้นตอนอัปเกรด v1.2.6 ได้เมื่อ operator อนุมัติ deployment แยกแล้วเท่านั้น. ดู [release record](RELEASE-STATUS-TH.md) และ [decision record](PRIVACY-RELEASE-DECISION-TH.md).
 เมื่อเสนอ rollout ต้องแจ้งว่า Hermes status/result จะไม่ส่ง raw error และ approval payload; approval details ยังตรวจใน local terminal.
 Init จะ enforce state/Codex-log directories เป็น `0700`; ถ้าเปลี่ยน mode ไม่ได้ ต้องแก้ ownership/permissions ภายในเครื่องก่อนเริ่มใหม่.
@@ -19,7 +19,7 @@ v1.2.5 เผยแพร่แล้ว พร้อม signed tag และ ZI
 
 1. เริ่มได้เมื่อ operator อนุมัติ deployment และกำหนด maintenance window แล้ว. หากยังไม่อนุมัติ ให้ใช้ deployment เดิม.
 2. ดาวน์โหลด `hermes-mcp-bridge-v1.2.6.zip` และ external `SHA256SUMS` จาก [release v1.2.6](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.6). ตรวจ `sha256sum -c SHA256SUMS`, `unzip -t` และ signed tag/fingerprint ตาม [RELEASE-RUNBOOK-TH.md](RELEASE-RUNBOOK-TH.md). ต้องผ่านทุกข้อก่อนแตกไฟล์; GitHub badge ไม่ใช่ตัวแทน cryptographic verification.
-3. รอ jobs ของ instance เดิมเป็น terminal และตรวจ process ของ `unknown_exit` ก่อนหยุด instance นั้น. Backup config/state แบบ private ตาม mode 0600/0700. เก็บไดเรกทอรีเดิมไว้ใช้ rollback.
+3. หยุดรับงานใหม่ รอ jobs ของ instance เดิมเป็น terminal และตรวจ process ของ `unknown_exit`. หยุด instance และยืนยันว่าไม่มี writer/watchdog/worker ใช้ state ก่อน backup/copy. Backup config/state แบบ private ตาม mode 0600/0700. เก็บไดเรกทอรีเดิมไว้ใช้ rollback.
 4. แตก ZIP ใน directory ใหม่. คัดลอกเฉพาะ config/state ที่ตรวจแล้ว พร้อมรักษาสิทธิ์. ตรวจ relative key/config references ให้ยังชี้เป้าหมายที่ถูกต้อง. ไม่คัดลอก `.env` หรือ `.venv`; ใช้ installer สร้าง venv ใหม่. ห้ามคัดลอก state ขณะที่มี worker ทำงาน.
 5. ตรวจ `./bridge.sh version` เป็น `1.2.6/v1.2.6`, source `release-archive`, embedded build input `e3e698a7a220bf14a8bb4d1260bf2ded7e666b56` และ default count 27. ตรวจ config, state/Codex-log mode 0700 และ backend health ตาม configuration เดิมก่อนเปลี่ยน tunnel ไป directory ใหม่. การอัปเกรดไม่เปิด OpenCode หรือ Hands ให้เอง.
 6. ตรวจ identity, status, configured discovery 27/28/33 และ applicable privacy acceptance หลังสลับ instance. บันทึกเฉพาะผลที่ตรวจได้; identity/health ไม่ใช่ production model-task acceptance. หากตรวจไม่ผ่าน ห้ามเริ่มงานใหม่และคืน instance เดิม. หากมีงานเริ่มไปแล้ว ให้ตรวจ process/state ก่อน rollback; ห้ามเขียนทับ state ที่มี worker ทำงาน.

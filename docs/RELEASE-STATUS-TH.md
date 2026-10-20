@@ -1,5 +1,9 @@
 # Release status
 
+## Production v1.2.6 — deployment checkpoint (20 October 2026)
+
+Operator อนุมัติ deployment และ maintenance window เมื่อ 13:52:34 +07. Production อัปเกรดเป็น v1.2.6 แล้ว. Parent connector ยืนยัน release-archive/input `e3e698a7`, schema 1, state `0700`, watchdog ทำงาน, Hermes authentication verified และ OpenCode v2.0.32. Parent registry มี 33 tools ตาม config; ไม่ใช่ raw wire `tools/list` capture. Hands ยัง disabled. ดู [deployment record](V1.2.6-DEPLOYMENT-TH.md) สำหรับผลทดสอบ ข้อจำกัด และ rollback. ข้อความ deployment pending/v1.2.5 ด้านล่างเป็น checkpoint ก่อนอัปเกรด. Privacy follow-up ปิดตาม §19.4 หลัง external reviewer ให้ APPROVE แก่ PR #54 ที่ `7b2886d` เมื่อ 20 ตุลาคม 2026 ตามรายงานที่ operator ส่งในแชต; production OpenCode model-task acceptance ยังเป็น follow-up แยก.
+
 ## v1.2.6 — released (20 October 2026)
 
 - Signed annotated tag `v1.2.6`: object `a9a15e08aa7259b0bde667392b382d56ac031a8e`, peeled commit `cee144e14e53d971d986de346aab58c51bca97f0`. Fresh-fetch `git verify-tag --raw` passed with GOODSIG/VALIDSIG and EDDSA fingerprint `C4E9AFA9C97FC94CA2448E9218BDAEA561529B86`; signature time 20 October 2026, 12:57:51 +07.

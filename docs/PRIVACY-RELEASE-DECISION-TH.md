@@ -2,7 +2,7 @@
 
 วันที่: 20 ตุลาคม 2026.
 สถานะ: operator อนุมัติ scope สำหรับ release preparation แล้วเมื่อ 20 ตุลาคม 2026 เวลา 11:26 +07.
-สถานะ release: `v1.2.6` signed/tagged/published แล้วเมื่อ 20 ตุลาคม 2026 และ assets ผ่านการตรวจหลังดาวน์โหลด. ยังไม่ deploy production.
+สถานะ release: `v1.2.6` signed/tagged/published แล้วเมื่อ 20 ตุลาคม 2026 และ assets ผ่านการตรวจหลังดาวน์โหลด. Production deploy เป็น v1.2.6 แล้วหลัง operator อนุมัติแยกเมื่อ 20 ตุลาคม 2026 เวลา 13:52:34 +07. ดู [deployment record](V1.2.6-DEPLOYMENT-TH.md).
 Operator อนุมัติ final target `cee144e14e53d971d986de346aab58c51bca97f0` และ signing/publication เมื่อ 20 ตุลาคม 2026 เวลา 12:49 +07.
 เอกสารตั้งต้น: `290a9d6a98182a4b248de349d2ad2f4383860518` หลัง merge PR #49.
 
@@ -13,15 +13,15 @@ Operator ยืนยันในแชตว่า “อนุมัติ sco
 Scope คือ implementation จาก PR #47 และ regression/acceptance จาก PR #48/#49.
 การอนุมัติครอบคลุม scope และลำดับ release preparation ตาม PR #50 ที่ผ่าน review แล้ว.
 Release-preparation PR ใช้ reviewed build input `e3e698a7a220bf14a8bb4d1260bf2ded7e666b56` พร้อม stamp และ exact-head/archive verification ตาม [preparation record](V1.2.6-RELEASE-PREP-TH.md).
-การอนุมัติ scope เวลา 11:26 ไม่ครอบคลุม signed tag, publish assets หรือ production upgrade. การอนุมัติเวลา 12:49 เพิ่ม final-target signing/publication เท่านั้น; deployment ยังรอ decision แยก.
-Release verification ผ่านตาม [release record](RELEASE-STATUS-TH.md). Privacy follow-up ยังเปิดสำหรับ deployment decision/acceptance; independent signed-release fresh-input audit ผ่านแล้วตามรายงาน external reviewer ที่ operator ส่งในแชตสำหรับ PR #53 ที่ head `88fb58f` เมื่อ 20 ตุลาคม 2026 (fresh tag/assets, byte-identical rebuild, offline identity และ extracted suite 184/184). การอนุมัติที่ head นี้ไม่ครอบคลุม audit note ที่เพิ่มภายหลัง. ยังรอ deployment decision/acceptance ตาม SPEC §19.4.
+การอนุมัติ scope เวลา 11:26 ไม่ครอบคลุม signed tag, publish assets หรือ production upgrade. การอนุมัติเวลา 12:49 เพิ่ม final-target signing/publication เท่านั้น; ต่อมา operator อนุมัติ deployment และ maintenance window แยกเมื่อ 13:52:34 +07 โดยตอบ “อนุมัติ” ต่อแผนสลับ production พร้อม rollback.
+Release verification ผ่านตาม [release record](RELEASE-STATUS-TH.md). Privacy follow-up ปิดตาม §19.4 แล้วเมื่อ 20 ตุลาคม 2026 หลัง external reviewer ให้ APPROVE แก่ PR #54 ที่ `7b2886d` ตามรายงานที่ operator ส่งในแชต; independent signed-release fresh-input audit ผ่านแล้วตามรายงาน external reviewer ที่ operator ส่งในแชตสำหรับ PR #53 ที่ head `88fb58f` เมื่อ 20 ตุลาคม 2026 (fresh tag/assets, byte-identical rebuild, offline identity และ extracted suite 184/184). การอนุมัติที่ head นี้ไม่ครอบคลุม audit note ที่เพิ่มภายหลัง. Deployment decision และ scoped acceptance มีหลักฐานใน [deployment record](V1.2.6-DEPLOYMENT-TH.md). External approval ครอบคลุม deployment record ที่ `7b2886d`; ไม่ครอบคลุม closure note ที่เพิ่มภายหลัง. งาน production OpenCode benign-model acceptance และ Python 3.14 ยังแยกติดตาม.
 
 | รายการ | Decision / สถานะ |
 | --- | --- |
 | Release scope | Hermes metadata allowlist/cap, directory-mode enforcement และ bounded Codex result reads |
 | Contract | ใช้ wording และ limits ที่ผ่าน review ใน SPEC §4/§10/§19 |
 | Target version | Operator อนุมัติ `v1.2.6` เป็นรุ่นเป้าหมาย; stamp และ archive verification อยู่ใน release-preparation PR |
-| Production | คง deployment เดิมระหว่าง preparation; checkpoint ล่าสุดที่บันทึกไว้คือ signed v1.2.5 |
+| Production | อัปเกรดเป็น signed v1.2.6 เมื่อ 20 ตุลาคม 2026 หลัง operator อนุมัติแยก; scoped acceptance อยู่ใน deployment record |
 | Local Hands / MCP Events | คง hard gates เดิม; ไม่อยู่ใน release scope |
 
 ## SPEC §14 — change-control record
@@ -71,7 +71,7 @@ External reviewer เป็นผู้ให้ verdict `APPROVE` สำหร�
 
 ## ลำดับงานหลัง scope ได้รับอนุมัติ
 
-สถานะ 20 ตุลาคม 2026: preparation review, signing/publication และ post-download verification ผ่านแล้ว. Phase C อยู่ใน PR นี้; deployment ยังไม่อนุมัติ. รายการด้านล่างคงลำดับมาตรฐาน รวมขั้นที่ยังต้องทำ.
+สถานะ 20 ตุลาคม 2026: preparation review, signing/publication และ post-download verification ผ่านแล้ว. Phase C รวมผ่าน PR #53 แล้ว. Deployment ได้รับอนุมัติแยกและอัปเกรดแล้ว; scoped acceptance อยู่ใน deployment record. รายการด้านล่างคงลำดับมาตรฐาน รวมขั้นที่ยังต้องทำ.
 
 1. เปิด release-preparation PR จาก main ที่มี decision record ผ่าน review แล้ว. กำหนด version/stamp และ reviewed build-input revision ตาม [RELEASE-RUNBOOK-TH.md](RELEASE-RUNBOOK-TH.md). อย่าใช้ build-input เป็น final tag identity.
 2. ทบทวน README, installation, operations, compatibility, testing, roadmap, upgrade, security และ release notes ให้ตรง candidate ก่อน tag. คง signed/historical records เดิม.

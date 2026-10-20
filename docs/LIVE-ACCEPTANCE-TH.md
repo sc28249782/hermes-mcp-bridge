@@ -1,5 +1,9 @@
 # ผล Live Acceptance
 
+## Production v1.2.6 — deployment checkpoint (20 October 2026)
+
+Operator อนุมัติ deployment และ maintenance window เมื่อ 13:52:34 +07. Production อัปเกรดเป็น v1.2.6 แล้ว. Parent connector ยืนยัน release-archive/input `e3e698a7`, schema 1, state `0700`, watchdog ทำงาน, Hermes authentication verified และ OpenCode v2.0.32. Parent registry มี 33 tools ตาม config; ไม่ใช่ raw wire `tools/list` capture. Hands ยัง disabled. ดู [deployment record](V1.2.6-DEPLOYMENT-TH.md) สำหรับผลทดสอบ ข้อจำกัด และ rollback. ข้อความ deployment pending/v1.2.5 ด้านล่างเป็น checkpoint ก่อนอัปเกรด. Privacy follow-up ปิดตาม §19.4 หลัง external reviewer ให้ APPROVE แก่ PR #54 ที่ `7b2886d` เมื่อ 20 ตุลาคม 2026 ตามรายงานที่ operator ส่งในแชต; production OpenCode model-task acceptance ยังเป็น follow-up แยก.
+
 ## v1.2.4 release candidate — live tunnel acceptance บน Dev route จริง: ผ่านแบบมีเงื่อนไข (18 ตุลาคม 2026)
 
 สถานะ: executed แล้วเมื่อ 18 ตุลาคม 2026 ผ่าน plugin จริง `Hermes Local Bridge - Dev` ที่ชี้ไปยัง candidate deployment `~/hermes-mcp-bridge-v1.2.4-dev-candidate` (ติดตั้งจาก candidate ZIP ที่สร้างจาก commit `00245f45da2142dfd86de6741272632f1e1b0407` และตรวจ SHA-256 `431cb064ad27408ad4ab4199f3452f811ffd16f27ddfc31a33b2e5f5e99eb363` แล้ว) ข้อสรุปเป็น **bounded PASS**: ยืนยัน identity, status และ tool visibility ของ candidate บน Dev route จริงเท่านั้น **ไม่ใช่**การพิสูจน์ guard ผ่าน tunnel ทั้งหมด (ดูข้อจำกัดหลักฐานด้านล่าง) ส่วน `--version` จริงของ OpenCode CLI (`opencode v2.0.32`, 18 ตุลาคม 2026) ยังเป็น live acceptance เดียวของ adapter ตามขอบเขต PR #34 OpenCode ยัง disabled by default และ acceptance นี้ไม่ได้เปิด OpenCode ผ่าน MCP
