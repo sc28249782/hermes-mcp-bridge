@@ -1,5 +1,9 @@
 # OpenCode task execution (released v1.2.5 — SPEC.md section 18)
 
+## Production benign-model checkpoint — 20 ตุลาคม 2026
+
+Production v1.2.6 ผ่าน benign-model acceptance เมื่อ 20 ตุลาคม 2026: สอง completed jobs ใน session เดียว, exact text, resume, replay และ pagination. ดู [acceptance record](OPENCODE-PRODUCTION-ACCEPTANCE-TH.md) สำหรับหลักฐานและข้อจำกัด. ไม่อ้าง production write/cancel/native-permission acceptance. ข้อความ jobs ว่างหรือ model-task pending ใน checkpoint ก่อนหน้ายังคงเป็นหลักฐาน ณ เวลานั้น.
+
 ส่วน execution เผยแพร่ใน signed v1.2.5 เมื่อ 19 ตุลาคม 2026 หลัง merge PR #40
 และเตรียม release ผ่าน PR #41. ZIP/SHA256SUMS ตรวจหลังดาวน์โหลดแล้ว
 ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md) และ [UPGRADE-TH.md](UPGRADE-TH.md).
