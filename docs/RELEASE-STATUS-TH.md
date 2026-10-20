@@ -1,6 +1,23 @@
 # Release status
 
-## v1.2.6 — release candidate, tag pending (20 October 2026)
+## v1.2.6 — released (20 October 2026)
+
+- Signed annotated tag `v1.2.6`: object `a9a15e08aa7259b0bde667392b382d56ac031a8e`, peeled commit `cee144e14e53d971d986de346aab58c51bca97f0`. Fresh-fetch `git verify-tag --raw` passed with GOODSIG/VALIDSIG and EDDSA fingerprint `C4E9AFA9C97FC94CA2448E9218BDAEA561529B86`; signature time 20 October 2026, 12:57:51 +07.
+- GitHub API reports `verified: false`, reason `no_user`. This badge result is separate from successful cryptographic verification. The published tag was not replaced or force-pushed.
+- [GitHub Release v1.2.6](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.6) was published at 13:01:33 +07 (06:01:33Z), with `draft: false` and `prerelease: false`. It has exactly `hermes-mcp-bridge-v1.2.6.zip` (321,434 bytes) and external `SHA256SUMS` (95 bytes).
+- Final signed-tag ZIP SHA-256: `acf6c38ca371acd73d31099c5448d6ef9c3588020e74d0c0bfe3769736b1664e`. The earlier unsigned candidate hash `5069888d…c6e290e` is not the final release checksum.
+- Fresh-download checksum/ZIP checks passed. Downloaded ZIP and manifest match the local signed-tag assets byte-for-byte. A second rebuild within maintainer automation also matched the downloaded ZIP. This is automation evidence, not an external fresh-input audit.
+- ZIP: 87 unique entries under `hermes-mcp-bridge-v1.2.6/`; no duplicate, traversal, absolute/backslash path, symlink, private config/state/env/venv/git/cache entry. Required modules and the privacy boundary fixture are present.
+- Extracted offline identity: `1.2.6/v1.2.6`, provenance `release`, source `release-archive`, embedded build input `e3e698a7a220bf14a8bb4d1260bf2ded7e666b56`, revision source `embedded-build-input`, embedded schema 1, canonical default discovery 27. Root config is absent, so `config_schema_version: unknown` is the expected fallback, not migration evidence.
+- Preparation evidence remains source and extracted-tree 184/184 at `42d27b5`, focused privacy 19/19 and CI `39371714408`. Its tree equals the final signed commit tree. Suites were not rerun during publication; no new full-suite claim is made.
+- Scope: SPEC §4/§10/§19 privacy hardening. Live boundary/approval evidence remains fake-upstream/post-filter fault injection; directory/Codex read-budget evidence remains filesystem tests/probes. No actual Hermes HTTP/native approval, live Codex read-cap or production model acceptance is added.
+- Production identity was checked read-only after publication on 20 October 2026: still `1.2.5/v1.2.5`, release-archive, embedded input `a666d626da1fe716ce4b259d49eedfc3f97acc7d`, schema 1/default 27. No upgrade was performed. Deployment decision and signed-release external audit remain pending; privacy follow-up is open. Local Hands mutation/MCP Events gates are unchanged.
+- This Phase C record follows the signed tag. It does not change the tag or assets.
+
+
+## v1.2.6 — historical pre-tag preparation (20 October 2026)
+
+The candidate status below records preparation before publication. The released result and current pending deployment decision are above.
 
 Contract/implementation review and scoped Dev transport acceptance/restoration passed through PR #47–#49. The operator approved the v1.2.6 target scope at 11:26 +07 on 20 October 2026. The [scope decision record](PRIVACY-RELEASE-DECISION-TH.md) records evidence, limits and remaining gates. Release preparation stamps `version_info.py` as `1.2.6/v1.2.6`, provenance `release`, reviewed build input `e3e698a7a220bf14a8bb4d1260bf2ded7e666b56`, schema 1 and canonical default discovery 27. The [preparation record](V1.2.6-RELEASE-PREP-TH.md) defines the exact-head and archive verification receipt. Signing/publication and the production deployment decision remain pending. No signed tag or assets are created by this record; production is unchanged. Production's last recorded deployment checkpoint remains signed v1.2.5 below. Local Hands mutation and MCP Events gates remain unchanged.
 
