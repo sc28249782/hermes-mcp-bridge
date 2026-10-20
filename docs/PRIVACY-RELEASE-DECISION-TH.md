@@ -1,24 +1,25 @@
-# Privacy hardening — ข้อเสนอ release decision
+# Privacy hardening — release scope ที่ได้รับอนุมัติ
 
 วันที่: 20 ตุลาคม 2026.
-สถานะ: proposal สำหรับ review; ยังไม่มี release decision ที่ได้รับการอนุมัติ.
-รุ่นที่เสนอ: `v1.2.6`. ยังไม่ assigned, stamped, tagged, published หรือ deployed.
+สถานะ: operator อนุมัติ scope สำหรับ release preparation แล้วเมื่อ 20 ตุลาคม 2026 เวลา 11:26 +07.
+รุ่นเป้าหมาย: `v1.2.6`. ยังไม่ stamped, tagged, published หรือ deployed.
 เอกสารตั้งต้น: `290a9d6a98182a4b248de349d2ad2f4383860518` หลัง merge PR #49.
 
-## การตัดสินใจที่เสนอ
+## Operator decision
 
-เสนอให้จัด privacy hardening ตาม SPEC §4/§10/§19 เป็น maintenance release `v1.2.6`.
+Operator ยืนยันในแชตว่า “อนุมัติ scope v1.2.6 และอัปเดตเอกสารที่เกี่ยวข้องด้วย”.
+จึงกำหนด privacy hardening ตาม SPEC §4/§10/§19 เป็น scope ของ maintenance release เป้าหมาย `v1.2.6`.
 Scope คือ implementation จาก PR #47 และ regression/acceptance จาก PR #48/#49.
-ไม่เพิ่ม runtime changes ในข้อเสนอนี้.
-อนุมัติข้อเสนอนี้หมายถึงยอมรับ scope และลำดับ release preparation.
-ไม่ใช่การอนุมัติ signed tag, publish assets หรือ production upgrade.
-Operator ต้องระบุ release/deployment decision ก่อนปิด privacy follow-up.
+การอนุมัติครอบคลุม scope และลำดับ release preparation ตาม PR #50 ที่ผ่าน review แล้ว.
+ขั้นถัดไปคือ release-preparation PR พร้อม stamp และ exact-head verification ตาม runbook.
+การอนุมัติ scope ไม่ครอบคลุม signed tag, publish assets หรือ production upgrade.
+Privacy follow-up ยังเปิดสำหรับ release verification และ deployment decision; operator ต้องยืนยันสองส่วนนี้ก่อนปิดตาม §19.4.
 
-| รายการ | ผลที่เสนอ |
+| รายการ | Decision / สถานะ |
 | --- | --- |
 | Release scope | Hermes metadata allowlist/cap, directory-mode enforcement และ bounded Codex result reads |
 | Contract | ใช้ wording และ limits ที่ผ่าน review ใน SPEC §4/§10/§19 |
-| Target version | เสนอ `v1.2.6`; กำหนดจริงใน release-preparation PR หลัง decision ผ่าน |
+| Target version | Operator อนุมัติ `v1.2.6` เป็นรุ่นเป้าหมาย; stamp และ archive verification อยู่ใน release-preparation PR |
 | Production | คง deployment เดิมระหว่าง preparation; checkpoint ล่าสุดที่บันทึกไว้คือ signed v1.2.5 |
 | Local Hands / MCP Events | คง hard gates เดิม; ไม่อยู่ใน release scope |
 
@@ -36,7 +37,7 @@ SPEC §19 กำหนด behavior และ limits ก่อน merge implement
 
 Reviewer อนุมัติ contract/implementation ที่ `c14cd8c` ใน PR #47.
 ลำดับ commit ข้างต้นยืนยันว่าเพิ่ม SPEC ก่อนแก้ runtime ตามข้อกำหนด spec-first แล้ว.
-ข้อเสนอนี้บันทึกผลรีวิวที่เสร็จสิ้นแล้ว.
+บันทึกนี้รวมผลรีวิวที่เสร็จสิ้นแล้วและ operator scope decision.
 ไม่เปลี่ยน MUST/MAY, allowlist, limits, permissions หรือ acceptance requirements ใน §19.
 
 ## หลักฐานและขอบเขตที่ review แล้ว
@@ -67,7 +68,7 @@ External reviewer เป็นผู้ให้ verdict `APPROVE` สำหร�
 - Tool/schema/config permissions ไม่เพิ่ม. Default discovery ยังคง 27; OpenCode health/execution opt-ins ยังคง 28/33 ตาม configuration เดิม.
 - Native session storage, same-user process access และ backend/provider data handling คงขอบเขตเดิม. ไม่อ้าง sandbox หรือ filesystem/network confinement ใหม่.
 
-## ขั้นตอนหลัง decision ผ่าน
+## ขั้นตอนหลัง scope ได้รับอนุมัติ
 
 1. เปิด release-preparation PR จาก main ที่มี decision record ผ่าน review แล้ว. กำหนด version/stamp และ reviewed build-input revision ตาม [RELEASE-RUNBOOK-TH.md](RELEASE-RUNBOOK-TH.md). อย่าใช้ build-input เป็น final tag identity.
 2. ทบทวน README, installation, operations, compatibility, testing, roadmap, upgrade, security และ release notes ให้ตรง candidate ก่อน tag. คง signed/historical records เดิม.
