@@ -1,9 +1,10 @@
 # คู่มืออัปเกรด Hermes MCP Bridge
 
-## v1.2.6 scope ได้รับอนุมัติ — ยังไม่มี signed release สำหรับอัปเกรด
+## v1.2.6 release candidate — ยังไม่มี signed release สำหรับอัปเกรด
 
 Operator อนุมัติ v1.2.6 เป็นรุ่นเป้าหมายของ candidate ตาม SPEC §19 แล้วเมื่อ 20 ตุลาคม 2026.
-ยังรอ release preparation, signed assets และ deployment decision. การอนุมัติ scope ไม่ใช่การอนุมัติอัปเกรด production.
+Candidate stamp เป็น `1.2.6/v1.2.6` และกำลังเตรียมผลตรวจ exact-head/archive ตาม [release-preparation record](V1.2.6-RELEASE-PREP-TH.md).
+ยังรอ signed assets และ deployment decision. การอนุมัติ scope ไม่ใช่การอนุมัติอัปเกรด production.
 ใช้ขั้นตอนอัปเกรด v1.2.6 ได้หลัง final release ผ่าน verification และ operator อนุมัติ deployment แล้วเท่านั้น. ดู [scope decision record](PRIVACY-RELEASE-DECISION-TH.md).
 เมื่อเสนอ rollout ต้องแจ้งว่า Hermes status/result จะไม่ส่ง raw error และ approval payload; approval details ยังตรวจใน local terminal.
 Init จะ enforce state/Codex-log directories เป็น `0700`; ถ้าเปลี่ยน mode ไม่ได้ ต้องแก้ ownership/permissions ภายในเครื่องก่อนเริ่มใหม่.
