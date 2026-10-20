@@ -13,6 +13,8 @@ Healthy scenario ใช้ soft-cap 3 และเริ่มจาก 0 rows. 
 
 Missing scenario ลบเฉพาะ disposable DB หลัง init. Locked scenario ถือ `BEGIN EXCLUSIVE` บน disposable DB. สอง scenario นี้ใช้ actual SQLite read failures และ production error handling; ไม่มี fabricated observation object. ห้าม create ในสอง scenario นี้ เพราะกำลังทดสอบ status/unavailable เท่านั้น.
 
+Temporary state อยู่เฉพาะอายุ fixture process และ reset เมื่อเริ่ม process ใหม่. หาก connection restart แล้ว counts ไม่ตรง ให้หยุดและเริ่มรอบ probe ใหม่อย่างชัดเจน; อย่า retry create ที่ได้รับ acknowledgement แล้ว. ไม่อ้าง process-restart persistence ของ fixture.
+
 Fixture ไม่เพิ่ม MCP tools หรือเปิด preview ผ่าน MCP. Canonical default 27 tools มาจาก SDK `tools/list` regression; ต้องแยกจำนวนที่เห็นจาก parent registry กับ raw wire capture ระหว่าง live probe. Inherited stamp 1.2.6 ไม่ใช่ release ใหม่. Root config schema อาจเป็น unknown ใน fresh checkout ที่ไม่มี config; ต้องบันทึกตามผลจริง.
 
 CLI preview ยังคงเป็น local command ตาม §20.3. Dev MCP aggregate checks ไม่ใช่ acceptance ของ CLI dispatch, read-only mount หรือ native backend. ผล isolated CLI เดิมอยู่ใน [P1 acceptance](CONTEXT-P1-ACCEPTANCE-TH.md).
@@ -56,7 +58,7 @@ Registry object ต้องมีเพียง 6 scalar fields ตาม §20
 ```bash
 tunnel-client run --profile hermes-wsl-dev \
   --health.listen-addr 127.0.0.1:8081 \
-  --mcp.command "$BRIDGE_P1_CANDIDATE/.venv/bin/python $BRIDGE_P1_CANDIDATE/tests/mock_context_p1_server.py --scenario healthy"
+  --mcp.command "${BRIDGE_P1_CANDIDATE:?Set the pinned candidate path}/.venv/bin/python $BRIDGE_P1_CANDIDATE/tests/mock_context_p1_server.py --scenario healthy"
 ```
 
 Parent ต้องตรวจ exact identity และทำ healthy checks ให้จบก่อนเปลี่ยน scenario. หยุด fixture ด้วย Ctrl+C แล้วเปลี่ยนเพียง scenario เป็น missing:
@@ -64,7 +66,7 @@ Parent ต้องตรวจ exact identity และทำ healthy checks �
 ```bash
 tunnel-client run --profile hermes-wsl-dev \
   --health.listen-addr 127.0.0.1:8081 \
-  --mcp.command "$BRIDGE_P1_CANDIDATE/.venv/bin/python $BRIDGE_P1_CANDIDATE/tests/mock_context_p1_server.py --scenario missing"
+  --mcp.command "${BRIDGE_P1_CANDIDATE:?Set the pinned candidate path}/.venv/bin/python $BRIDGE_P1_CANDIDATE/tests/mock_context_p1_server.py --scenario missing"
 ```
 
 หยุด fixture แล้วเปิด locked scenario เพื่อทดสอบ actual SQLite contention:
@@ -72,7 +74,7 @@ tunnel-client run --profile hermes-wsl-dev \
 ```bash
 tunnel-client run --profile hermes-wsl-dev \
   --health.listen-addr 127.0.0.1:8081 \
-  --mcp.command "$BRIDGE_P1_CANDIDATE/.venv/bin/python $BRIDGE_P1_CANDIDATE/tests/mock_context_p1_server.py --scenario locked"
+  --mcp.command "${BRIDGE_P1_CANDIDATE:?Set the pinned candidate path}/.venv/bin/python $BRIDGE_P1_CANDIDATE/tests/mock_context_p1_server.py --scenario locked"
 ```
 
 ใช้ ephemeral `--mcp.command` เท่านั้น; ไม่แก้ profile YAML. ตัวอย่าง command string นี้ใช้ candidate path ที่ไม่มีช่องว่าง; หาก path มีช่องว่างให้หยุดและตรวจ quoting ตาม tunnel client ก่อนใช้. อย่าเดารูปแบบ parser.
