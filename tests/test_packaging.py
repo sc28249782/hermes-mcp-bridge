@@ -16,8 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-# Root modules bridge.py must import for the v1.2.4 scope (SPEC.md sections
-# 16 and 17). The stdio guard import is function-scoped, so it is easy to
+# Root modules bridge.py must import for SPEC.md sections 16-19. The stdio guard import is function-scoped, so it is easy to
 # drop from the tree by accident; the archive would then not start.
 REQUIRED_ROOT_MODULES = {"opencode_core", "stdio_guard", "opencode_tasks", "opencode_worker"}
 
@@ -25,6 +24,7 @@ REQUIRED_ROOT_MODULES = {"opencode_core", "stdio_guard", "opencode_tasks", "open
 # (tests/test_stdio_guard.py, tests/test_opencode.py, tests/test_mcp.py).
 REQUIRED_FIXTURES = (
     "mock_mcp_server.py",
+    "mock_privacy_boundary_server.py",
     "mock_hands_off_server.py",
     "mock_opencode_server.py",
     "mock_opencode_execution_server.py",
@@ -66,7 +66,7 @@ class TestPackagingSurface(unittest.TestCase):
         self.assertEqual(
             missing, set(),
             f"bridge.py no longer imports: {sorted(missing)}; "
-            "update REQUIRED_ROOT_MODULES together with SPEC.md sections 16-17",
+            "update REQUIRED_ROOT_MODULES together with SPEC.md sections 16-19",
         )
 
     def test_required_root_modules_exist_and_are_tracked(self):

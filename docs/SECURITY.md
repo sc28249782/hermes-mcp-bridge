@@ -1,8 +1,9 @@
 # Security policy
 
-## v1.2.6 scope approved — unreleased privacy amendment and hardening (SPEC §19)
+## v1.2.6 release candidate — unreleased privacy amendment and hardening (SPEC §19)
 
 Operator อนุมัติ scope v1.2.6 เมื่อ 20 ตุลาคม 2026; ยังไม่ใช่ signed release หรือ production rollout. ดู [scope decision record](PRIVACY-RELEASE-DECISION-TH.md).
+Candidate stamp เป็น `1.2.6/v1.2.6`; ไม่ใช่หลักฐานว่า signed release หรือ production มี hardening นี้แล้ว. ดู [release-preparation record](V1.2.6-RELEASE-PREP-TH.md).
 Candidate แยก explicit content retrieval ออกจาก metadata/audit และ private operational storage.
 การแก้ข้อห้าม full output แบบครอบทุก response เป็น security-contract change ที่ต้อง review แม้ content APIs มีอยู่แล้ว.
 Result/file content อาจมีข้อมูลอ่อนไหวและยังเป็น untrusted data; pagination ไม่ใช่ redaction.

@@ -1,12 +1,12 @@
 # Changelog
 
-## v1.2.6 — scope approved, unreleased privacy contract and runtime hardening
+## v1.2.6 — release candidate, unreleased privacy contract and runtime hardening
 
 - Amend SPEC §4/§10 through §19: explicit bounded result/file content can include a full short result and potentially sensitive data. Private operational storage is separate from content-free audit logging. This corrects an overbroad privacy promise and requires security-contract review; it does not add secret scanning, encryption, sandboxing or backend permissions.
 - Filter Hermes task status/result metadata. Replace raw upstream error text with a constant message and approval payloads with `{"required": true}`. Keep exact approval preview and revalidation in the local terminal. Limit metadata to 8,192 serialized bytes; keep upstream decoded JSON at 4,000,000 bytes and HTTP connect/inactivity timeouts at 5/25 seconds (not a total deadline).
 - Enforce `0700` on existing Hermes/Codex state directories and the Codex log directory. Fail initialization when modes cannot be secured.
 - Read Codex result snapshots in 65,536-byte chunks up to 8,388,608 bytes per call. Preserve character pagination, UTF-8 replacement and universal newlines without loading the whole log. Oversize snapshots require local inspection; the read limit does not cap worker log capture or introduce cleanup.
-- Keep tool registrations, binaries, config schema, signed releases and production deployment unchanged. Contract/implementation review and scoped Dev fixture acceptance/restoration passed through PR #47–#49. The operator approved the v1.2.6 scope on 20 October 2026. Release preparation/verification, signing/publication and the deployment decision remain pending. The approval and evidence limits are documented in [PRIVACY-RELEASE-DECISION-TH.md](PRIVACY-RELEASE-DECISION-TH.md); scope approval does not establish a release.
+- Keep tool registrations, binaries, config schema, signed releases and production deployment unchanged. Contract/implementation review and scoped Dev fixture acceptance/restoration passed through PR #47–#49. The operator approved the v1.2.6 scope on 20 October 2026. The candidate is stamped `1.2.6/v1.2.6` with reviewed build input `e3e698a7a220bf14a8bb4d1260bf2ded7e666b56`. Exact-head/archive verification is recorded through the [release-preparation record](V1.2.6-RELEASE-PREP-TH.md); signing/publication and the deployment decision remain pending. The approval and evidence limits are documented in [PRIVACY-RELEASE-DECISION-TH.md](PRIVACY-RELEASE-DECISION-TH.md); scope approval does not establish a release.
 
 ## v1.2.5 — released (19 October 2026)
 

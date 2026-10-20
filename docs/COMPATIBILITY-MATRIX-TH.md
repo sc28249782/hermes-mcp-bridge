@@ -1,6 +1,8 @@
-# Compatibility matrix — v1.2.5 release
+# Compatibility matrix — v1.2.5 baseline and unreleased v1.2.6 candidate
 
-This matrix records released v1.2.5: the v1.2.4 component baseline plus the opt-in OpenCode execution extension. The WSL2 live-acceptance, independent-review, and signed-release gates passed before publication.
+The v1.2.6 candidate adds SPEC §19 privacy hardening without changing component requirements, tool schemas or discovery counts. Its stamp is 1.2.6/v1.2.6; it is not released or deployed. Candidate verification gates are in [V1.2.6-RELEASE-PREP-TH.md](V1.2.6-RELEASE-PREP-TH.md).
+
+The baseline below records released v1.2.5: the v1.2.4 component baseline plus the opt-in OpenCode execution extension. The WSL2 live-acceptance, independent-review, and signed-release gates passed before publication.
 
 | Component | Release baseline | วิธีตรวจ | หมายเหตุ |
 | --- | --- | --- | --- |

@@ -5,9 +5,9 @@
 รุ่นอ้างอิง: Hermes Agent v0.21.1, commit `8d79c2ff`  
 Bridge: `hermes-mcp-bridge-v1.2.5` (signed and GitHub-verified)
 
-สถานะ source ปัจจุบัน: released v1.2.5 (OpenCode execution opt-in); signed tag และ assets ผ่านการตรวจ ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)
+สถานะ source ปัจจุบัน: v1.2.6 privacy-hardening candidate, stamp `1.2.6/v1.2.6`, ยังไม่ released หรือ deployed. Signed release ล่าสุดยังเป็น v1.2.5 (OpenCode execution opt-in); คำสั่งติดตั้ง release ในเอกสารนี้อ้าง v1.2.5. ดู [release-preparation record](V1.2.6-RELEASE-PREP-TH.md) และ [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)
 
-ปรับปรุงล่าสุด: 19 ตุลาคม 2026
+ปรับปรุงล่าสุด: 20 ตุลาคม 2026
 
 ## 1. ภาพรวมและขอบเขต
 

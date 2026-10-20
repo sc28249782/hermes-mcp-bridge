@@ -1,4 +1,6 @@
-# Hermes MCP Bridge v1.2.5 release — Hermes + Codex/WSL2 / ChatGPT
+# Hermes MCP Bridge — v1.2.6 candidate / v1.2.5 signed release
+
+Candidate checkpoint (20 ตุลาคม 2026): source นี้ stamp `1.2.6/v1.2.6` สำหรับ privacy hardening ตาม SPEC §19. ยังไม่ released หรือ deployed. Release ที่เผยแพร่ล่าสุดและ production checkpoint ยังคง v1.2.5. ดู [release-preparation record](V1.2.6-RELEASE-PREP-TH.md) สำหรับ candidate verification และ gates ก่อน tag.
 
 [![Tests](https://github.com/sc28249782/hermes-mcp-bridge/actions/workflows/tests.yml/badge.svg)](https://github.com/sc28249782/hermes-mcp-bridge/actions/workflows/tests.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](../LICENSE)
