@@ -156,3 +156,10 @@ Scoped Dev transport และ restoration ผ่านและได้รั�
 PR #49 ตรวจ metadata boundary แบบ post-filter fault injection และ approval payload ห้ารูปแบบตามขอบเขตใน [PRIVACY-BOUNDARY-ACCEPTANCE-TH.md](PRIVACY-BOUNDARY-ACCEPTANCE-TH.md).
 ยังไม่อ้าง actual Hermes HTTP/native approval หรือ production privacy rollout.
 Privacy follow-up ยังเปิดสำหรับ release/deployment decision. ดู [PRIVACY-RELEASE-DECISION-TH.md](PRIVACY-RELEASE-DECISION-TH.md); v1.2.6 เป็นข้อเสนอ ยังไม่ assigned หรือ released.
+
+## Operator scope decision (20 ตุลาคม 2026, 11:26 +07)
+
+Operator อนุมัติ scope ของ v1.2.6 หลัง PR #50 ผ่าน external review และ merge แล้ว.
+ข้อความ proposed/unassigned ใน checkpoint ก่อนหน้านี้เป็นสถานะก่อนการอนุมัติครั้งนี้.
+ขั้นถัดไปคือ release preparation; ยังไม่เปลี่ยน stamp, สร้าง signed tag/assets หรือ deploy production.
+Privacy follow-up ยังเปิดสำหรับ release verification และ deployment decision ตาม [scope decision record](PRIVACY-RELEASE-DECISION-TH.md).
