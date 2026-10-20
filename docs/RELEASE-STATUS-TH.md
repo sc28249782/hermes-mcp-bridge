@@ -1,8 +1,8 @@
 # Release status
 
-## v1.2.7 — target scope approved, unreleased (20 October 2026)
+## v1.2.7 — release preparation, tag pending (20 October 2026)
 
-[Scope decision](V1.2.7-RELEASE-DECISION-TH.md) บันทึก operator approval เมื่อ 18:47:56 +07 ให้รวม Codex read-ahead fix (PR #56) กับ Context P1 (PR #58–#61). ยังรอ release preparation, final target/signing/publication และ deployment decision แยก; ไม่มี stamp/tag/assets/deployment ใหม่. Production identity ที่ตรวจ read-only ล่าสุดยังเป็น 1.2.6/release-archive/input `e3e698a7`, schema 1/default 27. Build input/final target สำหรับรุ่นถัดไปยังไม่ถูกเลือก. Scoped P1 Dev/restoration record ผ่าน external APPROVE ที่ `6d93808` และ merge แล้วที่ `4513b30`; ไม่ใช่ production P1 acceptance.
+[Scope decision](V1.2.7-RELEASE-DECISION-TH.md) บันทึก operator approval เมื่อ 18:47:56 +07 ให้รวม Codex read-ahead fix (PR #56) กับ Context P1 (PR #58–#61). Source candidate stamp เป็น `1.2.7/v1.2.7`, reviewed build input `07ec0069b952f08a49adbd0ec778c204f85ee282`. Verification receipt อยู่ใน release-preparation PR; ยังรอ review/merge, final target/signing/publication และ deployment decision แยก. ไม่มี signed tag/assets/deployment ใหม่. Production identity ที่ตรวจ read-only ล่าสุดยังเป็น 1.2.6/release-archive/input `e3e698a7`, schema 1/default 27. Build input เป็น reviewed merge ของ PR #63; final signing target ยังไม่ถูกเลือก. ดู [preparation record](V1.2.7-RELEASE-PREP-TH.md). Scoped P1 Dev/restoration record ผ่าน external APPROVE ที่ `6d93808` และ merge แล้วที่ `4513b30`; ไม่ใช่ production P1 acceptance.
 
 ## Production v1.2.6 — deployment checkpoint (20 October 2026)
 
