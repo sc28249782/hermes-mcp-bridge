@@ -2,7 +2,7 @@
 
 วันที่: 20 ตุลาคม 2026.
 สถานะ: **P1 ผ่าน external implementation review และ merge แล้ว; unreleased และ undeployed**.
-Contract: [SPEC §20](SPEC.md#20-context-p1--approved-scope-future-implementation-no-assigned-release).
+Contract: [SPEC §20](SPEC.md#20-context-p1--v127-target-scope-approved-unreleased).
 SPEC ผ่าน review และ merge ใน PR #58 ที่ `64eb0a1` ก่อน implementation ใน PR #59.
 บันทึกนี้เป็น maintainer automation ไม่ใช่ external review.
 
@@ -65,4 +65,4 @@ Candidate pin `27030bb` ผ่าน healthy threshold/create-ack probes, missin
 
 ## External live-record review checkpoint
 
-ข้อความรอ external review ใน checkpoint ก่อนหน้าเป็นสถานะก่อน PR #61 ผ่าน APPROVE ที่ `6d93808` และ merge ที่ `4513b30`. Scoped P1 live review loop ปิดแล้ว. [ข้อเสนอ v1.2.7](V1.2.7-RELEASE-DECISION-TH.md) ยังรอ operator scope decision; ไม่ใช่ release/deployment หรือ dedicated read-only mount acceptance.
+ข้อความรอ external review ใน checkpoint ก่อนหน้าเป็นสถานะก่อน PR #61 ผ่าน APPROVE ที่ `6d93808` และ merge ที่ `4513b30`. Scoped P1 live review loop ปิดแล้ว. [Target scope v1.2.7](V1.2.7-RELEASE-DECISION-TH.md) ได้รับ operator approval เมื่อ 20 ตุลาคม 2026 เวลา 18:47:56 +07; ยังรอ release preparation และขั้นตอน signing/publication/deployment แยก; ไม่ใช่ release/deployment หรือ dedicated read-only mount acceptance.

@@ -192,7 +192,7 @@ filesystem หรือ network และไม่เปลี่ยน native p
 
 ## Context P1 — candidate, review pending
 
-[Scope decision](CONTEXT-RETENTION-SCOPE-TH.md) บันทึก operator approval ของ P1 เมื่อ 20 ตุลาคม 2026 เวลา 15:57:29 +07. [SPEC §20](SPEC.md#20-context-p1--approved-scope-future-implementation-no-assigned-release) กำหนด contract สำหรับ review ก่อน implementation และแยก registry metadata ออกจาก model/chat history.
+[Scope decision](CONTEXT-RETENTION-SCOPE-TH.md) บันทึก operator approval ของ P1 เมื่อ 20 ตุลาคม 2026 เวลา 15:57:29 +07. [SPEC §20](SPEC.md#20-context-p1--v127-target-scope-approved-unreleased) กำหนด contract สำหรับ review ก่อน implementation และแยก registry metadata ออกจาก model/chat history.
 ยังไม่มี soft-cap หรือ prune CLI ใน production.
 Baseline close เก็บ row ไว้ และ recent จำกัดเฉพาะผลลัพธ์ที่คืน.
 P1 scope มี warning กับ read-only preview; ยังไม่มีการลบ rows หรือแก้ backend session. Config/CLI/fields ใหม่ใน §20 ยังใช้ไม่ได้ใน signed v1.2.6; อย่าอ้างว่า scope approval เปิดใช้งานให้แล้ว.
@@ -212,3 +212,8 @@ PR #59 เพิ่ม `contexts.soft_cap` แบบ optional (default 1,000; in
 ผลสำเร็จมี `mode=preview_only`, aggregate count และ `has_more`; exit 0. Argument ไม่ถูกต้องคืน constant JSON และ exit 2. Storage/schema/lock/clock อ่านไม่ได้คืน constant JSON และ exit 1. อย่าส่งงานหรือ retry create เพียงเพราะ observation unavailable. ตรวจ registry ในเครื่องก่อน.
 
 Preview ไม่ลบ row และไม่มี apply option. SQLite อาจใช้ locks/shared memory/sidecar files. คำสั่งไม่รับรองว่า filesystem ไม่มีผลข้างเคียงทุกแบบ. ยังใช้ P1 ไม่ได้ใน signed v1.2.6/production. ดู [acceptance และข้อจำกัด](CONTEXT-P1-ACCEPTANCE-TH.md).
+
+
+### v1.2.7 target scope checkpoint
+
+Operator อนุมัติ [scope v1.2.7](V1.2.7-RELEASE-DECISION-TH.md) เมื่อ 20 ตุลาคม 2026 เวลา 18:47:56 +07. Scope รวม Codex read-ahead fix และ Context P1; ยังไม่ released/deployed. Production checkpoint ล่าสุดยังเป็น signed v1.2.6. Scope approval ไม่ใช่การอนุมัติ upgrade; ให้รอ release preparation, signed assets และ deployment decision แยก.
