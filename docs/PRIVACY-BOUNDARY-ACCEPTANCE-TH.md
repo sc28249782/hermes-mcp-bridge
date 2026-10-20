@@ -1,7 +1,7 @@
 # Privacy metadata — boundary connection probe
 
-วันที่: 19 ตุลาคม 2026.
-สถานะ: เตรียม fixture และ local stdio regression แล้ว; Dev tunnel probe และ restoration รอบนี้ยังไม่ผ่านการตรวจ.
+เตรียม: 19 ตุลาคม 2026. Dev transport probe: 20 ตุลาคม 2026 (~10:13 +07).
+สถานะ: Dev transport ผ่านตามขอบเขต fixture/fault injection; restoration รอบนี้ยังรอตรวจ.
 ฐาน: `f4f500967463a77adf737535825ab27bc3092fc8` หลัง merge PR #48.
 
 ## ขอบเขต
@@ -65,7 +65,40 @@ Approval cases และ cap faults เป็น synthetic tests; อย่า a
 ## หลักฐานและสิ่งที่ยังรอ
 
 - Local SDK stdio regression ตรวจ exact 8,191/8,192 success และ 8,193 error พร้อม approval ทั้งห้ารูปแบบ.
-- Focused privacy tests: 19/19 ผ่าน รวม fail-closed action assertion ใน fixture; exact-head CI และ WSL full-suite ต้องตรวจอีกครั้งก่อน live handoff.
-- Dev tunnel activation, exact-head identity, live boundary/approval results และ restored-route proof ของรอบนี้ยัง pending.
+- Candidate `f570d03f998657a11fe77069120175030cc3c0d3`: WSL full suite 184/184, exit 0; focused privacy 19/19, shellcheck, Bash syntax และ whitespace checks ผ่าน. Code-head CI [39271455485](https://github.com/sc28249782/hermes-mcp-bridge/actions/runs/39271455485) ผ่าน. หลักฐานเป็น maintainer automation ไม่ใช่ external review.
+- Dev tunnel activation, exact-head identity และ live boundary/approval checks ผ่านตามตารางด้านล่าง; restored-route proof ยัง pending.
 - Privacy follow-up ยังเปิดจน independent review, applicable live acceptance และ release/deployment decision ผ่านตาม [SPEC.md](SPEC.md) §19.4.
 - Local Hands mutation และ MCP Events gates คงเดิม. ดู [ROADMAP.md](ROADMAP.md) และ scoped acceptance รอบก่อนใน [PRIVACY-DEV-ACCEPTANCE-TH.md](PRIVACY-DEV-ACCEPTANCE-TH.md).
+
+## Dev connector checkpoint — scoped PASS (20 ตุลาคม 2026)
+
+Operator เปิด fixture ผ่าน ephemeral command override; parent เรียก Dev connector จริงผ่าน Secure MCP Tunnel.
+Identity ตรง `f570d03f998657a11fe77069120175030cc3c0d3`, source `git-worktree`.
+Inherited stamp `1.2.5/v1.2.5` ไม่ใช่ release ใหม่.
+Root config schema เป็น `unknown` เพราะ fixture ไม่มี root config file; embedded schema 1.
+Parent registry มี 27 tools และ version รายงาน canonical default 27; ไม่ใช่ raw wire `tools/list` และไม่อ้าง live 28/33.
+
+| Case | Run | ผลจาก connection จริง |
+| --- | --- | --- |
+| `boundary-8191` | `run_1` | Success; structured metadata เป็น ASCII JSON 8,191 bytes |
+| `boundary-8192` | `run_2` | Success; structured metadataเป็น ASCII JSON 8,192 bytes |
+| `boundary-8193` | `run_3` | `isError: true`; constant limit error พร้อม tool-name prefix และ connector `error_code: INVALID_ARGUMENT`; ไม่ส่ง padding/private marker |
+| `approval-object` | `run_4` | Status/result ผ่าน checks ของ approval matrix |
+| `approval-list` | `run_5` | Status/result ผ่าน checks ของ approval matrix |
+| `approval-scalar` | `run_6` | Status/result ผ่าน checks ของ approval matrix |
+| `approval-null` | `run_7` | Status/result ผ่าน checks ของ approval matrix |
+| `approval-absent` | `run_8` | Status/result ผ่าน checks ของ approval matrix |
+
+วัดขนาดด้วย compact JSON ของ structured status metadata; ตรวจแล้วว่าทุกอักขระเป็น ASCII.
+ไม่ได้วัดขนาด MCP envelope หรือ duplicated text representation.
+Approval ทั้งห้า cases ได้สถานะ `waiting_for_approval`, approval มีเพียง `required: true`, usage มีเพียง `total_tokens: 7`, error เป็นข้อความคงที่ และมี local-review instruction.
+ไม่พบ `fixture_padding` ใน approval status, ไม่พบ approval payload ใน result และไม่พบ synthetic private marker ใน status/result ที่ตรวจ.
+Output ตรงกับ expected configured-key-substituted fixture output ทั้งห้า cases; ไม่เผยแพร่ raw result เป็นหลักฐาน.
+ไม่มีการ approve/cancel และไม่มี native worker/model ถูกเริ่ม.
+
+Boundary PASS นี้เป็น post-filter fault injection เข้า production size guard ตามขอบเขตด้านบน.
+Approval PASS ใช้ in-process fake upstream; ไม่ใช่ actual Hermes HTTP หรือ native permission/approval acceptance.
+ผลไม่ได้เปลี่ยน release, production, directory-repair หรือ Codex read-cap acceptance scope.
+
+**Restoration ยัง pending:** operator ต้องคืน Dev โดยไม่ใส่ override แล้ว parent ตรวจ pin `e7add7e` และสถานะเดิม.
+Privacy follow-up ยังเปิดรอ restoration, independent review และ release/deployment decision.
