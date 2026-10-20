@@ -140,7 +140,8 @@ Follow-up status (not blockers; scoped separately from the hard gate above):
 
 Proposals pending scoping (prior chat proposals; absent from committed roadmap items):
 
-- Context softcap/pruning; observation annotations; an observation counter. These are proposals; scope each before treating it as planned work.
+- Context soft-cap/pruning: [scope proposal](CONTEXT-RETENTION-SCOPE-TH.md) recommends warning plus a bounded read-only local preview first. Scope/operator decision and SPEC amendment remain pending; destructive apply is deferred until lifecycle/concurrency design is reviewed. This concerns metadata rows, not ChatGPT/model token history.
+- Observation annotations and an observation counter remain separate proposals awaiting scoping.
 
 Optional follow-ups, lower priority:
 
@@ -222,4 +223,4 @@ Optional follow-ups, lower priority:
 - Multi-user credential management, payment automation, secure-desktop control, or unattended credential entry
 
 
-- Python 3.14 truncate-race: root cause reproduced as binary read-ahead. The unreleased candidate uses unbuffered Codex result reads to enforce the existing snapshot budget. A new regression also detects append read-ahead beyond the snapshot on 3.12.3 and 3.14.7; WSL candidate suites pass 185/185 on each. See [TESTING.md](TESTING.md#unreleased--codex-result-read-ahead-fix). Code/CI review remains pending; no release/deployment is assigned. Production stays on signed v1.2.6/Python 3.12.3.
+- Python 3.14 truncate-race: root cause reproduced as binary read-ahead. The unreleased candidate uses unbuffered Codex result reads to enforce the existing snapshot budget. A new regression also detects append read-ahead beyond the snapshot on 3.12.3 and 3.14.7; WSL candidate suites pass 185/185 on each. See [TESTING.md](TESTING.md#unreleased--codex-result-read-ahead-fix). Investigation/fix merged in PR #56 at `e24fa3e`; no release/deployment is assigned. Production stays on signed v1.2.6/Python 3.12.3.
