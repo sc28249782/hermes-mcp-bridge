@@ -203,6 +203,30 @@ class TestCodexBoundedResults(unittest.TestCase):
         self.assertEqual(second['output'], 'ไทย')
         self.assertEqual(second['total_chars'], 70003)
 
+    def test_append_before_read_does_not_prefetch_past_snapshot(self):
+        initial = b'a' * 70000
+        self.log.write_bytes(initial)
+        sizes, raw_offsets = [], []
+        original_read = TrackedReader.read
+
+        def append_then_read(reader, size):
+            if not raw_offsets:
+                # Append after fstat but before the first content read.
+                with open(self.log, 'ab') as stream:
+                    stream.write(b'b' * (2 * RESULT_READ_CHUNK_BYTES))
+            data = original_read(reader, size)
+            raw_offsets.append(os.lseek(reader.fileno(), 0, os.SEEK_CUR))
+            return data
+
+        with self.tracked(sizes), patch.object(TrackedReader, 'read', append_then_read):
+            result = self.runner.result(self.job, len(initial) - 2, 10)
+        self.assertEqual(result['output'], 'aa')
+        self.assertEqual(result['total_chars'], len(initial))
+        self.assertIsNone(result['next_offset'])
+        self.assertEqual(sum(sizes), len(initial))
+        self.assertTrue(raw_offsets)
+        self.assertLessEqual(max(raw_offsets), len(initial))
+
     def test_truncate_during_read_never_returns_a_partial_success(self):
         self.log.write_bytes(b'a' * 131072)
         def truncate():
