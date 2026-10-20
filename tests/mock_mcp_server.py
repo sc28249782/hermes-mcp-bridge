@@ -29,6 +29,9 @@ with tempfile.TemporaryDirectory() as root:
     c=CodexRunner({'binary':sys.executable,'allowed_workspaces':[root]},Path(root))
     (Path(root)/'fixture.txt').write_text('hands fixture')
     h=HandsRuntime({'enabled':True,'workspaces':[{'name':'fixture','path':root}]},Path(root))
+    contexts = ContextRegistry(b.state, b.audit, soft_cap=1)
+    if '--context-unavailable' in sys.argv:
+        contexts.path.unlink()
     import stdio_guard
-    stdio_guard.run_stdio_guarded(server(b,c,h,ContextRegistry(b.state,b.audit)))
+    stdio_guard.run_stdio_guarded(server(b,c,h,contexts))
 

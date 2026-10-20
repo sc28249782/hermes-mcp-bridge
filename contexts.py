@@ -6,6 +6,7 @@ import sqlite3
 import time
 import uuid
 from pathlib import Path
+from context_read import DEFAULT_SOFT_CAP, observe_registry
 
 _ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$")
 
@@ -13,7 +14,10 @@ class ContextError(RuntimeError):
     pass
 
 class ContextRegistry:
-    def __init__(self, state: Path, audit):
+    def __init__(self, state: Path, audit, soft_cap=DEFAULT_SOFT_CAP):
+        if type(soft_cap) is not int or not 1 <= soft_cap <= 100000:
+            raise ContextError("contexts.soft_cap must be an integer in 1-100000")
+        self.soft_cap = soft_cap
         # Bridge creates the private state directory (0700) before this registry is constructed.
         self.path = Path(state) / "contexts.sqlite3"
         self.audit = audit
@@ -48,7 +52,12 @@ class ContextRegistry:
             db.execute("INSERT INTO contexts(context_id,label,created,updated) VALUES(?,?,?,?)",
                        (context_id, label, now, now))
         self.audit.record("context", "create", context_id, "created", {"label_chars": len(label)})
-        return self.status(context_id)
+        created = self.status(context_id)
+        created["registry"] = self.observation()
+        return created
+
+    def observation(self):
+        return observe_registry(self.path, self.soft_cap)
 
     def _row(self, context_id: str, usable: bool = True):
         if not isinstance(context_id, str) or not _ID.fullmatch(context_id):
