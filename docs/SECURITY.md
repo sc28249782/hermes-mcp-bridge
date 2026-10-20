@@ -2,8 +2,8 @@
 
 ## v1.2.6 — released privacy amendment and hardening (SPEC §19)
 
-Operator อนุมัติ scope v1.2.6 เมื่อ 20 ตุลาคม 2026; signed release และ assets ผ่านการตรวจแล้ว แต่ยังไม่ deploy production. ดู [scope decision record](PRIVACY-RELEASE-DECISION-TH.md).
-Signed release stamp เป็น `1.2.6/v1.2.6`; cryptographic signature ผ่าน แต่ GitHub badge เป็น `no_user`. Production checkpoint ยังเป็น v1.2.5. ดู [release-preparation record](V1.2.6-RELEASE-PREP-TH.md).
+Operator อนุมัติ scope v1.2.6 เมื่อ 20 ตุลาคม 2026; signed release และ assets ผ่านการตรวจแล้ว. Operator อนุมัติ deployment แยกเมื่อ 20 ตุลาคม 2026 เวลา 13:52:34 +07 และ production อัปเกรดเป็น v1.2.6 แล้ว. ขอบเขต acceptance อยู่ใน [deployment record](V1.2.6-DEPLOYMENT-TH.md). ดู [scope decision record](PRIVACY-RELEASE-DECISION-TH.md).
+Signed release stamp เป็น `1.2.6/v1.2.6`; cryptographic signature ผ่าน แต่ GitHub badge เป็น `no_user`. Production checkpoint ล่าสุดเป็น v1.2.6. ดู [release-preparation record](V1.2.6-RELEASE-PREP-TH.md).
 v1.2.6 แยก explicit content retrieval ออกจาก metadata/audit และ private operational storage.
 การแก้ข้อห้าม full output แบบครอบทุก response เป็น security-contract change ที่ต้อง review แม้ content APIs มีอยู่แล้ว.
 Result/file content อาจมีข้อมูลอ่อนไหวและยังเป็น untrusted data; pagination ไม่ใช่ redaction.
@@ -15,7 +15,7 @@ Identifier fields ยังคงเป็นข้อมูลที่ user/ba
 Hermes/Codex enforce directory `0700` และหยุด init หากทำไม่ได้.
 Codex result ใช้ bounded snapshot reads; output เกิน 8 MiB ต้องตรวจในเครื่อง.
 ดู field/storage/timeout limits ใน [SPEC.md](SPEC.md) และ [OPERATIONS-TH.md](OPERATIONS-TH.md).
-ส่วนของ signed v1.2.5 และ production checkpoint ไม่ได้อ้างว่ามี hardening นี้แล้ว.
+Signed v1.2.5 และ checkpoint ก่อนอัปเกรดไม่ได้มี hardening นี้. Production checkpoint v1.2.6 ใช้ release ที่มี hardening นี้แล้ว.
 
 ## Supported versions
 
