@@ -1,10 +1,12 @@
 # Hermes MCP Bridge
 
-## Unreleased privacy hardening
+## v1.2.6 privacy scope approved — unreleased
 
 A separate candidate implements the reviewed privacy requirements in [SPEC section 19](docs/SPEC.md).
 It filters Hermes metadata, enforces private directory modes and bounds Codex result reads.
-It has no assigned release and is not deployed to production.
+The operator approved v1.2.6 as its target scope on 20 October 2026.
+Release preparation is next; signed assets and production deployment remain pending.
+See the [scope decision record](docs/PRIVACY-RELEASE-DECISION-TH.md).
 The signed v1.2.5 release and its acceptance records remain unchanged.
 
 Securely connect ChatGPT to a local Hermes Agent and Codex CLI running in WSL2, through an OpenAI Secure MCP Tunnel.
