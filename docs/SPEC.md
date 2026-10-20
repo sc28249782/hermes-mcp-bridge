@@ -200,6 +200,8 @@ Separately, PR #34 (merged 2026-10-18) and PR #35 (merged 2026-10-18) amend this
 
 Privacy change-control checkpoint (20 October 2026): PR #47 introduced the section 4/10/19 security-contract amendment in `7781d980` before runtime commits `3af56652` and `ca08d749`. External review approved the unreleased contract and implementation. PR #48 and PR #49 then recorded scoped Dev transport acceptance and restoration; their external reviews approved those records. The operator approved the v1.2.6 target scope on 20 October 2026 after PR #50 review. The decision is in [PRIVACY-RELEASE-DECISION-TH.md](PRIVACY-RELEASE-DECISION-TH.md). This checkpoint adds no runtime requirement; release preparation, signing/publication and production deployment remain separate steps.
 
+Release-scope checkpoint (20 October 2026): the operator approved v1.2.7 target scope at 18:47:56 +07 following review of the [decision proposal](V1.2.7-RELEASE-DECISION-TH.md). Preparation, final-target signing/publication and production deployment remain separate steps; requirements in sections 19 and 20 are unchanged.
+
 ## 15. MCP Events capability gate (deferred — no assigned release; BLOCKED)
 
 This section is a future requirement, originally planned as the v1.2.4 target requirement; it is now deferred with no assigned release and remains blocked at the subscription gate. The released v1.2.3 bridge has no MCP Events capability, subscription state, callback sender, or event delivery.
@@ -336,9 +338,13 @@ Deployment checkpoint (20 October 2026): the operator separately approved the pr
 
 Privacy follow-up closure checkpoint (20 October 2026): the operator supplied external review with verdict APPROVE for PR #54 at `7b2886d`, including read-only production verification. Together with the recorded independent implementation review, scoped live Dev acceptance, signed-release audit and separately approved deployment, this closes the section 19.4 privacy follow-up within the documented evidence limits. This checkpoint does not establish production OpenCode model-task acceptance or resolve the Python 3.14 truncate-race observation. Local Hands and MCP Events gates remain unchanged. The approval at `7b2886d` does not cover closure notes added later.
 
-## 20. Context P1 — approved scope, future implementation (no assigned release)
+## 20. Context P1 — v1.2.7 target scope approved, unreleased
+
+<a id="20-context-p1--approved-scope-future-implementation-no-assigned-release"></a>
 
 The operator approved P1 warning plus read-only preview on 20 October 2026 at 15:57:29 +07 after review of [the scope proposal](CONTEXT-RETENTION-SCOPE-TH.md). This section defines the SPEC section 14 amendment for implementation review. It MUST NOT be represented as implemented, released or deployed until the applicable implementation and acceptance steps pass. P2 apply/delete remains deferred.
+
+Release-scope checkpoint (20 October 2026): after external review of PR #62 at `e405392`, the operator approved v1.2.7 target scope at 18:47:56 +07, including the Codex section 19.3 read-ahead fix and Context P1. The [decision record](V1.2.7-RELEASE-DECISION-TH.md) defines scope and evidence limits. Implementation and scoped Dev acceptance are reviewed; release preparation, final-target signing/publication and production deployment remain separate steps. This checkpoint does not change sections 20.1–20.5 or their acceptance requirements.
 
 ### 20.1 Scope and configuration
 
