@@ -1,8 +1,9 @@
 # คู่มือปฏิบัติการ — release v1.2.5
 
-## v1.2.6 scope approved — unreleased privacy-hardening candidate (SPEC §19)
+## v1.2.6 release candidate — unreleased privacy hardening (SPEC §19)
 
-ส่วนนี้อธิบาย candidate ที่ยังไม่ deploy.
+ส่วนนี้อธิบาย candidate ที่ stamp เป็น `1.2.6/v1.2.6` แล้ว แต่ยังไม่ deploy.
+Build input คือ `e3e698a7a220bf14a8bb4d1260bf2ded7e666b56`; ไม่ใช่ final tag commit. ดู [release-preparation record](V1.2.6-RELEASE-PREP-TH.md).
 Operator อนุมัติ scope v1.2.6 เมื่อ 20 ตุลาคม 2026; release preparation, signing/publication และ deployment decision ยังแยกกันตาม [scope decision record](PRIVACY-RELEASE-DECISION-TH.md).
 Hermes task metadata จำกัด compact ASCII-escaped JSON เป็น 8,192 bytes.
 Status ส่งเฉพาะ fields ที่กำหนด; error เป็นข้อความคงที่ และ approval เป็น `{"required": true}`.
