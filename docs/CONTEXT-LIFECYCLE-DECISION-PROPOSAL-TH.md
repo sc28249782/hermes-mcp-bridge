@@ -8,6 +8,12 @@
 
 ## Operator approval checkpoint (21 October 2026)
 
+คำอนุมัติจาก operator ในแชต (verbatim):
+
+> อนุมัติ D1–D5 ตามข้อเสนอ และ merge PR #68
+
+วันที่ของข้อความ: 21 ตุลาคม 2026 (Asia/Bangkok). เวลาแบบชั่วโมง–นาที–วินาทีของข้อความต้นฉบับไม่ปรากฏในข้อมูลแชตที่ maintainer เข้าถึง; ยังรอ operator ยืนยันเพื่อเติม decision timestamp. ไม่ใช้เวลา merge หรือเวลาเรียก tool แทนเวลาอนุมัติ. PR amendment นี้ยังคงรอ review และยังไม่ merge.
+
 Operator อนุมัติคำแนะนำ D1–D5 ตามตารางข้างล่างและสั่ง merge PR #68 เมื่อ 21 ตุลาคม 2026 โดยการอนุมัติเกิดก่อน merge commit `926a3622dc8d17fcede098f115de5a6cb028f809`; ข้อความ DRAFT ทั้งหมดในเอกสารนี้คงสถานะ historical เดิมไว้.
 ถ้อยคำ normative ที่เสนออยู่ใน [SPEC §21](SPEC.md#21-context-lifecycle--closed-binding-outcome-approved-design-implementation-not-started) ของ PR amendment แยก. ข้อความนี้ยังรอ §14 review/merge และไม่ใช่ implementation; งาน runtime ต้องตามหลัง gate นั้นตามหัวข้อ 5 ข้างล่าง.
 ยังไม่มี release ที่ได้รับมอบหมาย; P2 apply/delete ยัง deferred; P1 และ discovery 27 (default) / 28 (OpenCode health-only) / 33 (OpenCode execution) คงเดิม.
