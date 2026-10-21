@@ -216,9 +216,13 @@ class TestRegistryLifecycle(unittest.TestCase):
         self.registry.bind_hermes_run(first, "run_d")
         self.registry.bind_hermes_run(second, "run_d")
         self.registry.observe_hermes("run_d", "session_1")
-        ordered = sorted([first, second])
-        self.assertEqual(self._status(ordered[0])["hermes_session_id"], "session_1")
-        self.assertIsNone(self._status(ordered[1])["hermes_session_id"])
+        statuses = [self.registry.status(first), self.registry.status(second)]
+        with_session = [s for s in statuses if s["hermes_session_id"] == "session_1"]
+        # §21.3 requires at-most-one-row and pairing, not which candidate wins.
+        self.assertEqual(len(with_session), 1)
+        self.assertIsNone(statuses[0]["hermes_session_id"] if with_session[0] is statuses[1]
+                          else statuses[1]["hermes_session_id"])
+        self.assertEqual([s["hermes_run_id"] for s in statuses], ["run_d", "run_d"])
 
     def test_observe_excludes_closed_row_and_keeps_pairing(self):
         first = self.registry.create("fixture a")["context_id"]
