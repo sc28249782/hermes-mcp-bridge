@@ -204,7 +204,7 @@ Release-scope checkpoint (20 October 2026): the operator approved v1.2.7 target 
 
 Release checkpoint (20 October 2026): v1.2.7 is published via signed tag `625ea117aa693f577872638a6353b1408fb405aa`; the external fresh-input audit passed. This checkpoint records publication status only. It does not change sections 19 or 20, and the production deployment decision, including the not-deploy option, remains pending; see the [release record](V1.2.7-RELEASE-RECORD-TH.md).
 
-Context lifecycle change-control checkpoint (21 October 2026): the operator approved decisions D1–D5 from the [decision packet](CONTEXT-LIFECYCLE-DECISION-PROPOSAL-TH.md) after the PR #68 merge. Section 21 records the approved amendment (registry mutation semantics and the closed-binding submit outcome) for implementation review; it is unreleased and MUST NOT be presented as implemented. Implementation requires this amendment to pass section 14 review and merge first.
+Context lifecycle change-control checkpoint (21 October 2026): the operator approved decisions D1–D5 from the [decision packet](CONTEXT-LIFECYCLE-DECISION-PROPOSAL-TH.md) and authorized merging PR #68. The approval preceded that merge. Section 21 records the approved amendment (registry mutation semantics and the closed-binding submit outcome) for implementation review; it is unreleased and MUST NOT be presented as implemented. Implementation requires this amendment to pass section 14 review and merge first.
 
 ## 15. MCP Events capability gate (deferred — no assigned release; BLOCKED)
 
@@ -432,7 +432,7 @@ P1 does not repair the documented close/bind/submission interleaving. P2 apply/d
 
 <a id="21-context-lifecycle--closed-binding-outcome-approved-design-implementation-not-started"></a>
 
-The operator approved decisions D1–D5 from the [decision packet](CONTEXT-LIFECYCLE-DECISION-PROPOSAL-TH.md) on 21 October 2026; the approval is recorded there after the PR #68 merge. This section defines the approved amendment for implementation review. It MUST NOT be represented as implemented, released, or deployed until the implementation and acceptance steps pass. No release is assigned. P2 apply/delete remains deferred. Discovery counts stay 27 (default), 28 (OpenCode health-only), 33 (OpenCode execution), and config schema version 1 is unchanged. P1 warning/preview values are unchanged.
+The operator approved decisions D1–D5 from the [decision packet](CONTEXT-LIFECYCLE-DECISION-PROPOSAL-TH.md) on 21 October 2026; the approval preceded the PR #68 merge and is recorded in its PR body and the packet checkpoint. This section defines the approved amendment for implementation review. It MUST NOT be represented as implemented, released, or deployed until the implementation and acceptance steps pass. No release is assigned. P2 apply/delete remains deferred. Discovery counts stay 27 (default), 28 (OpenCode health-only), 33 (OpenCode execution), and config schema version 1 is unchanged. P1 warning/preview values are unchanged.
 
 ### 21.1 Registry mutation and close semantics (D1, D2, D4)
 
@@ -477,7 +477,7 @@ Test design uses deterministic barriers or events before the writer transaction 
 - accepted acknowledgement, then close, then bind returns one acknowledgement with `closed_rejected` and no duplicate submission;
 - both fields absent when no `context_id` was supplied;
 - `pending_local_approval` retained for Codex write jobs;
-- same-input replay adds no submission;
+- same-input replay creates no duplicate backend job; an already-known run id MUST be returned without a new POST. Uncertain submissions keep the existing guarded, same-key idempotent replay behavior;
 - database errors outside the closed outcome keep the existing error;
 - timeout and partial start produce no invented acknowledgement;
 - crash/restart produces no resubmission.
