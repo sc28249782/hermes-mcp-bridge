@@ -1,5 +1,10 @@
 # Release status
 
+## §21 lifecycle — acceptance record closed; v1.2.8 proposal pending (21 October 2026)
+
+- Acceptance record closure (21 October 2026): the [§21 scoped synthetic Dev acceptance record](CONTEXT-LIFECYCLE-DEV-ACCEPTANCE-TH.md) closed after PR #71 passed external APPROVE at review head `70bdd2154cfbadd8f2526dca2b07a173fb232a1e` (correction commit over `2a840d46803eff930915530bc4e3bda789c026fb`) and merged at `753f5b4fa1d9994964b78990d1efecedea9d765b`. The acceptance remains mock-backend evidence only; no real-backend/native-backend acceptance is claimed.
+- v1.2.8 release-readiness decision packet proposed (21 October 2026): [V1.2.8-RELEASE-DECISION-PROPOSAL-TH.md](V1.2.8-RELEASE-DECISION-PROPOSAL-TH.md) is a **PROPOSAL pending operator scope decision** — the name `v1.2.8` is proposed only and unassigned (checked unused), no stamp/archive/tag/publication/deployment is performed, and the defer/not-deploy option with the v1.2.7 rollback baseline is recorded. No release is assigned to the §21 delta yet.
+
 ## v1.2.7 — released (20 October 2026)
 
 - Signed annotated tag `v1.2.7`: object `5a652cbf44c768cec70b3555686bbaaa93383d75`, peeled commit `625ea117aa693f577872638a6353b1408fb405aa` (main หลัง merge PR #64). Fresh-fetch `git verify-tag` ผ่านด้วย Good EDDSA signature และ fingerprint `C4E9AFA9C97FC94CA2448E9218BDAEA561529B86`; signature time 20 ตุลาคม 2026, 21:29:56 +07. GitHub tag API รายงาน `verified: true`, reason `valid`; บันทึกผล badge แยกจากผล cryptographic verification.
