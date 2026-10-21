@@ -184,7 +184,7 @@ Source `e24fa3e`: context tests 2/2 ผ่านบน Python 3.12.14. Temporary
 
 ## Context P1 — future acceptance contract (SPEC §20)
 
-Operator อนุมัติ scope เมื่อ 20 ตุลาคม 2026 เวลา 15:57:29 +07. [SPEC §20](SPEC.md#20-context-p1--v127-target-scope-approved-unreleased) กำหนด aggregate output, warning/error shape, preview-only CLI, cutoff/batch predicate และ read-only/WAL acceptance สำหรับ implementation review. ต้องทดสอบ early dispatch รวม wrapper override, ไม่มี credential/backend initialization, create acknowledgement เมื่อ observation อ่านไม่ได้, 512/1,024-byte output limits และ no-data-mutation ก่อนอ้าง implemented/accepted. ยังไม่มี P1 tests/runtime หรือผล live preview acceptance จาก amendment นี้; evidence baseline ใน PR #57 คงขอบเขตเดิม.
+Operator อนุมัติ scope เมื่อ 20 ตุลาคม 2026 เวลา 15:57:29 +07. [SPEC §20](SPEC.md#20-context-p1--v127-target-scope-approved-released) กำหนด aggregate output, warning/error shape, preview-only CLI, cutoff/batch predicate และ read-only/WAL acceptance สำหรับ implementation review. ต้องทดสอบ early dispatch รวม wrapper override, ไม่มี credential/backend initialization, create acknowledgement เมื่อ observation อ่านไม่ได้, 512/1,024-byte output limits และ no-data-mutation ก่อนอ้าง implemented/accepted. ยังไม่มี P1 tests/runtime หรือผล live preview acceptance จาก amendment นี้; evidence baseline ใน PR #57 คงขอบเขตเดิม.
 
 
 ## Context P1 candidate — PR #59
