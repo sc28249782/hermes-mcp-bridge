@@ -10,6 +10,8 @@ Source stamp 1.2.7/v1.2.7 ใช้ reviewed input `07ec0069b952f08a49adbd0ec778
 
 Implementation ของ [SPEC §21](SPEC.md#21-context-lifecycle--closed-binding-outcome-approved-design-implementation-not-started) ใน PR นี้ pending review; ยังไม่ released, ไม่ deployed และไม่ได้รับการยอมรับจาก external review. ฐานอ้างอิง baseline suite คือ 206 tests.
 
+อัปเดตสถานะ (21 ตุลาคม 2026): implementation ถูกรวมใน PR #70 ที่ main `227f2ad1f43ff64c6c4866595c9ea705fd7977b3` (review head `07bfe82`). ข้อความ "pending review" ข้างต้นคงเป็นหลักฐานย้อนหลังของ PR นี้. Scoped synthetic Dev acceptance ผ่านแล้ว (ตารางด้านล่าง). ยังไม่ released และยังไม่ deployed; ไม่มี release ที่ได้รับมอบหมาย.
+
 - Registry mutation: `close`, `bind_hermes_run`, `bind_codex_job` เป็น conditional atomic UPDATE เงื่อนไข `closed IS NULL` หนึ่ง statement; classification unknown/closed ทำใน transaction เดียวกันด้วย error คงที่เดิม; `observe_hermes` อัปเดตได้มากที่สุด 1 row พร้อม guard ป้องกัน stale write; เพิ่ม `ContextClosedError` (subclass ของ `ContextError`).
 - Wrapper D5: precheck invalid/unknown/closed ก่อน backend call (0 backend calls); หลัง backend ACK ปกติ ถ้า bind ถูกปฏิเสธเพราะ close → success response คง output เดิมครบ + `context_binding="closed_rejected"` + note คงที่ตาม SPEC; bind สำเร็จ → `"bound"` ไม่มี note; ไม่มี context_id → ไม่มีทั้งสอง field; DB error/submit raise คง error เดิม ไม่ถูกแปลง.
 - ชุดทดสอบ: `tests/test_context_lifecycle.py` 21 tests ตาม acceptance matrix ของ §21.3; deterministic gates อยู่ก่อน UPDATE execute (หลัง precheck SELECT, ก่อน writer transaction เริ่ม — assert `in_transaction` เป็น false ก่อนรอ ไม่มี SQLite writer lock ค้างขณะรอ; bounded timeout fail ทันทีเมื่อหมดเวลา; ไม่มี time.sleep เป็นตัวจัดคิว); test at-most-one-row ไม่ผูกว่า candidate ใดชนะ (เช็คเฉพาะ "exactly one of two มี session, อีก row None, run id คงเดิม" ตาม contract — ไม่อ้างลำดับ lexicographic); รวม cross-process shared-state test (multiprocessing fork, queue reads แบบ bounded 2 ครั้ง + try/finally join/terminate), close-wins/bind-wins/double-close, late observe, precheck 0 backend calls (รวม context_id ว่าง), ACK→close→bind ครบทั้ง Hermes/Codex, replay ไม่เพิ่ม submission, DB error ไม่ถูกแปลง, restart ไม่ resubmit.
@@ -20,6 +22,18 @@ Implementation ของ [SPEC §21](SPEC.md#21-context-lifecycle--closed-bindin
 - ข้อจำกัดของ receipt เก่า: การรันบน head ก่อนหน้าของ PR นี้ (`525286a`, ชุด 18 tests) ให้ 10/18 ที่ไม่ stable (รันใหม่ได้ 11/18) เพราะ random context id และ baseline SELECT ของ observe ที่ไม่มี ordering — ตัวเลขนั้นจึงไม่ใช่ universal regression count และข้ออ้าง "cross-process baseline เขียน closed row" เดิมที่อิงจาก typed-exception crash ถือว่าถอน; receipt ที่ใช้ได้คือตัววัดล่าสุดด้านบนเท่านั้น.
 - Replay: ไฟล์ใหม่ครอบเฉพาะ known-id replay ไม่เพิ่ม submission (`hermes_recent_tasks`/POST ไม่ถูกเรียกซ้ำ); uncertain guarded replay (หน้าต่าง 23 ชั่วโมง + capabilities check) ยังครอบด้วยชุดเดิมระดับ core ใน `tests/test_bridge.py` (`test_lost_acceptance_durable_replay`, `test_uncertain_without_durable_replay_is_blocked`, `test_old_replay_blocked`) เพราะ core.py ไม่ถูกเปลี่ยน — ไม่มีการอ้างเกิน.
 - ขอบเขตที่ไม่แตะ: ไม่เปลี่ยน schema/config schema/discovery 27/28/33/tool signature; ไม่มี P2 apply/delete, durable intent, new audit event; ข้อจำกัด submit-admission/crash ระหว่าง submit→bind คงตามที่ SPEC §21 ระบุ.
+
+### Scoped synthetic Dev acceptance (21 ตุลาคม 2026)
+
+รายละเอียดครบอยู่ที่ [acceptance record](CONTEXT-LIFECYCLE-DEV-ACCEPTANCE-TH.md). Fixture ใช้ `server()` และ `ContextRegistry` ของ candidate จริง (main `227f2ad1f43ff64c6c4866595c9ea705fd7977b3`) ผ่าน Dev tunnel จริง; Hermes เป็น synthetic ACK ผ่าน mock transport และ Codex เป็น stub — นี่เป็น mock-backend evidence ไม่ใช่ real-backend acceptance. ไม่มี model/backend task จริง; ไม่มี credentials; ไม่เพิ่ม MCP tools (SDK `tools/list` = 27 tools).
+
+| ชั้นหลักฐาน | ผล |
+| --- | --- |
+| Durable (rows/audit ของ fixture state) | runs 4 แถว (`p1l-hermes-bound-01`, `p1l-hermes-close-bind-01`, `p1l-hermes-plain-01`, `p1l-hermes-db-error-01` — แต่ละอัน 1 ACK); contexts 5 แถวตรงสถานะ (bound, closed + `hermes_run_id` NULL, codex bound, codex closed + `codex_job_id` NULL, open ไม่มี binding หลัง DB error); audit 12 records (5 create, 3 close, 4 hermes submit); precheck rejection ไม่มี record (zero-POST); replay มี runs row + audit submit อย่างละ 1 (ไม่มี duplicate) |
+| Parent live observation (ผ่าน Dev connector จริง) | identity ของ fixture ตาม `bridge_version`; counters ก่อน restore: hermes 4 / codex 4; response payload (`replayed_locally`, `pending_local_approval` ครบ, ข้อความ DB-error) |
+| Offline smoke (maintainer automation ในเครื่อง — ไม่ใช่ transport evidence) | in-process scenarios ครบ; SDK stdio init/tools/calls = 27 tools; focused lifecycle tests 21/21 บน Python 3.14.7 |
+
+ข้อจำกัด: counter ฝั่ง codex (4) พึ่ง parent observation เท่านั้น เพราะ fake Codex ไม่เขียน audit; ข้อความ response รายละเอียดพึ่ง parent observation; การที่ audit ไม่มี record ไม่พิสูจน์เองว่าแต่ละ invalid request ถูกกระทำ; timestamp ในวินาทีเดียวกันไม่พิสูจน์ลำดับ. Restoration ตรวจแล้ว: identity `1.2.4`/`e7add7e` คืนแล้ว (offline CLI + parent live) และ state/config/profile ตรง backup byte-identical; production `1.2.7`/`07ec0069` ไม่ถูกแตะ.
 
 ## Unreleased — Codex result read-ahead fix
 

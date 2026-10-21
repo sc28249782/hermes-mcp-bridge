@@ -428,11 +428,11 @@ Implementation acceptance MUST cover:
 
 P1 does not repair the documented close/bind/submission interleaving. P2 apply/delete MUST remain absent until a separate SPEC section 14 review defines lifecycle linearization, no-lost-acknowledgement handling, atomic eligibility and local approval/recovery. Observation counters/annotations, native context compaction, Local Hands and MCP Events remain separate.
 
-## 21. Context lifecycle — closed-binding outcome (approved design; implementation not started)
+## 21. Context lifecycle — closed-binding outcome (implemented in PR #70; scoped synthetic Dev acceptance performed; not released or deployed)
 
 <a id="21-context-lifecycle--closed-binding-outcome-approved-design-implementation-not-started"></a>
 
-The operator approved decisions D1–D5 from the [decision packet](CONTEXT-LIFECYCLE-DECISION-PROPOSAL-TH.md) on 21 October 2026; the approval preceded the PR #68 merge and is recorded in its PR body and the packet checkpoint. This section defines the approved amendment for implementation review. It MUST NOT be represented as implemented, released, or deployed until the implementation and acceptance steps pass. No release is assigned. P2 apply/delete remains deferred. Discovery counts stay 27 (default), 28 (OpenCode health-only), 33 (OpenCode execution), and config schema version 1 is unchanged. P1 warning/preview values are unchanged.
+The operator approved decisions D1–D5 from the [decision packet](CONTEXT-LIFECYCLE-DECISION-PROPOSAL-TH.md) on 21 October 2026; the approval preceded the PR #68 merge and is recorded in its PR body and the packet checkpoint. Status update (21 October 2026): section 14 review approved this amendment and PR #70 implemented it (review head `07bfe824ab32f9aa223cf0ed9b15e41c7ac1ef47`, merged into main at `227f2ad1f43ff64c6c4866595c9ea705fd7977b3`); the scoped synthetic Dev acceptance below was performed on 21 October 2026. This section is implemented but MUST NOT be represented as released or deployed. No release is assigned. P2 apply/delete remains deferred. Discovery counts stay 27 (default), 28 (OpenCode health-only), 33 (OpenCode execution), and config schema version 1 is unchanged. P1 warning/preview values are unchanged.
 
 ### 21.1 Registry mutation and close semantics (D1, D2, D4)
 
@@ -487,3 +487,5 @@ Test design uses deterministic barriers or events before the writer transaction 
 - This amendment MUST pass section 14 review and merge before implementation starts.
 - Implementation follows in a small runtime PR with the deterministic tests of section 21.3, then scoped Dev acceptance; release and deployment remain separate steps.
 - This section authorizes no prune: P2 apply/delete remains deferred.
+
+Gates checkpoint (21 October 2026): these gates were executed as written. Section 14 review approved the amendment and PR #70 merged the implementation at main `227f2ad1f43ff64c6c4866595c9ea705fd7977b3`. The scoped Dev acceptance used the synthetic fixture ([acceptance record](CONTEXT-LIFECYCLE-DEV-ACCEPTANCE-TH.md)); the fixture ran the production `server()` and `ContextRegistry` code paths over the real Dev tunnel with a mock-transport Hermes acknowledgement and a stub Codex backend, so this is mock-backend evidence, not real-backend acceptance. Release and deployment remain separate steps; no release is assigned.
