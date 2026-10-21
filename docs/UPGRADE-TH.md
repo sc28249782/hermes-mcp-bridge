@@ -1,5 +1,9 @@
 # คู่มืออัปเกรด Hermes MCP Bridge
 
+## v1.2.8 — release candidate (tag pending); rollout ต้องได้รับอนุมัติแยก
+
+Candidate v1.2.8 รวมเฉพาะ SPEC §21 context-lifecycle delta. Source stamp `1.2.8/v1.2.8` embedded build input `887436f359683f0215f1993d7cb0c9035ec93571` — ไม่ใช่ final tag commit. ยังไม่ signed/tagged/published; production คง signed v1.2.7 ที่ deploy แล้วเมื่อ 21 ตุลาคม 2026. การอนุมัติ release v1.2.8 ไม่ใช่การอนุมัติ deployment v1.2.8; deployment decision ต้องแยก รวมตัวเลือกไม่อัปเกรด และอย่าแก้ directory ของ production v1.2.7 จนกว่าจะมี deployment approval + record แยก. ขั้นตอนอัปเกรดจะเขียนตามแบบ v1.2.7 ในส่วนถัดลงเมื่อ release ผ่าน Phase B/C.
+
 ## จาก v1.2.6 เป็น v1.2.7 — released; rollout ต้องได้รับอนุมัติแยก
 
 ส่วนนี้เป็นแผนอัปเกรดจาก [v1.2.7 released](V1.2.7-RELEASE-RECORD-TH.md). Source stamp เป็น 1.2.7/v1.2.7, embedded build input `07ec0069b952f08a49adbd0ec778c204f85ee282`. Signed release และ assets เผยแพร่แล้ว และ external fresh-input audit ผ่าน. ยังไม่มี deployment approval; deployment decision รวมตัวเลือกไม่อัปเกรดยังรอ operator. อย่าแก้ directory ของ production v1.2.6. (หมายเหตุ 21 ตุลาคม 2026: operator อนุมัติและ deployment v1.2.7 ดำเนินการสำเร็จแล้ว ดู [deployment record](V1.2.7-DEPLOYMENT-TH.md); ข้อความนี้คงไว้เป็นบันทึกก่อน deployment.)

@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.2.8 — release candidate (tag pending)
+
+- Release candidate v1.2.8 combines the reviewed SPEC §21 context-lifecycle implementation (PR #70) with the §21 scoped synthetic Dev acceptance record (PR #71). Source is stamped `1.2.8/v1.2.8` with reviewed build input `887436f359683f0215f1993d7cb0c9035ec93571`; the §21 section below records the implementation and its test evidence. No release is published and no tag exists yet; production runs signed v1.2.7, and release approval does not approve a deployment. See the [scope decision packet](V1.2.8-RELEASE-DECISION-PROPOSAL-TH.md) and the [preparation record](V1.2.8-RELEASE-PREP-TH.md).
+
 ## Unreleased — context lifecycle closed-binding outcome (SPEC §21)
 
 - Implement the approved [SPEC §21](SPEC.md#21-context-lifecycle--closed-binding-outcome-approved-design-implementation-not-started) contract: conditional atomic registry mutations (`close`, `bind_hermes_run`, `bind_codex_job` exclude closed rows; the commit is the linearization point), bounded unknown/closed classification with the existing constant errors, a typed `ContextClosedError`, and `observe_hermes` capped at one row with a stale-write guard.

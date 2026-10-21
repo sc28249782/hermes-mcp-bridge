@@ -1,4 +1,8 @@
-# Compatibility matrix — released v1.2.7 and signed v1.2.6 production baseline
+# Compatibility matrix — v1.2.8 candidate / released v1.2.7 production baseline
+
+Candidate v1.2.8 contains only the SPEC §21 context-lifecycle delta (registry mutations, typed closed rejection, one-row observe guard, §21.2 submit outcome fields). Stamp/build input are 1.2.8/v1.2.8/`887436f359683f0215f1993d7cb0c9035ec93571`; publication/deployment are pending. No component, permission, schema-version or discovery-count change is required; the Python 3.12/3.14 CI matrix and the existing interpreter guidance are unchanged. Production baseline is signed v1.2.7, deployed 21 October 2026.
+
+# Compatibility history — released v1.2.7 and signed v1.2.6 baseline
 
 Candidate v1.2.7 contains the reviewed Codex read-ahead fix and Context P1. The [preparation record](V1.2.7-RELEASE-PREP-TH.md) defines exact-head source/extracted verification and Python 3.12/3.14 CI. Stamp/build input are 1.2.7/v1.2.7/`07ec0069b952f08a49adbd0ec778c204f85ee282`; publication/deployment are pending. No component, permission, schema-version or discovery-count change is required. Python 3.14 CI evidence does not by itself change the production interpreter.
 

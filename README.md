@@ -1,18 +1,22 @@
 # Hermes MCP Bridge
 
+## v1.2.8 — release candidate, tag pending
+
+Candidate v1.2.8 contains the reviewed SPEC §21 context-lifecycle delta only: conditional atomic registry mutations with a typed closed rejection, the one-row `observe_hermes` guard, and the §21.2 `context_binding` submit outcome. Source is stamped `1.2.8/v1.2.8` with reviewed build input `887436f359683f0215f1993d7cb0c9035ec93571`. This is preparation, not a signed release or deployment. Production runs signed v1.2.7 (deployed 21 October 2026); release approval does not approve a v1.2.8 deployment. See the [preparation record](docs/V1.2.8-RELEASE-PREP-TH.md) and the [scope decision packet](docs/V1.2.8-RELEASE-DECISION-PROPOSAL-TH.md).
+
 ## v1.2.7 — released (20 October 2026)
 
 Released v1.2.7 combines the reviewed Codex read-ahead fix and Context P1.
 Signed tag `v1.2.7` (object `5a652cbf44c768cec70b3555686bbaaa93383d75`, peeled commit `625ea117aa693f577872638a6353b1408fb405aa`) passed local EDDSA verification with fingerprint `C4E9AFA9C97FC94CA2448E9218BDAEA561529B86`; the GitHub badge reports `verified: true`, reason `valid`.
 [Release assets](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.7) passed fresh-download verification, and the external fresh-input audit passed (operator-supplied report; scope limits in the [release record](docs/V1.2.7-RELEASE-RECORD-TH.md)).
-The deployment decision, including the not-deploy option, is pending. The production deployment remains v1.2.6.
+The deployment decision, including the not-deploy option, is pending. The production deployment remains v1.2.6. (21 October 2026 status update: production was upgraded to signed v1.2.7 on 21 October 2026; see the [deployment record](docs/V1.2.7-DEPLOYMENT-TH.md). The two sentences above preserve the 20 October pre-deployment state.)
 See the [preparation record](docs/V1.2.7-RELEASE-PREP-TH.md) and [scope decision](docs/V1.2.7-RELEASE-DECISION-TH.md). P1 adds aggregate status/create warnings and a local preview; registry unavailability makes heartbeat `ok=false`, while a cap warning alone does not. No deletion or native history compaction is added.
 
 ## Codex result read-ahead fix (shipped in v1.2.7)
 
 This fix disables binary read-ahead to enforce the existing snapshot byte budget in SPEC §19.3.
 Regression tests cover truncation and appends on Python 3.12 and 3.14.
-This fix ships in released v1.2.7 and is not deployed in production v1.2.6.
+This fix ships in released v1.2.7 and is not deployed in production v1.2.6. (21 October 2026 status update: it shipped to production with the v1.2.7 upgrade on 21 October 2026; the sentence above preserves the earlier state.)
 See [testing evidence](docs/TESTING.md#unreleased--codex-result-read-ahead-fix).
 
 ## v1.2.6 — released (20 October 2026)
