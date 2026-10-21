@@ -35,6 +35,8 @@ Implementation ของ [SPEC §21](SPEC.md#21-context-lifecycle--closed-bindin
 
 ข้อจำกัด: counter ฝั่ง codex (4) พึ่ง parent observation เท่านั้น เพราะ fake Codex ไม่เขียน audit; ข้อความ response รายละเอียดพึ่ง parent observation; การที่ audit ไม่มี record ไม่พิสูจน์ด้วยตัวเองว่าคำขอ invalid แต่ละรายการได้รับการจัดการ; timestamp ในวินาทีเดียวกันไม่พิสูจน์ลำดับ. Restoration ตรวจแล้ว: identity `1.2.4`/`e7add7e` คืนแล้ว (offline CLI + parent live) และ state/config/profile ตรง backup byte-identical; production `1.2.7`/`07ec0069` ไม่ถูกแตะ.
 
+อัปเดตสถานะ (21 ตุลาคม 2026): acceptance record PR #71 ผ่าน external APPROVE ที่ review head `70bdd2154cfbadd8f2526dca2b07a173fb232a1e` (commit แก้ไข enumerate จาก re-review) และ merge ที่ `753f5b4fa1d9994964b78990d1efecedea9d765b` — checkpoint นี้ปิดแล้ว; ยังคงเป็น mock-backend evidence ไม่ใช่ real-backend acceptance. [Release readiness proposal v1.2.8](V1.2.8-RELEASE-DECISION-PROPOSAL-TH.md) รอ operator scope decision; ยังไม่มี release ที่ได้รับมอบหมาย.
+
 ## Unreleased — Codex result read-ahead fix
 
 Public baseline: `b3fa3b7`. Runtime/test/CI candidate: `799acc3d131e60a65fe085ff1e0c48d1e7c73f76`.
@@ -182,7 +184,7 @@ Source `e24fa3e`: context tests 2/2 ผ่านบน Python 3.12.14. Temporary
 
 ## Context P1 — future acceptance contract (SPEC §20)
 
-Operator อนุมัติ scope เมื่อ 20 ตุลาคม 2026 เวลา 15:57:29 +07. [SPEC §20](SPEC.md#20-context-p1--v127-target-scope-approved-unreleased) กำหนด aggregate output, warning/error shape, preview-only CLI, cutoff/batch predicate และ read-only/WAL acceptance สำหรับ implementation review. ต้องทดสอบ early dispatch รวม wrapper override, ไม่มี credential/backend initialization, create acknowledgement เมื่อ observation อ่านไม่ได้, 512/1,024-byte output limits และ no-data-mutation ก่อนอ้าง implemented/accepted. ยังไม่มี P1 tests/runtime หรือผล live preview acceptance จาก amendment นี้; evidence baseline ใน PR #57 คงขอบเขตเดิม.
+Operator อนุมัติ scope เมื่อ 20 ตุลาคม 2026 เวลา 15:57:29 +07. [SPEC §20](SPEC.md#20-context-p1--v127-target-scope-approved-released) กำหนด aggregate output, warning/error shape, preview-only CLI, cutoff/batch predicate และ read-only/WAL acceptance สำหรับ implementation review. ต้องทดสอบ early dispatch รวม wrapper override, ไม่มี credential/backend initialization, create acknowledgement เมื่อ observation อ่านไม่ได้, 512/1,024-byte output limits และ no-data-mutation ก่อนอ้าง implemented/accepted. ยังไม่มี P1 tests/runtime หรือผล live preview acceptance จาก amendment นี้; evidence baseline ใน PR #57 คงขอบเขตเดิม.
 
 
 ## Context P1 candidate — PR #59
