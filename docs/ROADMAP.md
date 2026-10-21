@@ -6,6 +6,8 @@
 
 Status update (20 October 2026): v1.2.7 is released via signed tag `625ea117aa693f577872638a6353b1408fb405aa`; the external fresh-input audit passed. The sentences above preserve the pre-release roadmap state. The deployment decision, including the not-deploy option, is pending; see the [release record](V1.2.7-RELEASE-RECORD-TH.md).
 
+Deployment checkpoint (21 October 2026): production was upgraded from signed v1.2.6 to signed v1.2.7 on 21 October 2026 after the [deployment receipt](V1.2.7-DEPLOYMENT-TH.md) review PR #66 merged at `420fd76`. The deployment used no rollback and changed no config/state beyond the version switch. The pre-deployment sentences above preserve their historical state.
+
 ## Completed
 
 - [x] v0.4.1 — WSL2 live acceptance for the Hermes and Codex paths
@@ -146,7 +148,8 @@ Follow-up status (not blockers; scoped separately from the hard gate above):
 
 Scoped work and proposals awaiting decisions:
 
-- Context P1 scope approved by the operator on 20 October 2026 at 15:57:29 +07 after PR #57 review/merge. [SPEC §20](SPEC.md#20-context-p1--v127-target-scope-approved-unreleased) defines the warning and read-only-preview amendment for review before implementation. PR #58 merged the reviewed amendment at `64eb0a1` before implementation. PR #59 passed operator-supplied external APPROVE at `b7ff97a` and merged at `5685e11`, with [synthetic acceptance](CONTEXT-P1-ACCEPTANCE-TH.md). [Scoped live Dev aggregate acceptance and restoration](CONTEXT-P1-DEV-ACCEPTANCE-TH.md) passed at candidate `27030bb` on 20 October 2026; the operator supplied external APPROVE for PR #61 at `6d93808`, merged at `4513b30`. Dedicated read-only mount testing remains unperformed. P1 is unreleased/undeployed; P2 apply/delete remains deferred pending lifecycle/concurrency design. [Decision and scope](CONTEXT-RETENTION-SCOPE-TH.md). This concerns metadata rows, not ChatGPT/model token history.
+- Context P1 scope approved by the operator on 20 October 2026 at 15:57:29 +07 after PR #57 review/merge. [SPEC §20](SPEC.md#20-context-p1--v127-target-scope-approved-unreleased) defines the warning and read-only-preview amendment for review before implementation. PR #58 merged the reviewed amendment at `64eb0a1` before implementation. PR #59 passed operator-supplied external APPROVE at `b7ff97a` and merged at `5685e11`, with [synthetic acceptance](CONTEXT-P1-ACCEPTANCE-TH.md). [Scoped live Dev aggregate acceptance and restoration](CONTEXT-P1-DEV-ACCEPTANCE-TH.md) passed at candidate `27030bb` on 20 October 2026; the operator supplied external APPROVE for PR #61 at `6d93808`, merged at `4513b30`. Dedicated read-only mount testing remains unperformed. P1 is unreleased/undeployed; P2 apply/delete remains deferred pending lifecycle/concurrency design. [Decision and scope](CONTEXT-RETENTION-SCOPE-TH.md). This concerns metadata rows, not ChatGPT/model token history. (21 October 2026 checkpoint note: P1 shipped in v1.2.7 and was deployed on 21 October 2026; see the [deployment checkpoint](#deployment-checkpoint-21-october-2026) above.)
+- Context P2 lifecycle/concurrency design proposal (21 October 2026): [CONTEXT-P2-LIFECYCLE-DESIGN-TH.md](CONTEXT-P2-LIFECYCLE-DESIGN-TH.md) proposes close/bind/submit linearization, reconciliation after backend acceptance, and the deferred P2 apply/delete boundary. It is a proposal pending review — not an implementation authorization — and it does not change P1 values, tools, schema, or discovery counts.
 - Observation annotations and an observation counter remain separate proposals awaiting scoping.
 
 Optional follow-ups, lower priority:

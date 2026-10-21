@@ -137,3 +137,10 @@ PR #59 ผ่าน external APPROVE ที่ `b7ff97a` และ operator ย�
 ## Release scope decision checkpoint
 
 PR #61 ผ่าน external APPROVE ที่ `6d93808` และ operator ยืนยัน merge ที่ `4513b30`; สถานะรอ review ข้างต้นเป็น historical checkpoint. [Target scope v1.2.7](V1.2.7-RELEASE-DECISION-TH.md) รวม P1 กับ Codex read-ahead fix และได้รับ operator approval เมื่อ 20 ตุลาคม 2026 เวลา 18:47:56 +07. ยังรอ release preparation และขั้นตอน signing/publication/deployment แยก. ไม่มี P2/apply/delete หรือ release/deployment จาก checkpoint นี้.
+
+
+## P2 lifecycle design proposal checkpoint (21 October 2026)
+
+v1.2.7 ซึ่งรวม P1 release แล้วและ production ถูก deploy เมื่อ 21 ตุลาคม 2026; รายละเอียดอยู่ใน [deployment checkpoint](V1.2.7-DEPLOYMENT-TH.md). checkpoint ก่อนหน้าข้างบนคงข้อความ historical เดิมทั้งหมด.
+เอกสาร [design proposal](CONTEXT-P2-LIFECYCLE-DESIGN-TH.md) เสนอการออกแบบ lifecycle/concurrency ของ close/bind/submit, การ reconcile เมื่อ backend ยอมรับ task ก่อน bind เสร็จ และขอบเขต P2 apply/delete ที่ยัง deferred. เอกสารนี้เป็น proposal รอ review เท่านั้น — ไม่ใช่ SPEC amendment, ไม่ใช่ authorization ของ implementation, และไม่เปลี่ยนค่า P1, tools, schema หรือ discovery counts.
+เกณฑ์ deterministic close/bind/submission interleavings ยังเป็นเงื่อนไขก่อน P2; P2 apply/delete ยังต้องมี scope/SPEC/operator local approval แยกตามหัวข้อ "P2 — apply ยัง deferred" ข้างบน.
