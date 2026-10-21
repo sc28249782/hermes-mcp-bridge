@@ -13,6 +13,9 @@ _ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$")
 class ContextError(RuntimeError):
     pass
 
+class ContextClosedError(ContextError):
+    """Closed-context rejection only; the wrapper catches this class, never message text."""
+
 class ContextRegistry:
     def __init__(self, state: Path, audit, soft_cap=DEFAULT_SOFT_CAP):
         if type(soft_cap) is not int or not 1 <= soft_cap <= 100000:
@@ -59,15 +62,31 @@ class ContextRegistry:
     def observation(self):
         return observe_registry(self.path, self.soft_cap)
 
-    def _row(self, context_id: str, usable: bool = True):
+    @staticmethod
+    def _check_id(context_id: str):
         if not isinstance(context_id, str) or not _ID.fullmatch(context_id):
             raise ContextError("Invalid context_id.")
+
+    @classmethod
+    def _classify_missing_or_closed(cls, db, context_id: str):
+        """Bounded classification after a conditional UPDATE affected no rows.
+
+        Runs inside the open transaction; raising skips the commit and the
+        context manager closes the connection without writing.
+        """
+        row = db.execute("SELECT closed FROM contexts WHERE context_id=?", (context_id,)).fetchone()
+        if row is None:
+            raise ContextError("Unknown context_id.")
+        raise ContextClosedError("Context is closed; create a new context_id instead.")
+
+    def _row(self, context_id: str, usable: bool = True):
+        self._check_id(context_id)
         with self.db() as db:
             row = db.execute("SELECT * FROM contexts WHERE context_id=?", (context_id,)).fetchone()
         if not row:
             raise ContextError("Unknown context_id.")
         if usable and row["closed"] is not None:
-            raise ContextError("Context is closed; create a new context_id instead.")
+            raise ContextClosedError("Context is closed; create a new context_id instead.")
         return row
 
     @staticmethod
@@ -86,10 +105,13 @@ class ContextRegistry:
                 "note": "Contexts contain metadata only; prompts and outputs are never stored or replayed."}
 
     def close(self, context_id: str) -> dict:
-        self._row(context_id)
+        self._check_id(context_id)
         now = time.time()
         with self.db() as db:
-            db.execute("UPDATE contexts SET closed=?,updated=? WHERE context_id=?", (now,now,context_id))
+            cur = db.execute("UPDATE contexts SET closed=?,updated=? WHERE context_id=? AND closed IS NULL",
+                             (now, now, context_id))
+            if cur.rowcount == 0:
+                self._classify_missing_or_closed(db, context_id)
         self.audit.record("context", "close", context_id, "closed", {})
         return self.status(context_id)
 
@@ -97,25 +119,30 @@ class ContextRegistry:
         return self._row(context_id)["hermes_session_id"]
 
     def bind_hermes_run(self, context_id: str, run_id: str):
-        self._row(context_id)
+        self._check_id(context_id)
         with self.db() as db:
-            db.execute("UPDATE contexts SET hermes_run_id=?,updated=? WHERE context_id=?",
-                       (run_id,time.time(),context_id))
+            cur = db.execute("UPDATE contexts SET hermes_run_id=?,updated=? WHERE context_id=? AND closed IS NULL",
+                             (run_id, time.time(), context_id))
+            if cur.rowcount == 0:
+                self._classify_missing_or_closed(db, context_id)
 
     def observe_hermes(self, run_id: str, session_id: str | None):
         if not session_id:
             return
         with self.db() as db:
-            row = db.execute("SELECT context_id FROM contexts WHERE hermes_run_id=? AND closed IS NULL", (run_id,)).fetchone()
+            row = db.execute("SELECT context_id FROM contexts WHERE hermes_run_id=? AND closed IS NULL ORDER BY context_id LIMIT 1",
+                             (run_id,)).fetchone()
             if row:
-                db.execute("UPDATE contexts SET hermes_session_id=?,updated=? WHERE context_id=?",
-                           (session_id,time.time(),row["context_id"]))
+                db.execute("UPDATE contexts SET hermes_session_id=?,updated=? WHERE context_id=? AND hermes_run_id=? AND closed IS NULL",
+                           (session_id, time.time(), row["context_id"], run_id))
 
     def codex_workspace(self, context_id: str) -> str | None:
         return self._row(context_id)["codex_workspace"]
 
     def bind_codex_job(self, context_id: str, workspace: str, job_id: str):
-        self._row(context_id)
+        self._check_id(context_id)
         with self.db() as db:
-            db.execute("UPDATE contexts SET codex_workspace=?,codex_job_id=?,updated=? WHERE context_id=?",
-                       (workspace,job_id,time.time(),context_id))
+            cur = db.execute("UPDATE contexts SET codex_workspace=?,codex_job_id=?,updated=? WHERE context_id=? AND closed IS NULL",
+                             (workspace, job_id, time.time(), context_id))
+            if cur.rowcount == 0:
+                self._classify_missing_or_closed(db, context_id)

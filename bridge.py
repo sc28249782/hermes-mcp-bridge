@@ -13,10 +13,13 @@ if __name__ == "__main__" and len(sys.argv) > 1 and sys.argv[1] == "context-prun
 from core import Bridge, BridgeError
 from codex_core import CodexRunner, CodexError
 from hands_core import HandsRuntime, HandsError
-from contexts import ContextRegistry, ContextError
+from contexts import ContextRegistry, ContextError, ContextClosedError
 from opencode_core import OpenCodeRunner, OpenCodeError
 from opencode_tasks import OpenCodeTasks, OpenCodeTaskError
 from version_core import report as bridge_version_report
+
+# SPEC section 21.2: exact constant returned with context_binding="closed_rejected".
+_CLOSED_BINDING_NOTE = "Context was closed before binding. The task remains owned by this bridge. Do not resubmit; retrieve it by its existing identifiers."
 
 
 def server(b, c, h, contexts, opencode=None, opencode_tasks=None):
@@ -121,11 +124,21 @@ def server(b, c, h, contexts, opencode=None, opencode_tasks=None):
         if context_id and session_id:
             raise BridgeError("Provide context_id or session_id, not both.")
         if context_id:
+            # Precheck before any backend call: invalid/unknown/closed raise here.
             session_id = contexts.hermes_session(context_id)
         output = b.submit(prompt, request_id, session_id, model, provider, model_options)
         if context_id:
-            contexts.bind_hermes_run(context_id, output["run_id"])
+            # SPEC section 21.2 (D5): only a closed-rejection bind failure after a
+            # normal backend acknowledgement becomes the closed_rejected outcome.
+            try:
+                contexts.bind_hermes_run(context_id, output["run_id"])
+                binding = "bound"
+            except ContextClosedError:
+                binding = "closed_rejected"
             output["context_id"] = context_id
+            output["context_binding"] = binding
+            if binding == "closed_rejected":
+                output["context_binding_note"] = _CLOSED_BINDING_NOTE
         return output
 
     @m.tool(annotations=read, structured_output=True)
@@ -180,8 +193,17 @@ def server(b, c, h, contexts, opencode=None, opencode_tasks=None):
             raise CodexError("workspace is required for a new or unbound context.")
         output = c.submit(prompt, workspace, mode, model, reasoning_effort)
         if context_id:
-            contexts.bind_codex_job(context_id, workspace, output["job_id"])
+            # SPEC section 21.2 (D5): only a closed-rejection bind failure after a
+            # normal backend acknowledgement becomes the closed_rejected outcome.
+            try:
+                contexts.bind_codex_job(context_id, workspace, output["job_id"])
+                binding = "bound"
+            except ContextClosedError:
+                binding = "closed_rejected"
             output["context_id"] = context_id
+            output["context_binding"] = binding
+            if binding == "closed_rejected":
+                output["context_binding_note"] = _CLOSED_BINDING_NOTE
         return output
 
     @m.tool(annotations=read, structured_output=True)

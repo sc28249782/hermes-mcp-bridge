@@ -6,6 +6,17 @@ Source stamp 1.2.7/v1.2.7 ใช้ reviewed input `07ec0069b952f08a49adbd0ec778
 
 อัปเดตสถานะ (20 ตุลาคม 2026): v1.2.7 เผยแพร่ผ่าน signed tag ที่ `625ea117aa693f577872638a6353b1408fb405aa`; prep evidence ด้านบนคงผูกกับ prep head `013fd28` ตามเดิม. External fresh-input audit ผ่าน (extracted suite 206/206 จาก fresh venv); ไม่มี WSL-suite rerun ใหม่จาก record นี้. ดู [release record](V1.2.7-RELEASE-RECORD-TH.md).
 
+## Unreleased — context lifecycle closed-binding outcome (SPEC §21)
+
+Implementation ของ [SPEC §21](SPEC.md#21-context-lifecycle--closed-binding-outcome-approved-design-implementation-not-started) ใน PR นี้ pending review; ยังไม่ released, ไม่ deployed และไม่ได้รับการยอมรับจาก external review. ฐานอ้างอิง baseline suite คือ 206 tests.
+
+- Registry mutation: `close`, `bind_hermes_run`, `bind_codex_job` เป็น conditional atomic UPDATE เงื่อนไข `closed IS NULL` หนึ่ง statement; classification unknown/closed ทำใน transaction เดียวกันด้วย error คงที่เดิม; `observe_hermes` อัปเดตได้มากที่สุด 1 row พร้อม guard ป้องกัน stale write; เพิ่ม `ContextClosedError` (subclass ของ `ContextError`).
+- Wrapper D5: precheck invalid/unknown/closed ก่อน backend call (0 backend calls); หลัง backend ACK ปกติ ถ้า bind ถูกปฏิเสธเพราะ close → success response คง output เดิมครบ + `context_binding="closed_rejected"` + note คงที่ตาม SPEC; bind สำเร็จ → `"bound"` ไม่มี note; ไม่มี context_id → ไม่มีทั้งสอง field; DB error/submit raise คง error เดิม ไม่ถูกแปลง.
+- ชุดทดสอบ: `tests/test_context_lifecycle.py` 18 tests ตาม acceptance matrix ของ §21.3; deterministic gates อยู่ก่อน SQL writer transaction (ไม่มี time.sleep เป็นตัวจัดคิว; bounded timeout เป็น failsafe เท่านั้น); รวม cross-process shared-state test (multiprocessing fork), close-wins/bind-wins/double-close, late observe at-most-one-row, precheck 0 backend calls, ACK→close→bind ครบทั้ง Hermes/Codex, replay ไม่เพิ่ม submission, DB error ไม่ถูกแปลง, restart ไม่ resubmit.
+- ผลรัน (interpreter จริง): Python 3.12.3 (project venv) — ชุดเต็ม 224/224, ResourceWarning-as-error, no skips; Python 3.11.15 (project venv) — 224/224 เช่นกัน. Python 3.14 ยังไม่รันในเครื่อง (ไม่มี venv ที่ติดตั้ง dependencies ครบ) — CI matrix 3.12/3.14 เป็นผลที่ต้องยืนยันที่ pushed head.
+- Regression: รันชุดใหม่กับโค้ด baseline (origin/main ก่อน PR) — 10 จาก 18 fail ด้วยพฤติกรรมจริง (typed closed error ขาด, `context_binding` field ขาด, bind เขียนลง closed row ใน cross-process interleave); ไม่มี skip หรือ baseline-fake.
+- ขอบเขตที่ไม่แตะ: ไม่เปลี่ยน schema/config schema/discovery 27/28/33/tool signature; ไม่มี P2 apply/delete, durable intent, new audit event; ข้อจำกัด submit-admission/crash ระหว่าง submit→bind คงตามที่ SPEC §21 ระบุ.
+
 ## Unreleased — Codex result read-ahead fix
 
 Public baseline: `b3fa3b7`. Runtime/test/CI candidate: `799acc3d131e60a65fe085ff1e0c48d1e7c73f76`.

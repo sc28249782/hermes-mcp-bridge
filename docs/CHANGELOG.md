@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased — context lifecycle closed-binding outcome (SPEC §21)
+
+- Implement the approved [SPEC §21](SPEC.md#21-context-lifecycle--closed-binding-outcome-approved-design-implementation-not-started) contract: conditional atomic registry mutations (`close`, `bind_hermes_run`, `bind_codex_job` exclude closed rows; the commit is the linearization point), bounded unknown/closed classification with the existing constant errors, a typed `ContextClosedError`, and `observe_hermes` capped at one row with a stale-write guard.
+- Wrapper response change only (per §21.2): after a normal backend acknowledgement, a binding rejected because the context closed returns a successful response preserving the full backend output plus `context_binding="closed_rejected"` and the constant note; successful binds return `context_binding="bound"` with no note; no `context_id` means both fields are absent. Precheck rejections keep the existing errors with zero backend calls; database and submit failures keep the existing error behavior.
+- Add `tests/test_context_lifecycle.py` (18 deterministic tests per §21.3, including a cross-process shared-state case; 10 of them fail on the pre-amendment baseline). Schema version 1, discovery 27/28/33, tool signatures and P1 values are unchanged; no release is assigned; scoped Dev acceptance and release/deployment remain separate steps.
+
 ## v1.2.7 — released (20 October 2026)
 
 - Release scope combines the reviewed Codex read-ahead fix (PR #56) and Context P1 (PR #58–#61) per the approved [scope decision](V1.2.7-RELEASE-DECISION-TH.md). Schema version 1, discovery 27/28/33 and backend permissions stay unchanged.
