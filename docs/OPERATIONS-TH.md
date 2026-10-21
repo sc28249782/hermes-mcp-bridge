@@ -1,4 +1,8 @@
-# คู่มือปฏิบัติการ — released v1.2.7 / production v1.2.6
+# คู่มือปฏิบัติการ — released v1.2.7 (deployed 21 October 2026) / v1.2.8 candidate tag pending
+
+## v1.2.8 — preparation checkpoint
+
+Candidate stamp 1.2.8/v1.2.8 ใช้ reviewed build input `887436f359683f0215f1993d7cb0c9035ec93571`; ไม่ใช่ final tag commit. Scope รวมเฉพาะ SPEC §21 context-lifecycle delta. ยังไม่ released/deployed; production คง signed v1.2.7 และต้องมี deployment approval แยกก่อน upgrade v1.2.8. ดู [preparation record](V1.2.8-RELEASE-PREP-TH.md) และ [scope decision packet](V1.2.8-RELEASE-DECISION-PROPOSAL-TH.md).
 
 ## v1.2.7 — preparation checkpoint
 
@@ -200,7 +204,7 @@ filesystem หรือ network และไม่เปลี่ยน native p
 
 ## Context P1 — implementation reviewed, candidate v1.2.7
 
-[Scope decision](CONTEXT-RETENTION-SCOPE-TH.md) บันทึก operator approval ของ P1 เมื่อ 20 ตุลาคม 2026 เวลา 15:57:29 +07. [SPEC §20](SPEC.md#20-context-p1--v127-target-scope-approved-unreleased) กำหนด contract สำหรับ review ก่อน implementation และแยก registry metadata ออกจาก model/chat history.
+[Scope decision](CONTEXT-RETENTION-SCOPE-TH.md) บันทึก operator approval ของ P1 เมื่อ 20 ตุลาคม 2026 เวลา 15:57:29 +07. [SPEC §20](SPEC.md#20-context-p1--v127-target-scope-approved-released) กำหนด contract สำหรับ review ก่อน implementation และแยก registry metadata ออกจาก model/chat history.
 ยังไม่มี soft-cap หรือ prune CLI ใน production.
 Baseline close เก็บ row ไว้ และ recent จำกัดเฉพาะผลลัพธ์ที่คืน.
 P1 scope มี warning กับ read-only preview; ยังไม่มีการลบ rows หรือแก้ backend session. Config/CLI/fields ใหม่ใน §20 ยังใช้ไม่ได้ใน signed v1.2.6; อย่าอ้างว่า scope approval เปิดใช้งานให้แล้ว.
