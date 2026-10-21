@@ -6,6 +6,12 @@
 ฐานอ้างอิง: `origin/main` ที่ `37625609c2e00009b3916b39ef9b2b239a3eb79a` (merge ของ PR #67).
 ตอบ [operator decisions ข้อ 1-5 ของ design §9](CONTEXT-P2-LIFECYCLE-DESIGN-TH.md#9-operator-decisions-ที่ยังค้าง); ข้อกำหนดเดิมอยู่ใน [SPEC §8](SPEC.md#8-work-contexts) และ [SPEC §20](SPEC.md#20-context-p1--v127-target-scope-approved-released).
 
+## Operator approval checkpoint (21 October 2026)
+
+Operator อนุมัติคำแนะนำ D1–D5 ตามตารางข้างล่างเมื่อ 21 ตุลาคม 2026 หลัง merge ของ PR #68 ที่ `926a3622dc8d17fcede098f115de5a6cb028f809`; ข้อความ DRAFT ทั้งหมดในเอกสารนี้คงสถานะ historical เดิมไว้.
+ถ้อยคำ normative ที่มีผลจริงถูกบันทึกเป็น [SPEC §21](SPEC.md#21-context-lifecycle--closed-binding-outcome-approved-design-implementation-not-started) ใน PR amendment แยกที่เสนอหลังจากนี้; จึงยังไม่ถือว่า implemented จนกว่าจะผ่าน §14 review/merge และขั้น implementation ตามหัวข้อ 5 ข้างล่าง.
+ยังไม่มี release ที่ได้รับมอบหมาย; P2 apply/delete ยัง deferred; P1 และ discovery 27 (default) / 28 (OpenCode health-only) / 33 (OpenCode execution) คงเดิม.
+
 ## 1. ขอบเขตและเงื่อนไข
 
 - คำแนะนำทุกข้อยังไม่ได้รับการอนุมัติ; เอกสารนี้ไม่เลือกแทน operator.
