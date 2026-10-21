@@ -3,6 +3,13 @@
 ## v1.2.8 — release candidate, tag pending (21 October 2026)
 
 - Scope approval (21 October 2026): the operator selected option ก — approve the v1.2.8 scope and start Phase A — in chat (no exact timestamp is available in the message, so none is recorded). PR #72 merged at main `887436f359683f0215f1993d7cb0c9035ec93571` (reviewed head `4f09b44774f6075723f381675d5fee1e356289f2`, CI success at that head).
+
+ข้อความอนุมัติจาก operator (verbatim จากแชตวันที่ 21 ตุลาคม 2026):
+
+> ก: อนุมัติ scope v1.2.8 และเริ่ม Phase A
+
+ไม่มีเวลาที่แน่นอนในข้อความ จึงไม่สร้าง timestamp เพิ่มเติม. ข้อความนี้อนุมัติ scope และการเริ่ม Phase A; ไม่ใช่การอนุมัติ signing/publication หรือ deployment.
+
 - Phase A preparation: candidate stamp `1.2.8/v1.2.8` with reviewed build input `887436f359683f0215f1993d7cb0c9035ec93571` (not the final tag commit); documentation gate completed (production-status corrections across README/UPGRADE/OPERATIONS/COMPATIBILITY with dated historical notes preserved). Verification: source and extracted suites 227/227 OK on Python 3.12.3 and 3.14.7 (ResourceWarning-as-error, no skips); offline CLI/SDK identity parity exact; an **untagged diagnostic archive** (SHA-256 `a974d9d5b57c547ad4077f29880f844797db67071355d257e3610873d45fa307`, 433,952 bytes) was built locally — it is not a release asset and no checksum is committed to source. Details and limits: [preparation record](V1.2.8-RELEASE-PREP-TH.md).
 - Status: **tag pending** — not signed, tagged, published, or deployed. Production runs signed v1.2.7 (deployed 21 October 2026); release approval does not approve a v1.2.8 deployment. Open gaps (submit admission, crash-between-submit-and-bind, non-closed binding ack/recovery, uncertain replay) remain; P2/Hands/Events deferrals unchanged.
 
