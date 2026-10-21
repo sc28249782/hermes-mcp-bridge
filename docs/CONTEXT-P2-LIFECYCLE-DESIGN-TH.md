@@ -12,7 +12,7 @@
 
 - ทุกข้อ "เสนอ" ในเอกสารนี้ต้องผ่าน [SPEC §14 change control](SPEC.md#14-change-control) ก่อน implementation เพราะแตะ context/session semantics.
 - เอกสารนี้ไม่อ้างว่า race ที่บันทึกไว้เป็นหลักฐาน incident ของ production; หลักฐานเดิมเป็นระดับ synthetic registry mutation เท่านั้น ตามข้อความ baseline ใน [CONTEXT-RETENTION-SCOPE-TH.md](CONTEXT-RETENTION-SCOPE-TH.md).
-- เอกสารนี้คง tools, tool signatures, config schema version 1 และ discovery count 27 (default), 28 (OpenCode execution opt-in), 33 (OpenCode tasks opt-in) ตามที่ release ปัจจุบันกำหนด; การเปลี่ยนใด ๆ เป็น SPEC amendment แยกในอนาคตเท่านั้น.
+- เอกสารนี้คง tools, tool signatures, config schema version 1 และ discovery count 27 (default), 28 (OpenCode health-only opt-in), 33 (OpenCode execution opt-in) ตามที่ release ปัจจุบันกำหนด; การเปลี่ยนใด ๆ เป็น SPEC amendment แยกในอนาคตเท่านั้น.
 - P1 warning/preview คงค่าที่อนุมัติไว้เดิมทั้งหมด; เอกสารนี้ไม่เสนอการเปลี่ยน P1.
 
 ## 2. พฤติกรรมปัจจุบันจาก source
@@ -140,6 +140,8 @@
 3. การบันทึก bind ที่ถูกปฏิเสธเพราะ close ลง audit เป็น event ใหม่หรือไม่; หากเพิ่ม ต้องระบุ fields ที่ปลอดภัยตาม §10/§19.
 4. Approach B (durable intent) จำเป็นหรือไม่ในระยะนี้; ถ้าใช่ ต้องเปิด SPEC/schema review แยก.
 5. การให้ tool คืน backend id ใน response เมื่อ bind ล้มเหลว: เสนอเป็นทางเลือกเพื่อการ reconciliation; ยังไม่เปลี่ยน contract จนกว่า §14 อนุมัติ.
+
+คำแนะนำรายข้อ พร้อมทางเลือก/ผลต่อ contract และร่างถ้อยคำ amendment ของทั้ง 5 ข้อ (ยังไม่มีผลจนกว่า operator อนุมัติและ SPEC PR แยก merge) อยู่ใน [decision packet](CONTEXT-LIFECYCLE-DECISION-PROPOSAL-TH.md).
 
 ## 10. ขอบเขตที่เอกสารนี้ไม่แตะ
 
