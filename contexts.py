@@ -72,12 +72,18 @@ class ContextRegistry:
         """Bounded classification after a conditional UPDATE affected no rows.
 
         Runs inside the open transaction; raising skips the commit and the
-        context manager closes the connection without writing.
+        context manager closes the connection without writing. The actual
+        `closed` value decides the error; it is never guessed.
         """
         row = db.execute("SELECT closed FROM contexts WHERE context_id=?", (context_id,)).fetchone()
         if row is None:
             raise ContextError("Unknown context_id.")
-        raise ContextClosedError("Context is closed; create a new context_id instead.")
+        if row["closed"] is not None:
+            raise ContextClosedError("Context is closed; create a new context_id instead.")
+        # Unreachable under normal SQLite semantics (an open row cannot miss a
+        # conditional UPDATE barring a trigger); fail closed on the impossible
+        # state instead of inventing a public error contract.
+        raise AssertionError("context row present but conditional update matched nothing")
 
     def _row(self, context_id: str, usable: bool = True):
         self._check_id(context_id)

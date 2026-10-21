@@ -7,7 +7,9 @@ failsafes only, never scheduling by time.sleep. No P2 apply/delete, no schema
 change, no new audit event, no real model/backend call.
 """
 from pathlib import Path
+from contextlib import contextmanager
 import multiprocessing
+import queue as queue_mod
 import sqlite3
 import tempfile
 import threading
@@ -28,7 +30,7 @@ except ImportError:  # baseline has no constant; the tests below fail on its beh
 
 try:
     from contexts import ContextClosedError
-except ImportError:  # baseline has no typed closed error; plain ContextError still fails assertRaises(ContextClosedError)
+except ImportError:  # baseline has no typed closed error; its plain ContextError still fails these tests
     class ContextClosedError(ContextError):
         pass
 
@@ -36,6 +38,10 @@ CLOSED_MSG = "Context is closed; create a new context_id instead."
 UNKNOWN_MSG = "Unknown context_id."
 INVALID_MSG = "Invalid context_id."
 WORKSPACE = "workspace-fixture"
+HERMES_BIND_SQL = "UPDATE contexts SET hermes_run_id"
+CODEX_BIND_SQL = "UPDATE contexts SET codex_workspace"
+CLOSE_SQL = "UPDATE contexts SET closed"
+OBSERVE_SQL = "UPDATE contexts SET hermes_session_id"
 
 
 class Audit:
@@ -43,27 +49,45 @@ class Audit:
     def record(self, *args): self.events.append(args)
 
 
-class GatedRegistry(ContextRegistry):
-    """Gates fire at method entry, before any SQL writer transaction opens."""
+class _GatedConnection:
+    """Proxy that pauses one intercepted UPDATE before it executes."""
+
+    def __init__(self, conn, gates):
+        self._conn = conn
+        self._gates = gates
+
+    def execute(self, sql, params=()):
+        for prefix, (release, arrived) in list(self._gates.items()):
+            if sql.startswith(prefix):
+                # The gated UPDATE has not executed yet, so no writer transaction
+                # is open on this connection and the close commit cannot deadlock.
+                assert not self._conn.in_transaction, "SQLite lock held while waiting for the gate"
+                self._gates.pop(prefix)
+                if arrived is not None:
+                    arrived.set()
+                if not release.wait(timeout=30):
+                    raise AssertionError(f"gate timeout waiting for: {prefix}")
+        return self._conn.execute(sql, params)
+
+    def __getattr__(self, name):
+        return getattr(self._conn, name)
+
+
+class ExecGateRegistry(ContextRegistry):
+    """Gates fire between the precheck SELECT and the UPDATE execute."""
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        # Set before super().__init__: the base constructor already opens db().
         self._gates = {}
+        super().__init__(*args, **kwargs)
 
-    def gate(self, name, event):
-        self._gates[name] = event
+    def gate(self, sql_prefix, release, arrived=None):
+        self._gates[sql_prefix] = (release, arrived)
 
-    def close(self, context_id):
-        event = self._gates.get("close")
-        if event:
-            event.wait(timeout=30)
-        return super().close(context_id)
-
-    def bind_hermes_run(self, context_id, run_id):
-        event = self._gates.get("bind")
-        if event:
-            event.wait(timeout=30)
-        return super().bind_hermes_run(context_id, run_id)
+    @contextmanager
+    def db(self):
+        with super().db() as conn:
+            yield _GatedConnection(conn, self._gates)
 
 
 class FakeHermes:
@@ -116,83 +140,40 @@ class HandsStub:
 
 
 def _cross_proc_worker(state_dir, cid, role, barrier, ack, queue):
+    """bind: pauses its UPDATE before the writer transaction until ack; close: commits then sets ack."""
     class SilentAudit:
         def record(self, *args):
             pass
-    registry = ContextRegistry(Path(state_dir), SilentAudit())
-    if role == "bind":
-        barrier.wait(timeout=30)
-        ack.wait(timeout=30)
-        try:
-            registry.bind_hermes_run(cid, "run_x")
-            outcome = "bound"
-        except ContextClosedError:
-            outcome = "closed_rejected"
-    else:
-        barrier.wait(timeout=30)
-        registry.close(cid)
-        ack.set()
-        outcome = "closed"
-    queue.put((role, outcome))
+    registry = ExecGateRegistry(Path(state_dir), SilentAudit())
+    try:
+        if role == "bind":
+            registry.gate(HERMES_BIND_SQL, ack)
+            barrier.wait(timeout=30)
+            try:
+                registry.bind_hermes_run(cid, "run_x")
+                outcome = "bound"
+            except ContextClosedError:
+                outcome = "closed_rejected"
+        else:
+            barrier.wait(timeout=30)
+            registry.close(cid)
+            ack.set()
+            outcome = "closed"
+        queue.put((role, outcome))
+    finally:
+        queue.close()
 
 
 class TestRegistryLifecycle(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
-        self.registry = GatedRegistry(Path(self.tmp.name), Audit())
+        self.registry = ExecGateRegistry(Path(self.tmp.name), Audit())
 
     def tearDown(self):
         self.tmp.cleanup()
 
     def _status(self, cid):
         return self.registry.status(cid)
-
-    def test_close_wins_over_bind(self):
-        created = self.registry.create("fixture")
-        cid = created["context_id"]
-        release = threading.Event()
-        self.registry.gate("bind", release)
-        result = {}
-
-        def bind():
-            try:
-                self.registry.bind_hermes_run(cid, "run_x")
-                result["outcome"] = "bound"
-            except ContextError as exc:
-                result["outcome"] = str(exc)
-
-        thread = threading.Thread(target=bind)
-        thread.start()
-        self.registry.close(cid)
-        release.set()
-        thread.join(timeout=30)
-        self.assertEqual(result["outcome"], CLOSED_MSG)
-        self.assertIsNotNone(self._status(cid)["closed"])
-        self.assertIsNone(self._status(cid)["hermes_run_id"])
-
-    def test_bind_wins_over_close(self):
-        created = self.registry.create("fixture")
-        cid = created["context_id"]
-        release = threading.Event()
-        self.registry.gate("close", release)
-        result = {}
-
-        def close():
-            try:
-                self.registry.close(cid)
-                result["outcome"] = "closed"
-            except ContextError as exc:
-                result["outcome"] = str(exc)
-
-        thread = threading.Thread(target=close)
-        thread.start()
-        self.registry.bind_hermes_run(cid, "run_x")
-        release.set()
-        thread.join(timeout=30)
-        self.assertEqual(result["outcome"], "closed")
-        status = self._status(cid)
-        self.assertIsNotNone(status["closed"])
-        self.assertEqual(status["hermes_run_id"], "run_x")
 
     def test_double_close_constant_error(self):
         cid = self.registry.create("fixture")["context_id"]
@@ -257,14 +238,121 @@ class TestRegistryLifecycle(unittest.TestCase):
         cid = self.registry.create("fixture")["context_id"]
         before = self._status(cid)
         self.registry.bind_hermes_run(cid, "run_x")
-        rebound = GatedRegistry(Path(self.tmp.name), Audit())
-        after = rebound.status(cid)
+        fresh_registry = ExecGateRegistry(Path(self.tmp.name), Audit())
+        after = fresh_registry.status(cid)
         self.assertEqual(after["context_id"], cid)
         self.assertEqual(after["hermes_run_id"], "run_x")
         self.assertEqual(after["created"], before["created"])
         self.assertIsNone(after["hermes_session_id"])
         fresh = self.registry.create("fixture 2")["context_id"]
         self.assertIsNotNone(self.registry.status(fresh)["created"])
+
+
+class TestStaleWriteInterleaving(unittest.TestCase):
+    """Gates fire between the precheck SELECT and the UPDATE execute: the close
+    commits while the writer is paused, then the write resumes. On the
+    pre-amendment baseline the unconditional UPDATE lands on the closed row;
+    the conditional UPDATE fails closed and leaves the row unchanged."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.registry = ExecGateRegistry(Path(self.tmp.name), Audit())
+        self.closer = ExecGateRegistry(Path(self.tmp.name), Audit())
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_close_wins_hermes_bind_rejected_row_unchanged(self):
+        cid = self.registry.create("fixture")["context_id"]
+        arrived, release = threading.Event(), threading.Event()
+        self.registry.gate(HERMES_BIND_SQL, release, arrived)
+        result = {}
+
+        def bind():
+            try:
+                self.registry.bind_hermes_run(cid, "run_x")
+                result["outcome"] = "written"
+            except ContextError as exc:
+                result["outcome"] = (type(exc).__name__, str(exc))
+
+        thread = threading.Thread(target=bind)
+        thread.start()
+        self.assertTrue(arrived.wait(timeout=30), "bind never reached the gated UPDATE")
+        self.closer.close(cid)  # commits while the bind UPDATE is paused
+        release.set()
+        thread.join(timeout=30)
+        self.assertEqual(result["outcome"], (ContextClosedError.__name__, CLOSED_MSG))
+        status = self.registry.status(cid)
+        self.assertIsNotNone(status["closed"])
+        self.assertIsNone(status["hermes_run_id"])
+
+    def test_close_wins_codex_bind_rejected_row_unchanged(self):
+        cid = self.registry.create("fixture")["context_id"]
+        arrived, release = threading.Event(), threading.Event()
+        self.registry.gate(CODEX_BIND_SQL, release, arrived)
+        result = {}
+
+        def bind():
+            try:
+                self.registry.bind_codex_job(cid, WORKSPACE, "job_x")
+                result["outcome"] = "written"
+            except ContextError as exc:
+                result["outcome"] = (type(exc).__name__, str(exc))
+
+        thread = threading.Thread(target=bind)
+        thread.start()
+        self.assertTrue(arrived.wait(timeout=30), "bind never reached the gated UPDATE")
+        self.closer.close(cid)
+        release.set()
+        thread.join(timeout=30)
+        self.assertEqual(result["outcome"], (ContextClosedError.__name__, CLOSED_MSG))
+        status = self.registry.status(cid)
+        self.assertIsNotNone(status["closed"])
+        self.assertIsNone(status["codex_workspace"])
+
+    def test_bind_wins_then_close_retains_binding(self):
+        cid = self.registry.create("fixture")["context_id"]
+        arrived, release = threading.Event(), threading.Event()
+        self.registry.gate(CLOSE_SQL, release, arrived)
+        result = {}
+
+        def close():
+            try:
+                self.registry.close(cid)
+                result["outcome"] = "closed"
+            except ContextError as exc:
+                result["outcome"] = str(exc)
+
+        thread = threading.Thread(target=close)
+        thread.start()
+        self.assertTrue(arrived.wait(timeout=30), "close never reached the gated UPDATE")
+        self.registry.bind_hermes_run(cid, "run_x")  # commits while close is paused
+        release.set()
+        thread.join(timeout=30)
+        self.assertEqual(result["outcome"], "closed")
+        status = self.registry.status(cid)
+        self.assertIsNotNone(status["closed"])
+        self.assertEqual(status["hermes_run_id"], "run_x")
+
+    def test_observe_stale_rebind_is_guarded(self):
+        cid = self.registry.create("fixture")["context_id"]
+        self.registry.bind_hermes_run(cid, "run_old")
+        arrived, release = threading.Event(), threading.Event()
+        self.registry.gate(OBSERVE_SQL, release, arrived)
+
+        def observe():
+            self.registry.observe_hermes("run_old", "stale_session")
+
+        thread = threading.Thread(target=observe)
+        thread.start()
+        self.assertTrue(arrived.wait(timeout=30), "observe never reached the gated UPDATE")
+        self.closer.bind_hermes_run(cid, "run_new")  # rebind while observe's UPDATE is paused
+        release.set()
+        thread.join(timeout=30)
+        status = self.registry.status(cid)
+        self.assertEqual(status["hermes_run_id"], "run_new")
+        self.assertIsNone(status["hermes_session_id"])
+        self.assertEqual(self.registry._gates, {})
 
 
 class TestCrossProcessActors(unittest.TestCase):
@@ -281,22 +369,30 @@ class TestCrossProcessActors(unittest.TestCase):
         barrier = ctx.Barrier(2)
         ack = ctx.Event()
         queue = ctx.Queue()
-        bind_proc = ctx.Process(target=_cross_proc_worker,
-                                args=(self.tmp.name, cid, "bind", barrier, ack, queue))
-        close_proc = ctx.Process(target=_cross_proc_worker,
-                                 args=(self.tmp.name, cid, "close", barrier, ack, queue))
-        bind_proc.start()
-        close_proc.start()
-        bind_proc.join(timeout=60)
-        close_proc.join(timeout=60)
+        procs = [
+            ctx.Process(target=_cross_proc_worker,
+                        args=(self.tmp.name, cid, role, barrier, ack, queue))
+            for role in ("bind", "close")
+        ]
+        for proc in procs:
+            proc.start()
         results = {}
-        while not queue.empty():
-            role, outcome = queue.get_nowait()
-            results[role] = outcome
-        self.assertEqual(bind_proc.exitcode, 0)
-        self.assertEqual(close_proc.exitcode, 0)
+        try:
+            for _ in range(2):
+                role, outcome = queue.get(timeout=60)
+                results[role] = outcome
+        finally:
+            for proc in procs:
+                proc.join(timeout=10)
+                if proc.is_alive():
+                    proc.terminate()
+                    proc.join(timeout=10)
+            queue.close()
+            queue.join_thread()
         self.assertEqual(results["bind"], "closed_rejected")
         self.assertEqual(results["close"], "closed")
+        for proc in procs:
+            self.assertEqual(proc.exitcode, 0)
         status = self.registry.status(cid)
         self.assertIsNotNone(status["closed"])
         self.assertIsNone(status["hermes_run_id"])
@@ -382,6 +478,21 @@ class TestWrapperClosedBindingOutcome(unittest.TestCase):
         with self.assertRaises(ContextError):
             fn(prompt="fixture", request_id="req-invalid", context_id="bad id!")
         self.assertEqual(self.fake.posts, 0)
+
+    def test_empty_context_id_is_invalid_zero_backend_calls(self):
+        fn = self._tool("hermes_submit_task")
+        with self.assertRaises(ContextError) as ctx:
+            fn(prompt="fixture", request_id="req-empty", context_id="")
+        self.assertEqual(str(ctx.exception), INVALID_MSG)
+        self.assertEqual(self.fake.posts, 0)
+        codex_fn = self._tool("codex_submit_task")
+        with self.assertRaises(ContextError) as ctx:
+            codex_fn(prompt="fixture", workspace=WORKSPACE, context_id="")
+        self.assertEqual(str(ctx.exception), INVALID_MSG)
+        with self.assertRaises(ContextError) as ctx:
+            codex_fn(prompt="fixture", workspace=WORKSPACE, context_id="bad id!")
+        self.assertEqual(str(ctx.exception), INVALID_MSG)
+        self.assertEqual(self.codex.starts, 0)
 
     def test_hermes_same_input_replay_adds_no_submission(self):
         cid = self.contexts.create("fixture")["context_id"]

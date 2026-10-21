@@ -121,13 +121,14 @@ def server(b, c, h, contexts, opencode=None, opencode_tasks=None):
         model_options currently permits reasoning_effort and service_tier string values.
         Execution uses Hermes's configured API profile permissions and model billing.
         """
-        if context_id and session_id:
+        if context_id is not None and session_id is not None:
             raise BridgeError("Provide context_id or session_id, not both.")
-        if context_id:
-            # Precheck before any backend call: invalid/unknown/closed raise here.
+        if context_id is not None:
+            # Precheck before any backend call: invalid/unknown/closed raise here
+            # (an empty string is invalid input, never a plain no-context submit).
             session_id = contexts.hermes_session(context_id)
         output = b.submit(prompt, request_id, session_id, model, provider, model_options)
-        if context_id:
+        if context_id is not None:
             # SPEC section 21.2 (D5): only a closed-rejection bind failure after a
             # normal backend acknowledgement becomes the closed_rejected outcome.
             try:
@@ -185,14 +186,14 @@ def server(b, c, h, contexts, opencode=None, opencode_tasks=None):
                           context_id: str | None = None, model: str | None = None,
                           reasoning_effort: str | None = None) -> dict[str, Any]:
         """Start an allowlisted Codex task. A context only binds workspace metadata; it never replays prompts or output."""
-        bound = contexts.codex_workspace(context_id) if context_id else None
+        bound = contexts.codex_workspace(context_id) if context_id is not None else None
         if bound and workspace and workspace != bound:
             raise CodexError("workspace conflicts with the explicit context binding.")
         workspace = bound or workspace
         if not workspace:
             raise CodexError("workspace is required for a new or unbound context.")
         output = c.submit(prompt, workspace, mode, model, reasoning_effort)
-        if context_id:
+        if context_id is not None:
             # SPEC section 21.2 (D5): only a closed-rejection bind failure after a
             # normal backend acknowledgement becomes the closed_rejected outcome.
             try:
