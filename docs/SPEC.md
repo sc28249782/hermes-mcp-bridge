@@ -204,6 +204,8 @@ Release-scope checkpoint (20 October 2026): the operator approved v1.2.7 target 
 
 Release checkpoint (20 October 2026): v1.2.7 is published via signed tag `625ea117aa693f577872638a6353b1408fb405aa`; the external fresh-input audit passed. This checkpoint records publication status only. It does not change sections 19 or 20, and the production deployment decision, including the not-deploy option, remains pending; see the [release record](V1.2.7-RELEASE-RECORD-TH.md).
 
+Context lifecycle change-control checkpoint (21 October 2026): the operator approved decisions D1–D5 from the [decision packet](CONTEXT-LIFECYCLE-DECISION-PROPOSAL-TH.md) and authorized merging PR #68. The approval preceded that merge. Section 21 records the approved amendment (registry mutation semantics and the closed-binding submit outcome) for implementation review; it is unreleased and MUST NOT be presented as implemented. Implementation requires this amendment to pass section 14 review and merge first.
+
 ## 15. MCP Events capability gate (deferred — no assigned release; BLOCKED)
 
 This section is a future requirement, originally planned as the v1.2.4 target requirement; it is now deferred with no assigned release and remains blocked at the subscription gate. The released v1.2.3 bridge has no MCP Events capability, subscription state, callback sender, or event delivery.
@@ -425,3 +427,63 @@ Implementation acceptance MUST cover:
 - Explicit context continuation and current status/recent/ownership semantics, discovery 27/28/33, and full suites on Python 3.12 and 3.14, plus isolated local CLI acceptance before release claims.
 
 P1 does not repair the documented close/bind/submission interleaving. P2 apply/delete MUST remain absent until a separate SPEC section 14 review defines lifecycle linearization, no-lost-acknowledgement handling, atomic eligibility and local approval/recovery. Observation counters/annotations, native context compaction, Local Hands and MCP Events remain separate.
+
+## 21. Context lifecycle — closed-binding outcome (approved design; implementation not started)
+
+<a id="21-context-lifecycle--closed-binding-outcome-approved-design-implementation-not-started"></a>
+
+The operator approved decisions D1–D5 from the [decision packet](CONTEXT-LIFECYCLE-DECISION-PROPOSAL-TH.md) on 21 October 2026; the approval preceded the PR #68 merge and is recorded in its PR body and the packet checkpoint. This section defines the approved amendment for implementation review. It MUST NOT be represented as implemented, released, or deployed until the implementation and acceptance steps pass. No release is assigned. P2 apply/delete remains deferred. Discovery counts stay 27 (default), 28 (OpenCode health-only), 33 (OpenCode execution), and config schema version 1 is unchanged. P1 warning/preview values are unchanged.
+
+### 21.1 Registry mutation and close semantics (D1, D2, D4)
+
+- A registry mutation that accepts a `context_id` MUST be one conditional `UPDATE` statement that excludes closed rows (`closed IS NULL`).
+- The commit of that statement is the linearization point of the mutation.
+- A registry mutation MUST NOT hold a database transaction or a SQLite lock across a backend call.
+- Closing an already-closed context MUST return the existing constant closed error.
+- A registry bind or continue lookup on a closed context MUST return the existing constant closed error and MUST NOT write the row.
+- Closed rows MUST NOT be rebound.
+- When a conditional `UPDATE` affects no rows, the registry MUST classify unknown and closed contexts with the existing constant errors and MUST NOT guess between them.
+- `observe_hermes` MUST keep the current run-to-session pairing and MUST update at most one row: the row whose `hermes_run_id` matches and that is not closed. It MUST NOT update every matching row. A one-to-many change requires a separate operator decision.
+- Cross-process ordering is defined by SQLite commit order only. A bridge restart MUST NOT resubmit a task or auto-rebind a context.
+- The closure contract in section 8 is unchanged: closing a context prevents further binding and continuation through that context.
+- This section does not make backend acceptance atomic with close. A submission whose registry precheck passed before the close commit can still be accepted by the backend and then fail binding.
+- This section does not solve submit admission or a crash between submit and bind. The durable-intent approach (Approach B) remains deferred to a separate SPEC and schema review.
+
+### 21.2 Closed-binding outcome in submit responses (D5)
+
+- This outcome applies only when all of the following hold: the caller supplied a valid `context_id`; the backend submit returned its normal accepted/registered acknowledgement; and the later binding was rejected specifically because the context was closed.
+- In that case, `hermes_submit_task` and `codex_submit_task` MUST return a successful response that preserves the entire backend output, including Hermes `run_id`/`request_id` and Codex `job_id` and the full status, including `pending_local_approval`.
+- In that case, the response MUST add `context_binding` with the value `closed_rejected`.
+- In that case, the response MUST add `context_binding_note` with exactly this constant: `Context was closed before binding. The task remains owned by this bridge. Do not resubmit; retrieve it by its existing identifiers.`
+- On successful binding, `context_binding` MUST be `bound` and `context_binding_note` MUST be absent.
+- When no `context_id` was supplied, both fields MUST be absent.
+- On `closed_rejected`, the echoed `context_id` identifies only the requested context and MUST NOT be read as a binding claim. Existing backend identifiers remain the ownership authority.
+- The acknowledgement means the backend accepted the submission. It MUST NOT be read as running, completed, or binding liveness. Status authority remains with task status/result.
+- A sequential request that names an already-closed context MUST be rejected before submit with the existing registry error. The D5 outcome applies only to the wrapper flow above; the two paths are not contradictory.
+- The D5 outcome requires a successful return from the backend submit. A durable Codex job row alone MUST NOT produce it when the submit raised or the start was partial. Native permission replies and `pending_local_approval` behavior remain unchanged.
+- Pre-acceptance validation failures and backend exceptions keep the existing errors. No backend id or acknowledgement may be fabricated.
+- Post-acceptance binding failures other than closed-rejection (for example database busy or missing row) are outside the approved outcome. They MUST keep the existing error behavior, MUST NOT be silently converted to `closed_rejected`, and MUST NOT add new outcome values. The acknowledgement/recovery gap for those errors remains open and MUST NOT be presented as resolved.
+- Hermes same-input `request_id` replay keeps its existing behavior: actual status fields, `replayed_locally`, the 23-hour guard window, and the capabilities check. Request-ID reuse MUST NOT be rejected wholesale, and exactly-once delivery MUST NOT be claimed.
+- The binding fields are a response contract change only: no tool input signature, config schema, or discovery-count change. Contexts stay metadata-only, and section 19 privacy rules are unchanged.
+
+### 21.3 Acceptance matrix for future tests
+
+Test design uses deterministic barriers or events before the writer transaction starts. A test MUST NOT hold a SQLite lock while waiting for a close commit in the same process. Implementation MUST cover at least:
+
+- close wins, bind wins, and double close;
+- two concurrent actors sharing one state directory;
+- late observe keeps the current run-to-session pairing and updates at most one row;
+- invalid, unknown, and already-closed precheck rejection without any backend call;
+- accepted acknowledgement, then close, then bind returns one acknowledgement with `closed_rejected` and no duplicate submission;
+- both fields absent when no `context_id` was supplied;
+- `pending_local_approval` retained for Codex write jobs;
+- same-input replay creates no duplicate backend job; an already-known run id MUST be returned without a new POST. Uncertain submissions keep the existing guarded, same-key idempotent replay behavior;
+- database errors outside the closed outcome keep the existing error;
+- timeout and partial start produce no invented acknowledgement;
+- crash/restart produces no resubmission.
+
+### 21.4 Gates
+
+- This amendment MUST pass section 14 review and merge before implementation starts.
+- Implementation follows in a small runtime PR with the deterministic tests of section 21.3, then scoped Dev acceptance; release and deployment remain separate steps.
+- This section authorizes no prune: P2 apply/delete remains deferred.
