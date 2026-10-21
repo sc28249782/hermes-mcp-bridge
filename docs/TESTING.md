@@ -29,11 +29,11 @@ Implementation ของ [SPEC §21](SPEC.md#21-context-lifecycle--closed-bindin
 
 | ชั้นหลักฐาน | ผล |
 | --- | --- |
-| Durable (rows/audit ของ fixture state) | runs 4 แถว (`p1l-hermes-bound-01`, `p1l-hermes-close-bind-01`, `p1l-hermes-plain-01`, `p1l-hermes-db-error-01` — แต่ละอัน 1 ACK); contexts 5 แถวตรงสถานะ (bound, closed + `hermes_run_id` NULL, codex bound, codex closed + `codex_job_id` NULL, open ไม่มี binding หลัง DB error); audit 12 records (5 create, 3 close, 4 hermes submit); precheck rejection ไม่มี record (zero-POST); replay มี runs row + audit submit อย่างละ 1 (ไม่มี duplicate) |
+| Durable (rows/audit ของ fixture state) | runs 4 แถว (`p1l-hermes-bound-01`, `p1l-hermes-close-bind-01`, `p1l-hermes-plain-01`, `p1l-hermes-db-error-01` — แต่ละอัน 1 ACK); contexts 5 แถวตรงสถานะ = 3 closed / 2 open — Hermes bound scenario row closed หลังขั้น close โดยคง `hermes_run_id` เดิมไว้ (double-close ไม่เพิ่ม audit record), Hermes close-at-bind row closed ไม่มี binding, Codex bound row open พร้อม binding, Codex close-at-bind row closed ไม่มี binding, DB-error row open ไม่มี binding; audit 12 records = 5 create + 3 close + 4 hermes submit; close audit 3 records ตรง 3 rows ที่ closed; precheck rejection ไม่มี record (zero-POST); replay มี runs row + audit submit อย่างละ 1 (ไม่มี duplicate) |
 | Parent live observation (ผ่าน Dev connector จริง) | identity ของ fixture ตาม `bridge_version`; counters ก่อน restore: hermes 4 / codex 4; response payload (`replayed_locally`, `pending_local_approval` ครบ, ข้อความ DB-error) |
 | Offline smoke (maintainer automation ในเครื่อง — ไม่ใช่ transport evidence) | in-process scenarios ครบ; SDK stdio init/tools/calls = 27 tools; focused lifecycle tests 21/21 บน Python 3.14.7 |
 
-ข้อจำกัด: counter ฝั่ง codex (4) พึ่ง parent observation เท่านั้น เพราะ fake Codex ไม่เขียน audit; ข้อความ response รายละเอียดพึ่ง parent observation; การที่ audit ไม่มี record ไม่พิสูจน์เองว่าแต่ละ invalid request ถูกกระทำ; timestamp ในวินาทีเดียวกันไม่พิสูจน์ลำดับ. Restoration ตรวจแล้ว: identity `1.2.4`/`e7add7e` คืนแล้ว (offline CLI + parent live) และ state/config/profile ตรง backup byte-identical; production `1.2.7`/`07ec0069` ไม่ถูกแตะ.
+ข้อจำกัด: counter ฝั่ง codex (4) พึ่ง parent observation เท่านั้น เพราะ fake Codex ไม่เขียน audit; ข้อความ response รายละเอียดพึ่ง parent observation; การที่ audit ไม่มี record ไม่พิสูจน์ด้วยตัวเองว่าคำขอ invalid แต่ละรายการได้รับการจัดการ; timestamp ในวินาทีเดียวกันไม่พิสูจน์ลำดับ. Restoration ตรวจแล้ว: identity `1.2.4`/`e7add7e` คืนแล้ว (offline CLI + parent live) และ state/config/profile ตรง backup byte-identical; production `1.2.7`/`07ec0069` ไม่ถูกแตะ.
 
 ## Unreleased — Codex result read-ahead fix
 

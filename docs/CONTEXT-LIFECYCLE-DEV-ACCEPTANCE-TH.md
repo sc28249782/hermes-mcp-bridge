@@ -26,7 +26,7 @@ Preflight เก็บ backup state/config/profile แบบ 0600 ก่อน�
 
 | ชั้นหลักฐาน | ขอบเขต | ผล |
 | --- | --- | --- |
-| Durable (rows/audit ของ fixture state) | ตรวจซ้ำได้จาก DB | runs 4 แถว ครบ 4 request ID (`p1l-hermes-bound-01`, `p1l-hermes-close-bind-01`, `p1l-hermes-plain-01`, `p1l-hermes-db-error-01`); contexts 5 แถว: bound, closed + `hermes_run_id` NULL, codex bound, codex closed + `codex_job_id` NULL, open ไม่มี binding; audit 12 records (5 create, 3 close, 4 hermes submit) |
+| Durable (rows/audit ของ fixture state) | ตรวจซ้ำได้จาก DB | runs 4 แถว ครบ 4 request ID (`p1l-hermes-bound-01`, `p1l-hermes-close-bind-01`, `p1l-hermes-plain-01`, `p1l-hermes-db-error-01`); contexts 5 แถว = 3 closed / 2 open — Hermes bound scenario: closed หลังขั้น close โดยคง `hermes_run_id` เดิมไว้ (double-close ไม่เพิ่ม audit record), Hermes close-at-bind: closed ไม่มี binding, Codex bound: open พร้อม binding, Codex close-at-bind: closed ไม่มี binding, DB-error: open ไม่มี binding; audit 12 records = 5 create + 3 close + 4 hermes submit; close audit 3 records ตรง 3 rows ที่ closed พอดี |
 | Parent live observation | ผ่าน Dev connector จริง; raw response ไม่ถูก persist | identity ตรง `bridge_version`; counters ก่อน restore: hermes 4 / codex 4; response payload: `replayed_locally`, `pending_local_approval` ครบ, ข้อความ DB-error |
 | Offline smoke | maintainer automation ในเครื่อง; ไม่ใช่ transport evidence | in-process scenarios ครบ; SDK stdio 27 tools; focused tests 21/21 |
 
@@ -39,7 +39,7 @@ Parent ตรวจ scenario เหล่านี้ผ่าน connector จ�
 
 ## ข้อจำกัดของหลักฐาน
 
-- การที่ audit ไม่มี record ไม่พิสูจน์เองว่าแต่ละ invalid request ถูกกระทำ.
+- การที่ audit ไม่มี record ไม่พิสูจน์ด้วยตัวเองว่าคำขอ invalid แต่ละรายการได้รับการจัดการ.
 - Timestamp ในวินาทีเดียวกันไม่พิสูจน์ลำดับเหตุการณ์.
 - Counter ฝั่ง codex (4) พึ่ง parent observation เท่านั้น; fake Codex ไม่เขียน audit. DB rows สนับสนุนเฉพาะ codex bound/closed row states.
 - ข้อความ response รายละเอียด (`replayed_locally`, approval payload, ข้อความ DB-error) เป็น parent observation ก่อน restore; ไม่มีการ reconstruct ย้อนหลังเป็น raw proof.
@@ -65,4 +65,4 @@ Record นี้ไม่อ้างสาเหตุของ Connection Erro
 - Submit admission และ crash ระหว่าง submit→bind ยังเป็น gap ตาม SPEC §21.
 - Post-acceptance non-closed binding failures (ack/recovery gap) ยังเปิด ตาม SPEC §21.
 - P2 apply/delete ยัง deferred.
-- Acceptance record PR รอ external review; ไม่มี PASS PR ก่อน operator ยืนยัน.
+- Acceptance record PR รอ external review; ไม่ประกาศผล PASS ของ PR นี้ก่อน operator ยืนยัน.
