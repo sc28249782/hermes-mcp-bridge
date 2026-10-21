@@ -12,6 +12,21 @@ Implementation ของ [SPEC §21](SPEC.md#21-context-lifecycle--closed-bindin
 
 อัปเดตสถานะ (21 ตุลาคม 2026): implementation ถูกรวมใน PR #70 ที่ main `227f2ad1f43ff64c6c4866595c9ea705fd7977b3` (review head `07bfe82`). ข้อความ "pending review" ข้างต้นคงเป็นหลักฐานย้อนหลังของ PR นี้. Scoped synthetic Dev acceptance ผ่านแล้ว (ตารางด้านล่าง). ยังไม่ released และยังไม่ deployed; ไม่มี release ที่ได้รับมอบหมาย.
 
+อัปเดตสถานะ 2 (21 ตุลาคม 2026): §21 delta เข้า scope v1.2.8 release candidate (tag pending) ตาม [scope decision packet](V1.2.8-RELEASE-DECISION-PROPOSAL-TH.md) ที่ operator อนุมัติแล้ว; suite/identity receipts อยู่ที่ [preparation record](V1.2.8-RELEASE-PREP-TH.md).
+
+### v1.2.8 release candidate preparation (21 ตุลาคม 2026)
+
+รายละเอียดเต็มอยู่ที่ [preparation record](V1.2.8-RELEASE-PREP-TH.md). ทุกชุดรันด้วย `-W error::ResourceWarning` และ `unittest discover -s tests`; ผลเป็น maintainer automation ไม่ใช่ external review. ไม่มี real model/backend task; identity checks ใช้ isolated synthetic/no-backend state เท่านั้น.
+
+| ชุด | Interpreter | ผล | Exit |
+| --- | --- | --- | --- |
+| Source ณ prep commit `52d9505` | Python 3.12.3 | 227 tests, OK, 0 skip/fail/error | 0 |
+| Source ณ prep commit `52d9505` | Python 3.14.7 | 227 tests, OK, 0 skip/fail/error | 0 |
+| Extracted จาก untagged diagnostic archive | Python 3.12.3 | 227 tests, OK, 0 skip/fail/error | 0 |
+| Extracted จาก untagged diagnostic archive | Python 3.14.7 | 227 tests, OK, 0 skip/fail/error | 0 |
+
+Identity parity (extracted candidate): `./bridge.sh version` และ SDK stdio `bridge_version` ตรง stamp `1.2.8`/`v1.2.8`/`release-archive`/`887436f`/`embedded-build-input` ทุก field; SDK `tools/list` = 27 tools (default; opt-in 28/33 ครอบด้วย opt-in tests ใน suite เดิม). หมายเหตุขั้นตอน: extract ด้วย zipfile ปกติ drop executable bit ของไฟล์ 755 — restore ตาม git mode ก่อนรัน (ครั้งแรกพบ 34 errors จาก fixture ไม่ executable; ไม่ใช่ defect ของ source) ตามรายละเอียดใน preparation record.
+
 - Registry mutation: `close`, `bind_hermes_run`, `bind_codex_job` เป็น conditional atomic UPDATE เงื่อนไข `closed IS NULL` หนึ่ง statement; classification unknown/closed ทำใน transaction เดียวกันด้วย error คงที่เดิม; `observe_hermes` อัปเดตได้มากที่สุด 1 row พร้อม guard ป้องกัน stale write; เพิ่ม `ContextClosedError` (subclass ของ `ContextError`).
 - Wrapper D5: precheck invalid/unknown/closed ก่อน backend call (0 backend calls); หลัง backend ACK ปกติ ถ้า bind ถูกปฏิเสธเพราะ close → success response คง output เดิมครบ + `context_binding="closed_rejected"` + note คงที่ตาม SPEC; bind สำเร็จ → `"bound"` ไม่มี note; ไม่มี context_id → ไม่มีทั้งสอง field; DB error/submit raise คง error เดิม ไม่ถูกแปลง.
 - ชุดทดสอบ: `tests/test_context_lifecycle.py` 21 tests ตาม acceptance matrix ของ §21.3; deterministic gates อยู่ก่อน UPDATE execute (หลัง precheck SELECT, ก่อน writer transaction เริ่ม — assert `in_transaction` เป็น false ก่อนรอ ไม่มี SQLite writer lock ค้างขณะรอ; bounded timeout fail ทันทีเมื่อหมดเวลา; ไม่มี time.sleep เป็นตัวจัดคิว); test at-most-one-row ไม่ผูกว่า candidate ใดชนะ (เช็คเฉพาะ "exactly one of two มี session, อีก row None, run id คงเดิม" ตาม contract — ไม่อ้างลำดับ lexicographic); รวม cross-process shared-state test (multiprocessing fork, queue reads แบบ bounded 2 ครั้ง + try/finally join/terminate), close-wins/bind-wins/double-close, late observe, precheck 0 backend calls (รวม context_id ว่าง), ACK→close→bind ครบทั้ง Hermes/Codex, replay ไม่เพิ่ม submission, DB error ไม่ถูกแปลง, restart ไม่ resubmit.

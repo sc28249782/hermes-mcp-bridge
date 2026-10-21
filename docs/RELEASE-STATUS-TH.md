@@ -1,9 +1,15 @@
 # Release status
 
-## §21 lifecycle — acceptance record closed; v1.2.8 proposal pending (21 October 2026)
+## v1.2.8 — release candidate, tag pending (21 October 2026)
+
+- Scope approval (21 October 2026): the operator selected option ก — approve the v1.2.8 scope and start Phase A — in chat (no exact timestamp is available in the message, so none is recorded). PR #72 merged at main `887436f359683f0215f1993d7cb0c9035ec93571` (reviewed head `4f09b44774f6075723f381675d5fee1e356289f2`, CI success at that head).
+- Phase A preparation: candidate stamp `1.2.8/v1.2.8` with reviewed build input `887436f359683f0215f1993d7cb0c9035ec93571` (not the final tag commit); documentation gate completed (production-status corrections across README/UPGRADE/OPERATIONS/COMPATIBILITY with dated historical notes preserved). Verification: source and extracted suites 227/227 OK on Python 3.12.3 and 3.14.7 (ResourceWarning-as-error, no skips); offline CLI/SDK identity parity exact; an **untagged diagnostic archive** (SHA-256 `a974d9d5b57c547ad4077f29880f844797db67071355d257e3610873d45fa307`, 433,952 bytes) was built locally — it is not a release asset and no checksum is committed to source. Details and limits: [preparation record](V1.2.8-RELEASE-PREP-TH.md).
+- Status: **tag pending** — not signed, tagged, published, or deployed. Production runs signed v1.2.7 (deployed 21 October 2026); release approval does not approve a v1.2.8 deployment. Open gaps (submit admission, crash-between-submit-and-bind, non-closed binding ack/recovery, uncertain replay) remain; P2/Hands/Events deferrals unchanged.
+
+## §21 lifecycle — acceptance record closed; v1.2.8 proposal approved (21 October 2026)
 
 - Acceptance record closure (21 October 2026): the [§21 scoped synthetic Dev acceptance record](CONTEXT-LIFECYCLE-DEV-ACCEPTANCE-TH.md) closed after PR #71 passed external APPROVE at review head `70bdd2154cfbadd8f2526dca2b07a173fb232a1e` (correction commit over `2a840d46803eff930915530bc4e3bda789c026fb`) and merged at `753f5b4fa1d9994964b78990d1efecedea9d765b`. The acceptance remains mock-backend evidence only; no real-backend/native-backend acceptance is claimed.
-- v1.2.8 release-readiness decision packet proposed (21 October 2026): [V1.2.8-RELEASE-DECISION-PROPOSAL-TH.md](V1.2.8-RELEASE-DECISION-PROPOSAL-TH.md) is a **PROPOSAL pending operator scope decision** — the name `v1.2.8` is proposed only and unassigned (checked unused), no stamp/archive/tag/publication/deployment is performed, and the defer/not-deploy option with the v1.2.7 rollback baseline is recorded. No release is assigned to the §21 delta yet.
+- v1.2.8 release-readiness decision packet (21 October 2026): [V1.2.8-RELEASE-DECISION-PROPOSAL-TH.md](V1.2.8-RELEASE-DECISION-PROPOSAL-TH.md) was a **PROPOSAL pending operator scope decision**; the operator then approved option ก the same day (see the v1.2.8 section above and the packet's dated approval note). The sentences here preserve the proposal-time state.
 
 ## v1.2.7 — released (20 October 2026)
 
