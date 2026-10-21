@@ -19,7 +19,7 @@
 | D1 | Double-close | คงพฤติกรรมปัจจุบัน: การ close ซ้ำบน context ที่ close แล้วคืน constant error เดิม (`contexts.py` `_row`: "Context is closed; create a new context_id instead.") | Terminal response แบบ idempotent | การคงเดิม = ไม่เปลี่ยน contract, ไม่ต้องแก้ SPEC; ทางเลือกต้องผ่าน §14 |
 | D2 | Error ของ bind-after-close | คง constant error เดิม; Approach A (conditional UPDATE) ต้องคืน error ข้อความเดิมเมื่อ rowcount เป็น 0 เพราะ close | เพิ่ม error เฉพาะกรณี | การคงเดิม = ไม่เปลี่ยน contract; ทางเลือกต้องผ่าน §14 |
 | D3 | Audit event สำหรับ bind ที่ถูกปฏิเสธ | **Defer** — ยังไม่เพิ่ม event; ใช้ error เดิมเป็น observable เพียงพอสำหรับขั้นนี้ | เพิ่ม event ใหม่ หาก operator ต้องการ trace | หากอนุมัติภายหลัง: fields จำกัดเฉพาะ `context_id`, action และ result สถานะเชิงนับ; ห้าม run_id/job_id ใหม่, label, path, prompt; ต้องผ่าน review ตาม §10/§19 |
-| D4 | ขอบเขต Approach A / Approach B | อนุมัติ (เมื่อ operator เห็นชอบ) เฉพาะ **conditional registry mutation**: bind/observe/close เป็น statement เดียวเงื่อนไข `closed IS NULL`; Approach B (durable intent) **deferred** เป็น SPEC/schema review แยก | เปิด Approach B ทันที | A ไม่เปลี่ยน schema/tool; แต่ A แก้เฉพาะการเขียน registry หลัง close — **ไม่** ปิดช่อง submit-after-close และ crash ระหว่าง submit→bind (ดู §4) |
+| D4 | ขอบเขต Approach A / Approach B | เสนอให้อนุมัติเฉพาะ **conditional registry mutation** (เมื่อ operator เห็นชอบ): bind/observe/close เป็น statement เดียวเงื่อนไข `closed IS NULL`; Approach B (durable intent) **deferred** เป็น SPEC/schema review แยก | เปิด Approach B ทันที | A ไม่เปลี่ยน schema/tool; แต่ A แก้เฉพาะการเขียน registry หลัง close — **ไม่** ปิดช่อง submit-after-close และ crash ระหว่าง submit→bind (ดู §4) |
 | D5 | ACK เมื่อ backend ยอมรับแต่ bind ล้มเหลว | เพิ่ม additive binding-outcome field (ร่างใน §3.2) โดยคง run_id/job_id/request_id เดิมทั้งหมด; แทนที่ raise หลัง acceptance ด้วย success response พร้อมผล binding ชัดเจน | ไม่เพิ่ม field — ใช้ reconciliation ผ่าน existing APIs (§6) และคง raise เดิม | **เป็น contract change** แม้ signature/discovery ไม่เปลี่ยน: response semantics + error ที่ไม่ raise อีก ต้องมี SPEC amendment ผ่าน §14 ก่อน implementation; ห้ามอ้างว่าโค้ดปัจจุบันรองรับ |
 
 ข้อความเตือนร่วม: successful backend acknowledgement ห้ามถูก mask เป็น submit failure และห้ามชวน resubmission; ผล binding ไม่ใช่สถานะ backend.
@@ -55,7 +55,7 @@
 
 ## 4. เงื่อนไขชุดทดสอบ synthetic (design constraint สำหรับ runtime PR ภายหลัง)
 
-- ควบคุมจังหวะด้วย barrier/event **ก่อน** SQL transaction เริ่มเท่านั้น; ห้าม block writer ขณะถือ SQLite lock แล้วรอ close commit ข้างขวาง process เดียวกัน (เสี่ยง deadlock).
+- ควบคุมจังหวะด้วย barrier/event **ก่อน** SQL transaction เริ่มเท่านั้น; ห้ามหยุด writer ค้างไว้ขณะถือ SQLite lock แล้วรอ close commit ใน process เดียวกัน (เสี่ยง deadlock).
 - กรณีตาม design §7 คงเดิม โดยเพิ่ม assertion ของ D5 เมื่ออนุมัติ: bind หลัง close คืน error คงที่และไม่เขียน row; bind ก่อน close คง binding บน row ที่ close; mock backend นับ submission = 1 ในทุก interleaving ที่ backend ยอมรับ; `request_id` same-input ตามกติกา replay เดิม ไม่มี duplicate job.
 
 ## 5. Implementation gate phases (ทุกข้อที่ผ่านการอนุมัติ)
