@@ -4,7 +4,7 @@
 สถานะ: **PROPOSAL — รอ review เท่านั้น**. เอกสารนี้ไม่ใช่ SPEC amendment ที่ผ่านการตัดสินใจแล้ว, ไม่ใช่การอนุมัติ implementation, และไม่ใช่การเปลี่ยน contract ปัจจุบัน.
 ขอบเขต: docs-only. เอกสารนี้ไม่เปลี่ยน runtime, tests, config, schema หรือ discovery count.
 ฐานอ้างอิง: `origin/main` ที่ `420fd76bc79fd1c1128f6f61000786354b374639` (merge ของ PR #66).
-ข้อกำหนดเดิมอยู่ใน [SPEC §8](SPEC.md#8-work-contexts) และ [SPEC §20](SPEC.md#20-context-p1--approved-scope-future-implementation-no-assigned-release); บันทึก scoping P1/P2 อยู่ใน [CONTEXT-RETENTION-SCOPE-TH.md](CONTEXT-RETENTION-SCOPE-TH.md).
+ข้อกำหนดเดิมอยู่ใน [SPEC §8](SPEC.md#8-work-contexts) และ [SPEC §20](SPEC.md#20-context-p1--v127-target-scope-approved-released); บันทึก scoping P1/P2 อยู่ใน [CONTEXT-RETENTION-SCOPE-TH.md](CONTEXT-RETENTION-SCOPE-TH.md).
 
 ## 1. ขอบเขตและข้อจำกัดของเอกสาร
 
@@ -68,7 +68,7 @@
 ### Failure หลัง backend ยอมรับ (acceptance-before-binding)
 
 - ownership ของ task อยู่ที่ backend store เดิมตั้งแต่ submit: ตาราง `runs` ของ Hermes และตาราง `jobs` ของ Codex พร้อม audit event การ submit.
-- ห้าม retry สุ่มสี่สุ่มห้า: ไม่มี resubmit อัตโนมัติ; `request_id` ที่ reuse ต่าง input ถูกปฏิเสธอยู่แล้วใน `core.py` submit.
+- ห้าม retry โดยไม่ตรวจสถานะก่อน: ไม่มี resubmit อัตโนมัติ; `request_id` ที่ reuse ต่าง input ถูกปฏิเสธอยู่แล้วใน `core.py` submit.
 - outcome ที่ไม่ทราบถูกแยกชัด: ถ้าผลจาก backend มาไม่ครบ ให้คงพฤติกรรม unknown ของ status/result เดิม; ห้ามแปลงเป็น completed หรือ failed.
 - reconciliation เสนอเป็นขั้นตอนชัดเจนของผู้ใช้: ดึง status/result ตาม `run_id`/`job_id` เดิม แล้ว (ถ้าต้องการ) บันทึก binding ใหม่ด้วยเครื่องมือเดิมต่อ context ที่ยัง open; ถ้า context close แล้ว ให้ผูก context ใหม่เมื่อ SPEC อนุมัติเส้นทางนั้น.
 
@@ -135,7 +135,7 @@
 
 ## 9. Operator decisions ที่ยังค้าง
 
-1. Double-close semantics: คงพฤติกรรมปัจจุบัน (error "Context is closed") หรือเปลี่ยนเป็น terminal response แบบ idempotent; การเปลี่ยนนี้แตะ close contract และต้องผ่าน §14.
+1. Double-close semantics: คงพฤติกรรมปัจจุบัน (error "Context is closed; create a new context_id instead.") หรือเปลี่ยนเป็น terminal response แบบ idempotent; การเปลี่ยนนี้แตะ close contract และต้องผ่าน §14.
 2. ข้อความ error ของ bind หลัง close: คงข้อความเดิม หรือเพิ่ม error เฉพาะกรณี; การเพิ่มต้องผ่าน §14.
 3. การบันทึก bind ที่ถูกปฏิเสธเพราะ close ลง audit เป็น event ใหม่หรือไม่; หากเพิ่ม ต้องระบุ fields ที่ปลอดภัยตาม §10/§19.
 4. Approach B (durable intent) จำเป็นหรือไม่ในระยะนี้; ถ้าใช่ ต้องเปิด SPEC/schema review แยก.
