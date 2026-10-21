@@ -9,14 +9,14 @@ Candidate v1.2.8 contains the reviewed SPEC §21 context-lifecycle delta only: c
 Released v1.2.7 combines the reviewed Codex read-ahead fix and Context P1.
 Signed tag `v1.2.7` (object `5a652cbf44c768cec70b3555686bbaaa93383d75`, peeled commit `625ea117aa693f577872638a6353b1408fb405aa`) passed local EDDSA verification with fingerprint `C4E9AFA9C97FC94CA2448E9218BDAEA561529B86`; the GitHub badge reports `verified: true`, reason `valid`.
 [Release assets](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.7) passed fresh-download verification, and the external fresh-input audit passed (operator-supplied report; scope limits in the [release record](docs/V1.2.7-RELEASE-RECORD-TH.md)).
-The deployment decision, including the not-deploy option, is pending. The production deployment remains v1.2.6. (21 October 2026 status update: production was upgraded to signed v1.2.7 on 21 October 2026; see the [deployment record](docs/V1.2.7-DEPLOYMENT-TH.md). The two sentences above preserve the 20 October pre-deployment state.)
+Production was upgraded to signed v1.2.7 on 21 October 2026; see the [deployment record](docs/V1.2.7-DEPLOYMENT-TH.md). Historical checkpoint (20 October 2026): the deployment decision, including the not-deploy option, was pending and production remained v1.2.6.
 See the [preparation record](docs/V1.2.7-RELEASE-PREP-TH.md) and [scope decision](docs/V1.2.7-RELEASE-DECISION-TH.md). P1 adds aggregate status/create warnings and a local preview; registry unavailability makes heartbeat `ok=false`, while a cap warning alone does not. No deletion or native history compaction is added.
 
 ## Codex result read-ahead fix (shipped in v1.2.7)
 
 This fix disables binary read-ahead to enforce the existing snapshot byte budget in SPEC §19.3.
 Regression tests cover truncation and appends on Python 3.12 and 3.14.
-This fix ships in released v1.2.7 and is not deployed in production v1.2.6. (21 October 2026 status update: it shipped to production with the v1.2.7 upgrade on 21 October 2026; the sentence above preserves the earlier state.)
+This fix ships in released v1.2.7 and reached production with the upgrade on 21 October 2026. Historical checkpoint (20 October 2026): it was not yet deployed on the production v1.2.6 baseline.
 See [testing evidence](docs/TESTING.md#unreleased--codex-result-read-ahead-fix).
 
 ## v1.2.6 — released (20 October 2026)
@@ -25,7 +25,7 @@ Released v1.2.6 implements the reviewed privacy requirements in [SPEC section 19
 It filters Hermes metadata, enforces private directory modes and bounds Codex result reads.
 The operator approved v1.2.6 as its target scope on 20 October 2026.
 The release is stamped 1.2.6/v1.2.6 with reviewed build input `e3e698a7a220bf14a8bb4d1260bf2ded7e666b56`.
-[Signed release assets](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.6) passed fresh-download verification. The operator separately approved deployment on 20 October 2026; production now runs v1.2.6.
+[Signed release assets](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.6) passed fresh-download verification. The operator separately approved deployment on 20 October 2026; production ran v1.2.6 at that dated checkpoint. Production subsequently moved to signed v1.2.7 on 21 October 2026.
 Cryptographic tag verification passed; GitHub's badge reports `no_user`. See the [release record](docs/RELEASE-STATUS-TH.md).
 See the [release-preparation record](docs/V1.2.6-RELEASE-PREP-TH.md) for verification gates.
 See the [scope decision record](docs/PRIVACY-RELEASE-DECISION-TH.md).
@@ -35,7 +35,7 @@ Securely connect ChatGPT to a local Hermes Agent and Codex CLI running in WSL2, 
 
 The bridge is a controlled local execution boundary. It does not expose a general remote shell.
 The current signed release is **v1.2.7**.
-The production deployment is **v1.2.6** (operator upgraded on 2026-10-20); the v1.2.7 upgrade decision, including the not-deploy option, is pending.
+The production deployment is **signed v1.2.7** (operator upgraded on 2026-10-21). Historical checkpoint (2026-10-20): production ran v1.2.6 and the v1.2.7 upgrade decision, including the not-deploy option, was pending. A v1.2.8 deployment requires a separate decision.
 The production upgrade checkpoint is recorded in [release status](docs/RELEASE-STATUS-TH.md).
 
 Released v1.2.5 adds the separately gated OpenCode execution opt-in.
@@ -47,7 +47,7 @@ The bridge reports version and provenance through local-only operations.
 A durable worker supervises each approved Codex write job.
 Status remains `running` when that worker is unavailable but its child is still alive.
 
-Earlier release: **2026-10-18**, **v1.2.4** with a GPG-signed annotated tag on `2133056`. It adds the disabled-by-default OpenCode health adapter (PR #34; discovery stays at the canonical 27 tools unless an operator opts in) and the legacy stdio discovery guard (PR #35). Release assets plus an external SHA256SUMS are published at https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.4 (ZIP SHA-256 `e6deb0e6ab16d669836b0e361e2e875858e19597ef35dc7e4fc19010a6a5f3a9`, download re-verified). MCP Events is not included (deferred, BLOCKED). Production deployment remains v1.2.3; this release requires no rollout, service, or config change. Current installation and upgrade instructions use v1.2.6.
+Earlier release: **2026-10-18**, **v1.2.4** with a GPG-signed annotated tag on `2133056`. It adds the disabled-by-default OpenCode health adapter (PR #34; discovery stays at the canonical 27 tools unless an operator opts in) and the legacy stdio discovery guard (PR #35). Release assets plus an external SHA256SUMS are published at https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.4 (ZIP SHA-256 `e6deb0e6ab16d669836b0e361e2e875858e19597ef35dc7e4fc19010a6a5f3a9`, download re-verified). MCP Events is not included (deferred, BLOCKED). Production deployment remains v1.2.3; this release requires no rollout, service, or config change. At that dated checkpoint, installation and upgrade instructions used v1.2.6. The current released production baseline is v1.2.7; v1.2.8 remains a tag-pending candidate.
 
 Deployment note (dated): the "Production deployment remains v1.2.3" statement in the paragraph above describes 2026-10-18, the v1.2.4 release date. A later checkpoint records production v1.2.6 on 2026-10-20; see [release status](docs/RELEASE-STATUS-TH.md).
 
