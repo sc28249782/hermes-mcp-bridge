@@ -2,7 +2,7 @@
 
 ## จาก v1.2.6 เป็น v1.2.7 — released; rollout ต้องได้รับอนุมัติแยก
 
-ส่วนนี้เป็นแผนอัปเกรดจาก [v1.2.7 released](V1.2.7-RELEASE-RECORD-TH.md). Source stamp เป็น 1.2.7/v1.2.7, embedded build input `07ec0069b952f08a49adbd0ec778c204f85ee282`. Signed release และ assets เผยแพร่แล้ว และ external fresh-input audit ผ่าน. ยังไม่มี deployment approval; deployment decision รวมตัวเลือกไม่อัปเกรดยังรอ operator. อย่าแก้ directory ของ production v1.2.6.
+ส่วนนี้เป็นแผนอัปเกรดจาก [v1.2.7 released](V1.2.7-RELEASE-RECORD-TH.md). Source stamp เป็น 1.2.7/v1.2.7, embedded build input `07ec0069b952f08a49adbd0ec778c204f85ee282`. Signed release และ assets เผยแพร่แล้ว และ external fresh-input audit ผ่าน. ยังไม่มี deployment approval; deployment decision รวมตัวเลือกไม่อัปเกรดยังรอ operator. อย่าแก้ directory ของ production v1.2.6. (หมายเหตุ 21 ตุลาคม 2026: operator อนุมัติและ deployment v1.2.7 ดำเนินการสำเร็จแล้ว ดู [deployment record](V1.2.7-DEPLOYMENT-TH.md); ข้อความนี้คงไว้เป็นบันทึกก่อน deployment.)
 
 1. เริ่ม upgrade ได้หลัง signed-tag/assets verification ผ่าน และ operator อนุมัติ deployment กับ maintenance window แยกแล้วเท่านั้น. หากยังไม่อนุมัติ ให้ใช้ production เดิม.
 2. ตรวจ active/unknown jobs และ terminal evidence ตาม runbook; HTTP 404 ไม่ใช่ terminal evidence. เตรียม private backup ของ config/state ตาม modes เดิม. ห้ามเผยแพร่ state/log/config เป็นหลักฐานสาธารณะ.
@@ -15,6 +15,8 @@
 9. หากผิด target หรือ acceptance ไม่ผ่าน ให้ห้ามเริ่มงานใหม่, ตรวจงานที่กำลังรันก่อนหยุด instance, คืน original v1.2.6 launch แล้วตรวจ identity/health อีกครั้ง. ห้าม state-merge/replay. บันทึก deployment decision/ผลจริงแยกจาก release verification.
 
 ## Codex result read-ahead fix — shipped in v1.2.7, not deployed
+
+(หมายเหตุ 21 ตุลาคม 2026: v1.2.7 deploy แล้ว ดู [deployment record](V1.2.7-DEPLOYMENT-TH.md); หัวข้อนี้คงไว้เป็นบันทึกก่อน deployment.)
 
 Candidate แก้การอ่าน Codex result เป็น unbuffered ตาม byte budget เดิมของ SPEC §19.3.
 WSL ทดสอบผ่านทั้ง Python 3.12.3 และ 3.14.7; ดู [TESTING.md](TESTING.md#unreleased--codex-result-read-ahead-fix).
