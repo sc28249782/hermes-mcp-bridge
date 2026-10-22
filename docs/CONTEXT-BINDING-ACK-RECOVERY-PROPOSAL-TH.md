@@ -39,6 +39,14 @@
 
 ขอบเขตทุกทางเลือก: ไม่เพิ่มการเปิดเผย exception string/path/SQL ใน result หรือ audit log; privacy rules ของ SPEC §19 คงเดิม. **เฉพาะทางเลือก ข** ต้องคง backend ACK เต็มรูปแบบพร้อม identifier ทุกตัวรวม `pending_local_approval`; ทางเลือก ก ยังคืน error และยังมีช่อง ACK ถูกซ่อนตาม section 3. ทุกทางเลือกห้าม retry/rebind/replay/cancel อัตโนมัติ; ห้ามเรียก backend เพิ่มเพื่อ reconcile จาก wrapper; กฎ replay แบบ same-key guarded ของ Hermes คงเดิม (`replayed_locally`, window 23 ชั่วโมง, capabilities check — `core.py:298-313`) และห้ามอ้าง exactly-once.
 
+## Checkpoint (22 ตุลาคม 2026): operator เลือกทางเลือก ข
+
+External review ของ packet นี้เป็น **APPROVE — merge-ready as draft** ที่ head `2730f224516eb32b2717e1293cec986e2a185941` (base `02868ab5eba3e7784b7725e83fdb2c526603d86a`). หลังจากนั้น operator เลือกทางเลือก ข ในแชตเมื่อ 22 ตุลาคม 2026 โดยมีข้อความ (verbatim):
+
+> เห็นด้วยกับการเลือก **ข**
+
+ไม่มีเวลา (hh:mm:ss) ในข้อความ จึงไม่สร้าง timestamp เพิ่มเติม (แนวทางเดียวกับ checkpoint ของ PR #68, #69 และ #73). การเลือกนี้เป็นการตัดสิน **ทิศทางเท่านั้น**: ไม่ใช่การอนุมัติชื่อ field (`binding_unresolved` ยังเป็นชื่อ DRAFT ตามตารางด้านบน), ข้อความ note, ข้อความ normative ฉบับสมบูรณ์, implementation, release หรือ deployment. ผลตามมาคือ SPEC §22 amendment แบบ PROPOSED ถูกเปิดเป็น stacked draft PR ที่ตัด branch ใหม่จาก head `2730f224…` และตั้ง base ชี้ที่ branch ที่ review แล้วของ PR #77 (แก้ไขไฟล์ เฉพาะ [SPEC](SPEC.md#22-context-binding-unresolved-proposed) และ checkpoint ของเอกสารนี้; ประวัติข้อความเดิมทุกประโยคคงเดิม). การ implement ยังต้องผ่าน section 14 review และ merge ของทั้ง PR #77 และ amendment PR ก่อนเสมอ; production v1.2.8 และ Dev pin `e7add7e` ไม่เปลี่ยน.
+
 ## 5. ขอบเขตที่ยัง DEFERRED (ไม่อยู่ใน packet นี้)
 
 submit admission; crash ระหว่าง submit–bind; ACK loss; uncertain backend replay; durable intents; P2 prune (apply/delete); Local Hands; MCP Events — ทั้งหมดคงสถานะ deferred เดิมตาม SPEC §21.1 และ [ROADMAP](ROADMAP.md).

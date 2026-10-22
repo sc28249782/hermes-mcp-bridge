@@ -206,6 +206,8 @@ Release checkpoint (20 October 2026): v1.2.7 is published via signed tag `625ea1
 
 Context lifecycle change-control checkpoint (21 October 2026): the operator approved decisions D1–D5 from the [decision packet](CONTEXT-LIFECYCLE-DECISION-PROPOSAL-TH.md) and authorized merging PR #68. The approval preceded that merge. Section 21 records the approved amendment (registry mutation semantics and the closed-binding submit outcome) for implementation review; it is unreleased and MUST NOT be presented as implemented. Implementation requires this amendment to pass section 14 review and merge first.
 
+Nonclosed binding outcome change-control checkpoint (22 October 2026): after external review APPROVED the [nonclosed binding ack/recovery decision packet](CONTEXT-BINDING-ACK-RECOVERY-PROPOSAL-TH.md) at head `2730f224516eb32b2717e1293cec986e2a185941`, the operator selected option ข — an additive unresolved-binding outcome after a successful backend acknowledgement. The approval is recorded verbatim in the packet checkpoint. The approval covers the scope choice only; it does not approve the exact outcome value, the note wording, the final normative text, implementation, release, or deployment. The proposed [section 22](#22-context-binding-unresolved-proposed) amendment is opened as a stacked draft PR that depends on PR #77 and uses the reviewed head of the packet branch as its base. Deployed v1.2.8 behavior is unchanged: section 21.2 remains the full requirement, and a non-closed binding failure still returns the existing whole-request error. Implementation requires section 14 review and merge of both PR #77 and the section 22 amendment first.
+
 ## 15. MCP Events capability gate (deferred — no assigned release; BLOCKED)
 
 This section is a future requirement, originally planned as the v1.2.4 target requirement; it is now deferred with no assigned release and remains blocked at the subscription gate. The released v1.2.3 bridge has no MCP Events capability, subscription state, callback sender, or event delivery.
@@ -462,7 +464,7 @@ The operator approved decisions D1–D5 from the [decision packet](CONTEXT-LIFEC
 - A sequential request that names an already-closed context MUST be rejected before submit with the existing registry error. The D5 outcome applies only to the wrapper flow above; the two paths are not contradictory.
 - The D5 outcome requires a successful return from the backend submit. A durable Codex job row alone MUST NOT produce it when the submit raised or the start was partial. Native permission replies and `pending_local_approval` behavior remain unchanged.
 - Pre-acceptance validation failures and backend exceptions keep the existing errors. No backend id or acknowledgement may be fabricated.
-- Post-acceptance binding failures other than closed-rejection (for example database busy or missing row) are outside the approved outcome. They MUST keep the existing error behavior, MUST NOT be silently converted to `closed_rejected`, and MUST NOT add new outcome values. The acknowledgement/recovery gap for those errors remains open and MUST NOT be presented as resolved.
+- Post-acceptance binding failures other than closed-rejection (for example database busy or missing row) are outside the approved outcome. They MUST keep the existing error behavior, MUST NOT be silently converted to `closed_rejected`, and MUST NOT add new outcome values. The acknowledgement/recovery gap for those errors remains open and MUST NOT be presented as resolved. (22 October 2026) A proposed scoped transition of this gap is defined in [section 22](#22-context-binding-unresolved-proposed): after a valid backend acknowledgement, a closed list of storage and registry failures inside the binding call alone would convert to a proposed `binding_unresolved` outcome. That transition takes effect only if section 22 passes section 14 review and merge; until then this bullet is the full requirement, the outcomes above are unchanged, and the gap stays open.
 - Hermes same-input `request_id` replay keeps its existing behavior: actual status fields, `replayed_locally`, the 23-hour guard window, and the capabilities check. Request-ID reuse MUST NOT be rejected wholesale, and exactly-once delivery MUST NOT be claimed.
 - The binding fields are a response contract change only: no tool input signature, config schema, or discovery-count change. Contexts stay metadata-only, and section 19 privacy rules are unchanged.
 
@@ -489,3 +491,56 @@ Test design uses deterministic barriers or events before the writer transaction 
 - This section authorizes no prune: P2 apply/delete remains deferred.
 
 Gates checkpoint (21 October 2026): these gates were executed as written. Section 14 review approved the amendment and PR #70 merged the implementation at main `227f2ad1f43ff64c6c4866595c9ea705fd7977b3`. The scoped Dev acceptance used the synthetic fixture ([acceptance record](CONTEXT-LIFECYCLE-DEV-ACCEPTANCE-TH.md)); the fixture ran the production `server()` and `ContextRegistry` code paths over the real Dev tunnel with a mock-transport Hermes acknowledgement and a stub Codex backend, so this is mock-backend evidence, not real-backend acceptance. Release and deployment remain separate steps; no release is assigned.
+
+## 22. Context binding — unresolved binding outcome after acceptance (PROPOSED — pending review and merge; not implemented)
+
+<a id="22-context-binding-unresolved-proposed"></a>
+
+This section is a PROPOSED amendment. The operator approved only the direction (option ข of the [nonclosed binding ack/recovery decision packet](CONTEXT-BINDING-ACK-RECOVERY-PROPOSAL-TH.md)) on 22 October 2026; that approval does not approve the exact outcome value, the note wording, this normative text, implementation, release, or deployment. This section is not part of any released baseline and MUST NOT be presented as implemented, released, or deployed. Deployed v1.2.8 keeps the section 21.2 behavior unchanged: a non-closed binding failure returns the existing whole-request error. This amendment takes effect only after it passes section 14 review and merge together with PR #77; until then, section 21.2 is the full requirement and the gap stays open.
+
+### 22.1 Scope and trigger
+
+- This outcome applies only when all of the following hold: the caller supplied a valid `context_id`; the backend submit returned its normal accepted acknowledgement; and the later binding call (`bind_hermes_run` or `bind_codex_job`) raised afterwards.
+- The backend submit MUST return its normal acknowledgement before any conversion. When the submit itself raises (including a raise after durable Codex job rows persist, or the `UPDATE runs SET run_id` step raising after a successful POST), or when acceptance is uncertain (transport error or timeout), the existing error MUST be kept and no acknowledgement may be fabricated.
+- Precheck rejection, a missing `context_id`, partial Codex start, and every exception raised outside the binding call keep the existing error and MUST NOT convert to this outcome.
+
+### 22.2 Proposed catch policy (ordered and closed)
+
+The proposed wrapper handles exceptions from the binding call only, in this order:
+
+1. `ContextClosedError` first: the existing `closed_rejected` outcome with the exact existing constant note, unchanged. Because `ContextClosedError` is a subclass of `ContextError`, this check MUST precede the `ContextError` case.
+2. `sqlite3.OperationalError`: the expected runtime storage failures of the binding transaction (locked or busy database, disk I/O).
+3. `ContextError` not already matched by item 1: registry failures raised by the binding call, including the unknown-row classification after a no-row conditional `UPDATE` and an unexpected input-validation failure at bind time.
+
+A catch of item 2 or item 3 MUST convert to a successful response that preserves the entire backend output, including Hermes `run_id`/`request_id`/`replayed_locally` and model metadata, and Codex `job_id`, status, and `pending_local_approval`. The response MUST add `context_binding` with the value `binding_unresolved`, and `context_binding_note` with exactly this constant: `Context binding outcome is unresolved. The task remains owned by this bridge and the context binding may already be recorded. Do not resubmit; retrieve the task by its existing identifiers and check task status.`
+
+- The outcome is uncertain by definition: an exception raised during commit or connection cleanup may follow an already-committed write. The response MUST NOT state whether the binding persisted.
+- The wrapper MUST NOT perform an automatic readback, retry, rebind, replay, cancel, or any backend call to reconcile, and MUST NOT assume the context is unbound. The echoed `context_id` identifies only the request intent and MUST NOT be read as a binding claim. The binding outcome stays separate from backend status; task status and result remain the status authority.
+- Every other exception propagates as the existing whole-request error: `AssertionError` (the fail-closed guard for an impossible registry state); `sqlite3` exceptions outside the allowlist, including `sqlite3.ProgrammingError`, `sqlite3.IntegrityError`, `sqlite3.InternalError`, `sqlite3.DataError`, `sqlite3.NotSupportedError`, and a plain `sqlite3.DatabaseError` (for example a malformed database image); `TypeError`, `KeyError`, and every other `Exception` subclass outside items 1–3; and every `BaseException` outside `Exception`, including `KeyboardInterrupt` and `SystemExit`.
+
+### 22.3 Catch-width decision and residual gap
+
+- The policy is deliberately narrower than a bare `except sqlite3.Error`: `sqlite3.Error` is the base class of `sqlite3.DatabaseError`, and `sqlite3.ProgrammingError` is in that chain, so a broad catch would convert code defects (for example a wrong parameter binding count) into a safe-looking outcome and hide them.
+- Tradeoff: `sqlite3.OperationalError` is the class the `sqlite3` module raises for locked, busy, and disk-I/O conditions, which is the concrete "database busy" family named in section 21.2. Corruption-class `sqlite3.DatabaseError` errors and `sqlite3.IntegrityError` are not caught: the binding `UPDATE` writes no new key or unique value, so an `IntegrityError` would signal unexpected state and must stay visible. These classes keep the existing whole-request error.
+- The residual gap is explicit: this policy MUST NOT be read as "all non-closed binding failures are handled". Excluded exceptions keep the existing error, and for them the acknowledgement/recovery gap of section 21.2 remains open.
+
+### 22.4 Boundaries
+
+- This is a response contract change only: no tool input signature, config schema, discovery-count, or persistence-schema change. Section 19 privacy rules are unchanged. No exception text, file path, SQL statement text, or per-exception reason may be added to the response or the audit log, and the existing constant registry error messages are unchanged and stay unexposed.
+- The section 21.2 outcomes (`bound`, `closed_rejected` with its exact constant, and absent fields when no `context_id` was supplied) are unchanged. The Hermes guarded same-key replay (`replayed_locally`, the 23-hour window, the capabilities check) is unchanged, and exactly-once delivery MUST NOT be claimed.
+- A registry bind MUST NOT hold a SQLite lock or a database transaction across a backend call (section 21.1 rule unchanged), and this outcome adds no backend invocation from the wrapper.
+
+### 22.5 Proposed acceptance matrix (PROPOSAL — this amendment writes no test)
+
+Test design follows the section 21.3 discipline: deterministic barriers or events, never sleeps, and real registry row-state verification. Implementation MUST cover at least:
+
+- both backends; a normal acknowledgement, then each allowlisted failure injected before the write, at commit, and after the commit, with the row state verified in each case;
+- unchanged outcomes: closed rejection, precheck rejection, no-context, partial start, a submit raise with persisted rows, `pending_local_approval`, and guarded replay;
+- excluded programming exceptions and fatal `BaseException` propagate as the existing error;
+- the full backend acknowledgement is preserved, and the backend call count is one.
+
+### 22.6 Gates
+
+- This amendment MUST pass section 14 review and merge, together with the merge of PR #77, before implementation starts.
+- Implementation follows in a small runtime PR with the deterministic tests of section 22.5, then scoped Dev acceptance; release and deployment remain separate steps. No release is assigned.
+- Deferred and unchanged: submit admission, a crash between submit and bind, ACK loss, uncertain backend replay, durable intents, P2 apply/delete, Local Hands, and MCP Events.
