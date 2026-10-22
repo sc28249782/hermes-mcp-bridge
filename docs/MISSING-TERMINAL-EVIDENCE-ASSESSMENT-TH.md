@@ -55,3 +55,26 @@ The task outcome stays unknown. No completed, failed, cancelled, successful reco
 No Hermes task, new API probe, receipt rescan, process inventory, fixture activation, runtime restart, registry change, cancellation, replay, or resubmission was performed for this assessment.
 No acceptance result is changed. The first attempt's missed preflight is not retroactively repaired.
 Production/Dev were not inspected or changed in this step. Release, deployment, automation, and systemd work remain separate.
+
+
+## Later source-capability check — 22 October 2026
+
+This checkpoint follows the initial documentary assessment above. A completed Hermes control task inspected installed source and the existing private diagnosis receipt within the named backup directory. It did not repeat the missing-run API request or collect a new process inventory. The earlier no-Hermes/no-receipt-rescan statement describes the initial assessment stage only.
+
+The local task reports a clean source checkout at `4e58c721c8cf9b51c46636ea84ea6a5cb540880a`. The following are maintainer-side source findings returned by that task, not an independent external audit or proof of loaded process code:
+
+| Source reference reported by the local task | Observation | Consequence for this case |
+| --- | --- | --- |
+| `hermes_state_runtime.py:227,245-246,264,271,293,302-306` | Claim, settlement, cancellation, and steering-only requeue have distinct lifecycle paths. | These rules support the existing distinction between positive terminal evidence and unresolved work. They do not supply a retirement record for the missing execution. |
+| `hermes_state_runtime.py:449-459`; `api_server_authority_runs.py:73,170` | Recovery does not replay started work; unresolved started work becomes unknown rather than an observed terminal outcome. Live worker adoption is a separate operation. | General recovery behavior does not establish cessation under every authority for this exact historical run. |
+| `agent/managed_worker.py:156-166` | Owner-death handling targets the worker's own process group. Tools that open a separate session are outside that group. | Owner death or an empty group cannot prove complete child/detached/external-writer cessation. |
+
+The task reused the prior diagnosis for the target's absent authority/idempotency/tombstone records. It found no new positive record matched to the target. This is a bounded-source result, not a claim that every possible store or backup was searched.
+The process-group limit does not prove that this run spawned detached work. It shows why that mechanism alone cannot establish complete coverage.
+No current or historical execution chain for this run was reconstructed to the standard required by §23.2(2)–(3).
+
+A separate private source-capability receipt was saved with reported file mode 0600 in a 0700 directory. The task reports exact source references, file hashes, observation time, and separated observations/inferences in that receipt. The parent received only a truncated receipt digest; no full-digest verification or frozen-dossier claim is made here. Private paths and run/request identities are omitted from this public record.
+
+Result remains **HOLD**. Neither positive cessation of every capable authority nor complete writer coverage has been demonstrated. Do not prepare this report as an approval-ready dossier or request local maintenance approval on its basis.
+Reopen the case only when a distinct, execution-bound evidence source becomes available. Further identical 404 checks, age checks, or process-absence checks cannot repair these gaps.
+No maintenance or acceptance repeat was performed. The control task wrote its private evidence receipt and normal task bookkeeping; this is not a claim of zero production-state writes.
