@@ -502,7 +502,7 @@ This section is a PROPOSED amendment. The operator approved only the direction (
 
 - This outcome applies only when all of the following hold: the caller supplied a valid `context_id`; the backend submit returned its normal accepted acknowledgement; and the later binding call (`bind_hermes_run` or `bind_codex_job`) raised afterwards.
 - The backend submit MUST return its normal acknowledgement before any conversion. When the submit itself raises (including a raise after durable Codex job rows persist, or the `UPDATE runs SET run_id` step raising after a successful POST), or when acceptance is uncertain (transport error or timeout), the existing error MUST be kept and no acknowledgement may be fabricated.
-- Precheck rejection, a missing `context_id`, partial Codex start, and every exception raised outside the binding call keep the existing error and MUST NOT convert to this outcome.
+- Precheck rejection, partial Codex start, and exceptions raised outside the binding call keep their existing errors and MUST NOT convert to this outcome. When no `context_id` was supplied, the existing submit behavior is unchanged: a normal acknowledgement is returned without either binding field.
 
 ### 22.2 Proposed catch policy (ordered and closed)
 
@@ -521,12 +521,12 @@ A catch of item 2 or item 3 MUST convert to a successful response that preserves
 ### 22.3 Catch-width decision and residual gap
 
 - The policy is deliberately narrower than a bare `except sqlite3.Error`: `sqlite3.Error` is the base class of `sqlite3.DatabaseError`, and `sqlite3.ProgrammingError` is in that chain, so a broad catch would convert code defects (for example a wrong parameter binding count) into a safe-looking outcome and hide them.
-- Tradeoff: `sqlite3.OperationalError` is the class the `sqlite3` module raises for locked, busy, and disk-I/O conditions, which is the concrete "database busy" family named in section 21.2. Corruption-class `sqlite3.DatabaseError` errors and `sqlite3.IntegrityError` are not caught: the binding `UPDATE` writes no new key or unique value, so an `IntegrityError` would signal unexpected state and must stay visible. These classes keep the existing whole-request error.
+- Tradeoff: `sqlite3.OperationalError` is the class the `sqlite3` module raises for locked, busy, and disk-I/O conditions, which is the concrete "database busy" family named in section 21.2. Corruption-class `sqlite3.DatabaseError` errors and `sqlite3.IntegrityError` are not caught: the binding `UPDATE` writes no new key or unique value, so an `IntegrityError` would signal unexpected state and must stay visible. These classes keep the existing whole-request error. `OperationalError` also covers some schema or SQL mistakes (for example a missing table); class membership alone does not prove a transient condition. This policy intentionally converts those errors inside the scoped binding call as well, without classifying by exception-message text, asserting retryability, or performing a retry.
 - The residual gap is explicit: this policy MUST NOT be read as "all non-closed binding failures are handled". Excluded exceptions keep the existing error, and for them the acknowledgement/recovery gap of section 21.2 remains open.
 
 ### 22.4 Boundaries
 
-- This is a response contract change only: no tool input signature, config schema, discovery-count, or persistence-schema change. Section 19 privacy rules are unchanged. No exception text, file path, SQL statement text, or per-exception reason may be added to the response or the audit log, and the existing constant registry error messages are unchanged and stay unexposed.
+- This is a response contract change only: no tool input signature, config schema, discovery-count, or persistence-schema change. Section 19 privacy rules are unchanged. No exception text, file path, SQL statement text, or per-exception reason may be added to the response or the audit log, and existing registry error contracts outside this conversion remain unchanged. For the converted cases, the fixed note replaces any exception detail; precheck and excluded errors retain their existing behavior.
 - The section 21.2 outcomes (`bound`, `closed_rejected` with its exact constant, and absent fields when no `context_id` was supplied) are unchanged. The Hermes guarded same-key replay (`replayed_locally`, the 23-hour window, the capabilities check) is unchanged, and exactly-once delivery MUST NOT be claimed.
 - A registry bind MUST NOT hold a SQLite lock or a database transaction across a backend call (section 21.1 rule unchanged), and this outcome adds no backend invocation from the wrapper.
 

@@ -45,7 +45,7 @@ External review ของ packet นี้เป็น **APPROVE — merge-ready
 
 > เห็นด้วยกับการเลือก **ข**
 
-ไม่มีเวลา (hh:mm:ss) ในข้อความ จึงไม่สร้าง timestamp เพิ่มเติม (แนวทางเดียวกับ checkpoint ของ PR #68, #69 และ #73). การเลือกนี้เป็นการตัดสิน **ทิศทางเท่านั้น**: ไม่ใช่การอนุมัติชื่อ field (`binding_unresolved` ยังเป็นชื่อ DRAFT ตามตารางด้านบน), ข้อความ note, ข้อความ normative ฉบับสมบูรณ์, implementation, release หรือ deployment. ผลตามมาคือ SPEC §22 amendment แบบ PROPOSED ถูกเปิดเป็น stacked draft PR ที่ตัด branch ใหม่จาก head `2730f224…` และตั้ง base ชี้ที่ branch ที่ review แล้วของ PR #77 (แก้ไขไฟล์ เฉพาะ [SPEC](SPEC.md#22-context-binding-unresolved-proposed) และ checkpoint ของเอกสารนี้; ประวัติข้อความเดิมทุกประโยคคงเดิม). การ implement ยังต้องผ่าน section 14 review และ merge ของทั้ง PR #77 และ amendment PR ก่อนเสมอ; production v1.2.8 และ Dev pin `e7add7e` ไม่เปลี่ยน.
+ไม่มีเวลา (hh:mm:ss) ในข้อความ จึงไม่สร้าง timestamp เพิ่มเติม (แนวทางเดียวกับ checkpoint ของ PR #68, #69 และ #73). การเลือกนี้เป็นการตัดสิน **ทิศทางเท่านั้น**: ไม่ใช่การอนุมัติชื่อ field (`binding_unresolved` ยังเป็นชื่อ DRAFT ตามตารางด้านบน), ข้อความ note, ข้อความ normative ฉบับสมบูรณ์, implementation, release หรือ deployment. ผลตามมาคือ SPEC §22 amendment แบบ PROPOSED ถูกเปิดเป็น stacked draft PR ที่ตัด branch ใหม่จาก head `2730f224…` และตั้ง base ชี้ที่ branch ที่ review แล้วของ PR #77 (แก้ [SPEC](SPEC.md#22-context-binding-unresolved-proposed) พร้อม checkpoint ในเอกสารนี้, ROADMAP และ RELEASE-STATUS; ประวัติข้อความเดิมคงเดิม). การ implement ยังต้องผ่าน section 14 review และ merge ของทั้ง PR #77 และ amendment PR ก่อนเสมอ; production v1.2.8 และ Dev pin `e7add7e` ไม่เปลี่ยน.
 
 ## 5. ขอบเขตที่ยัง DEFERRED (ไม่อยู่ใน packet นี้)
 
