@@ -1,9 +1,17 @@
 # Context binding (SPEC §22) — scoped synthetic Dev acceptance
 
 วันที่: 22 ตุลาคม 2026.
-สถานะ: **scoped synthetic Dev acceptance performed; parent-observed evidence; ยังรอ external review; ยังไม่ released และยังไม่ deployed**.
+สถานะ: **acceptance HOLD — functional synthetic observations recorded, but the first attempt omitted the Hermes quiescence check; a correctly gated repeat is blocked**. ยังรอ external review; ยังไม่ released และยังไม่ deployed.
 ฐาน: PR #79 — review head `44f3bacc9ea76157d05ebcd2f110ce3b76b55f38` (external APPROVE), merge `71dcae67cbfa6f0b953ab8d81198d073d202ed2a` เป็น main. Candidate ที่ใช้คือ clean checkout ที่ merge commit นี้ ตรวจ byte-identical ด้วย `git status` ที่ว่างและ hash ของไฟล์ runtime.
-เอกสารนี้ไม่อนุมาต release, deployment หรือ production acceptance. ไม่มี release ที่ได้รับมอบหมาย.
+เอกสารนี้ไม่อนุมัติ release, deployment หรือ production acceptance. ไม่มี release ที่ได้รับมอบหมาย.
+
+## Preflight correction — overall acceptance HOLD
+
+รอบแรกสลับ Dev ก่อนตรวจ Hermes-owned runs ครบรายรายการ เป็นข้อผิดพลาดของการเตรียม; ผล response/row-state ด้านล่างเป็น functional observations ของรอบนั้น ไม่ใช่หลักฐานว่าผ่าน quiescence gate ครบ. Quiescent baseline backup มี Hermes registrations 25 แถว โดย last-observed statuses เป็น completed 21 / cancelled 2 / failed 1 / running 1; cached observations ไม่ใช่การยืนยันสถานะจาก API ณ เวลาหยุด.
+
+ก่อนพยายามรอบสอง ได้ probe API ปัจจุบันครบ 25 run IDs: ยืนยัน terminal 8 รายการ (completed 5 / cancelled 2 / failed 1), อีก 17 ตอบ HTTP 404. ตัวเลข 404 ไม่ได้แปลว่ามีงาน active 17 งาน และไม่ใช่ terminal proof ด้วยตัวเอง; ไม่อนุมานจากอายุหรือ process absence. จึงบล็อกรอบสองก่อน stop/switch: ไม่เปิด fixture ใหม่, ไม่ cancel/replay/resubmit และไม่แก้สถานะใน DB. หลักฐานรายรายการเก็บแบบ private 0600; การตรวจภายหลังไม่พิสูจน์ย้อนหลังว่า gate รอบแรกผ่าน.
+
+Dev คืน baseline และ parent ยืนยัน identity/auth แล้วตาม checkpoint ด้านล่าง. การปิด acceptance ต้อง resolve terminal evidence ที่ขาดและทำรอบใหม่ภายใต้ gate ครบ; review หรือการอนุมัติเอกสารนี้ไม่ทำให้ gate ที่ตกหล่นผ่านย้อนหลัง.
 
 ## Scope และ fixture honesty
 
@@ -25,7 +33,7 @@ Fixture ไม่แตะ `version_info`: `bridge_version` รายงาน s
 
 ## การเตรียมและ activation
 
-Preflight: backup profile/config/state แบบ 0600 (dir 0700) ก่อนแก้อะไร; state tar เก็บหลัง writer หยุด (ไม่คัดลอก SQLite ขณะมี writer). Quiescence inventory ใช้ metadata เท่านั้น: codex jobs 0, opencode jobs 3 (completed ทั้งหมด), ไม่มี worker process — ผ่านก่อนหยุด. หยุด Dev เดิมด้วย stop ที่ตรวจ argv และ start identity ก่อน TERM แบบ graceful. เริ่ม fixture ผ่าน profile Dev เดิมด้วย ephemeral `--mcp.command` override; ไม่แก้ profile YAML; auth เดิม, tunnel id เดิม, health port `8081`. Production ไม่ถูกแตะตลอดช่วงทำงาน.
+Preflight: backup profile/config/state แบบ 0600 (dir 0700) ก่อนแก้อะไร; state tar เก็บหลัง writer หยุด (ไม่คัดลอก SQLite ขณะมี writer). Initial partial preflight ใช้ metadata ของ Codex jobs 0 และ OpenCode jobs 3 (completed ทั้งหมด) พร้อมตรวจ worker process; ตรวจ Hermes เพียง count 25 โดยไม่ได้ยืนยันสถานะรายรายการก่อนหยุด จึงไม่ผ่าน gate ที่ครบทุก backend ตาม correction ข้างต้น. หยุด Dev เดิมด้วย stop ที่ตรวจ argv และ start identity ก่อน TERM แบบ graceful. เริ่ม fixture ผ่าน profile Dev เดิมด้วย ephemeral `--mcp.command` override; ไม่แก้ profile YAML; auth เดิม, tunnel id เดิม, health port `8081`. ไม่มีการเปลี่ยน deployment/config หรือ restart Production ระหว่าง acceptance.
 
 Offline gates ผ่านก่อน activate: focused `tests/test_context_binding_unresolved` = 7/7 OK บน Python 3.14.7 ด้วย `-W error::ResourceWarning`; in-process smoke ตรวจ hook ครบทั้ง 7 labels ทั้งสอง backend พร้อม row-state; SDK stdio smoke `tools/list` = 27 (เป็น LOCAL capture ไม่ใช่ raw tunnel wire list).
 
@@ -48,7 +56,7 @@ Offline gates ผ่านก่อน activate: focused `tests/test_context_bin
 
 ## Production discipline และ restoration checkpoint
 
-Production runtime และ process chain ไม่ถูก restart และ deployment ไม่ถูกแตะ (ตรวจต่อเนื่องด้วย process identity ฝั่ง parent และเครื่อง). Record นี้ไม่อ้างว่า production state ทั้งหมด byte-identical หรือไม่มีการเขียนใด: control jobs ของ session ลงทะเบียนและบันทึก audit ตามระบบ production ปกติ. Restore: หยุด fixture ด้วย stop ที่ตรวจ argv, เก็บ snapshot fixture 0600 ก่อน, แล้วเริ่ม Dev เดิมด้วย command/profile/pin เดิม (ไม่แก้ YAML). ผลที่ตรวจแล้ว: Dev identity กลับ `1.2.4`/`e7add7e`/config schema 1/discovery 27 (parent live และ offline CLI); source/config/profile/state ตรง backup แบบ byte-identical. Delta เชิงปฏิบัติที่บันทึกตรง: Dev ตัวใหม่รันเป็น background worker ของ agent แทน foreground terminal เดิม; ไม่มี systemd service ติดตั้ง. Raw log รายละเอียดเป็นข้อมูล private; ข้อมูลสาธารณะรวมเฉพาะค่า counter โดยไม่มี path/PID.
+Production runtime และ process chain ไม่ถูก restart และ deployment ไม่ถูกแตะ (ตรวจ process identity ฝั่งเครื่อง และ parent ยืนยัน version/health ผ่าน connector). Record นี้ไม่อ้างว่า production state ทั้งหมด byte-identical หรือไม่มีการเขียนใด: control jobs ของ session ลงทะเบียนและบันทึก audit ตามระบบ production ปกติ. Restore: หยุด fixture ด้วย stop ที่ตรวจ argv, เก็บ snapshot fixture 0600 ก่อน, แล้วเริ่ม Dev เดิมด้วย command/profile/pin เดิม (ไม่แก้ YAML). ผลที่ตรวจแล้ว: Dev identity กลับ `1.2.4`/`e7add7e`/config schema 1/discovery 27 (parent live และ offline CLI); source/config/profile/state ตรง backup แบบ byte-identical. Delta เชิงปฏิบัติที่บันทึกตรง: Dev ตัวใหม่รันเป็น background worker ของ agent แทน foreground terminal เดิม; ไม่มี systemd service ติดตั้ง. Raw log รายละเอียดเป็นข้อมูล private; ข้อมูลสาธารณะรวมเฉพาะค่า counter โดยไม่มี path/PID.
 
 ## สิ่งที่ checkpoint นี้ไม่ปิด
 
