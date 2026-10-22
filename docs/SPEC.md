@@ -612,3 +612,6 @@ This is a proposed manual review matrix, not an executed test or an implementati
 - The decision packet and this SPEC/operations amendment MUST pass their required review and merge before this policy can be used.
 - A case-specific evidence review, explicit local operator decision, and separately approved maintenance plan MUST follow. None is authorized by the design-scope choice.
 - Runtime automation, new approval tooling, schema/API changes, release, deployment, and any acceptance repeat remain separate decisions. No release is assigned.
+
+
+Review/merge checkpoint (22 October 2026): PR #81 merged at `6af7c0b`; PR #82 passed external amendment review at `87abd958`, final main-target section 14 verification, and exact-head CI run `39787772426` before the operator authorized its merge at `3f1aab78`. The review/merge prerequisite in section 23.6 is closed; the PROPOSED wording above preserves the authoring stage. The [initial evidence assessment](MISSING-TERMINAL-EVIDENCE-ASSESSMENT-TH.md) does not establish the case-specific evidence floor. The unresolved run and PR #80 remain HOLD. No disposition, maintenance, acceptance repeat, or runtime action is approved by this checkpoint.

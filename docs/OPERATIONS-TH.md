@@ -254,3 +254,8 @@ Operator เลือกออกแบบแนวทาง ข เท่าน
 เก็บ dossier/approval/consumption เป็นไฟล์ 0600 ใน directory 0700. Public record ใช้เฉพาะ redacted scope, aggregates และข้อจำกัด; ไม่เผยแพร่ IDs, payloads หรือ paths.
 ทางเลือกนี้เป็น manual-only. การทำ approval reader, agent execution หรือ automated ledger ต้องมี amendment/implementation/acceptance แยก.
 Run ที่ค้างใน [PR #80](https://github.com/sc28249782/hermes-mcp-bridge/pull/80) ยังไม่มีหลักฐานครบตาม evidence floor นี้และยัง HOLD; procedure ข้างต้นไม่ใช่การตัดสินให้ run นั้นผ่าน.
+
+
+### Review/merge checkpoint — 22 October 2026
+
+PR #81 and PR #82 have merged; the amendment review/merge prerequisite is closed (PR #82 merge `3f1aab78`, reviewed head `87abd958`, exact-head CI `39787772426`). The PROPOSED wording above preserves the authoring stage. The [initial evidence assessment](MISSING-TERMINAL-EVIDENCE-ASSESSMENT-TH.md) still finds the case evidence insufficient. Do not use the procedure for the unresolved run: PR #80 remains HOLD. A separate case evidence review, scoped plan, and live local-terminal approval are still required before operator-performed maintenance.
