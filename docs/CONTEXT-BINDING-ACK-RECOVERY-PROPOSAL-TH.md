@@ -21,8 +21,8 @@
 - **ACK ปกติจาก backend**: submit คืนผลสำเร็จ (มี `run_id`/`job_id` จริง); ownership row persist แล้ว (`core.py:317-318`; `codex_core.py:269-277`).
 - **ไม่มี ACK**: precheck raise, transport error/timeout (`core.py:210-211`), partial start (Codex `_start` fail หลัง persist job row), หรือ `UPDATE runs SET run_id` raise หลัง POST สำเร็จ (`core.py:317-318`) — ห้ามสร้าง acknowledgement ปลอม.
 - **known-no-write**: exception เกิดก่อน `execute` หรือ `_classify_missing_or_closed` raise ใน transaction ที่ยังเปิด (`contexts.py:70-86`) — commit ไม่เกิดแน่นอน.
-- **uncertain registry commit**: `commit()` เอง raise (`contexts.py:34-42`) — bind อาจเขียนแล้วหรือยัง; ห้ามสรุปฝั่งใดฝั่งหนึ่ง.
-- `context_id` ที่ echo กลับคือ **เจตนาของ request** ไม่ใช่หลักฐานว่า bind สำเร็จ; binding outcome แยกจาก job status (`run.status` เป็น authority ของ status เท่านั้น).
+- **uncertain registry outcome**: caller เห็น exception ระหว่าง `commit()`/cleanup (`contexts.py:34-42`) หรือหลัง commit; exception อย่างเดียวไม่บอกว่า bind เขียนแล้วหรือยัง ต้องอาศัยหลักฐาน transaction และ row state. โดยเฉพาะ exception หลัง commit อาจเกิดทั้งที่ binding persist แล้ว.
+- `context_id` ที่ echo กลับคือ **เจตนาของ request** ไม่ใช่หลักฐานว่า bind สำเร็จ; binding outcome แยกจาก job status; task status/result เป็น authority ของสถานะ backend ตาม SPEC §21.2.
 - ห้ามสรุป "unbound" เพียงเพราะเกิด exception; ต้องจำแนก known-no-write กับ uncertain commit ก่อนเสมอ.
 
 ## 3. ช่องว่างที่เปิดอยู่ (the gap)
@@ -33,11 +33,11 @@
 
 | ทางเลือก | เนื้อหา | ผลต่อ contract |
 | --- | --- | --- |
-| **ก (คำแนะนำ — แคบที่สุด)** | คง error เดิมทั้งหมดตาม SPEC §21.2 + เพิ่มเอกสาร manual recovery ที่อธิบายขั้นตอนใช้ API เดิม (section 3) ให้ operator ใช้เมื่อเจอกรณีนี้ | ไม่เปลี่ยน code/schema/tools; ต้องแก้เฉพาะเอกสารปฏิบัติการ |
+| **ก (คำแนะนำ — แคบที่สุด)** | คง error เดิมทั้งหมดตาม SPEC §21.2 + เพิ่มเอกสาร manual recovery ที่อธิบายขั้นตอนใช้ API เดิม (section 3) ให้ operator ใช้เมื่อเจอกรณีนี้ | ไม่เปลี่ยน code/schema/tools; ลดความสับสนด้วยเอกสารปฏิบัติการ แต่ **ไม่ปิดช่อง ACK ถูกซ่อน** |
 | ข | เพิ่ม outcome แบบ additive หลัง ACK สำเร็จเท่านั้น: `context_binding` ค่าใหม่ (ชื่อ DRAFT เช่น `binding_unresolved` หรือ `bind_error`) โดยคง output ของ backend ทั้งหมดรวม `pending_local_approval` | เปลี่ยน response contract → ต้องมี SPEC §14 amendment แยกก่อน; ต้องจำแนก known-no-write กับ uncertain commit |
 | ค (ยัง DEFERRED) | auto retry/rebind/replay/cancel หรือ reconcile ด้วย backend call ใหม่จาก wrapper; durable intents | ขัดขอบเขต deferred ของ SPEC §21.1 — ไม่เสนอให้พิจารณาใน scope นี้ |
 
-ขอบเขต invariant ทุกทางเลือก: ห้าม leak exception string/path/SQL ออกใน result หรือ audit log (privacy constants ของ SPEC §19 คงเดิม); คง backend ACK เต็มรูปแบบพร้อม identifier ทุกตัวรวม `pending_local_approval`; ห้าม retry/rebind/replay/cancel อัตโนมัติ; ห้ามเรียก backend เพิ่มเพื่อ reconcile จาก wrapper; กฎ replay แบบ same-key guarded ของ Hermes คงเดิม (`replayed_locally`, window 23 ชั่วโมง, capabilities check — `core.py:298-313`) และห้ามอ้าง exactly-once.
+ขอบเขตทุกทางเลือก: ไม่เพิ่มการเปิดเผย exception string/path/SQL ใน result หรือ audit log; privacy rules ของ SPEC §19 คงเดิม. **เฉพาะทางเลือก ข** ต้องคง backend ACK เต็มรูปแบบพร้อม identifier ทุกตัวรวม `pending_local_approval`; ทางเลือก ก ยังคืน error และยังมีช่อง ACK ถูกซ่อนตาม section 3. ทุกทางเลือกห้าม retry/rebind/replay/cancel อัตโนมัติ; ห้ามเรียก backend เพิ่มเพื่อ reconcile จาก wrapper; กฎ replay แบบ same-key guarded ของ Hermes คงเดิม (`replayed_locally`, window 23 ชั่วโมง, capabilities check — `core.py:298-313`) และห้ามอ้าง exactly-once.
 
 ## 5. ขอบเขตที่ยัง DEFERRED (ไม่อยู่ใน packet นี้)
 
@@ -58,4 +58,4 @@ submit admission; crash ระหว่าง submit–bind; ACK loss; uncertain
 4. scoped Dev acceptance →
 5. release และ deployment เป็น gate แยกตาม [RELEASE-RUNBOOK-TH.md](RELEASE-RUNBOOK-TH.md).
 
-ขั้น 2–5 ยังไม่เริ่มจนกว่า operator จะอนุมัติในแต่ละ gate; การ merge PR ของ packet นี้ไม่ใช่การอนุมัติขั้นใดขั้นหนึ่ง.
+หากเลือก ก งานถัดไปเป็นเอกสาร manual recovery เท่านั้น; ขั้น runtime/Dev/release/deployment ไม่จำเป็นสำหรับการแก้เอกสารนั้น. หากเลือก ข ให้ผ่านขั้น 2–5 ตามลำดับและขอบเขตที่อนุมัติ; การ merge PR ของ packet นี้ไม่ใช่การเลือกทางเลือกหรืออนุมัติ implementation.
