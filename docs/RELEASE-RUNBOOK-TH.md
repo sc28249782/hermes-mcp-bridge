@@ -150,6 +150,11 @@
 ห้าม commit checksum ของ archive ปัจจุบันลง source tree ก่อนสร้าง archive: archive ที่บรรจุ checksum ของตัวเองเป็น self-reference. Root `SHA256SUMS` ไม่ใช่ authoritative manifest สำหรับ release ใหม่; ให้แนบ `SHA256SUMS` เป็น asset เดียวกับ ZIP.
 
 8. สร้าง GitHub Release พร้อม ZIP และ `SHA256SUMS`. หากทำงานนอก Git checkout ต้องระบุ `--repo owner/repo` กับ `gh release`.
+
+   - ตั้งชื่อ Release เป็นเลขรุ่นเท่านั้น เช่น `v1.2.8` (รูปแบบ `vX.Y.Z`); ไม่เติมชื่อโครงการไว้ข้างหน้า.
+   - เขียนคำอธิบายแบบ changelog สั้น ๆ ว่าเปลี่ยนอะไรจากรุ่นก่อน: feature ใหม่, bug ที่แก้ และการเปลี่ยนพฤติกรรมที่ผู้ใช้ต้องทราบ.
+   - ใช้ประโยคสั้น หนึ่งข้อเท็จจริงต่อประโยค และคำศัพท์เดิมอย่างสม่ำเสมอ ตาม [Writing Style Guide](WRITING-STYLE.md) ที่ใช้แนวทาง STE-inspired; ไม่อ้างว่าผ่าน ASD-STE100 compliance.
+   - ใส่ผลตรวจแบบสรุปเท่าที่จำเป็น แล้วลิงก์ไป release record สำหรับ tag, signature, checksum, receipt และข้อจำกัดฉบับเต็ม. ไม่ใส่รายละเอียดขั้นตอนตรวจทั้งหมดใน Release list.
 9. ดาวน์โหลด asset จาก GitHub ลง directory ใหม่ แล้วรัน `sha256sum -c SHA256SUMS` และ `unzip -t` ซ้ำก่อนประกาศ release สำเร็จ.
 
 ### Phase C — release record หลัง tag

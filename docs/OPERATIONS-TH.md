@@ -1,8 +1,8 @@
-# คู่มือปฏิบัติการ — released v1.2.7 (deployed 21 October 2026) / v1.2.8 candidate tag pending
+# คู่มือปฏิบัติการ — released v1.2.8 (22 October 2026, ยังไม่ deploy) / production signed v1.2.7
 
-## v1.2.8 — preparation checkpoint
+## v1.2.8 — release checkpoint
 
-Candidate stamp 1.2.8/v1.2.8 ใช้ reviewed build input `887436f359683f0215f1993d7cb0c9035ec93571`; ไม่ใช่ final tag commit. Scope รวมเฉพาะ SPEC §21 context-lifecycle delta. ยังไม่ released/deployed; production คง signed v1.2.7 และต้องมี deployment approval แยกก่อน upgrade v1.2.8. ดู [preparation record](V1.2.8-RELEASE-PREP-TH.md) และ [scope decision packet](V1.2.8-RELEASE-DECISION-PROPOSAL-TH.md).
+Released v1.2.8 ผ่าน signed tag `v1.2.8` (object `bb2f076bb3fd665950551ca613abb6ce6fb8f809`, peeled commit `1ae159031a53e4e5359fd39e61b2748159149a52`); assets สร้างจาก signed tag และผ่าน post-download verification ฝั่ง maintainer; external independent audit ยัง PENDING. Source stamp 1.2.8/v1.2.8 ใช้ reviewed build input `887436f359683f0215f1993d7cb0c9035ec93571`; ไม่ใช่ final tag commit. Scope รวมเฉพาะ SPEC §21 context-lifecycle delta. ยังไม่ deployed; production คง signed v1.2.7 และต้องมี deployment approval แยกก่อน upgrade v1.2.8. ดู [release record](V1.2.8-RELEASE-RECORD-TH.md), [preparation record](V1.2.8-RELEASE-PREP-TH.md) และ [scope decision packet](V1.2.8-RELEASE-DECISION-PROPOSAL-TH.md).
 
 ## v1.2.7 — preparation checkpoint
 

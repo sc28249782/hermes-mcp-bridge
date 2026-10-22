@@ -12,7 +12,7 @@ Implementation ของ [SPEC §21](SPEC.md#21-context-lifecycle--closed-bindin
 
 อัปเดตสถานะ (21 ตุลาคม 2026): implementation ถูกรวมใน PR #70 ที่ main `227f2ad1f43ff64c6c4866595c9ea705fd7977b3` (review head `07bfe82`). ข้อความ "pending review" ข้างต้นคงเป็นหลักฐานย้อนหลังของ PR นี้. Scoped synthetic Dev acceptance ผ่านแล้ว (ตารางด้านล่าง). ยังไม่ released และยังไม่ deployed; ไม่มี release ที่ได้รับมอบหมาย.
 
-อัปเดตสถานะ 2 (21 ตุลาคม 2026): §21 delta เข้า scope v1.2.8 release candidate (tag pending) ตาม [scope decision packet](V1.2.8-RELEASE-DECISION-PROPOSAL-TH.md) ที่ operator อนุมัติแล้ว; suite/identity receipts อยู่ที่ [preparation record](V1.2.8-RELEASE-PREP-TH.md).
+อัปเดตสถานะ 2 (21 ตุลาคม 2026): §21 delta เข้า scope v1.2.8 release candidate ตาม [scope decision packet](V1.2.8-RELEASE-DECISION-PROPOSAL-TH.md) ที่ operator อนุมัติแล้ว; suite/identity receipts อยู่ที่ [preparation record](V1.2.8-RELEASE-PREP-TH.md). อัปเดตสถานะ 3 (22 ตุลาคม 2026): v1.2.8 เผยแพร่แล้ว; extracted suites จาก release asset 227/227 OK ทั้งสอง interpreter ตาม [release record](V1.2.8-RELEASE-RECORD-TH.md).
 
 ### v1.2.8 release candidate preparation (21 ตุลาคม 2026)
 
