@@ -256,3 +256,6 @@ Optional follow-ups, lower priority:
 
 
 - Python 3.14 truncate-race: root cause reproduced as binary read-ahead. The unreleased candidate uses unbuffered Codex result reads to enforce the existing snapshot budget. A new regression also detects append read-ahead beyond the snapshot on 3.12.3 and 3.14.7; WSL candidate suites pass 185/185 on each. See [TESTING.md](TESTING.md#unreleased--codex-result-read-ahead-fix). Investigation/fix merged in PR #56 at `e24fa3e`; no release/deployment is assigned. Production stays on signed v1.2.6/Python 3.12.3.
+
+
+- Missing terminal evidence assessment (22 October 2026, after PR #82 merge `3f1aab78`): the amendment review/merge prerequisite has passed. The [initial documentary assessment](MISSING-TERMINAL-EVIDENCE-ASSESSMENT-TH.md) maps the existing PR #80 diagnosis to section 23.2. Positive authority cessation and complete writer coverage are not established; the case and PR #80 remain HOLD. No fresh local probe, disposition, maintenance, or acceptance repeat is claimed or authorized. Earlier proposal checkpoints retain their historical wording.
