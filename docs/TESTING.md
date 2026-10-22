@@ -1,5 +1,19 @@
 # Validation record — v1.2.5 released (2026-10-19)
 
+## Unreleased — unresolved binding outcome after acceptance (SPEC §22)
+
+Implementation ของ [SPEC §22](SPEC.md#22-context-binding-unresolved-proposed) ใน runtime PR นี้ pending review; สถานะคือ implemented pending review — ยังไม่ released และยังไม่ deployed, ไม่มี release ที่ได้รับมอบหมาย และไม่มี acceptance claim (scoped Dev acceptance เป็นขั้นถัดไป). ฐานอ้างอิง: suite เต็ม ณ base `4ed8765` คือ 227 tests; ส่วนขยายเพิ่ม `tests/test_context_binding_unresolved.py` (7 deterministic tests ตาม §22.5) และปรับ 2 lifecycle tests จาก pre-§22 expectation ของ `sqlite3.OperationalError` ที่ binding call ให้เป็น conversion contract ตาม §22.2 (ชื่อ method เปลี่ยนตาม, ไม่มี coverage เดิมถูกลบ).
+
+ทุกชุดรันด้วย `-W error::ResourceWarning` และ `unittest discover -s tests`; ผลเป็น maintainer automation ไม่ใช่ external review. ไม่มี real model/backend task.
+
+| ชุด | Interpreter | ผล | Exit |
+| --- | --- | --- | --- |
+| Focused `tests/test_context_binding_unresolved.py` ณ head นี้ | Python 3.12.3 | 7 tests, OK | 0 |
+| Focused `tests/test_context_binding_unresolved.py` ณ head นี้ | Python 3.14.7 | 7 tests, OK | 0 |
+| Full suite ณ head นี้ | Python 3.12.3 | 234 tests, OK, 0 skip/fail/error | 0 |
+| Full suite ณ head นี้ | Python 3.14.7 | 234 tests, OK, 0 skip/fail/error | 0 |
+| Full suite ณ head นี้ | Python 3.11.15 | 234 tests, OK, 0 skip/fail/error | 0 |
+
 ## v1.2.7 preparation — exact-head receipt
 
 Source stamp 1.2.7/v1.2.7 ใช้ reviewed input `07ec0069b952f08a49adbd0ec778c204f85ee282`. [Preparation record](V1.2.7-RELEASE-PREP-TH.md) กำหนด source/extracted suite, packaging/identity/discovery และ CI 3.12/3.14; ผลของ exact tested head กับ candidate checksum อยู่ใน PR receipt. ข้อความนี้ไม่เพิ่มผล PASS ล่วงหน้า. หลักฐาน P1 ที่ `27030bb` และ Codex fix ที่ reviewed head เดิมยังคงขอบเขตเดิม. Candidate ZIP ไม่ใช่ signed release.
