@@ -2,7 +2,7 @@
 
 ## v1.2.8 release candidate — §21-only delta, no new security surface
 
-Candidate v1.2.8 รวมเฉพาะ SPEC §21 context-lifecycle delta: registry mutation เป็น conditional atomic UPDATE บน metadata rows เดิม, `ContextClosedError` เป็น typed error ของ error family เดิม และ §21.2 `context_binding` เป็น response metadata ของ submit result เท่านั้น. ไม่มี deletion, new backend permission, native compaction, encryption หรือ sandbox เพิ่ม; contexts ยัง metadata-only และ §19 privacy rules คงเดิม. Stamp `1.2.8/v1.2.8` build input `887436f359683f0215f1993d7cb0c9035ec93571`; ยังไม่ signed/released/deployed. Production คง signed v1.2.7 (deployed 21 ตุลาคม 2026). ดู [scope decision packet](V1.2.8-RELEASE-DECISION-PROPOSAL-TH.md) และ [preparation record](V1.2.8-RELEASE-PREP-TH.md).
+Candidate v1.2.8 รวมเฉพาะ SPEC §21 context-lifecycle delta: registry mutation เป็น conditional atomic UPDATE บน metadata rows เดิม, `ContextClosedError` เป็น typed error ของ error family เดิม และ §21.2 `context_binding` เป็น response metadata ของ submit result เท่านั้น. ไม่มี deletion, new backend permission, native compaction, encryption หรือ sandbox เพิ่ม; contexts ยัง metadata-only และ §19 privacy rules คงเดิม. Stamp `1.2.8/v1.2.8` build input `887436f359683f0215f1993d7cb0c9035ec93571`. อัปเดตสถานะ (22 ตุลาคม 2026): v1.2.8 เผยแพร่แล้วผ่าน signed tag `v1.2.8` (object `bb2f076bb3fd665950551ca613abb6ce6fb8f809`, peeled commit `1ae159031a53e4e5359fd39e61b2748159149a52`); ยังไม่ deployed. Production คง signed v1.2.7 (deployed 21 ตุลาคม 2026). ดู [scope decision packet](V1.2.8-RELEASE-DECISION-PROPOSAL-TH.md), [preparation record](V1.2.8-RELEASE-PREP-TH.md) และ [release record](V1.2.8-RELEASE-RECORD-TH.md).
 
 ## v1.2.7 released — existing read budget and metadata-only P1
 

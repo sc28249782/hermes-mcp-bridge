@@ -1,8 +1,8 @@
 # ผล Live Acceptance
 
-## v1.2.8 — release verification ยังไม่ดำเนินการ (candidate, tag pending)
+## v1.2.8 — released; release verification ฝั่ง maintainer ผ่านแล้ว (22 October 2026); external audit pending
 
-Candidate v1.2.8 มี §21 runtime ที่ implemented + tested (unit/integration ระดับ suite และ synthetic transport acceptance) แต่ยังไม่ `accepted` ในมิติ release verification: source/extracted suite receipts ตาม [preparation record](V1.2.8-RELEASE-PREP-TH.md) เป็น maintainer automation; release verification และ fresh tag/assets audit รอ Phase B หลัง signed tag. Acceptance เดิมเป็น synthetic-backend evidence เท่านั้น — ไม่ใช่ real-backend acceptance. Production ยังคง signed v1.2.7.
+v1.2.8 เผยแพร่แล้วผ่าน signed annotated tag `v1.2.8` (object `bb2f076bb3fd665950551ca613abb6ce6fb8f809`, peeled commit `1ae159031a53e4e5359fd39e61b2748159149a52`) และ [GitHub Release](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.8) เมื่อ 22 ตุลาคม 2026. §21 runtime shipped ใน released v1.2.8; release verification ฝั่ง maintainer (extracted suites 227/227 ทั้ง Python 3.12.3/3.14.7, identity parity, post-download checks) ผ่านตาม [release record](V1.2.8-RELEASE-RECORD-TH.md); **external independent fresh-input audit ยัง PENDING**. ข้อความด้านล่างคงเป็นสถานะช่วง candidate ก่อน signed tag. Acceptance เดิมเป็น synthetic-backend evidence เท่านั้น — ไม่ใช่ real-backend acceptance. Production ยังคง signed v1.2.7.
 
 ## v1.2.7 — released; release verification และ external fresh-input audit (20 October 2026)
 
