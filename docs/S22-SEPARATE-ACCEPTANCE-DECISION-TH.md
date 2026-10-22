@@ -1,5 +1,7 @@
 # SPEC §22 — separate acceptance environment decision packet
 
+Current checkpoint (22 October 2026): the operator selected option ข for feasibility design only. See the dated choice checkpoint below; the original no-choice wording is retained as history.
+
 Date: 22 October 2026.
 Status: **PROPOSAL — no option selected; no setup or acceptance authorized**.
 Base: main `de773eceda598b522a8a7e4b45aabcfef6dddb54` (PR #83 merge).
@@ -50,3 +52,14 @@ These are unverified design requirements. No available machine, isolation produc
 Read GitHub PR metadata and the merged SPEC/operations text. PR #83 is merged at the base above; PR #80 is still draft and unmerged.
 No Hermes task, private evidence rescan, status probe, source/runtime test, isolation setup, environment creation, tunnel/connector change, state copy, maintenance, or acceptance was performed.
 This packet contains no executable setup commands and claims no feasibility result.
+
+
+## Design choice checkpoint — 22 October 2026
+
+Operator message, verbatim:
+
+> เลือก ข
+
+No exact approval time is present in the chat message; none is invented. This selects feasibility design only. It authorizes no merge, setup, cost, credentials, connector, activation, maintenance, acceptance, release or deployment.
+This checkpoint was not part of reviewed PR #84 head `c4faf5e`; the parent branch remains unchanged.
+The [public feasibility design](S22-SEPARATE-ACCEPTANCE-FEASIBILITY-TH.md) contains requirements only, not a local capability inventory or verified environment. Setup/activation remain HOLD; no resource is selected.
