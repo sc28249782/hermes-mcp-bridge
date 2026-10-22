@@ -259,3 +259,6 @@ Optional follow-ups, lower priority:
 
 
 - Missing terminal evidence assessment (22 October 2026, after PR #82 merge `3f1aab78`): the amendment review/merge prerequisite has passed. The [initial documentary assessment](MISSING-TERMINAL-EVIDENCE-ASSESSMENT-TH.md) maps the existing PR #80 diagnosis to section 23.2. Positive authority cessation and complete writer coverage are not established; the case and PR #80 remain HOLD. No fresh local probe, disposition, maintenance, or acceptance repeat is claimed or authorized. Earlier proposal checkpoints retain their historical wording.
+
+
+- Separate §22 acceptance environment proposal (22 October 2026, after PR #83): [decision packet](S22-SEPARATE-ACCEPTANCE-DECISION-TH.md) offers defer versus feasibility design for a disposable, independently controlled test environment. No option is selected. Isolation, ownership coverage, route availability, and contract compatibility are unverified; no setup, connector change, acceptance repeat, gate exemption, disposition, release, or deployment is authorized. PR #80 remains draft and HOLD.
