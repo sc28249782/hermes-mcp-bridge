@@ -1,8 +1,10 @@
-# คู่มือปฏิบัติการ — released v1.2.8 (22 October 2026, ยังไม่ deploy) / production signed v1.2.7
+# คู่มือปฏิบัติการ — released และ deployed v1.2.8 (22 October 2026) / production signed v1.2.8
 
 ## v1.2.8 — release checkpoint
 
-Released v1.2.8 ผ่าน signed tag `v1.2.8` (object `bb2f076bb3fd665950551ca613abb6ce6fb8f809`, peeled commit `1ae159031a53e4e5359fd39e61b2748159149a52`); assets สร้างจาก signed tag และผ่าน post-download verification ฝั่ง maintainer; external independent fresh-input audit ผ่าน (APPROVE ที่ PR #74 head `cddcdb5`; ดู [release record](V1.2.8-RELEASE-RECORD-TH.md)). Source stamp 1.2.8/v1.2.8 ใช้ reviewed build input `887436f359683f0215f1993d7cb0c9035ec93571`; ไม่ใช่ final tag commit. Scope รวมเฉพาะ SPEC §21 context-lifecycle delta. ยังไม่ deployed; production คง signed v1.2.7 และต้องมี deployment approval แยกก่อน upgrade v1.2.8. ดู [release record](V1.2.8-RELEASE-RECORD-TH.md), [preparation record](V1.2.8-RELEASE-PREP-TH.md) และ [scope decision packet](V1.2.8-RELEASE-DECISION-PROPOSAL-TH.md).
+Released v1.2.8 ผ่าน signed tag `v1.2.8` (object `bb2f076bb3fd665950551ca613abb6ce6fb8f809`, peeled commit `1ae159031a53e4e5359fd39e61b2748159149a52`); assets สร้างจาก signed tag และผ่าน post-download verification ฝั่ง maintainer; external independent fresh-input audit ผ่าน (APPROVE ที่ PR #74 head `cddcdb5`; ดู [release record](V1.2.8-RELEASE-RECORD-TH.md)). Source stamp 1.2.8/v1.2.8 ใช้ reviewed build input `887436f359683f0215f1993d7cb0c9035ec93571`; ไม่ใช่ final tag commit. Scope รวมเฉพาะ SPEC §21 context-lifecycle delta. ดู [release record](V1.2.8-RELEASE-RECORD-TH.md), [preparation record](V1.2.8-RELEASE-PREP-TH.md) และ [scope decision packet](V1.2.8-RELEASE-DECISION-PROPOSAL-TH.md).
+
+Deployment checkpoint (22 ตุลาคม 2026): production อัปเกรดจาก signed v1.2.7 เป็น signed v1.2.8 แล้วตามการอนุมัติ option ก ของ operator («merge และ ก: deploy v1.2.8 ตามแผนและผ่านทุก gate») และแผนจาก [deployment decision packet](V1.2.8-DEPLOYMENT-DECISION-TH.md) (merge PR #75 ที่ main `0d9174e…`). Parent ยืนยัน live identity/health ผ่าน production connector แล้ว (identity, bridge_status ok, Hermes authentication verified, watchdog running interval 15, contexts registry state ok, Hands disabled); ข้อจำกัด: connector inventory 33 tools ไม่ใช่ raw wire `tools/list`. ดู [deployment record](V1.2.8-DEPLOYMENT-TH.md). ข้อความ "ยังไม่ deployed / production คง signed v1.2.7" ด้านล่างคงไว้เป็นบันทึกก่อน deployment.
 
 ## v1.2.7 — preparation checkpoint
 
