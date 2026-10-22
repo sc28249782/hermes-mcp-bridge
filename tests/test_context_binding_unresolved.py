@@ -10,6 +10,7 @@ binding call (precheck, submit, acknowledgement extraction) must keep the
 existing error.
 """
 from pathlib import Path
+from copy import deepcopy
 from contextlib import contextmanager
 import sqlite3
 import tempfile
@@ -85,6 +86,21 @@ class TestBindingUnresolvedOutcome(unittest.TestCase):
                                httpx.MockTransport(self.fake), self.model_config)
         self.contexts = CommitGateRegistry(self.b.state, self.b.audit)
         self.mcp = bridge.server(self.b, self.codex, HandsStub(), self.contexts, None, None)
+        self.backend_acks = {}
+        # Snapshot the entire acknowledgement before the wrapper adds binding
+        # fields. Comparing every nested value detects payload changes as well
+        # as missing/extra keys.
+        for backend, obj in (("hermes", self.b), ("codex", self.codex)):
+            original_submit = obj.submit
+
+            def capture_ack(*args, _backend=backend, _submit=original_submit, **kwargs):
+                output = _submit(*args, **kwargs)
+                self.backend_acks[_backend] = deepcopy(output)
+                return output
+
+            patcher = patch.object(obj, "submit", side_effect=capture_ack)
+            patcher.start()
+            self.addCleanup(patcher.stop)
 
     def tearDown(self):
         self.b.client.close()
@@ -109,6 +125,8 @@ class TestBindingUnresolvedOutcome(unittest.TestCase):
         self.assertEqual(out["context_binding"], "binding_unresolved")
         self.assertEqual(out["context_binding_note"], _UNRESOLVED_BINDING_NOTE)
         self.assertEqual(out["context_id"], cid)
+        self.assertEqual({key: value for key, value in out.items() if key not in BINDING_FIELDS},
+                         self.backend_acks[backend])
         status = self.contexts.status(cid)
         if backend == "hermes":
             self.assertEqual(set(out) - BINDING_FIELDS, HERMES_ACK_KEYS)
@@ -232,13 +250,30 @@ class TestBindingUnresolvedOutcome(unittest.TestCase):
         self.fake.lost = False
         self.assertEqual(len(self.b.recent()["runs"]), 1)
         self.assertEqual(self.fake.posts, 1)
-        # Codex: the submit raise after the durable start is kept; the wrapper
-        # converts nothing because the failure is outside the binding call.
+        # Codex boundary fixture: commit an actual synthetic job row to a
+        # separate SQLite store, then raise without returning an acknowledgement.
+        # This proves wrapper behavior after durable registration, not native
+        # Codex process startup or a real backend acceptance.
         cid2 = self.contexts.create("fixture codex raise")["context_id"]
-        with patch.object(self.codex, "submit", side_effect=CodexError("start failed after durable rows")):
-            with self.assertRaises(CodexError):
-                self._tool("codex_submit_task")(prompt="fixture", workspace=WORKSPACE, context_id=cid2)
-        self.assertEqual(self.contexts.status(cid2)["codex_job_id"], None)
+        job_store = Path(self.tmp.name) / "synthetic-codex-jobs.sqlite3"
+        job_id = "codex_" + "a" * 32
+
+        def persist_then_raise(*args, **kwargs):
+            with sqlite3.connect(job_store) as db:
+                db.execute("CREATE TABLE jobs (job_id TEXT PRIMARY KEY, status TEXT)")
+                db.execute("INSERT INTO jobs VALUES (?, ?)", (job_id, "queued"))
+            raise CodexError("start failed after durable rows")
+
+        with patch.object(self.codex, "submit", side_effect=persist_then_raise) as submit:
+            with patch.object(self.contexts, "bind_codex_job") as bind:
+                with self.assertRaises(CodexError):
+                    self._tool("codex_submit_task")(prompt="fixture", workspace=WORKSPACE, context_id=cid2)
+                bind.assert_not_called()
+            submit.assert_called_once()
+        with sqlite3.connect(job_store) as db:
+            self.assertEqual(db.execute("SELECT job_id, status FROM jobs").fetchall(),
+                             [(job_id, "queued")])
+        self.assertIsNone(self.contexts.status(cid2)["codex_job_id"])
 
     def test_guarded_replay_after_unresolved_binding_adds_no_post(self):
         cid = self.contexts.create("fixture replay")["context_id"]

@@ -4,15 +4,17 @@
 
 Implementation ของ [SPEC §22](SPEC.md#22-context-binding-unresolved-proposed) ใน runtime PR นี้ pending review; สถานะคือ implemented pending review — ยังไม่ released และยังไม่ deployed, ไม่มี release ที่ได้รับมอบหมาย และไม่มี acceptance claim (scoped Dev acceptance เป็นขั้นถัดไป). ฐานอ้างอิง: suite เต็ม ณ base `4ed8765` คือ 227 tests; ส่วนขยายเพิ่ม `tests/test_context_binding_unresolved.py` (7 deterministic tests ตาม §22.5) และปรับ 2 lifecycle tests จาก pre-§22 expectation ของ `sqlite3.OperationalError` ที่ binding call ให้เป็น conversion contract ตาม §22.2 (ชื่อ method เปลี่ยนตาม, ไม่มี coverage เดิมถูกลบ).
 
+Receipt ฝั่งผู้เขียนด้านล่างเป็นผล ณ `11aa70115922dd14340561bca8a328b166a81253`; commit ถัดมาเสริมการเทียบ ACK ทุกค่าจาก snapshot และ fixture ที่ commit synthetic Codex job row ก่อน submit raise. Runtime ไม่เปลี่ยนจาก `11aa701`; ไม่ขยายผล local receipt เดิมว่าเป็นการรัน tests ฉบับที่เสริมแล้ว และต้องตรวจ CI ที่ exact head ใหม่แยกต่างหาก.
+
 ทุกชุดรันด้วย `-W error::ResourceWarning` และ `unittest discover -s tests`; ผลเป็น maintainer automation ไม่ใช่ external review. ไม่มี real model/backend task.
 
 | ชุด | Interpreter | ผล | Exit |
 | --- | --- | --- | --- |
-| Focused `tests/test_context_binding_unresolved.py` ณ head นี้ | Python 3.12.3 | 7 tests, OK | 0 |
-| Focused `tests/test_context_binding_unresolved.py` ณ head นี้ | Python 3.14.7 | 7 tests, OK | 0 |
-| Full suite ณ head นี้ | Python 3.12.3 | 234 tests, OK, 0 skip/fail/error | 0 |
-| Full suite ณ head นี้ | Python 3.14.7 | 234 tests, OK, 0 skip/fail/error | 0 |
-| Full suite ณ head นี้ | Python 3.11.15 | 234 tests, OK, 0 skip/fail/error | 0 |
+| Focused `tests/test_context_binding_unresolved.py` ณ `11aa701` | Python 3.12.3 | 7 tests, OK | 0 |
+| Focused `tests/test_context_binding_unresolved.py` ณ `11aa701` | Python 3.14.7 | 7 tests, OK | 0 |
+| Full suite ณ `11aa701` | Python 3.12.3 | 234 tests, OK, 0 skip/fail/error | 0 |
+| Full suite ณ `11aa701` | Python 3.14.7 | 234 tests, OK, 0 skip/fail/error | 0 |
+| Full suite ณ `11aa701` | Python 3.11.15 | 234 tests, OK, 0 skip/fail/error | 0 |
 
 ## v1.2.7 preparation — exact-head receipt
 
