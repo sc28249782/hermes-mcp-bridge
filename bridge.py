@@ -2,6 +2,7 @@
 """stdio MCP adapter and local operator commands."""
 import argparse
 import json
+import sqlite3
 import sys
 from pathlib import Path
 from typing import Any
@@ -20,6 +21,33 @@ from version_core import report as bridge_version_report
 
 # SPEC section 21.2: exact constant returned with context_binding="closed_rejected".
 _CLOSED_BINDING_NOTE = "Context was closed before binding. The task remains owned by this bridge. Do not resubmit; retrieve it by its existing identifiers."
+
+# SPEC section 22.2: exact constant returned with context_binding="binding_unresolved".
+# It states no exception, SQL, or path detail and asserts neither binding nor retryability.
+_UNRESOLVED_BINDING_NOTE = ("Context binding outcome is unresolved. The task remains owned by this bridge "
+                            "and the context binding may already be recorded. Do not resubmit; retrieve the "
+                            "task by its existing identifiers and check task status.")
+
+
+def _binding_outcome(bind, *args):
+    """Run one registry binding call and classify only its own failure.
+
+    SPEC section 22.2 ordered, closed catch policy. The try block wraps ONLY
+    the binding call: ContextClosedError first (the existing closed_rejected
+    outcome, unchanged), then sqlite3.OperationalError and ContextError
+    (not already matched) become binding_unresolved. Every other exception
+    propagates unchanged: excluded sqlite3 subclasses (ProgrammingError,
+    IntegrityError, InternalError, DataError, NotSupportedError, and a plain
+    DatabaseError), AssertionError, TypeError, KeyError, every other
+    Exception subclass, and every BaseException outside Exception.
+    """
+    try:
+        bind(*args)
+        return "bound"
+    except ContextClosedError:
+        return "closed_rejected"
+    except (sqlite3.OperationalError, ContextError):
+        return "binding_unresolved"
 
 
 def server(b, c, h, contexts, opencode=None, opencode_tasks=None):
@@ -129,17 +157,18 @@ def server(b, c, h, contexts, opencode=None, opencode_tasks=None):
             session_id = contexts.hermes_session(context_id)
         output = b.submit(prompt, request_id, session_id, model, provider, model_options)
         if context_id is not None:
-            # SPEC section 21.2 (D5): only a closed-rejection bind failure after a
-            # normal backend acknowledgement becomes the closed_rejected outcome.
-            try:
-                contexts.bind_hermes_run(context_id, output["run_id"])
-                binding = "bound"
-            except ContextClosedError:
-                binding = "closed_rejected"
+            # SPEC sections 21.2 and 22.2: the catch policy wraps only the
+            # binding call. A closed rejection keeps the closed_rejected
+            # outcome; an allowlisted storage or registry failure becomes
+            # binding_unresolved with the backend acknowledgement preserved.
+            # Every other exception propagates unchanged.
+            binding = _binding_outcome(contexts.bind_hermes_run, context_id, output["run_id"])
             output["context_id"] = context_id
             output["context_binding"] = binding
             if binding == "closed_rejected":
                 output["context_binding_note"] = _CLOSED_BINDING_NOTE
+            elif binding == "binding_unresolved":
+                output["context_binding_note"] = _UNRESOLVED_BINDING_NOTE
         return output
 
     @m.tool(annotations=read, structured_output=True)
@@ -194,17 +223,18 @@ def server(b, c, h, contexts, opencode=None, opencode_tasks=None):
             raise CodexError("workspace is required for a new or unbound context.")
         output = c.submit(prompt, workspace, mode, model, reasoning_effort)
         if context_id is not None:
-            # SPEC section 21.2 (D5): only a closed-rejection bind failure after a
-            # normal backend acknowledgement becomes the closed_rejected outcome.
-            try:
-                contexts.bind_codex_job(context_id, workspace, output["job_id"])
-                binding = "bound"
-            except ContextClosedError:
-                binding = "closed_rejected"
+            # SPEC sections 21.2 and 22.2: the catch policy wraps only the
+            # binding call. A closed rejection keeps the closed_rejected
+            # outcome; an allowlisted storage or registry failure becomes
+            # binding_unresolved with the backend acknowledgement preserved.
+            # Every other exception propagates unchanged.
+            binding = _binding_outcome(contexts.bind_codex_job, context_id, workspace, output["job_id"])
             output["context_id"] = context_id
             output["context_binding"] = binding
             if binding == "closed_rejected":
                 output["context_binding_note"] = _CLOSED_BINDING_NOTE
+            elif binding == "binding_unresolved":
+                output["context_binding_note"] = _UNRESOLVED_BINDING_NOTE
         return output
 
     @m.tool(annotations=read, structured_output=True)

@@ -29,6 +29,13 @@ except ImportError:  # baseline has no constant; the tests below fail on its beh
                             "Do not resubmit; retrieve it by its existing identifiers.")
 
 try:
+    from bridge import _UNRESOLVED_BINDING_NOTE
+except ImportError:  # baseline has no constant; the tests below fail on its behavior
+    _UNRESOLVED_BINDING_NOTE = ("Context binding outcome is unresolved. The task remains owned by this bridge "
+                                "and the context binding may already be recorded. Do not resubmit; retrieve the "
+                                "task by its existing identifiers and check task status.")
+
+try:
     from contexts import ContextClosedError
 except ImportError:  # baseline has no typed closed error; its plain ContextError still fails these tests
     class ContextClosedError(ContextError):
@@ -508,17 +515,22 @@ class TestWrapperClosedBindingOutcome(unittest.TestCase):
         self.assertEqual(first["run_id"], second["run_id"])
         self.assertEqual(second["context_binding"], "bound")
 
-    def test_hermes_submit_failure_and_db_error_keep_errors(self):
+    def test_hermes_submit_failure_keeps_error_and_bind_storage_failure_converts(self):
         cid = self.contexts.create("fixture")["context_id"]
         fn = self._tool("hermes_submit_task")
         self.fake.lost = True
         with self.assertRaises(bridge.BridgeError):
             fn(prompt="fixture", request_id="req-lost", context_id=cid)
         self.fake.lost = False
+        # SPEC section 22.2: an allowlisted storage failure from the binding
+        # call converts to binding_unresolved and preserves the acknowledgement.
         with patch.object(ContextRegistry, "bind_hermes_run",
                           side_effect=sqlite3.OperationalError("database is locked")):
-            with self.assertRaises(sqlite3.OperationalError):
-                fn(prompt="fixture", request_id="req-dbusy", context_id=cid)
+            out = fn(prompt="fixture", request_id="req-dbusy", context_id=cid)
+        self.assertEqual(out["context_binding"], "binding_unresolved")
+        self.assertEqual(out["context_binding_note"], _UNRESOLVED_BINDING_NOTE)
+        self.assertEqual(out["run_id"], "run_2")
+        self.assertEqual(out["request_id"], "req-dbusy")
 
     def test_codex_bound_pending_approval_and_no_context(self):
         cid = self.contexts.create("fixture")["context_id"]
@@ -554,17 +566,22 @@ class TestWrapperClosedBindingOutcome(unittest.TestCase):
             fn(prompt="fixture", workspace=WORKSPACE, context_id="ctx_" + "d" * 32)
         self.assertEqual(self.codex.starts, 0)
 
-    def test_codex_submit_failure_and_db_error_keep_errors(self):
+    def test_codex_submit_failure_keeps_error_and_bind_storage_failure_converts(self):
         cid = self.contexts.create("fixture")["context_id"]
         fn = self._tool("codex_submit_task")
         self.codex.fail = True
         with self.assertRaises(CodexError):
             fn(prompt="fixture", workspace=WORKSPACE, context_id=cid)
         self.codex.fail = False
+        # SPEC section 22.2: an allowlisted storage failure from the binding
+        # call converts to binding_unresolved and preserves the acknowledgement.
         with patch.object(ContextRegistry, "bind_codex_job",
                           side_effect=sqlite3.OperationalError("database is locked")):
-            with self.assertRaises(sqlite3.OperationalError):
-                fn(prompt="fixture", workspace=WORKSPACE, context_id=cid)
+            out = fn(prompt="fixture", workspace=WORKSPACE, context_id=cid)
+        self.assertEqual(out["context_binding"], "binding_unresolved")
+        self.assertEqual(out["context_binding_note"], _UNRESOLVED_BINDING_NOTE)
+        self.assertTrue(out["job_id"].startswith("codex_"))
+        self.assertEqual(out["status"], "queued")
 
 
 if __name__ == "__main__":

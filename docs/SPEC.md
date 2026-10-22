@@ -492,11 +492,11 @@ Test design uses deterministic barriers or events before the writer transaction 
 
 Gates checkpoint (21 October 2026): these gates were executed as written. Section 14 review approved the amendment and PR #70 merged the implementation at main `227f2ad1f43ff64c6c4866595c9ea705fd7977b3`. The scoped Dev acceptance used the synthetic fixture ([acceptance record](CONTEXT-LIFECYCLE-DEV-ACCEPTANCE-TH.md)); the fixture ran the production `server()` and `ContextRegistry` code paths over the real Dev tunnel with a mock-transport Hermes acknowledgement and a stub Codex backend, so this is mock-backend evidence, not real-backend acceptance. Release and deployment remain separate steps; no release is assigned.
 
-## 22. Context binding — unresolved binding outcome after acceptance (PROPOSED — pending review and merge; not implemented)
+## 22. Context binding — unresolved binding outcome after acceptance (implemented, pending review; not released)
 
 <a id="22-context-binding-unresolved-proposed"></a>
 
-This section is a PROPOSED amendment. The operator approved only the direction (option ข of the [nonclosed binding ack/recovery decision packet](CONTEXT-BINDING-ACK-RECOVERY-PROPOSAL-TH.md)) on 22 October 2026; that approval does not approve the exact outcome value, the note wording, this normative text, implementation, release, or deployment. This section is not part of any released baseline and MUST NOT be presented as implemented, released, or deployed. Deployed v1.2.8 keeps the section 21.2 behavior unchanged: a non-closed binding failure returns the existing whole-request error. This amendment takes effect only after it passes section 14 review and merge together with PR #77; until then, section 21.2 is the full requirement and the gap stays open.
+This section records the merged amendment. The operator approved only the direction (option ข of the [nonclosed binding ack/recovery decision packet](CONTEXT-BINDING-ACK-RECOVERY-PROPOSAL-TH.md)) on 22 October 2026; that approval did not approve the exact outcome value, the note wording, this normative text, implementation, release, or deployment. Section 14 review approved the amendment, and it merged via PR #78 at main `4ed8765fa7c6bb5a0048d95027aa6b28f3a13a02` together with the PR #77 merge (`e18d0d4ac2001b8f51287f1b6b60a0d61b2c20a1`). The runtime implementation with the section 22.5 tests is pending review in a separate runtime PR. This section is not part of any released baseline and MUST NOT be presented as released or deployed. Deployed v1.2.8 keeps the section 21.2 behavior unchanged: a non-closed binding failure returns the existing whole-request error.
 
 ### 22.1 Scope and trigger
 
@@ -544,3 +544,5 @@ Test design follows the section 21.3 discipline: deterministic barriers or event
 - This amendment MUST pass section 14 review and merge, together with the merge of PR #77, before implementation starts.
 - Implementation follows in a small runtime PR with the deterministic tests of section 22.5, then scoped Dev acceptance; release and deployment remain separate steps. No release is assigned.
 - Deferred and unchanged: submit admission, a crash between submit and bind, ACK loss, uncertain backend replay, durable intents, P2 apply/delete, Local Hands, and MCP Events.
+
+Gates checkpoint (22 October 2026): the section 14 review gate and the PR #77 merge gate are closed. The amendment merged via PR #78 at main `4ed8765fa7c6bb5a0048d95027aa6b28f3a13a02` together with the PR #77 merge (`e18d0d4ac2001b8f51287f1b6b60a0d61b2c20a1`). The runtime implementation with the deterministic tests of section 22.5 is pending review in a separate runtime PR. Status: implemented, pending review; not released, not deployed; no acceptance is claimed and no release is assigned. Scoped Dev acceptance, release, and deployment remain separate steps.
