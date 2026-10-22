@@ -2,7 +2,7 @@
 
 ## v1.2.8 — released (22 October 2026)
 
-Scope ได้รับอนุมัติแล้ว. อัปเดตสถานะ (22 ตุลาคม 2026): v1.2.8 เผยแพร่แล้วผ่าน signed tag `v1.2.8` (object `bb2f076bb3fd665950551ca613abb6ce6fb8f809`, peeled commit `1ae159031a53e4e5359fd39e61b2748159149a52`) และ [GitHub Release](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.8) พร้อม ZIP/SHA256SUMS ที่ตรวจหลังดาวน์โหลดฝั่ง maintainer (external audit ยัง PENDING). รวม SPEC §21 context-lifecycle delta. ยังไม่ deployed; production คง signed v1.2.7. ดู [release record](V1.2.8-RELEASE-RECORD-TH.md), [preparation record](V1.2.8-RELEASE-PREP-TH.md) และ [scope decision](V1.2.8-RELEASE-DECISION-PROPOSAL-TH.md).
+Scope ได้รับอนุมัติแล้ว. อัปเดตสถานะ (22 ตุลาคม 2026): v1.2.8 เผยแพร่แล้วผ่าน signed tag `v1.2.8` (object `bb2f076bb3fd665950551ca613abb6ce6fb8f809`, peeled commit `1ae159031a53e4e5359fd39e61b2748159149a52`) และ [GitHub Release](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.8) พร้อม ZIP/SHA256SUMS ที่ตรวจหลังดาวน์โหลดฝั่ง maintainer และ external fresh-input audit ผ่าน (APPROVE ที่ PR #74 head `cddcdb5`). รวม SPEC §21 context-lifecycle delta. ยังไม่ deployed; production คง signed v1.2.7. ดู [release record](V1.2.8-RELEASE-RECORD-TH.md), [preparation record](V1.2.8-RELEASE-PREP-TH.md) และ [scope decision](V1.2.8-RELEASE-DECISION-PROPOSAL-TH.md).
 
 ## v1.2.7 — released (20 October 2026); deployed 21 October 2026
 
