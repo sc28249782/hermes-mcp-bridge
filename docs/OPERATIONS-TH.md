@@ -231,3 +231,26 @@ Preview ไม่ลบ row และไม่มี apply option. SQLite อา
 ### v1.2.7 target scope checkpoint
 
 Operator อนุมัติ [scope v1.2.7](V1.2.7-RELEASE-DECISION-TH.md) เมื่อ 20 ตุลาคม 2026 เวลา 18:47:56 +07. Scope รวม Codex read-ahead fix และ Context P1; ยังไม่ released/deployed. Production checkpoint ล่าสุดยังเป็น signed v1.2.6. Scope approval ไม่ใช่การอนุมัติ upgrade; ให้รอ release preparation, signed assets และ deployment decision แยก.
+
+## PROPOSED — disposition เมื่อ terminal record หาย (ยังใช้ปฏิบัติการไม่ได้)
+
+<a id="missing-terminal-manual-disposition-proposed"></a>
+
+ส่วนนี้เป็นคู่กับ [SPEC §23](SPEC.md#23-missing-terminal-operational-disposition-proposed) ที่รอ §14 review/merge.
+Operator เลือกออกแบบแนวทาง ข เท่านั้น; ข้อความนี้ไม่อนุมัติ maintenance หรือ adjudicate run เดิม.
+ไม่มีคำสั่ง stop/restart/cancel/replay/resubmit ใหม่จากเอกสารนี้. Production/Dev ไม่เปลี่ยน.
+
+### Proposed manual procedure — ทำได้หลัง contract และ case-specific gates ผ่านเท่านั้น
+
+1. ระบุ exact run/request, backend/authority identity และ maintenance plan. เก็บหลักฐานเดิมและผล unknown ไว้; อย่าแก้ registry ให้เป็น terminal.
+2. ตรวจ evidence floor §23.2 ให้ครบทั้งการยุติ dispatch/recovery และการครอบคลุม worker/child/external writer ทุกตัว. หากพิสูจน์ ownership/cessation ไม่ครบ ให้คง HOLD; 404 หรือ process absence อย่างเดียวไม่พอ.
+3. จัดทำ private dossier ตาม §23.3 โดยระบุ exact targets/actions, evidence digests, source/observation time และ limitations. Freeze UTF-8 bytes แล้วบันทึก SHA-256 ของ bytes เหล่านั้นรวม newline.
+4. Operator อ่าน dossier และตรวจหลักฐานใน local terminal ด้วยตนเอง. บันทึกคำตัดสินตรงตามจริงแยกจาก dossier พร้อม digest, scope, actual approval time/timezone และ expiry ไม่เกิน 3,600 seconds. อย่าสร้าง timestamp ย้อนหลังจาก chat.
+5. ก่อนลงมือ Operator ตรวจข้อมูลปัจจุบันอีกครั้ง: authority/writers, inventory ทุก backend, target/configuration identity, เวลาอนุมัติ และการไม่เคยใช้ decision. หากมีสิ่งเปลี่ยน ให้หยุดที่ HOLD.
+6. Operator บันทึก consumption แบบ durable ก่อน state-changing action แรก แล้วลงมือเองเฉพาะ scope ที่อนุมัติ. Agent ไม่สร้าง approval หรือใช้ receipt เป็น token เพื่อปลด gate. Hash ไม่ใช่หลักฐานยืนยันตัวผู้อนุมัติ.
+7. หาก record การใช้ไม่ชัด, มี crash, action ล้มเหลว หรือ restore ไม่ผ่าน ห้าม retry อัตโนมัติ. ทำ dossier/decision ใหม่ก่อนพิจารณาการกระทำถัดไป; ไม่ใช้ approval เดิมซ้ำ.
+8. หลัง maintenance ตรวจ identity/health และความครบถ้วนของ state ตาม plan. หากทำ acceptance รอบใหม่ ให้เก็บ preflight/result/restore ของรอบใหม่แยกจากรอบแรก. ห้ามเปลี่ยนบันทึกรอบแรกให้ดูเหมือนผ่านย้อนหลัง.
+
+เก็บ dossier/approval/consumption เป็นไฟล์ 0600 ใน directory 0700. Public record ใช้เฉพาะ redacted scope, aggregates และข้อจำกัด; ไม่เผยแพร่ IDs, payloads หรือ paths.
+ทางเลือกนี้เป็น manual-only. การทำ approval reader, agent execution หรือ automated ledger ต้องมี amendment/implementation/acceptance แยก.
+Run ที่ค้างใน [PR #80](https://github.com/sc28249782/hermes-mcp-bridge/pull/80) ยังไม่มีหลักฐานครบตาม evidence floor นี้และยัง HOLD; procedure ข้างต้นไม่ใช่การตัดสินให้ run นั้นผ่าน.

@@ -165,6 +165,8 @@ Scoped work and proposals awaiting decisions:
 
 - Missing terminal record disposition proposal (22 October 2026): [MISSING-TERMINAL-DISPOSITION-PROPOSAL-TH.md](MISSING-TERMINAL-DISPOSITION-PROPOSAL-TH.md) records two operator choices: keep HOLD, or authorize a separate SPEC/operations design for a scoped operational disposition while the task outcome remains unknown. It uses the existing diagnosis in draft PR #80 (24 runs with terminal evidence / 1 unresolved); no new probe or runtime action is performed. The proposal does not adjudicate a run, change a gate, authorize acceptance, or approve implementation. PR #80 remains HOLD; the operator choice is pending.
 
+- Missing terminal disposition amendment proposal (22 October 2026): the operator selected option ข (verbatim in the [packet checkpoint](MISSING-TERMINAL-DISPOSITION-PROPOSAL-TH.md)). [SPEC §23](SPEC.md#23-missing-terminal-operational-disposition-proposed) and the operations appendix propose a manual-only, one-scope disposition with positive authority/cessation evidence, private immutable dossier, live local approval, expiry and one-use control. Pending section 14 review/merge; no case is adjudicated, no gate is released, and PR #80 remains HOLD. No runtime action, implementation, or acceptance repeat is authorized.
+
 ข้อความอนุมัติจาก operator (verbatim จากแชตวันที่ 21 ตุลาคม 2026):
 
 > ก: อนุมัติ scope v1.2.8 และเริ่ม Phase A
