@@ -13,6 +13,14 @@
 
 Dev คืน baseline และ parent ยืนยัน identity/auth แล้วตาม checkpoint ด้านล่าง. การปิด acceptance ต้อง resolve terminal evidence ที่ขาดและทำรอบใหม่ภายใต้ gate ครบ; review หรือการอนุมัติเอกสารนี้ไม่ทำให้ gate ที่ตกหล่นผ่านย้อนหลัง.
 
+## Diagnosis update — terminal evidence 24/25; one unresolved run
+
+การแยก cached status กับ API response ได้ผล: completed→completed 5, cancelled→cancelled 2, failed→failed 1, completed→404 16 และ running→404 1. จึงไม่เหมารวม 17 responses ที่เป็น 404 ว่าเป็นงาน active หรือไม่มี terminal evidence ทั้งหมด.
+
+โค้ด Bridge ของ Dev บันทึกผลจาก authenticated GET หลังตรวจ run ID ตรงกัน และคืน cached terminal โดยไม่ถาม API ซ้ำ (`Bridge.fetch`). ตรวจ lifecycle ของ Hermes ที่ติดตั้งแล้ว: completed/failed/cancelled ไม่ถูก requeue; เส้นทาง requeue จำกัด outcome `steering` จึงไม่ใช้กับ terminal outcomes เหล่านี้. ภายใต้ contract นี้ หลักฐานแบ่งเป็น current-API terminal 8 + prior positive terminal observation 16 = 24 รายการ; อีกหนึ่งรายการยังมีเพียง cached running และ current 404. ไม่พบ durable terminal metadata หรือ exact-run terminal receipt สำหรับรายการที่เหลือจากแหล่งที่ตรวจ; จึงยังบล็อกก่อน repeat.
+
+API ปัจจุบันใช้ durable authority admissions; ไม่มี authority row/tombstone ที่จับคู่กับ run ที่ค้างใน stores ที่ตรวจ. การหายไปจาก authority ปัจจุบันอธิบาย response 404 ได้ แต่ **ไม่ทราบสาเหตุหรือเวลาที่ข้อมูลหาย**; process start time หรือ admission sequence ที่เริ่มจาก 1 ไม่พิสูจน์ว่าเกิด reset/migration แบบใด. ไม่มีการแก้สถานะ, cancel, replay, resubmit, restart หรือเปิด fixture รอบใหม่ระหว่างการวินิจฉัย. รายละเอียดราย run และ source references เก็บใน private diagnosis receipt; blocker ในการปิด acceptance เหลือหนึ่งรายการ โดย preflight ที่ขาดของรอบแรกยังไม่ถูกแก้ย้อนหลัง.
+
 ## Scope และ fixture honesty
 
 Fixture เรียก `server()` และ `Bridge` และ `ContextRegistry` ของ candidate จริง แล้ว parent ใช้ Dev tunnel จริงเรียกผ่าน connector. Hermes ACK เป็น synthetic ผ่าน `httpx.MockTransport`; HTTP ไม่ออกนอกเครื่อง. Codex เป็น stub ที่คืน ACK เท่านั้น ไม่เรียก CLI จริง; Local Hands เป็น stub. State เป็น directory แยกของ fixture; hooks อยู่ใน fixture module นอก production code ทุกจุด. ไม่มี MCP tool เพิ่ม.
