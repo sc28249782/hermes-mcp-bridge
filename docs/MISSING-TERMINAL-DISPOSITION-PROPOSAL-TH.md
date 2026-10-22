@@ -1,5 +1,7 @@
 # Missing terminal record — operational disposition decision packet
 
+Current checkpoint (22 ตุลาคม 2026): operator เลือก ข เพื่อออกแบบเท่านั้น; amendment ยังรอ review. Proposal status ด้านล่างคงไว้เป็นประวัติก่อนเลือก; ดูข้อความอนุมัติคำเดิมและขอบเขตท้ายเอกสาร.
+
 วันที่: 22 ตุลาคม 2026.
 สถานะ: **PROPOSAL — รอ operator เลือกแนวทาง**. เอกสารนี้ไม่แก้ contract หรืออนุมัติ disposition ของ run ใด.
 ฐาน: main `71dcae67cbfa6f0b953ab8d81198d073d202ed2a` (PR #79 merge).
@@ -83,3 +85,13 @@ Receipt ที่แยกออกมาเป็นเพียงแนวท
 PR #80 ยังคง HOLD จนผ่าน gate ที่เกี่ยวข้องและมีรอบ acceptance ที่ถูกต้อง.
 Production คง signed v1.2.8; Dev baseline คง `e7add7e` ตาม checkpoint ที่มีอยู่. Packet นี้ไม่ตรวจหรือเปลี่ยน runtime ทั้งสอง.
 Release/deployment, P2 apply/delete, Hands, MCP Events และงาน systemd ยังคงเป็นขอบเขตแยกที่ไม่ได้รับอนุมัติจาก packet นี้.
+
+
+## Design-scope checkpoint — 22 ตุลาคม 2026
+
+Operator เลือกแนวทาง ข ด้วยข้อความจากแชต (verbatim):
+
+> เห็นด้วย เลือก **ข**
+
+ข้อความไม่มีเวลาอนุมัติที่แน่นอน จึงไม่สร้าง timestamp เพิ่มเติม. การเลือกนี้อนุมัติเฉพาะการจัดทำ SPEC/operations amendment; ไม่อนุมัติ final wording, evidence disposition ของ run ใด, local maintenance, การปลด HOLD, implementation หรือ acceptance repeat.
+[ร่าง SPEC §23](SPEC.md#23-missing-terminal-operational-disposition-proposed) และ [manual procedure](OPERATIONS-TH.md#missing-terminal-manual-disposition-proposed) ยังรอ §14 review/merge. Checkpoint นี้ไม่ได้อยู่ใน tree ของ packet ก่อนหน้า `d14b34f`; ข้อความประวัติเดิมคงไว้.

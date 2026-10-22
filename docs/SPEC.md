@@ -208,6 +208,8 @@ Context lifecycle change-control checkpoint (21 October 2026): the operator appr
 
 Nonclosed binding outcome change-control checkpoint (22 October 2026): after external review APPROVED the [nonclosed binding ack/recovery decision packet](CONTEXT-BINDING-ACK-RECOVERY-PROPOSAL-TH.md) at head `2730f224516eb32b2717e1293cec986e2a185941`, the operator selected option ข — an additive unresolved-binding outcome after a successful backend acknowledgement. The approval is recorded verbatim in the packet checkpoint. The approval covers the scope choice only; it does not approve the exact outcome value, the note wording, the final normative text, implementation, release, or deployment. The proposed [section 22](#22-context-binding-unresolved-proposed) amendment is opened as a stacked draft PR that depends on PR #77 and uses the reviewed head of the packet branch as its base. Deployed v1.2.8 behavior is unchanged: section 21.2 remains the full requirement, and a non-closed binding failure still returns the existing whole-request error. Implementation requires section 14 review and merge of both PR #77 and the section 22 amendment first.
 
+Missing terminal record change-control proposal (22 October 2026): the operator selected option ข of the [decision packet](MISSING-TERMINAL-DISPOSITION-PROPOSAL-TH.md), authorizing design only. The proposed [section 23](#23-missing-terminal-operational-disposition-proposed) and [operations procedure](OPERATIONS-TH.md#missing-terminal-manual-disposition-proposed) are pending section 14 review and merge. They do not adjudicate the historical run, change current gates, authorize maintenance, or close acceptance.
+
 ## 15. MCP Events capability gate (deferred — no assigned release; BLOCKED)
 
 This section is a future requirement, originally planned as the v1.2.4 target requirement; it is now deferred with no assigned release and remains blocked at the subscription gate. The released v1.2.3 bridge has no MCP Events capability, subscription state, callback sender, or event delivery.
@@ -546,3 +548,67 @@ Test design follows the section 21.3 discipline: deterministic barriers or event
 - Deferred and unchanged: submit admission, a crash between submit and bind, ACK loss, uncertain backend replay, durable intents, P2 apply/delete, Local Hands, and MCP Events.
 
 Gates checkpoint (22 October 2026): the section 14 review gate and the PR #77 merge gate are closed. The amendment merged via PR #78 at main `4ed8765fa7c6bb5a0048d95027aa6b28f3a13a02` together with the PR #77 merge (`e18d0d4ac2001b8f51287f1b6b60a0d61b2c20a1`). The runtime implementation with the deterministic tests of section 22.5 is pending review in a separate runtime PR. Status: implemented, pending review; not released, not deployed; no acceptance is claimed and no release is assigned. Scoped Dev acceptance, release, and deployment remain separate steps.
+
+## 23. Missing terminal record — manual operational disposition (PROPOSED — not effective)
+
+<a id="23-missing-terminal-operational-disposition-proposed"></a>
+
+The operator selected option ข of the [decision packet](MISSING-TERMINAL-DISPOSITION-PROPOSAL-TH.md) on 22 October 2026. That choice authorizes this design proposal only. This section is not effective until section 14 review and the required merges pass. It does not adjudicate a run, authorize maintenance, close PR #80 acceptance, or change any released runtime.
+
+### 23.1 Scope and separate meanings
+
+- This proposal defines a manual operations procedure only. It adds no backend status, MCP field, tool, CLI command, schema, automatic recovery, or programmatic approval reader.
+- A disposition MUST keep `task_outcome=unknown`. It MUST NOT assert completed, failed, cancelled, successful recovery, absence of past effects, or a Hermes `unknown_exit`.
+- The proposed disposition label is `maintenance_only_unknown_outcome`. It means only that one identified maintenance scope can be considered after the evidence and local approval gates below pass.
+- Sections 11 and 12 remain unchanged: original rows and terminal observations MUST be preserved; restart MUST NOT resubmit work or convert an unverified outcome into completed.
+- Existing approved maintenance plans and their unknown-job gates remain in force. A new plan MUST explicitly adopt this section after it becomes effective; this section MUST NOT silently override a prior plan or retroactively validate a missed preflight.
+
+### 23.2 Evidence floor — all conditions required
+
+1. The dossier MUST bind the exact backend instance, authority generation or equivalent identity, run/request registration, and maintenance target. A session title, recency, PID without start identity, or an uncorrelated authority store MUST NOT establish ownership.
+2. Positive evidence MUST establish that the identified execution cannot dispatch, resume, recover, or replay under any authority that can still act on it. An authoritative retirement/revocation record bound to that execution, or a verified lifetime-bounded execution contract with matching lifecycle records, can support this condition. A missing authority row, a gateway restart, or an HTTP 404 alone cannot.
+3. Evidence MUST cover every worker, child, detached process, remote operation, and other writer the run could start within the relevant scope. It MUST establish both ownership coverage and cessation. A process-table absence or an empty group without proof of complete containment MUST NOT establish this condition.
+4. Uncovered execution, an active writer, an unknown ownership edge, or an authority capable of recovery MUST keep the disposition blocked. No cancellation, forced status rewrite, purge, or restart is authorized to manufacture the required evidence.
+5. Evidence provenance, observation times, source version, and limitations MUST be recorded. The reviewer MUST separate observations from inferences and MUST NOT infer a lost-record cause from store sequence or process start time.
+6. The original registry, cached observations, and available snapshots MUST remain unchanged. A separate dossier MAY reference private copies; it MUST NOT insert a replacement backend terminal result.
+
+The two evidence families in items 2–3 are requirements, not claims that the installed Hermes can supply them. If a complete authority or writer inventory cannot be established, the outcome of this procedure is HOLD.
+
+### 23.3 Dossier, local approval, and one-use control
+
+- The private dossier MUST contain a unique decision ID, exact run/request and backend identities, `task_outcome=unknown`, the proposed disposition label, one maintenance plan ID, exact targets/actions, candidate revision and expected configuration/state identities, evidence references/digests, limitations, and explicit observation times with timezone.
+- A final dossier MUST be frozen before approval. Its digest MUST be SHA-256 of its exact UTF-8 file bytes, including whitespace and final newline; no normalization or canonicalization is implied.
+- Local approval MUST be performed by the operator in the local terminal after personally checking the dossier and evidence floor. A separate private approval record MUST bind the decision ID, dossier digest, exact maintenance scope, the operator's literal decision, actual approval time with timezone, and an explicit expiry.
+- The approval window MUST be at most 3,600 seconds from the recorded local approval time. At or after expiry it is invalid. Unknown or unreliable time, missing provenance, a digest mismatch, or an altered scope MUST keep HOLD.
+- A digest detects dossier changes; it does not authenticate a person. The operator MUST verify the approval live and personally perform the approved maintenance. An agent MUST NOT create the human approval, treat a file's presence as approval, or execute a gate transition by consuming this receipt.
+- Immediately before acting, the operator MUST revalidate authority/ownership/cessation, the entire backend inventory, target/configuration identity, the approval window, and the absence of an earlier use. New work or changed evidence invalidates the decision.
+- The operator MUST record one-use consumption in a separate durable private record before the first state-changing action. A missing or uncertain consumption record, crash, failed action, or restoration failure MUST NOT permit automatic retry; a new dossier/decision is required.
+- Dossier, approval, and consumption records MUST stay private (files 0600, containing directory 0700). Public records MUST contain only redacted scope, aggregate evidence, disposition, and limits; no run/request IDs, prompts, outputs, credentials, or private paths.
+- These records are manual evidence, not a new executable approval format. Automated enforcement or agent execution requires a separate section 14 amendment, implementation review, and acceptance.
+
+### 23.4 Maintenance and acceptance boundaries
+
+- Even a valid disposition does not itself pass the full maintenance preflight. Every other registered job and writer MUST be accounted for under the explicitly approved plan before stop/switch.
+- Control jobs MUST finish or hand off before the process they depend on is stopped. Exact process/start identity and post-quiescence backup rules remain unchanged.
+- This procedure authorizes no cancellation, replay, resubmission, registry rewrite, or release/deployment. Runtime maintenance is limited to the operator's separately approved exact scope.
+- Any later synthetic acceptance attempt MUST have its own full preflight and record. It MUST retain the first attempt's incomplete preflight history. Review, approval, or disposition MUST NOT retroactively turn that attempt into PASS.
+- The currently unresolved historical run has not met this proposed evidence floor. PR #80 remains HOLD; selecting option ข or merging this draft does not change that fact.
+
+### 23.5 Review and verification matrix
+
+| Case | Required result |
+| --- | --- |
+| 404, age, closed context, gateway restart, or PID absence alone | HOLD; no terminal inference or maintenance |
+| Prior positive terminal observation under the existing terminal contract | Use existing terminal evidence rules; do not fabricate a missing-record disposition |
+| Authority revocation without complete writer coverage, or complete writer coverage without authority cessation | HOLD |
+| Wrong identity/scope, edited dossier, missing/forged approval provenance, expired approval, or uncertain clock | HOLD |
+| Used decision, uncertain consumption, crash, new job, changed target, or incomplete inventory | HOLD; no automatic retry |
+| Complete evidence, live local approval, valid unused decision, and fresh full preflight | Eligible only for operator-performed maintenance in the exact scope; task outcome stays unknown |
+
+This is a proposed manual review matrix, not an executed test or an implementation claim.
+
+### 23.6 Change-control gates
+
+- The decision packet and this SPEC/operations amendment MUST pass their required review and merge before this policy can be used.
+- A case-specific evidence review, explicit local operator decision, and separately approved maintenance plan MUST follow. None is authorized by the design-scope choice.
+- Runtime automation, new approval tooling, schema/API changes, release, deployment, and any acceptance repeat remain separate decisions. No release is assigned.
