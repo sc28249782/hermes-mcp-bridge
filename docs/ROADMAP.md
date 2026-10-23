@@ -262,3 +262,6 @@ Optional follow-ups, lower priority:
 
 
 - Separate §22 acceptance environment proposal (22 October 2026, after PR #83): [decision packet](S22-SEPARATE-ACCEPTANCE-DECISION-TH.md) offers defer versus feasibility design for a disposable, independently controlled test environment. No option is selected. Isolation, ownership coverage, route availability, and contract compatibility are unverified; no setup, connector change, acceptance repeat, gate exemption, disposition, release, or deployment is authorized. PR #80 remains draft and HOLD.
+
+
+- Separate §22 feasibility design (22 October 2026): the operator selected ข (verbatim in the [packet checkpoint](S22-SEPARATE-ACCEPTANCE-DECISION-TH.md)). The [public design](S22-SEPARATE-ACCEPTANCE-FEASIBILITY-TH.md) defines the resource/authority evidence required for an unselected environment; no local infrastructure inventory is published. No boundary, independent route, setup or activation is claimed verified. PR #84 remains unmerged; this design is stacked on its reviewed head. No provisioning, acceptance repeat, historical disposition, release or deployment is authorized; PR #80 remains draft/HOLD.
