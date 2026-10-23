@@ -268,3 +268,6 @@ Optional follow-ups, lower priority:
 
 
 - Shared-host synthetic §22 proposal (23 October 2026): after directional agreement to draft a revised trust model, [SPEC §24](SPEC.md#24-shared-host-synthetic-acceptance-proposed) proposes treating operator-controlled host management as trusted for a separately approved fixture-only plan. This explicitly changes the PR #84/#85 two-way-isolation prerequisite; it does not claim that prerequisite passed. [Proposal record](S22-SHARED-HOST-ACCEPTANCE-PROPOSAL-TH.md) retains interference/integrity/resource gates, separate setup/acceptance review and unchanged §23 case-disposition controls. Pending §14 review/merge; no execution authorized; PR #80 remains HOLD.
+
+
+- Shared-host §22 setup/acceptance plan proposal (23 October 2026, after PR #86 merge `51a35d1a`): [S22-SHAREDHOST-SETUP-ACCEPTANCE-PLAN-TH.md](S22-SHAREDHOST-SETUP-ACCEPTANCE-PLAN-TH.md) proposes A-only guest/artifact preparation and separately approved B connector/activation. Exact private bindings, reviewed harness pins, budgets, integrity and continuity gates must pass before use. No setup, connector, SSH login or acceptance run is authorized or performed; PR #80 remains HOLD; release/deployment stay separate.

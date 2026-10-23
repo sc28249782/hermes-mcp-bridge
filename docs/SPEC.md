@@ -659,3 +659,6 @@ This proposal defines a limited alternative evidence route for section 22. It ch
 - A completed attempt MUST receive an independent evidence review and explicit operator acceptance before it closes the scoped synthetic acceptance gate of section 22. Its record MUST name this shared-host trust model and every residual limitation.
 - A scoped PASS under this route MUST NOT be described as isolated-host, real-backend, native, production, full-quiescence or historical-disposition acceptance. PR #80 MUST remain a separate held historical record; no retroactive PASS is permitted.
 - Release scope, release readiness and deployment remain separate decisions. Their reviews MUST explicitly consider the limited acceptance claim; no release is assigned.
+
+
+Review/merge checkpoint (23 October 2026): PR #86 passed the operator-supplied section 14 review at `5d47c68`, exact-head CI `39942529086`, and merged at `51a35d1acba59a3d354e6d6a91463015dc8a8c0d` on operator instruction. The amendment review/merge prerequisite is closed; the PROPOSED wording above preserves the authoring stage. The [shared-host setup/acceptance plan](S22-SHAREDHOST-SETUP-ACCEPTANCE-PLAN-TH.md) is pending review and separate operator scope. No setup, activation, acceptance or historical disposition is approved by this checkpoint; PR #80 remains HOLD.
