@@ -265,3 +265,6 @@ Optional follow-ups, lower priority:
 
 
 - Separate §22 feasibility design (22 October 2026): the operator selected ข (verbatim in the [packet checkpoint](S22-SEPARATE-ACCEPTANCE-DECISION-TH.md)). The [public design](S22-SEPARATE-ACCEPTANCE-FEASIBILITY-TH.md) defines the resource/authority evidence required for an unselected environment; no local infrastructure inventory is published. No boundary, independent route, setup or activation is claimed verified. PR #84 remains unmerged; this design is stacked on its reviewed head. No provisioning, acceptance repeat, historical disposition, release or deployment is authorized; PR #80 remains draft/HOLD.
+
+
+- Shared-host synthetic §22 proposal (23 October 2026): after directional agreement to draft a revised trust model, [SPEC §24](SPEC.md#24-shared-host-synthetic-acceptance-proposed) proposes treating operator-controlled host management as trusted for a separately approved fixture-only plan. This explicitly changes the PR #84/#85 two-way-isolation prerequisite; it does not claim that prerequisite passed. [Proposal record](S22-SHARED-HOST-ACCEPTANCE-PROPOSAL-TH.md) retains interference/integrity/resource gates, separate setup/acceptance review and unchanged §23 case-disposition controls. Pending §14 review/merge; no execution authorized; PR #80 remains HOLD.

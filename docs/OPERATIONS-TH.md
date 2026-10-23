@@ -259,3 +259,13 @@ Run ที่ค้างใน [PR #80](https://github.com/sc28249782/hermes-mc
 ### Review/merge checkpoint — 22 October 2026
 
 PR #81 and PR #82 have merged; the amendment review/merge prerequisite is closed (PR #82 merge `3f1aab78`, reviewed head `87abd958`, exact-head CI `39787772426`). The PROPOSED wording above preserves the authoring stage. The [initial evidence assessment](MISSING-TERMINAL-EVIDENCE-ASSESSMENT-TH.md) still finds the case evidence insufficient. Do not use the procedure for the unresolved run: PR #80 remains HOLD. A separate case evidence review, scoped plan, and live local-terminal approval are still required before operator-performed maintenance.
+
+
+## PROPOSED — shared-host synthetic §22 route
+
+This [§24 proposal](SPEC.md#24-shared-host-synthetic-acceptance-proposed) changes the earlier two-way host-isolation prerequisite only after §14 review/merge and separate approval of an exact plan. It is not effective now.
+The host/management authority would be trusted and disclosed; no isolation from it is claimed.
+A later plan must map all new fixture writers and shared dependencies, preserve original production/Dev resources, use an independent connector, specify resource/integrity observations and stop at unexplained interference or insufficient evidence.
+No existing run is adjudicated. The §23 manual-disposition floor and original stop/switch gates remain unchanged; PR #80 stays HOLD.
+No setup, credential handling, SSH login, connector provisioning, fixture activation or acceptance repeat is authorized by this appendix.
+See the [direction and tradeoff record](S22-SHARED-HOST-ACCEPTANCE-PROPOSAL-TH.md).

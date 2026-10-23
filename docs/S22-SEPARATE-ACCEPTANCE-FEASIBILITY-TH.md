@@ -57,3 +57,9 @@ Prefer evaluating a suitable existing resource before considering new expenditur
 If complete ownership separation and contract compatibility cannot be proven, defer this acceptance path. Do not relax §23, infer cessation, clear a registry, or change the old stop/switch scope to make a candidate fit.
 Any later feasibility evidence, executable plan, provisioning, connector/secret handling and acceptance need their own review and explicit scope.
 This report grants no local maintenance, historical disposition, runtime automation, release or deployment authority.
+
+
+## Later alternative proposal — 23 October 2026
+
+The original isolation requirements and HOLD above remain the history of this design.
+The [shared-host proposal](S22-SHARED-HOST-ACCEPTANCE-PROPOSAL-TH.md) explicitly proposes a different trust model for one future synthetic §22 plan. It does not prove the original boundary or authorize any action. The alternative requires its own §14 amendment review/merge and separate plan approval; §23 and the historical run's HOLD remain unchanged.
