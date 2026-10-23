@@ -38,17 +38,17 @@ jobs:
         run: |
           set -euo pipefail
           python -W error::ResourceWarning -B -m unittest discover -s tests -v 2>&1 | tee "$RUNNER_TEMP/s24-suite.log"
-          if rg 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-suite.log"; then exit 1; else test "$?" -eq 1; fi
+          if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-suite.log"; then exit 1; else test "$?" -eq 1; fi
       - name: Focused section 22 and shutdown warning gate
         working-directory: .s24-candidate
         shell: bash
         run: |
           set -euo pipefail
           python -W error::ResourceWarning -B -m unittest discover -s tests -p test_context_binding_unresolved.py -v 2>&1 | tee "$RUNNER_TEMP/s24-focused.log"
-          if rg 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-focused.log"; then exit 1; else test "$?" -eq 1; fi
+          if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-focused.log"; then exit 1; else test "$?" -eq 1; fi
       - name: Artifact checks including actual SDK stdio and negative controls
         shell: bash
         run: |
           set -euo pipefail
           python -W error::ResourceWarning -B acceptance/s24/test_fixture.py --candidate .s24-candidate -v 2>&1 | tee "$RUNNER_TEMP/s24-artifact.log"
-          if rg 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-artifact.log"; then exit 1; else test "$?" -eq 1; fi
+          if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-artifact.log"; then exit 1; else test "$?" -eq 1; fi
