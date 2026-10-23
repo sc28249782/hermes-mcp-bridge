@@ -150,3 +150,7 @@ This supersedes the candidate identity in the prior preparation checkpoint only 
 The revised artifact PIN/manifest and dedicated-CI checkout are coupled. All scanner markers, failure handling, synthetic matrix, counters, budgets, private bindings and B gates stay intact. Review/merge and explicit scope bound to the reviewed artifact/input remain required before any revised guest use.
 Preserve prior candidate/evidence and use new private paths for future authorized measurements. Require fresh full/focused/artifact results, output inspection through process exit, dependency identity and actual resource/continuity observations before the private 0600 readiness receipt. Missing observations or warnings keep HOLD.
 Earlier guest/CI warnings remain evidence; no exact historical connection-object attribution is established. Phase A remains incomplete; B and PR #80 remain HOLD.
+
+## Phase A evidence checkpoint — 23 October 2026
+
+The [Phase A readiness record](S22-SHAREDHOST-PHASE-A-READINESS-TH.md) reports fresh guest 234/7/10 OK with unchanged warning gates, 65 resource samples and discrete matching Production/Dev health/identity observations before/after under the original window. Guest/private receipt data are operator-reported; connector observations are author-observed parent evidence. The earlier round remains PENDING because its continuity observations were missing. Status is READY FOR INDEPENDENT REVIEW, not Phase A acceptance or B approval; all scope, budgets, private binding and historical HOLD gates remain unchanged.
