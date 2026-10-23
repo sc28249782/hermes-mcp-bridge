@@ -241,3 +241,9 @@ External live-record review ของ PR #61 ผ่านที่ `6d93808` แ
 ## v1.2.7 target scope approved (20 October 2026)
 
 Operator อนุมัติ [scope v1.2.7](V1.2.7-RELEASE-DECISION-TH.md) เมื่อ 18:47:56 +07 หลัง PR #62 ผ่าน external review. คำว่า proposal/decision pending ข้างต้นเป็นสถานะก่อน approval นี้. ยังต้องทำ release-preparation source/extracted verification และ exact-head CI ตาม runbook; scope approval ไม่เพิ่มผลทดสอบหรือ production acceptance. ไม่มี WSL-suite rerun claim จาก docs-only decision update นี้.
+
+
+## Proposed shared-host §22 acceptance plan — 23 October 2026
+
+[Plan S22-SHAREDHOST-20261023-01](S22-SHAREDHOST-SETUP-ACCEPTANCE-PLAN-TH.md) adopts merged SPEC §24 as a proposal for separate A preparation and B activation approvals. It requires guest offline measurements, a source-reviewed/pinned harness, exact resource bindings, serial synthetic stimuli, per-case row/call integrity, resource stop thresholds, private quiescent snapshots and original-runtime continuity observations.
+No test or setup is claimed executed by this plan. Expanded live failure coverage and final counter totals require the reviewed harness before B; earlier unit/live claims are not extended. PR #80 remains a separate held historical attempt. Independent evidence review and explicit operator acceptance are required before any new scoped gate closure.
