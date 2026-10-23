@@ -1,5 +1,5 @@
 {
-  "candidate_commit": "71dcae67cbfa6f0b953ab8d81198d073d202ed2a",
+  "candidate_commit": "02d7e8bb1e1902ca33a574ab904a6e5b0f441785",
   "git_blob_sha1": {
     ".github/workflows/tests.yml": "cbead1d90915a866fc64f9d95815eb37108465c8",
     ".gitignore": "bf93e3c3e8b7a0315f45ee59102783a41fb4415b",
@@ -82,9 +82,9 @@
     "tests/mock_opencode_execution_server.py": "d2ae5ac0a3a920c0478359bfad58edcc0834a0e4",
     "tests/mock_opencode_server.py": "62f916ca119ae3157baa924fa9109572ec3d1b12",
     "tests/mock_privacy_boundary_server.py": "9f94aadd6c5ba9358a9f91d92d6e4682738f7037",
-    "tests/test_bridge.py": "711a1ddf12c91c7232e1f6da48a4e2cf2e51247b",
+    "tests/test_bridge.py": "c4bbedabea9054ef981bafd5f9f947e7071f85ea",
     "tests/test_codex.py": "0e466560c84412bd11b72c2a1c8ac609afad94f7",
-    "tests/test_context_binding_unresolved.py": "d38867908ce6ecb2736efcbe2a6fbd6e918cedd8",
+    "tests/test_context_binding_unresolved.py": "c9fae04df337699a679cbf994401c875428cc234",
     "tests/test_context_lifecycle.py": "330937f25514a08217af9271a0115f6bd2d1225b",
     "tests/test_context_p1.py": "e2958c119675e2ed32c097598d190d94828a73ad",
     "tests/test_context_p1_transport.py": "a36f92051dd19ebcab8ab0f785ad25e18a5bd748",

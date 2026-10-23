@@ -58,3 +58,15 @@ Choice ก authorizes revised source/manifest preparation only; it does not auth
 
 No current #91 source, manifest, candidate or guest checkout changes in this packet. Phase A remains incomplete; B, PR #80 and historical disposition remain HOLD.
 No connector, credential, production/Dev change, release or deployment is authorized.
+
+<a id="s24-two-blob-selection"></a>
+
+## Operator selection checkpoint — 23 October 2026
+
+The operator explicitly approved PR #93 merge and option ก in one complete message, verbatim:
+
+> Merge ได้ และเลือก ก
+
+No exact approval timestamp is available; none is invented. The merge completed at `55f42de1c7c83f637b3979058386b5239911083a`. Option ก selects preparation of this revised #91 source/manifest delta only; it does not authorize merging #91, revised guest execution, readiness acceptance, B, release or deployment.
+This later checkpoint was not part of reviewed packet head `b973806`; the earlier proposal remains unchanged.
+The revised [plan checkpoint](S22-SHAREDHOST-SETUP-ACCEPTANCE-PLAN-TH.md#s24-two-blob-preparation) and [artifact](../acceptance/s24/README.md) prepare the exact selected input `02d7e8bb1e1902ca33a574ab904a6e5b0f441785`. Dedicated CI at the revised #91 head and independent review remain required. No guest checkout or evidence has been changed; Phase A incomplete, B and PR #80 HOLD.
