@@ -52,3 +52,14 @@ Neither option is selected by authoring, review or merge of this packet. No oper
 
 This packet changes no effective pin or manifest. It creates no guest readiness PASS, live acceptance or historical disposition.
 Phase B, PR #80 and all original stop/switch gates remain HOLD/unchanged. No connector, credential, production/Dev change, release or deployment is authorized.
+
+<a id="s24-input-option-a-selection"></a>
+
+## Operator selection checkpoint — 23 October 2026
+
+After this packet merged at `686973b5240e30b8f9e5d274f75e918e0af5b76c`, the operator's complete response was:
+
+> ก
+
+This selects option ก above for coupled source/manifest PR preparation only. No exact approval timestamp is available; none is invented. This later checkpoint was not in the packet head `8f05802` covered by its prior review; the historical proposal text remains unchanged.
+The [plan checkpoint](S22-SHAREDHOST-SETUP-ACCEPTANCE-PLAN-TH.md#s24-revised-input-preparation) and revised artifact prepare input `d3144cc48437011830533ba0d4606b8d4644be3a`. Review/merge of this coupled preparation and explicit revised guest execution scope remain separate. No guest pin/checkout/manifest is changed by recording this selection. Phase A remains incomplete; B and PR #80 remain HOLD.

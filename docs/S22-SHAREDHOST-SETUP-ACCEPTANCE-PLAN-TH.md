@@ -118,3 +118,20 @@ Report each phase's scope/approval, exact pins, environment, stimuli, expected/o
 An independent evidence review and explicit operator acceptance are required before closing the scoped §22 synthetic gate. Plan review/merge and successful preparation do not close it.
 Release readiness must explicitly consider these limitations; release, signing/publication and deployment remain separate decisions.
 No operational action was performed while authoring this plan. §23 case-disposition evidence and old Dev stop/switch gates remain unchanged.
+
+
+<a id="s24-revised-input-preparation"></a>
+
+## Revised-input preparation checkpoint — 23 October 2026
+
+The operator selected option ก of the [input decision packet](S22-PHASE-A-INPUT-DECISION-TH.md), after its merge at `686973b5240e30b8f9e5d274f75e918e0af5b76c`, with this complete message, verbatim:
+
+> ก
+
+No exact approval timestamp is available; none is invented. This selects preparation of a coupled input/manifest PR only; it is not approval to merge that PR, execute the revised guest input, declare readiness or activate B.
+Prepared input: `d3144cc48437011830533ba0d4606b8d4644be3a`, tree `4b3a27e7d5f72589b02de69a45c1302144718d12`, sole parent original input `71dcae67cbfa6f0b953ab8d81198d073d202ed2a`.
+It retains 104 blobs and changes only the focused-test file (+3/-3), using reviewed PR #89 blob `c9fae04df337699a679cbf994401c875428cc234`. Runtime, assertions, dependencies, stamp and file modes are unchanged.
+This revision prepares the artifact PIN, 104-entry manifest and dedicated CI for that exact input. Independent review/merge and explicit guest scope bound to the revised artifact/input are required before use. At that point this scoped input checkpoint supersedes the original candidate instruction only for the new A-only measurement; the original paragraph and evidence remain history. No floating-main substitution or manual overlay is permitted.
+Preserve the old checkout/logs and use a new private candidate/evidence location. Re-run full suite, focused section 22 and artifact checks; record actual counts/skips/exits and inspect combined output through interpreter shutdown. Exit zero alone does not clear ResourceWarnings.
+Original guest results remain 234/7/10 tests OK with two focused finalizer warnings. Revised guest measurements, dependency identity, resource/continuity observations and the 0600 readiness receipt remain pending. A warning, missing observation or failed check keeps HOLD.
+No normative SPEC behavior, matrix, budgets or B binding/gates are changed. Phase A remains incomplete; B and PR #80 remain HOLD.

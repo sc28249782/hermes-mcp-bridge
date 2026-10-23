@@ -16,7 +16,7 @@ from pathlib import Path
 import sqlite3
 import sys
 
-PIN = "71dcae67cbfa6f0b953ab8d81198d073d202ed2a"
+PIN = "d3144cc48437011830533ba0d4606b8d4644be3a"
 CASES = ("NORMAL", "OP_PRE", "OP_COMMIT", "OP_POST", "CTX_PRE",
          "CTX_COMMIT", "CTX_POST", "CLOSED", "EXCLUDED")
 BACKENDS = ("hermes", "codex")
