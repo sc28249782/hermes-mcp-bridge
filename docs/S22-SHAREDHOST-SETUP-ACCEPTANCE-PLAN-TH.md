@@ -135,3 +135,18 @@ This revision prepares the artifact PIN, 104-entry manifest and dedicated CI for
 Preserve the old checkout/logs and use a new private candidate/evidence location. Re-run full suite, focused section 22 and artifact checks; record actual counts/skips/exits and inspect combined output through interpreter shutdown. Exit zero alone does not clear ResourceWarnings.
 Original guest results remain 234/7/10 tests OK with two focused finalizer warnings. Revised guest measurements, dependency identity, resource/continuity observations and the 0600 readiness receipt remain pending. A warning, missing observation or failed check keeps HOLD.
 No normative SPEC behavior, matrix, budgets or B binding/gates are changed. Phase A remains incomplete; B and PR #80 remain HOLD.
+
+<a id="s24-two-blob-preparation"></a>
+
+## Two-blob preparation checkpoint — 23 October 2026
+
+The operator explicitly approved PR #93 merge and option ก in one complete message, verbatim:
+
+> Merge ได้ และเลือก ก
+
+No exact approval timestamp is available; none is invented. The merge completed at `55f42de1c7c83f637b3979058386b5239911083a`. Option ก selects preparation of this revised #91 source/manifest delta only; it does not authorize merging #91, revised guest execution, readiness acceptance, B, release or deployment.
+The [two-blob decision](S22-PHASE-A-TWO-BLOB-INPUT-DECISION-TH.md) selects prepared input `02d7e8bb1e1902ca33a574ab904a6e5b0f441785`, tree `e0a905fb5ec02b91c1a8e8c58351c316e94eadbd`, sole parent the earlier one-blob input `d3144cc...`.
+This supersedes the candidate identity in the prior preparation checkpoint only for this revised preparation. Historical original/one-blob instructions and evidence remain unchanged. The 104-file manifest changes exactly the two reviewed test blobs relative to the original; runtime, assertions, dependencies, stamp, schema and modes do not change.
+The revised artifact PIN/manifest and dedicated-CI checkout are coupled. All scanner markers, failure handling, synthetic matrix, counters, budgets, private bindings and B gates stay intact. Review/merge and explicit scope bound to the reviewed artifact/input remain required before any revised guest use.
+Preserve prior candidate/evidence and use new private paths for future authorized measurements. Require fresh full/focused/artifact results, output inspection through process exit, dependency identity and actual resource/continuity observations before the private 0600 readiness receipt. Missing observations or warnings keep HOLD.
+Earlier guest/CI warnings remain evidence; no exact historical connection-object attribution is established. Phase A remains incomplete; B and PR #80 remain HOLD.

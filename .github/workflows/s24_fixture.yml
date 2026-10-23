@@ -25,7 +25,7 @@ jobs:
           persist-credentials: false
       - uses: actions/checkout@v4
         with:
-          ref: d3144cc48437011830533ba0d4606b8d4644be3a
+          ref: 02d7e8bb1e1902ca33a574ab904a6e5b0f441785
           path: .s24-candidate
           persist-credentials: false
       - uses: actions/setup-python@v5

@@ -1,5 +1,5 @@
 {
-  "candidate_commit": "d3144cc48437011830533ba0d4606b8d4644be3a",
+  "candidate_commit": "02d7e8bb1e1902ca33a574ab904a6e5b0f441785",
   "git_blob_sha1": {
     ".github/workflows/tests.yml": "cbead1d90915a866fc64f9d95815eb37108465c8",
     ".gitignore": "bf93e3c3e8b7a0315f45ee59102783a41fb4415b",
@@ -82,7 +82,7 @@
     "tests/mock_opencode_execution_server.py": "d2ae5ac0a3a920c0478359bfad58edcc0834a0e4",
     "tests/mock_opencode_server.py": "62f916ca119ae3157baa924fa9109572ec3d1b12",
     "tests/mock_privacy_boundary_server.py": "9f94aadd6c5ba9358a9f91d92d6e4682738f7037",
-    "tests/test_bridge.py": "711a1ddf12c91c7232e1f6da48a4e2cf2e51247b",
+    "tests/test_bridge.py": "c4bbedabea9054ef981bafd5f9f947e7071f85ea",
     "tests/test_codex.py": "0e466560c84412bd11b72c2a1c8ac609afad94f7",
     "tests/test_context_binding_unresolved.py": "c9fae04df337699a679cbf994401c875428cc234",
     "tests/test_context_lifecycle.py": "330937f25514a08217af9271a0115f6bd2d1225b",
