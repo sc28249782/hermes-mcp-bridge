@@ -274,3 +274,5 @@ Optional follow-ups, lower priority:
 
 
 - SPEC §24 Phase A source artifact (23 October 2026): [acceptance/s24](../acceptance/s24/README.md) contains a pinned candidate manifest, synthetic-only server/driver and separate artifact checks. A-only approval is quoted in the artifact README. Expected successful matrix totals are defined before B: contexts 18 (2 closed / 16 open, 7 bound), Hermes registrations/POSTs 10, memory-only Codex submits 10, audit 30 = 18 create + 2 close + 10 submit. Development offline checks do not establish guest readiness or live acceptance. Guest measurements, independent artifact review/pin, private bindings and separate B approval remain outstanding; PR #80 remains HOLD.
+
+- SPEC §24 Phase A input decision proposal (23 October 2026): [S22-PHASE-A-INPUT-DECISION-TH.md](S22-PHASE-A-INPUT-DECISION-TH.md) proposes a 104-file input derived from the original pin with only PR #89's SQLite test cleanup. Effective candidate/manifest remain unchanged; input choice, coupled manifest review and guest execution scope remain separate. Original guest warnings remain evidence; Phase A is incomplete, B and PR #80 remain HOLD.
