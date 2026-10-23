@@ -1,0 +1,39 @@
+name: S24 fixture artifact
+
+on:
+  pull_request:
+    branches: [main]
+    paths: ['acceptance/s24/**', '.github/workflows/s24_fixture.yml']
+  push:
+    branches: [main]
+    paths: ['acceptance/s24/**', '.github/workflows/s24_fixture.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  fixture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: 71dcae67cbfa6f0b953ab8d81198d073d202ed2a
+          path: .s24-candidate
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -r .s24-candidate/requirements-lock.txt
+      - name: Unchanged pinned candidate suite
+        working-directory: .s24-candidate
+        run: python -W error::ResourceWarning -B -m unittest discover -s tests -v
+      - name: Artifact checks including actual SDK stdio and negative controls
+        run: python -W error::ResourceWarning -B acceptance/s24/test_fixture.py --candidate .s24-candidate -v

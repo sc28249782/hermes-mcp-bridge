@@ -271,3 +271,6 @@ Optional follow-ups, lower priority:
 
 
 - Shared-host §22 setup/acceptance plan proposal (23 October 2026, after PR #86 merge `51a35d1a`): [S22-SHAREDHOST-SETUP-ACCEPTANCE-PLAN-TH.md](S22-SHAREDHOST-SETUP-ACCEPTANCE-PLAN-TH.md) proposes A-only guest/artifact preparation and separately approved B connector/activation. Exact private bindings, reviewed harness pins, budgets, integrity and continuity gates must pass before use. No setup, connector, SSH login or acceptance run is authorized or performed; PR #80 remains HOLD; release/deployment stay separate.
+
+
+- SPEC §24 Phase A source artifact (23 October 2026): [acceptance/s24](../acceptance/s24/README.md) contains a pinned candidate manifest, synthetic-only server/driver and separate artifact checks. A-only approval is quoted in the artifact README. Expected successful matrix totals are defined before B: contexts 18 (2 closed / 16 open, 7 bound), Hermes registrations/POSTs 10, memory-only Codex submits 10, audit 30 = 18 create + 2 close + 10 submit. Development offline checks do not establish guest readiness or live acceptance. Guest measurements, independent artifact review/pin, private bindings and separate B approval remain outstanding; PR #80 remains HOLD.
