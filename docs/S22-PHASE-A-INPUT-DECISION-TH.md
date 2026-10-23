@@ -52,3 +52,7 @@ Neither option is selected by authoring, review or merge of this packet. No oper
 
 This packet changes no effective pin or manifest. It creates no guest readiness PASS, live acceptance or historical disposition.
 Phase B, PR #80 and all original stop/switch gates remain HOLD/unchanged. No connector, credential, production/Dev change, release or deployment is authorized.
+
+## Follow-up proposal after the one-blob blocker — 23 October 2026
+
+The [two-blob input decision](S22-PHASE-A-TWO-BLOB-INPUT-DECISION-TH.md) proposes exact input `02d7e8bb1e1902ca33a574ab904a6e5b0f441785` after independently reviewed PR #92 merged. It adds only the migration test repair to the prior proposed input; original history and approval scope remain unchanged. No new input selection is recorded, #91 remains HOLD at `183edf6`, its manifest is unchanged, and guest execution/B remain unauthorized by this proposal.
