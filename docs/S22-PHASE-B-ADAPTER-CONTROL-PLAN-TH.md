@@ -97,3 +97,7 @@ Use synthetic transports and test-owned processes for offline controls; do not o
 
 This proposal authorizes no VM/host/SSH change, installation, credential creation, profile/connector setup, activation or guest test. No operator approval timestamp or Phase A acceptance is invented.
 PR #80 remains HOLD, historical outcomes remain unknown as recorded, and release/signing/publication/deployment remain separate decisions.
+
+## Phase A readiness acceptance checkpoint — 24 October 2026
+
+The [operator acceptance checkpoint](S22-SHAREDHOST-PHASE-A-READINESS-TH.md#s24-phase-a-operator-acceptance) records the complete message `ยอมรับ Phase A readiness ตาม record #94`, with no invented exact approval timestamp. Phase A guest/artifact readiness is accepted for candidate `02d7e8bb1e1902ca33a574ab904a6e5b0f441785` and reviewed artifact `e7be0cc4e84b820eb8c7ac541325672d0f892fb2`. Earlier pending-acceptance wording remains history; this checkpoint does not relabel the first pending round or add measurements. B source work remains subject to exact-delta review; setup/activation requires separate scope. The scoped section 22 gate and PR #80 remain HOLD; release/deployment remain separate.
