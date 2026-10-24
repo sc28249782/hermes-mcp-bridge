@@ -56,6 +56,12 @@ def unique_object(pairs):
     return result
 
 
+def finite_float(raw):
+    value = float(raw)
+    require(math.isfinite(value), "nonfinite JSON number")
+    return value
+
+
 def encode(value):
     try:
         raw = json.dumps(value, ensure_ascii=True, allow_nan=False,
@@ -71,6 +77,7 @@ def decode(raw):
     require(raw.endswith(b"\n") and b"\n" not in raw[:-1], "one newline frame required")
     try:
         value = json.loads(raw.decode("utf-8"), object_pairs_hook=unique_object,
+                           parse_float=finite_float,
                            parse_constant=lambda _: (_ for _ in ()).throw(Hold("nonfinite JSON")))
     except (ValueError, UnicodeError, RecursionError) as error:
         raise Hold("malformed JSON frame") from error

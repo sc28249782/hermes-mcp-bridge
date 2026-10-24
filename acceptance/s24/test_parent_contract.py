@@ -134,6 +134,8 @@ class ContractChecks(unittest.TestCase):
         self.assert_latched(contract)
 
     def test_envelope_negative_controls_latch_without_retry(self):
+        with self.assertRaises(parent.Hold):
+            parent.decode(b'{"value":1e400}\n')
         controls = [lambda q, r: r.update(seq=0), lambda q, r: r.update(seq=True),
                     lambda q, r: r.update(route="production"), lambda q, r: r.update(kind="other"),
                     lambda q, r: r.update(extra=True), lambda q, r: b"{}\n{}\n",
