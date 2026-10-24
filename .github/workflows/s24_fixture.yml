@@ -58,3 +58,9 @@ jobs:
           set -euo pipefail
           python -W error::ResourceWarning -B acceptance/s24/test_parent_contract.py --candidate .s24-candidate -v 2>&1 | tee "$RUNNER_TEMP/s24-parent-contract.log"
           if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-parent-contract.log"; then exit 1; else test "$?" -eq 1; fi
+      - name: Offline identity and discovery contract controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -W error::ResourceWarning -B acceptance/s24/test_identity_contract.py --candidate .s24-candidate -v 2>&1 | tee "$RUNNER_TEMP/s24-identity-contract.log"
+          if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-identity-contract.log"; then exit 1; else test "$?" -eq 1; fi
