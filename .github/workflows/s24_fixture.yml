@@ -82,3 +82,15 @@ jobs:
           set -euo pipefail
           python -W error::ResourceWarning -B acceptance/s24/test_launch_admission.py -v 2>&1 | tee "$RUNNER_TEMP/s24-launch-admission.log"
           if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-launch-admission.log"; then exit 1; else test "$?" -eq 1; fi
+
+  host-memory:
+    runs-on: windows-2022
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Windows local memory sampler and negative controls
+        shell: pwsh
+        run: |
+          & ./acceptance/s24/Test-HostMemory.ps1
