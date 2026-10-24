@@ -76,3 +76,9 @@ jobs:
           set -euo pipefail
           python -W error::ResourceWarning -B acceptance/s24/test_guest_observer.py -v 2>&1 | tee "$RUNNER_TEMP/s24-guest-observer.log"
           if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-guest-observer.log"; then exit 1; else test "$?" -eq 1; fi
+      - name: Offline single-use launch admission controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -W error::ResourceWarning -B acceptance/s24/test_launch_admission.py -v 2>&1 | tee "$RUNNER_TEMP/s24-launch-admission.log"
+          if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-launch-admission.log"; then exit 1; else test "$?" -eq 1; fi
