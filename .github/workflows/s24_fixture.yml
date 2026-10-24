@@ -70,3 +70,9 @@ jobs:
           set -euo pipefail
           python -W error::ResourceWarning -B acceptance/s24/test_owned_child.py --candidate .s24-candidate -v 2>&1 | tee "$RUNNER_TEMP/s24-owned-child.log"
           if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-owned-child.log"; then exit 1; else test "$?" -eq 1; fi
+      - name: Read-only guest resource observation controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -W error::ResourceWarning -B acceptance/s24/test_guest_observer.py -v 2>&1 | tee "$RUNNER_TEMP/s24-guest-observer.log"
+          if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-guest-observer.log"; then exit 1; else test "$?" -eq 1; fi
