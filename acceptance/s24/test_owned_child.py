@@ -156,11 +156,22 @@ class ChildControls(unittest.TestCase):
         proc, argv = self.spawn()
         with self.assertRaises(Hold):
             self.adopt(proc, argv, window=True)
+        with patch.object(proc, "text_mode", True):
+            with self.assertRaisesRegex(Hold, "binary pipes"):
+                self.adopt(proc, argv)
         public = self.root / "public"
         public.mkdir(mode=0o755)
         public.chmod(0o755)
         with self.assertRaises(Hold):
             control.OwnedChild(proc, argv, public / "trace")
+        self.assertIsNone(proc.poll())
+
+    def test_thread_start_failure_leaves_cleanup_with_owner(self):
+        proc, argv = self.spawn()
+        with patch("threading.Thread.start", side_effect=RuntimeError("thread unavailable")), \
+                patch("signal.pidfd_send_signal", side_effect=AssertionError("must not signal")):
+            with self.assertRaisesRegex(RuntimeError, "thread unavailable"):
+                self.adopt(proc, argv)
         self.assertIsNone(proc.poll())
 
     def test_output_frame_and_trace_overflow_stop_child(self):

@@ -43,7 +43,8 @@ class OwnedChild:
                 "argv binding mismatch")
         require(finite(window, 1200) and finite(lease, 30) and finite(term_grace, 10)
                 and type(allow_kill) is bool, "invalid control bounds")
-        require(all(getattr(process, k) is not None for k in ("stdin", "stdout", "stderr")),
+        require(not process.text_mode and all(getattr(process, k) is not None
+                for k in ("stdin", "stdout", "stderr")),
                 "private binary pipes required")
         require(hasattr(os, "pidfd_open") and hasattr(signal, "pidfd_send_signal"),
                 "Linux pidfd support required")
@@ -92,7 +93,13 @@ class OwnedChild:
             # Adoption failure never authorizes a signal. The original owner retains cleanup.
             raise
         self.thread = threading.Thread(target=self._watch, name="s24-owned-child", daemon=True)
-        self.thread.start()
+        try:
+            self.thread.start()
+        except BaseException:
+            os.close(self.trace_fd)
+            os.close(self.pidfd)
+            # The caller still owns the child and all pipes; no signal is authorized.
+            raise
 
     def _record(self, direction, data):
         with self.lock:
