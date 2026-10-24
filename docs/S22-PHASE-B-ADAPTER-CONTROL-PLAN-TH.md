@@ -97,3 +97,7 @@ Use synthetic transports and test-owned processes for offline controls; do not o
 
 This proposal authorizes no VM/host/SSH change, installation, credential creation, profile/connector setup, activation or guest test. No operator approval timestamp or Phase A acceptance is invented.
 PR #80 remains HOLD, historical outcomes remain unknown as recorded, and release/signing/publication/deployment remain separate decisions.
+
+## Phase B route feasibility checkpoint — 24 October 2026
+
+The [route assessment](S22-PHASE-B-ROUTE-FEASIBILITY-TH.md) establishes a documented product path for a separate Work custom plugin and guest-local tunnel client. Actual fixture namespace/invocation, full result/capture provenance, observers and finite lifecycle remain HOLD. No new route, account action, guest measurement or activation occurred. The prior source/design checkpoints retain their historical wording and all original gates remain unchanged.
