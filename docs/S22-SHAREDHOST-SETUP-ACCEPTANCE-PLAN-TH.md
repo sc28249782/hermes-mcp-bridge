@@ -154,3 +154,7 @@ Earlier guest/CI warnings remain evidence; no exact historical connection-object
 ## Phase A evidence checkpoint — 23 October 2026
 
 The [Phase A readiness record](S22-SHAREDHOST-PHASE-A-READINESS-TH.md) reports fresh guest 234/7/10 OK with unchanged warning gates, 65 resource samples and discrete matching Production/Dev health/identity observations before/after under the original window. Guest/private receipt data are operator-reported; connector observations are author-observed parent evidence. The earlier round remains PENDING because its continuity observations were missing. Status is READY FOR INDEPENDENT REVIEW, not Phase A acceptance or B approval; all scope, budgets, private binding and historical HOLD gates remain unchanged.
+
+## Phase B source-design proposal — 24 October 2026
+
+The [adapter/control plan](S22-PHASE-B-ADAPTER-CONTROL-PLAN-TH.md) defines implementation/proof obligations for the actual independent connector, data-only matrix adapter, observers, finite supervisor and stopped-state verifier. PR #94 merged after independent readiness evidence review; operator Phase A readiness acceptance remains pending. This is design work only, with no new source/runtime, VM action, provisioning or activation approval. The original budgets, private bindings, shared-host limits, B acceptance sequence and PR #80 HOLD remain unchanged.
