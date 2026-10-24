@@ -83,7 +83,7 @@ Test-Control 'overflow zero total and available-over-total' {
 
 Test-Control 'correlation rejected before provider query' {
     Set-TestReader { throw 'provider must not run' }
-    foreach ($bad in @($null, '', 'x' * 64, 'A' * 64, "$('a' * 64)`n", 123, @('a' * 64))) {
+    foreach ($bad in @($null, '', ('x' * 64), ('A' * 64), "$('a' * 64)`n", 123, @(('a' * 64)))) {
         Assert-Hold { Get-S24HostMemorySample -BindingSha256 $bad -Challenge $challenge } 'HOLD: exact binding digest and challenge required'
         Assert-Hold { Get-S24HostMemorySample -BindingSha256 $binding -Challenge $bad } 'HOLD: exact binding digest and challenge required'
     }
