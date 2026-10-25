@@ -131,7 +131,7 @@ class IntegrationChecks(unittest.TestCase):
         self.assertIs(result["operational_b_ready"], False)
 
     def joined_observer(self, mutate_host=None, mutate_continuity=None, *, signed=False, corrupt_mac=False,
-                        signed_checkpoints=False, corrupt_role=None):
+                        signed_checkpoints=False, corrupt_role=None, inventory_provider=None):
         class UnitGuest:
             def sample(guest_self):
                 return {"guest_available_bytes": 1000 * integrated.MIB,
@@ -182,7 +182,7 @@ class IntegrationChecks(unittest.TestCase):
             async def signed_provider(stage, nonce, call=continuity):
                 return await call()
             async def signed_inventory(stage, nonce, call=inventory):
-                return {"writers": await call()}
+                return await inventory_provider(stage, nonce) if inventory_provider else {"writers": await call()}
             def wrap(role, producer, key, provider, adapter):
                 binding = dict(attempt="S24-unit-integration", binding="a" * 64,
                                producer=producer, role=role, record=lambda direction, raw: None)
@@ -286,6 +286,110 @@ class IntegrationChecks(unittest.TestCase):
             self.assertTrue(joined.held)
         finally:
             self.writers = old_writers
+
+    def unit_leader_factory(self):
+        # Fabricated identities only; every positive read in unit cases is patched.
+        factory = integrated.SupervisedSdkFactory(self.root)
+        factory.used = True
+        def identity(pid):
+            return {"pid": pid, "start_ticks": 1, "uid": os.geteuid(), "exe": "/unit/fake", "argv": ["unit"]}
+        owner, supervisor, child = (identity(os.getpid() + offset) for offset in range(3))
+        factory.ready = {"owner": owner, "supervisor": supervisor, "child": {
+            "pid": child["pid"], "start_ticks": child["start_ticks"], "owner_uid": child["uid"],
+            "executable": child["exe"], "argv": child["argv"]}}
+        return factory
+
+    def test_actual_known_leader_inventory_in_complete_supervised_sdk_matrix(self):
+        factory = integrated.SupervisedSdkFactory(self.root, term_grace=1, allow_kill=True)
+        inventory = integrated.OwnedLeaderInventory(factory)
+        self.writers = integrated.LEADER_NAMES[:]
+        joined = self.joined_observer(signed=True, signed_checkpoints=True, inventory_provider=inventory)
+        result = asyncio.run(self.coordinator(joined, factory).run())
+        self.assertEqual((result["matrix_tool_calls"], result["checkpoints"], result["durable"]["audit_total"]),
+                         (124, 44, 30))
+        records = [json.loads(line) for line in (self.root / "integration-trace.jsonl").read_bytes().splitlines()]
+        inputs = [item["value"] for item in records if item["kind"] == "offline-observer-inputs"]
+        self.assertEqual(len(inputs), 44)
+        for index, item in enumerate(inputs):
+            observation = item["leader_observation"]
+            self.assertEqual(item["evidence_class"], "offline-inputs-with-local-leaders")
+            self.assertEqual((observation["stage"], observation["sequence"]), (parent.STAGES[index], index + 1))
+            self.assertEqual(observation["nonce"], item["checkpoint_message_proofs"]["writer-inventory"]["nonce"])
+            identities = [leader["identity"] for leader in observation["leaders"]]
+            self.assertEqual(identities[:2], [factory.ready["owner"], factory.ready["supervisor"]])
+            self.assertEqual(identities[2]["pid"], factory.ready["child"]["pid"])
+            self.assertEqual(observation["leaders"][1]["parent_pid"], identities[0]["pid"])
+            self.assertEqual(observation["leaders"][2]["parent_pid"], identities[1]["pid"])
+            for key in ("complete_writer_coverage", "descendant_cessation_proved", "original_runtimes_observed"):
+                self.assertIs(observation[key], False)
+        self.assertEqual(inventory.sequence, 44)
+        self.assertTrue(result["direct_fixture_supervisor"]["leader"]["leader_reaped"])
+        self.assertFalse(result["complete_writer_cessation_proved"])
+        self.assertFalse(result["operational_b_ready"])
+
+    def test_known_leader_wrong_owner_duplicate_pid_or_unready_never_reads_proc(self):
+        for mutation in ("owner", "duplicate", "unready", "order", "stopped"):
+            with self.subTest(mutation=mutation):
+                factory = self.unit_leader_factory()
+                inventory = integrated.OwnedLeaderInventory(factory)
+                if mutation == "owner":
+                    factory.ready["owner"]["pid"] += 9
+                elif mutation == "duplicate":
+                    factory.ready["child"]["pid"] = factory.ready["supervisor"]["pid"]
+                elif mutation == "unready":
+                    factory.ready = None
+                elif mutation == "stopped":
+                    factory.stop_receipt = {"unit": True}
+                stage = parent.STAGES[1] if mutation == "order" else parent.STAGES[0]
+                with patch.object(inventory, "_read", side_effect=AssertionError("must not read")) as read:
+                    with self.assertRaises(parent.Hold):
+                        asyncio.run(inventory(stage, "b" * 64))
+                    self.assertTrue(inventory.held)
+                    read.assert_not_called()
+
+    def test_known_leader_read_failure_or_ready_drift_is_permanent_without_retry(self):
+        factory = self.unit_leader_factory()
+        inventory = integrated.OwnedLeaderInventory(factory)
+        with patch.object(inventory, "_read", side_effect=parent.Hold("unit identity changed")) as read:
+            with self.assertRaises(parent.Hold):
+                asyncio.run(inventory(parent.STAGES[0], "b" * 64))
+            with self.assertRaises(parent.Hold):
+                asyncio.run(inventory(parent.STAGES[1], "c" * 64))
+            self.assertEqual(read.call_count, 1)
+        inventory = integrated.OwnedLeaderInventory(factory)
+        def fake_read(expected, parent):
+            return {"identity": expected, "parent_pid": parent or 1}
+        with patch.object(inventory, "_read", side_effect=fake_read) as read:
+            asyncio.run(inventory(parent.STAGES[0], "b" * 64))
+            factory.ready["supervisor"]["argv"] = ["different-unit-argv"]
+            with self.assertRaisesRegex(parent.Hold, "ready binding changed"):
+                asyncio.run(inventory(parent.STAGES[1], "c" * 64))
+            self.assertEqual(read.call_count, 3)
+
+    def test_known_leader_parent_and_second_identity_checks_are_not_omitted(self):
+        expected = {"pid": 10, "start_ticks": 12, "uid": 1, "exe": "/unit/fake", "argv": ["unit"]}
+        raw = "10 (unit) S 9 " + "0 " * 17 + "12\n"
+        for first, second, parent_pid in ((expected, expected, 8),
+                ({**expected, "argv": ["wrong"]}, expected, 9),
+                (expected, {**expected, "start_ticks": 13}, 9)):
+            with self.subTest(parent=parent_pid), patch.object(integrated, "process_identity", side_effect=[first, second]), \
+                    patch.object(Path, "read_text", return_value=raw):
+                with self.assertRaises(parent.Hold):
+                    integrated.OwnedLeaderInventory._read(expected, parent_pid)
+
+    def test_signed_leader_scope_cannot_claim_full_coverage(self):
+        factory = self.unit_leader_factory()
+        inventory = integrated.OwnedLeaderInventory(factory)
+        self.writers = integrated.LEADER_NAMES[:]
+        async def forged_scope(stage, nonce):
+            payload = await inventory(stage, nonce)
+            payload["leader_observation"]["complete_writer_coverage"] = True
+            return payload
+        joined = self.joined_observer(signed=True, signed_checkpoints=True, inventory_provider=forged_scope)
+        with patch.object(inventory, "_read", side_effect=lambda expected, parent: {"identity": expected, "parent_pid": parent or 1}):
+            with self.assertRaisesRegex(parent.Hold, "scope/binding"):
+                asyncio.run(joined(parent.STAGES[0]))
+        self.assertTrue(joined.held)
 
     def test_signed_host_tampering_holds_before_first_matrix_tool_and_never_falls_back(self):
         joined = self.joined_observer(signed=True, corrupt_mac=True)

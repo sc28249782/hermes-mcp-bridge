@@ -21,13 +21,78 @@ from identity_contract import OfflineIdentityContract
 from launch_admission import LaunchAdmission
 from observer_channel import SignedHostProvider, SignedRuntimeProvider, SignedInventoryProvider
 from supervised_stdio import SupervisedSdkFactory
-from parent_contract import ARTIFACT_PIN, FRESHNESS_SECONDS, Hold, OfflineParentContract, decode, encode, require
+from supervised_stdio import identity as process_identity
+from parent_contract import ARTIFACT_PIN, FRESHNESS_SECONDS, STAGES, Hold, OfflineParentContract, decode, encode, require
 import s24_fixture as fixture
 
 EVIDENCE_CLASS = "offline-sdk-integration"
 TRACE_LIMIT = 8 * 1024 * 1024
 RECEIPT_LIMIT = 1024 * 1024
 MIB = 1024 * 1024
+LEADER_CLASS = "local-known-fixture-leaders"
+LEADER_NAMES = ["owned-controller", "owned-supervisor", "owned-fixture-leader"]
+
+
+class OwnedLeaderInventory:
+    """Read only three known live leaders; never claim all writers or cessation.
+
+    The first checkpoint binds the already initialized factory's private ready
+    data. There is no caller-supplied PID list, global process scan or stop API.
+    """
+    def __init__(self, factory):
+        require(type(factory) is SupervisedSdkFactory, "owned fixture factory required")
+        self.factory = factory
+        self.bound = None
+        self.sequence = 0
+        self.nonces = set()
+        self.held = False
+
+    @staticmethod
+    def _read(expected, parent):
+        pid = expected["pid"]
+        first = process_identity(pid)
+        # /proc stat's state is field0 after ')'; ppid is field1.
+        parts = (Path("/proc") / str(pid) / "stat").read_text().rsplit(")", 1)[1].split()
+        require(first == expected and int(parts[19]) == expected["start_ticks"]
+                and (parent is None or int(parts[1]) == parent)
+                and process_identity(pid) == first, "known leader identity/parent changed")
+        return {"identity": first, "parent_pid": int(parts[1])}
+
+    async def __call__(self, stage, nonce):
+        try:
+            require(not self.held and self.sequence < len(STAGES)
+                    and stage == STAGES[self.sequence], "known leader observation held/order")
+            require(type(nonce) is str and len(nonce) == 64 and all(c in "0123456789abcdef" for c in nonce)
+                    and nonce not in self.nonces, "known leader nonce")
+            self.sequence += 1
+            self.nonces.add(nonce)  # Consumed before reads; no retry after failure.
+            ready = self.factory.ready
+            require(self.factory.used and not self.factory.held and type(ready) is dict
+                    and self.factory.stop_receipt is None, "live bound supervisor required")
+            require(ready["owner"]["pid"] == os.getpid(), "inventory controller mismatch")
+            if self.bound is None:
+                self.bound = deepcopy(ready)
+            require(ready == self.bound, "supervisor ready binding changed")
+            owner, supervisor, raw_child = ready["owner"], ready["supervisor"], ready["child"]
+            child = {"pid": raw_child["pid"], "start_ticks": raw_child["start_ticks"],
+                     "uid": raw_child["owner_uid"], "exe": raw_child["executable"], "argv": raw_child["argv"]}
+            expected = (owner, supervisor, child)
+            require(all(type(item["pid"]) is int and item["pid"] > 1 and item["uid"] == os.geteuid()
+                        for item in expected) and len({item["pid"] for item in expected}) == 3,
+                    "three distinct owned leaders required")
+            started = time.monotonic()
+            observed = [self._read(item, parent) for item, parent in
+                        zip(expected, (None, owner["pid"], supervisor["pid"]))]
+            elapsed = time.monotonic() - started
+            require(0 <= elapsed <= 1, "known leader sample stale")
+            return {"writers": LEADER_NAMES[:], "leader_observation": {
+                "evidence_class": LEADER_CLASS, "stage": stage, "nonce": nonce,
+                "sequence": self.sequence, "elapsed_seconds": elapsed,
+                "leaders": observed, "complete_writer_coverage": False,
+                "descendant_cessation_proved": False, "original_runtimes_observed": False}}
+        except BaseException:
+            self.held = True
+            raise
 
 
 def source_identity():
@@ -86,16 +151,34 @@ class OfflineObservationJoin:
             guest = self.guest.sample()
             host = await self.host(stage, self.binding, challenge)
             proofs = {}
+            leader_observation = None
             if self.signed_checkpoints:
                 continuity_raw = await self.continuity(stage, self.binding, challenge)
                 inventory_raw = await self.inventory(stage, self.binding, challenge)
                 require(set(continuity_raw) == {"production", "dev", "healthy", "observer_message_proof"}
-                        and set(inventory_raw) == {"writers", "observer_message_proof"},
+                        and set(inventory_raw) in ({"writers", "observer_message_proof"},
+                            {"writers", "leader_observation", "observer_message_proof"}),
                         "signed checkpoint payload shape")
                 proofs = {"runtime-continuity": continuity_raw["observer_message_proof"],
                           "writer-inventory": inventory_raw["observer_message_proof"]}
                 continuity = {key: value for key, value in continuity_raw.items() if key != "observer_message_proof"}
                 writers = inventory_raw["writers"]
+                if "leader_observation" in inventory_raw:
+                    leader_observation = inventory_raw["leader_observation"]
+                    require(type(leader_observation) is dict
+                            and leader_observation.get("evidence_class") == LEADER_CLASS
+                            and leader_observation.get("complete_writer_coverage") is False
+                            and leader_observation.get("descendant_cessation_proved") is False
+                            and leader_observation.get("original_runtimes_observed") is False
+                            and leader_observation.get("stage") == stage and leader_observation.get("nonce") == challenge
+                            and type(leader_observation.get("elapsed_seconds")) in (int, float)
+                            and math.isfinite(leader_observation["elapsed_seconds"])
+                            and 0 <= leader_observation["elapsed_seconds"] <= 1
+                            and type(leader_observation.get("sequence")) is int
+                            and leader_observation["sequence"] == inventory_raw["observer_message_proof"]["sequence"]
+                            and type(leader_observation.get("leaders")) is list
+                            and len(leader_observation["leaders"]) == 3 and writers == LEADER_NAMES,
+                            "known leader observation scope/binding")
             else:
                 # Legacy injected offline tests only; never a fallback after a signed failure.
                 continuity = await self.continuity()
@@ -128,7 +211,9 @@ class OfflineObservationJoin:
             self.last_inputs = deepcopy({"stage": stage, "guest": guest, "host": host,
                                          "continuity": continuity, "writers": writers,
                                          "checkpoint_message_proofs": proofs,
-                                         "evidence_class": "injected-offline-observer-inputs"})
+                                         "leader_observation": leader_observation,
+                                         "evidence_class": "offline-inputs-with-local-leaders" if leader_observation
+                                         else "injected-offline-observer-inputs"})
             return {"stage": stage, "observed_at": started, "identities": deepcopy(self.identities),
                     "resources": {"host_available_mib": host["host_available_bytes"] / MIB,
                                   "guest_available_mib": guest["guest_available_bytes"] / MIB,

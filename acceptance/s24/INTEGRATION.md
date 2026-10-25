@@ -311,6 +311,52 @@ global route unavailability. Actual collectors/carriers, private key/producer
 identity binding, Work handoff and complete cohort/stopped-writer proof remain
 HOLD on this same PR. Every operational readiness/acceptance flag stays false.
 
+## Read-only known-leader inventory collector
+
+`OwnedLeaderInventory` reads actual Linux process identity for only the current
+controller and the supervisor/fixture leader in its SupervisedSdkFactory ready
+binding. It accepts no arbitrary PID list, starts/stops no process, scans no
+account or global process table, and reads no original Production/Dev runtime.
+The first checkpoint binds ready data after SDK initialization; this is not a
+pre-start inventory or approval. The ready map must remain unchanged afterward.
+
+Each sample checks three distinct same-uid PIDs and the current controller PID,
+then reads PID/start ticks/uid/executable/argv through the existing coherent-procfs
+identity check. It reads/rechecks start ticks and parent links between two full
+identity reads. Supervisor must still be a child of the controller; fixture must
+still be a child of that supervisor. Failure, changed binding, duplicate/reordered
+stage/nonce, stopped factory or unreadable process permanently holds the collector.
+No retry or last-known-value substitution is provided. The one-second collection
+cap is post-hoc, not interruption of blocked procfs I/O. The outer supervision and
+two-second total join deadline remain necessary and unchanged.
+
+The result names three known leaders only. It records complete_writer_coverage,
+descendant_cessation_proved and original_runtimes_observed as false. It does not
+search for children that detached, discover external writers, authenticate the
+operator's host, prove continuous liveness or prove cessation after a later stop.
+A matching three-name writer list cannot open an operational B or verifier gate.
+Full cohort/descendant/external-writer coverage remains HOLD.
+
+The signed inventory message can now carry leader_observation metadata alongside
+the three labels. The join retains these actual observations separately from its
+fabricated test host/guest/runtime inputs and MAC proofs. It validates stage,
+nonce, sequence, duration and the required false scope flags. Claimed complete
+coverage is rejected even with a valid MAC. A MAC does not authenticate where a
+producer obtained its process data; private producer/carrier binding is still open.
+
+Five new coordinator controls cover the actual supervised SDK matrix with 44 live
+three-leader samples, pre-read binding rejection, permanent failure/ready drift,
+parent and second-identity checks, and rejection of a signed full-coverage claim.
+The real CI case still asserts124/44/audit30 and retains every false operational
+flag. Its process observations are CI-local only; every other observer input is
+explicitly fabricated. Unit controls patch reads and label identities as synthetic.
+Current coordinator suite has26 tests; channel23 and supervisor20 are unchanged.
+
+No new module, workflow, dependency, runtime, fixture or candidate is introduced.
+No operator-host/VM/SSH/credential/client/connector action occurred. Actual Work
+route, remaining collectors/carriers, whole-cohort supervision, operational receipts
+and stopped-writer proof remain work on this same draft PR.
+
 ## Remaining work on this same integration PR
 
 | Gate | Current state / required closure |
