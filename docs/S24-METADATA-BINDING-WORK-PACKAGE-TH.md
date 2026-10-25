@@ -144,3 +144,20 @@ No new guest command, API request, credential read/write, profile change, bridge
 tool, account action, provisioning or activation occurs in this offline work.
 PR #80 remains HOLD; #96 stays separate/unmerged. Metadata R2 cannot close Phase B
 or scoped §22; later release/deployment and active acceptance remain separate.
+
+## 7. Private inventory source delta — 25 October 2026
+
+The [inventory helper and proposed combined scope](../acceptance/s24/PREBIND-INVENTORY.md)
+add bounded nominated-file/static-profile checks, metadata-only key inspection,
+saved interpreter/dependency comparison and limited guest observations.
+Twenty-two offline controls use synthetic inputs; no guest execution or private
+dossier inspection is claimed. Existing controller, collectors, manifests and
+peer remain unchanged. The initial method proposal review at `f4384d8` did not
+include this later source delta; this exact delta requires its own review.
+
+The helper writes one new private evidence file but grants no scope/window.
+It does not fill authority, authentication, original continuity, complete cohort
+or stop/writer coverage. Its collection deadline is post-hoc, not an outer
+supervisor. Complete the proposed invocation bindings and control/stop methods,
+then obtain separate finite scope before any guest/host run. No new R1 or R2
+approval is inferred from this source or a request to continue.
