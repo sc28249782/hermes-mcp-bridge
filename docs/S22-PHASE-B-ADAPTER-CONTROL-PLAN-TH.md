@@ -101,3 +101,7 @@ PR #80 remains HOLD, historical outcomes remain unknown as recorded, and release
 ## Phase B route feasibility checkpoint — 24 October 2026
 
 The [route assessment](S22-PHASE-B-ROUTE-FEASIBILITY-TH.md) establishes a documented product path for a separate Work custom plugin and guest-local tunnel client. Actual fixture namespace/invocation, full result/capture provenance, observers and finite lifecycle remain HOLD. No new route, account action, guest measurement or activation occurred. The prior source/design checkpoints retain their historical wording and all original gates remain unchanged.
+
+## Metadata prebinding stage proposal — 25 October 2026
+
+The [staged plan](S24-METADATA-PREBIND-PLAN-TH.md) pins the reviewed permanently inactive peer at `70eca6dc` and proposes separate read-only inventory, inactive preparation and one bounded metadata attempt. It remains NOT EXECUTION-READY: compatibility disposition, any required §14 amendment, guest/private bindings, client/asset verification, observers/stop controls and separate operator scopes are open. No setup, credentials, client start, namespace, candidate discovery, B acceptance or original-runtime action is approved. Historical text and PR #80 HOLD remain unchanged.
