@@ -45,7 +45,7 @@ writer model. Context exit is not a new proof of detached-writer cessation or a
 substitute for the operational cohort supervisor. A failed/uncertain exit blocks
 the verifier. No second fixture is started to inspect state.
 
-Candidate content, fixture hashes and seven integrated source/manifest SHA-256
+Candidate content, fixture hashes and eight integrated source/manifest SHA-256
 values are checked before/after. These hashes detect recorded byte drift; they
 are not approval or authenticated source provenance. No candidate, manifest,
 fixture, old validator, sampler or OwnedChild source is modified here.
@@ -83,7 +83,7 @@ Run only in an authorized offline test environment:
 python -W error::ResourceWarning -B acceptance/s24/test_integration.py --candidate .s24-candidate -v
 ```
 
-Fifteen controls cover the actual SDK/identity/complete matrix/stop/read-only
+Sixteen coordinator controls cover the actual SDK/identity/complete matrix/stop/read-only
 verification chain; joined observations and latch; identity/continuity/resource/
 challenge errors; cancellation; finite-window expiry; uncertain stop; actual
 post-stop SQLite row tampering; integrated-source drift; exclusive evidence,
@@ -92,13 +92,75 @@ test mutations after SDK shutdown, never candidate or original state changes.
 The positive case asserts 124/44, all phases, actual audit 30, private file modes,
 trace hash/length and explicit incomplete operational fields.
 
+## Shared-key observation message delta
+
+`observer_channel.py` adds a concrete HMAC-SHA-256 request/response format with
+version/domain separation, exact attempt/private-binding/producer/role/stage/
+sequence binding, a fresh 256-bit nonce and constant-time MAC comparison. Both
+directions are signed. The responder checks the signature before collecting;
+the client checks it before accepting a sample. A valid MAC for another role,
+attempt, stage or sequence is still rejected. Echoing or replaying an old signed
+message is not a fresh response. Payload fields are retained, not repaired. MACs
+use this module's fixed domain and sorted-key, ASCII, finite JSON encoding; a
+different-language producer needs independent byte-parity tests before use.
+
+Each endpoint requires a caller-supplied exact 32-byte key, byte carrier/provider,
+and recorder. No key is generated, loaded from an operator file, logged or
+provisioned by this module. Tests use deliberately public unit bytes only. Actual
+key provisioning and private mapping to an independently verified producer/method
+require separate setup scope. Different producer/role bindings require dedicated
+key scope; no isolation from a shared key holder or trusted same-user code is
+claimed. MAC verification proves possession of that key, not machine identity,
+authentic approval, correct measurement, authorization or an encrypted carrier.
+
+The existing 64 KiB parent frame decoder rejects duplicate keys/nonfinite data;
+each endpoint also enforces an 8 MiB message budget and the 44-stage sequence.
+The client measures a <=2-second round trip using its own monotonic clock; the
+responder bounds collection to <=1 second using its clock. Clock origins need
+not match. These are cooperative/post-hoc limits, not process interruption or
+measured Work-route latency guarantees. The surrounding join still has its own
+two-second total freshness bound; the message layer never extends it.
+
+Failure, cancellation, concurrent use, recorder failure, wrong metadata or a
+bad/replayed message latches that endpoint permanently; an in-flight result is
+rejected if a concurrent call held the instance. There is no retry, fallback,
+reconnect or durable resume. Replay/sequence state is process-local. Restarting
+an endpoint is not recovery: the outer one-use attempt/control policy must stop
+the attempt, preserve evidence and require a fresh approved binding rather than
+reconstructing endpoints with old state/key/attempt. No listener or protected
+network carrier is implemented here, and an invalid frame can deliberately hold
+the endpoint. Availability and whole-cohort supervision remain separate.
+
+`SignedHostProvider` connects this message client to the join with a stage-bound
+host request. It preserves the original Windows sampler's authenticated=false,
+host_identity_proved=false and other incomplete flags. A separate
+`observer_message_proof.message_mac_verified=true` records only the verified MAC.
+The producer cannot supply this reserved proof field itself. The coordinator
+attaches its existing private journal before the first exchange; the old recorder
+is retained, and both exact ASCII message frames are recorded at the codec
+boundary. These frames are not a Work/MCP wire capture or proof of a protected
+carrier. Receipts additionally retain actual_observer_carrier_proved=false and
+observer_key_host_binding_proved=false.
+
+Twenty channel controls cover all stages, deep payload preservation, wrong MAC/
+key/context, reflection, replay, timing/clock failures, concurrency at each end,
+actual cooperative timeouts, recorder/size/schema/type failures, and an actual
+new disposable stdio peer completing all 44 exchanges. The full SDK integration
+positive uses signed host inputs with fabricated measurements. A forged response
+MAC test confirms channel + join + coordinator HOLD before the first matrix tool,
+with no unsigned fallback. This delta does not invoke Windows or original runtimes.
+
+```bash
+python -W error::ResourceWarning -B acceptance/s24/test_observer_channel.py -v
+```
+
 ## Remaining work on this same integration PR
 
 | Gate | Current state / required closure |
 | --- | --- |
 | Actual Work handoff/namespace | HOLD; no bound fixture namespace or supported invocation instance has been proved; never fall back to this SDK path as live evidence |
 | Inactive setup / first activation binding | HOLD; review exact client identity, private route/config/authentication and any staged binding before requesting separate operational scope |
-| Host/guest/continuity collectors | HOLD; producer data shapes join offline, but authenticated transport, host/method binding, freshness and original-runtime observations remain unimplemented |
+| Host/guest/continuity collectors | HOLD; scoped shared-key messages join offline and reject replay; actual protected carrier, producer/key/method binding and original-runtime collection remain unimplemented/unproved |
 | Outer supervisor / complete cohort | HOLD; OwnedChild is still a separate direct-leader primitive; owner loss, client/observer/descendant/external-writer coverage and stop targeting must be integrated |
 | RPC and durable attempt evidence | Offline parent policy/journal tested; actual route mapping, raw-capture correlation and private operational attempt receipt remain HOLD |
 | Stopped-writer proof | Offline SDK context exit only; operational complete writer cessation must precede the same read-only verification logic |

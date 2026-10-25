@@ -19,6 +19,7 @@ import time
 
 from identity_contract import OfflineIdentityContract
 from launch_admission import LaunchAdmission
+from observer_channel import SignedHostProvider
 from parent_contract import ARTIFACT_PIN, FRESHNESS_SECONDS, Hold, OfflineParentContract, decode, encode, require
 import s24_fixture as fixture
 
@@ -31,7 +32,7 @@ MIB = 1024 * 1024
 def source_identity():
     root = Path(__file__).resolve().parent
     names = ("integration.py", "parent_contract.py", "identity_contract.py", "launch_admission.py",
-             "s24_fixture.py", "candidate_manifest.json", "discovery_manifest.json")
+             "s24_fixture.py", "candidate_manifest.json", "discovery_manifest.json", "observer_channel.py")
     result = {}
     for name in names:
         path = root / name
@@ -72,7 +73,7 @@ class OfflineObservationJoin:
             started = time.monotonic()
             challenge = secrets.token_hex(32)  # Correlation, not a credential or approval.
             guest = self.guest.sample()
-            host = await self.host(self.binding, challenge)
+            host = await self.host(stage, self.binding, challenge)
             continuity = await self.continuity()
             writers = await self.inventory()
             require(type(host) is dict and host.get("binding_sha256") == self.binding
@@ -116,6 +117,11 @@ class OfflineObservationJoin:
             raise
         finally:
             self.busy = False
+
+    def attach_journal(self, journal):
+        if isinstance(self.host, SignedHostProvider):
+            self.host.attach_record(lambda direction, raw: journal.record("observer-message-" + direction,
+                                                                          {"frame_ascii": raw.decode("ascii")}))
 
 
 class PrivateJournal:
@@ -312,6 +318,8 @@ class OfflineIntegration:
         stopped = False
         try:
             self._phase("RESERVED")
+            if isinstance(self.observation, OfflineObservationJoin):
+                self.observation.attach_journal(self.journal)
             manager = claim.dispatch_once(self.factory)
             try:
                 async with asyncio.timeout_at(deadline):
@@ -359,4 +367,5 @@ class OfflineIntegration:
                 "observations": "injected offline inputs; not authenticated live collectors",
                 "raw_wire_capture": False, "complete_writer_cessation_proved": False,
                 "operational_b_ready": False, "scoped_gate_closed": False,
-                "outer_supervisor_integrated": False}
+                "outer_supervisor_integrated": False, "actual_observer_carrier_proved": False,
+                "observer_key_host_binding_proved": False}

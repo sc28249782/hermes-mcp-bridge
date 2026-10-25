@@ -12,6 +12,7 @@ import unittest
 from unittest.mock import patch
 
 import integration as integrated
+import observer_channel as channel
 import parent_contract as parent
 import s24_fixture as fixture
 
@@ -74,7 +75,7 @@ class IntegrationChecks(unittest.TestCase):
             self.fail("coordinator unexpectedly succeeded")
 
     def test_complete_sdk_identity_matrix_stop_and_actual_durable_comparison(self):
-        coordinator = self.coordinator(self.joined_observer())
+        coordinator = self.coordinator(self.joined_observer(signed=True))
         receipt = asyncio.run(coordinator.run())
         self.assertEqual(receipt["status"], "OFFLINE_INTEGRATION_CHECKED")
         self.assertEqual(receipt["identity"]["decoded_tools_count"], 27)
@@ -90,6 +91,13 @@ class IntegrationChecks(unittest.TestCase):
                   if item["kind"] == "parent-request-data" and item["value"]["kind"] == "checkpoint"]
         self.assertEqual(stages, list(parent.STAGES))
         self.assertEqual(sum(item["kind"] == "offline-observer-inputs" for item in records), 44)
+        self.assertEqual(sum(item["kind"] == "observer-message-request" for item in records), 44)
+        self.assertEqual(sum(item["kind"] == "observer-message-response" for item in records), 44)
+        joined_inputs = [item["value"] for item in records if item["kind"] == "offline-observer-inputs"]
+        for sample in joined_inputs:
+            self.assertIs(sample["host"]["authenticated"], False)
+            self.assertIs(sample["host"]["host_identity_proved"], False)
+            self.assertIs(sample["host"]["observer_message_proof"]["message_mac_verified"], True)
         self.assertEqual(hashlib.sha256(trace).hexdigest(), receipt["trace_sha256"])
         self.assertEqual(len(trace), receipt["trace_bytes"])
         self.assertEqual(self.receipt(), receipt)
@@ -100,7 +108,7 @@ class IntegrationChecks(unittest.TestCase):
         with self.assertRaises(parent.Hold):
             asyncio.run(coordinator.run())
 
-    def joined_observer(self, mutate_host=None, mutate_continuity=None):
+    def joined_observer(self, mutate_host=None, mutate_continuity=None, *, signed=False, corrupt_mac=False):
         class UnitGuest:
             def sample(guest_self):
                 return {"guest_available_bytes": 1000 * integrated.MIB,
@@ -110,7 +118,7 @@ class IntegrationChecks(unittest.TestCase):
                         "full_checkpoint_pass": False, "host_observed": False,
                         "complete_writer_coverage": False, "guest_limit_failures": []}
 
-        async def host(binding, challenge):
+        async def host(stage, binding, challenge):
             data = {"binding_sha256": binding, "challenge": challenge,
                     "evidence_class": "local-read-only-windows-host-memory",
                     "host_available_bytes": 2000 * integrated.MIB, "elapsed_seconds": 0.01,
@@ -118,6 +126,23 @@ class IntegrationChecks(unittest.TestCase):
             if mutate_host:
                 mutate_host(data)
             return data
+
+        if signed:
+            plain_host = host
+            async def provider(stage, nonce):
+                return await plain_host(stage, "a" * 64, nonce)
+            key = bytes(range(32))  # Public unit key, never a configured host credential.
+            binding = dict(attempt="S24-unit-integration", binding="a" * 64,
+                           producer="UnitHost", role="host-memory", record=lambda direction, raw: None)
+            responder = channel.ObserverResponder(provider, key, **binding)
+            async def exchange(raw):
+                reply = await responder.respond(raw)
+                if corrupt_mac:
+                    envelope = parent.decode(reply)
+                    envelope["mac_sha256"] = "0" * 64
+                    return parent.encode(envelope)
+                return reply
+            host = channel.SignedHostProvider(channel.ObserverClient(exchange, key, **binding))
 
         async def continuity():
             data = {"production": self.identities["production"], "dev": self.identities["dev"], "healthy": True}
@@ -131,6 +156,19 @@ class IntegrationChecks(unittest.TestCase):
         joined = integrated.OfflineObservationJoin(UnitGuest(), host, continuity, inventory,
                                                    self.identities, self.writers, "a" * 64)
         return joined
+
+    def test_signed_host_tampering_holds_before_first_matrix_tool_and_never_falls_back(self):
+        joined = self.joined_observer(signed=True, corrupt_mac=True)
+        coordinator = self.coordinator(joined)
+        self.assert_leaf_failure(coordinator, parent.Hold, "observer MAC mismatch")
+        self.assertEqual(coordinator.tool_calls, 0)
+        self.assertTrue(coordinator.held)
+        self.assertTrue(joined.held)
+        self.assertTrue(joined.host.client.held)
+        self.assertEqual(self.receipt()["status"], "HOLD")
+        trace = (self.root / "integration-trace.jsonl").read_text()
+        self.assertIn("observer-message-response", trace)
+        self.assertNotIn('"kind":"tool"', trace)
 
     def test_joined_host_mismatch_latches_before_next_stimulus(self):
         joined = self.joined_observer(mutate_host=lambda data: data.update(challenge="0" * 64))
