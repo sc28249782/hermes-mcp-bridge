@@ -108,6 +108,19 @@ class IntegrationChecks(unittest.TestCase):
         with self.assertRaises(parent.Hold):
             asyncio.run(coordinator.run())
 
+    def test_complete_matrix_through_independent_supervisor_stops_before_verifier(self):
+        factory = integrated.SupervisedSdkFactory(self.root, term_grace=1, allow_kill=True)
+        coordinator = self.coordinator(self.joined_observer(signed=True), factory)
+        result = asyncio.run(coordinator.run())
+        self.assertEqual((result["matrix_tool_calls"], result["checkpoints"]), (124, 44))
+        self.assertEqual(result["durable"]["audit_total"], 30)
+        self.assertTrue(result["direct_fixture_supervisor_used"])
+        self.assertTrue(result["direct_fixture_supervisor"]["leader"]["leader_reaped"])
+        self.assertEqual(result["direct_fixture_supervisor"]["reason"], "controller_stop")
+        self.assertIs(result["outer_supervisor_integrated"], False)
+        self.assertIs(result["complete_writer_cessation_proved"], False)
+        self.assertIs(result["operational_b_ready"], False)
+
     def joined_observer(self, mutate_host=None, mutate_continuity=None, *, signed=False, corrupt_mac=False):
         class UnitGuest:
             def sample(guest_self):

@@ -20,6 +20,7 @@ import time
 from identity_contract import OfflineIdentityContract
 from launch_admission import LaunchAdmission
 from observer_channel import SignedHostProvider
+from supervised_stdio import SupervisedSdkFactory
 from parent_contract import ARTIFACT_PIN, FRESHNESS_SECONDS, Hold, OfflineParentContract, decode, encode, require
 import s24_fixture as fixture
 
@@ -32,7 +33,8 @@ MIB = 1024 * 1024
 def source_identity():
     root = Path(__file__).resolve().parent
     names = ("integration.py", "parent_contract.py", "identity_contract.py", "launch_admission.py",
-             "s24_fixture.py", "candidate_manifest.json", "discovery_manifest.json", "observer_channel.py")
+             "s24_fixture.py", "candidate_manifest.json", "discovery_manifest.json", "observer_channel.py",
+             "supervised_stdio.py", "owned_child.py")
     result = {}
     for name in names:
         path = root / name
@@ -302,6 +304,9 @@ class OfflineIntegration:
 
     async def _run(self):
         deadline = asyncio.get_running_loop().time() + self.window
+        if isinstance(self.factory, SupervisedSdkFactory):
+            require(self.factory.root == self.root, "supervisor attempt root mismatch")
+            self.factory.prepare(deadline)
         before = fixture.artifact_identity()
         sources = source_identity()
         argv = [sys.executable, "-B", str(Path(fixture.__file__).resolve()), "serve",
@@ -345,6 +350,8 @@ class OfflineIntegration:
             self._phase("OFFLINE_CHECKED")
             receipt = self._receipt("OFFLINE_INTEGRATION_CHECKED", stopped)
             receipt.update(identity=identity, matrix=self.matrix, durable=durable, source_sha256=sources)
+            if isinstance(self.factory, SupervisedSdkFactory):
+                receipt["direct_fixture_supervisor"] = self.factory.stop_receipt
             self.journal.receipt(receipt)
             return receipt
         except BaseException:
@@ -368,4 +375,5 @@ class OfflineIntegration:
                 "raw_wire_capture": False, "complete_writer_cessation_proved": False,
                 "operational_b_ready": False, "scoped_gate_closed": False,
                 "outer_supervisor_integrated": False, "actual_observer_carrier_proved": False,
-                "observer_key_host_binding_proved": False}
+                "observer_key_host_binding_proved": False,
+                "direct_fixture_supervisor_used": isinstance(self.factory, SupervisedSdkFactory)}

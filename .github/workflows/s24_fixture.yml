@@ -88,6 +88,12 @@ jobs:
           set -euo pipefail
           python -W error::ResourceWarning -B acceptance/s24/test_observer_channel.py -v 2>&1 | tee "$RUNNER_TEMP/s24-observer-channel.log"
           if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-observer-channel.log"; then exit 1; else test "$?" -eq 1; fi
+      - name: Independent supervised fixture lifecycle controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -W error::ResourceWarning -B acceptance/s24/test_supervised_stdio.py --candidate .s24-candidate -v 2>&1 | tee "$RUNNER_TEMP/s24-supervised-stdio.log"
+          if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-supervised-stdio.log"; then exit 1; else test "$?" -eq 1; fi
       - name: Offline integration lifecycle and evidence controls
         shell: bash
         run: |

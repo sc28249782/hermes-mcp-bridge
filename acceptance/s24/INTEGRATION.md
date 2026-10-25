@@ -45,7 +45,7 @@ writer model. Context exit is not a new proof of detached-writer cessation or a
 substitute for the operational cohort supervisor. A failed/uncertain exit blocks
 the verifier. No second fixture is started to inspect state.
 
-Candidate content, fixture hashes and eight integrated source/manifest SHA-256
+Candidate content, fixture hashes and ten integrated source/manifest SHA-256
 values are checked before/after. These hashes detect recorded byte drift; they
 are not approval or authenticated source provenance. No candidate, manifest,
 fixture, old validator, sampler or OwnedChild source is modified here.
@@ -83,7 +83,7 @@ Run only in an authorized offline test environment:
 python -W error::ResourceWarning -B acceptance/s24/test_integration.py --candidate .s24-candidate -v
 ```
 
-Sixteen coordinator controls cover the actual SDK/identity/complete matrix/stop/read-only
+Seventeen coordinator controls cover the actual SDK/identity/complete matrix/stop/read-only
 verification chain; joined observations and latch; identity/continuity/resource/
 challenge errors; cancellation; finite-window expiry; uncertain stop; actual
 post-stop SQLite row tampering; integrated-source drift; exclusive evidence,
@@ -154,6 +154,75 @@ with no unsigned fallback. This delta does not invoke Windows or original runtim
 python -W error::ResourceWarning -B acceptance/s24/test_observer_channel.py -v
 ```
 
+## Independent direct-fixture supervisor delta
+
+`SupervisedSdkFactory` is an optional offline factory for the same coordinator.
+It launches a separate supervisor process; that process alone launches/adopts
+the fixed synthetic fixture child through the unchanged `OwnedChild` primitive.
+No arbitrary executable/command or supplied PID can be launched or signaled.
+The complete SDK identity/matrix path is forwarded through this process, without
+a Work mode, alternate backend or unsigned observation fallback.
+
+Before fixture state exists, the new child arms Linux parent-death SIGTERM and
+checks its expected parent on both sides of that syscall. It emits a bounded
+startup frame, then waits for a one-byte handoff. The supervisor compares that
+frame with live procfs identity and performs all original OwnedChild checks
+before handoff. This is an explicit ready-code barrier, not an adoption retry,
+sleep, weakened identity predicate or retrospective diagnosis of #100's issue.
+The candidate itself still runs unchanged; the prelude is supervisor IPC, not
+an MCP tool, notification or new candidate contract. No exec, credential change
+or new fork occurs in the reviewed child path after arming.
+
+The supervisor holds a pidfd for its rechecked direct controller, watches EOF,
+an absolute deadline passed before reservation, the fixture lease and termination
+signals. Renew/stop IPC uses a fresh private 0600 Unix socket under the 0700
+attempt root, Linux SO_PEERCRED and the exact controller PID/start/uid/exe/argv.
+A same-uid different process cannot renew. Sequence/type/size/time limits apply;
+bad control input ends at HOLD rather than reauthentication or retry. The socket
+and records are retained after stop; occupied paths cannot be reused. This is
+local process binding, not encryption or authentication of the actual Work route.
+
+Each SDK tool/list call renews the finite lease before dispatch. There is no idle
+heartbeat that would keep a stalled caller alive forever. Factory shutdown sends
+an explicit stop and waits for a synced receipt before allowing SDK context exit,
+so SDK cleanup is not used as a premature kill of a still-stopping supervisor.
+Normal stop uses OwnedChild's pidfd identity recheck, TERM and bounded grace;
+KILL remains off by default and only an explicit test/scope may enable it.
+Unit tests shorten grace for their new disposable fixtures only. The offline
+deadline is <=120 seconds, lease <=5, default TERM grace 10; no B budget is changed.
+
+If the supervisor is killed, the armed child's kernel parent-death TERM is a
+direct-leader fallback only. It does not propagate to forked descendants, can be
+cleared by credential changes, depends on the creating parent thread, and does
+not prove a process actually exited. A child that ignores TERM or is blocked may
+remain unconfirmed. No successful final receipt is invented after that crash.
+Startup/adoption errors close the owned pre-handoff input pipe and retain unknown
+cleanup; there is no fallback numeric-PID signal or process-group kill.
+
+New private evidence separates startup/owner/child identities, actual pipe chunks
+(including the non-MCP handoff byte) and the stop outcome. This is not end-to-end
+Work/MCP capture correlation. The coordinator verifies the real offline durable
+state only after a confirmed normal supervisor stop. Receipts may report
+direct_fixture_supervisor_used=true, while outer_supervisor_integrated=false,
+complete_writer_cessation_proved=false and operational_b_ready=false remain:
+client/observer/descendant/external-writer coverage is still unproved.
+
+Twelve additional controls cover the coarse RPC gate, exclusive private records,
+parent-arm races, invalid/occupied startup, actual supervised SDK identity/stop,
+controller death, idle lease/window expiry, supervisor kill and same-uid wrong
+controller rejection. Kernel exit observations use retained pidfds, not PID
+absence/age. The coordinator also adds a full supervised 124/44 case. Development
+procfs/PID mismatch remains failed/unsupported evidence, not a reason for a skip
+or fallback; coherent Linux CI must pass every positive case at the exact head.
+
+```bash
+python -W error::ResourceWarning -B acceptance/s24/test_supervised_stdio.py --candidate .s24-candidate -v
+```
+
+Linux interface references (general semantics, not proof about the operator's host):
+- [PR_SET_PDEATHSIG](https://man7.org/linux/man-pages/man2/PR_SET_PDEATHSIG.2const.html)
+- [Unix sockets / SO_PEERCRED](https://man7.org/linux/man-pages/man7/unix.7.html)
+
 ## Remaining work on this same integration PR
 
 | Gate | Current state / required closure |
@@ -161,7 +230,7 @@ python -W error::ResourceWarning -B acceptance/s24/test_observer_channel.py -v
 | Actual Work handoff/namespace | HOLD; no bound fixture namespace or supported invocation instance has been proved; never fall back to this SDK path as live evidence |
 | Inactive setup / first activation binding | HOLD; review exact client identity, private route/config/authentication and any staged binding before requesting separate operational scope |
 | Host/guest/continuity collectors | HOLD; scoped shared-key messages join offline and reject replay; actual protected carrier, producer/key/method binding and original-runtime collection remain unimplemented/unproved |
-| Outer supervisor / complete cohort | HOLD; OwnedChild is still a separate direct-leader primitive; owner loss, client/observer/descendant/external-writer coverage and stop targeting must be integrated |
+| Outer supervisor / complete cohort | Direct-fixture owner/lease supervision is integrated offline; full client/observer/descendant/external-writer coverage and operational stop targeting remain HOLD |
 | RPC and durable attempt evidence | Offline parent policy/journal tested; actual route mapping, raw-capture correlation and private operational attempt receipt remain HOLD |
 | Stopped-writer proof | Offline SDK context exit only; operational complete writer cessation must precede the same read-only verification logic |
 
