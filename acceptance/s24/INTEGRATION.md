@@ -361,6 +361,70 @@ No operator-host/VM/SSH/credential/client/connector action occurred. Actual Work
 route, remaining collectors/carriers, whole-cohort supervision, operational receipts
 and stopped-writer proof remain work on this same draft PR.
 
+## Proposed manifest-only prebinding route
+
+`route_prebind.py` is a separate, permanently inactive stdio metadata peer. It
+advertises the reviewed discovery_manifest.json schemas/annotations for 27 names,
+with INACTIVE descriptions and initialization instructions. It checks the fixed
+manifest SHA-256 and input pins. It does not import candidate/fixture/backend
+modules, open a database, read operator configuration or start another process.
+No active mode, candidate/state path, command, credential or forwarding argument
+exists. All tools, including bridge_version, submit and unknown names, return the
+same isError=true S24_ROUTE_INACTIVE result. It cannot pass the candidate identity
+validator, and exposes no activation tool or configuration transition.
+
+The peer implements only the bounded metadata subset exercised by the pinned SDK:
+initialize/initialized, tools/list, denial of tools/call, ping and method-not-found.
+Legacy server/discover returns -32601; completed JSON-RPC IDs can be reused because
+this synchronous metadata peer has no pending requests or accepted backend action.
+Malformed/duplicate-key/nonfinite/oversized frames or incorrect initialize order
+hold the instance. Do not reuse this metadata policy as the matrix/RPC contract.
+
+Linux pipe I/O is nonblocking with select bounded by one 30-second process window
+from before manifest loading, at most 128 input frames, 64 KiB per frame and 1 MiB total
+output. Neither initialize nor a tool call resets the window. These are metadata
+peer bounds, not an extension/replacement of the B activation budget or a kernel
+reservation. File loading/imports are still synchronous; their I/O is not preempted
+by that select deadline. No client/cohort supervisor, duplicate-client/respawn
+prevention, credentials, private receipt or operational capture is provided here.
+A future tunnel may restart a target: that remains unproved and must not silently
+become an authorized repeat or evidence of a single operational attempt.
+
+### Staged path for review, not setup authorization
+
+This source proposes a way to obtain platform-assigned namespace/capability data
+without letting this executable start a fixture. It does not prove that the
+operator's client/plugin can use it. No tunnel/plugin is created, installed,
+connected or refreshed, and no namespace or supported Work invocation is claimed.
+The plan review must decide whether this separate bounded stage fits existing
+§24/plan gates. If a normative change is needed, its §14 amendment must precede
+use. A source merge is not an exception, setup instruction or activation approval.
+
+Before any operational use, review a separate exact inactive-stage plan: bind this
+source digest, client binary/config/authentication method, new private profile and
+route identity; complete resource/process inventory, stop/cleanup policy and finite
+operator scope. Keep the target inactive until that scope is approved. Do not use
+Production/Dev profiles or copy their credentials. Discovery/client start is never
+an implicit approval, even for this no-fixture peer.
+
+If such a stage is later approved, its evidence must say manifest-advertised route
+metadata, not candidate discovery, live submit acceptance or B PASS. A later change
+to an active executable/profile is a new source/route binding and possible fixture
+activation; it requires full B gates and separate approval. Do not assume namespace
+stability across such a change. Actual fixture identity/discovery/forwarding must
+be proved again on the final active path before matrix stimulus; no SDK fallback.
+The current peer has no code that can perform that later active handoff.
+
+Ten offline controls use the real SDK stdio client in an empty temporary CWD,
+compare all 27 schemas, deny every tool with active-looking inputs, forbid direct
+spawn/database/network calls during handler checks, reject CLI activation/state
+switches, detect manifest drift/symlinks and verify permanent framing/budget HOLD.
+They also check legacy discovery, candidate-identity rejection, partial EOF and
+bounded read/write readiness. Static import checks complement these tests; neither
+is a general proof about a modified interpreter/host. The candidate, fixture,
+manifests and all existing integration/observer/supervisor source remain unchanged.
+All existing suites and warning gates stay enabled; this adds only metadata 10.
+
 ## Remaining work on this same integration PR
 
 | Gate | Current state / required closure |
