@@ -264,6 +264,53 @@ available tool metadata shows Production/Dev namespaces but no bound fixture
 namespace; this is not a global statement that a route is unavailable. No bridge
 tool, client refresh, plugin setup, SSH, credential or guest action was used.
 
+## Signed continuity and inventory checkpoint integration
+
+`SignedRuntimeProvider` and `SignedInventoryProvider` reuse the existing bounded
+message channel for runtime-continuity and writer-inventory roles. They do not
+read original runtimes or enumerate actual writers. A matching MAC only proves
+possession of the supplied key; it does not make provider data true or complete.
+The new full SDK test still fabricates all observer measurements and identities.
+
+When either new adapter is supplied, the join requires the entire signed set:
+host, continuity and inventory, with the same attempt/private-binding digest,
+distinct producers and distinct caller-supplied key bytes. Wrong/missing role,
+reused role key or mismatched attempt is rejected before dispatch. No keys are
+generated, provisioned or printed. This check is not private machine/method
+binding, and shared-host trusted code can still bypass cooperative controls.
+
+At each of 44 checkpoints all three roles receive the same fresh challenge and
+stage. Each has its own sequence/nonce history, recorder and existing timeout.
+The complete join still has the same two-second freshness limit: three message
+exchanges do not extend it. A signed failure propagates to the HOLD latch; it
+never falls back to the legacy injected offline providers. Original host-only
+and unsigned data paths remain explicitly offline test interfaces, not Work
+modes or recovery paths.
+
+The journal retains both exact message directions for every role. The original
+host event names remain; continuity/inventory have role-specific event names.
+Verified message proofs remain separate from continuity values and writer lists.
+The existing exact identity/healthy/list comparisons still apply after MAC
+verification. A signed unhealthy runtime or changed writer list produces HOLD.
+Provider binding/reserved-proof/cancellation errors now also permanently hold
+the adapter's client, including the existing host adapter; no retry is added.
+
+The full independently supervised SDK matrix checks 124 tool calls, 44 checkpoints,
+audit30, complete RPC pairs and 44 request/response stage-sequence-nonce matches
+per new role. Three message roles produce 132 exchanges (264 recorded frames)
+for that completed offline case; no operational observation count is inferred.
+Four added coordinator controls cover that flow, forged continuity/inventory
+before the first matrix tool, bad role/key/attempt bindings and valid-MAC data
+that fails continuity/writer checks. Three added channel controls cover role
+adapters, byte record attachment and reserved-proof rejection. Current suites
+are channel23 and coordinator21, plus unchanged supervisor20 and earlier suites.
+
+The source work does not invoke Production/Dev tools, VM/SSH or host samplers.
+Current session metadata still has no bound fixture namespace; it does not prove
+global route unavailability. Actual collectors/carriers, private key/producer
+identity binding, Work handoff and complete cohort/stopped-writer proof remain
+HOLD on this same PR. Every operational readiness/acceptance flag stays false.
+
 ## Remaining work on this same integration PR
 
 | Gate | Current state / required closure |

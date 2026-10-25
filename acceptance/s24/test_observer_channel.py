@@ -81,6 +81,43 @@ class ChannelChecks(unittest.TestCase):
         self.assertEqual(result["message_proof"]["round_trip_seconds"], 0)
         self.assertNotEqual(self.client_time, self.server_time)
 
+    def test_checkpoint_adapters_reject_client_for_another_role(self):
+        client, _ = self.pair()
+        for adapter in (channel.SignedRuntimeProvider, channel.SignedInventoryProvider):
+            with self.subTest(adapter=adapter.__name__), self.assertRaises(Hold):
+                adapter(client)
+
+    def test_checkpoint_adapters_preserve_payload_and_record_both_message_directions(self):
+        for adapter, role in ((channel.SignedRuntimeProvider, "runtime-continuity"),
+                              (channel.SignedInventoryProvider, "writer-inventory")):
+            with self.subTest(role=role):
+                self.binding["role"] = role
+                client, _ = self.pair()
+                provider = adapter(client)
+                copied = []
+                provider.attach_record(lambda direction, raw: copied.append((direction, raw)))
+                result = asyncio.run(provider(STAGES[0], "a" * 64, "b" * 64))
+                proof = result.pop("observer_message_proof")
+                self.assertEqual(result, {"nested": [1, {"keep": True, "null": None}], "unit": "synthetic"})
+                self.assertEqual(proof["role"], role)
+                self.assertTrue(proof["message_mac_verified"])
+                self.assertFalse(proof["host_identity_proved"])
+                self.assertEqual([direction for direction, _ in copied], ["request", "response"])
+                with self.assertRaises(Hold):
+                    provider.attach_record(lambda direction, raw: None)
+
+    def test_checkpoint_payload_cannot_supply_reserved_proof(self):
+        async def forged(stage, nonce):
+            return {"observer_message_proof": {"complete_writer_coverage": True}}
+        self.binding["role"] = "writer-inventory"
+        client, _ = self.pair(provider=forged)
+        provider = channel.SignedInventoryProvider(client)
+        with self.assertRaisesRegex(Hold, "reserved observer proof"):
+            asyncio.run(provider(STAGES[0], "a" * 64, "b" * 64))
+        self.assertTrue(client.held)
+        with self.assertRaises(Hold):
+            asyncio.run(provider(STAGES[1], "a" * 64, "c" * 64))
+
     def test_modified_payload_without_new_mac_is_rejected(self):
         def mutate(request, response):
             value = decode(response)

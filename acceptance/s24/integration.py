@@ -19,7 +19,7 @@ import time
 
 from identity_contract import OfflineIdentityContract
 from launch_admission import LaunchAdmission
-from observer_channel import SignedHostProvider
+from observer_channel import SignedHostProvider, SignedRuntimeProvider, SignedInventoryProvider
 from supervised_stdio import SupervisedSdkFactory
 from parent_contract import ARTIFACT_PIN, FRESHNESS_SECONDS, Hold, OfflineParentContract, decode, encode, require
 import s24_fixture as fixture
@@ -62,6 +62,15 @@ class OfflineObservationJoin:
         self.guest, self.host, self.continuity, self.inventory = guest, host, continuity, inventory
         self.identities, self.writers = deepcopy(identities), writers[:]
         self.binding = binding_sha256
+        self.signed_checkpoints = isinstance(continuity, SignedRuntimeProvider) or isinstance(inventory, SignedInventoryProvider)
+        if self.signed_checkpoints:
+            require(type(host) is SignedHostProvider and type(continuity) is SignedRuntimeProvider
+                    and type(inventory) is SignedInventoryProvider, "complete signed checkpoint providers required")
+            clients = [provider.client for provider in (host, continuity, inventory)]
+            require(all(client.binding == self.binding and client.attempt == clients[0].attempt for client in clients)
+                    and len({client.producer for client in clients}) == 3
+                    and len({client._key for client in clients}) == 3,
+                    "distinct role keys/producers and common attempt binding required")
         self.held = self.busy = False
         self.last_inputs = None
 
@@ -76,8 +85,21 @@ class OfflineObservationJoin:
             challenge = secrets.token_hex(32)  # Correlation, not a credential or approval.
             guest = self.guest.sample()
             host = await self.host(stage, self.binding, challenge)
-            continuity = await self.continuity()
-            writers = await self.inventory()
+            proofs = {}
+            if self.signed_checkpoints:
+                continuity_raw = await self.continuity(stage, self.binding, challenge)
+                inventory_raw = await self.inventory(stage, self.binding, challenge)
+                require(set(continuity_raw) == {"production", "dev", "healthy", "observer_message_proof"}
+                        and set(inventory_raw) == {"writers", "observer_message_proof"},
+                        "signed checkpoint payload shape")
+                proofs = {"runtime-continuity": continuity_raw["observer_message_proof"],
+                          "writer-inventory": inventory_raw["observer_message_proof"]}
+                continuity = {key: value for key, value in continuity_raw.items() if key != "observer_message_proof"}
+                writers = inventory_raw["writers"]
+            else:
+                # Legacy injected offline tests only; never a fallback after a signed failure.
+                continuity = await self.continuity()
+                writers = await self.inventory()
             require(type(host) is dict and host.get("binding_sha256") == self.binding
                     and host.get("challenge") == challenge, "host correlation mismatch")
             require(host.get("evidence_class") == "local-read-only-windows-host-memory"
@@ -105,6 +127,7 @@ class OfflineObservationJoin:
             require(time.monotonic() - started <= FRESHNESS_SECONDS, "joined observation stale")
             self.last_inputs = deepcopy({"stage": stage, "guest": guest, "host": host,
                                          "continuity": continuity, "writers": writers,
+                                         "checkpoint_message_proofs": proofs,
                                          "evidence_class": "injected-offline-observer-inputs"})
             return {"stage": stage, "observed_at": started, "identities": deepcopy(self.identities),
                     "resources": {"host_available_mib": host["host_available_bytes"] / MIB,
@@ -121,9 +144,14 @@ class OfflineObservationJoin:
             self.busy = False
 
     def attach_journal(self, journal):
-        if isinstance(self.host, SignedHostProvider):
-            self.host.attach_record(lambda direction, raw: journal.record("observer-message-" + direction,
-                                                                          {"frame_ascii": raw.decode("ascii")}))
+        for provider in (self.host, self.continuity, self.inventory):
+            if isinstance(provider, SignedHostProvider):
+                role = provider.client.role
+                def record(direction, raw, role=role):
+                    # Keep the original host event names for existing evidence readers.
+                    kind = "observer-message-" if role == "host-memory" else role + "-message-"
+                    journal.record(kind + direction, {"frame_ascii": raw.decode("ascii")})
+                provider.attach_record(record)
 
 
 class PrivateJournal:

@@ -130,7 +130,8 @@ class IntegrationChecks(unittest.TestCase):
         self.assertIs(result["complete_writer_cessation_proved"], False)
         self.assertIs(result["operational_b_ready"], False)
 
-    def joined_observer(self, mutate_host=None, mutate_continuity=None, *, signed=False, corrupt_mac=False):
+    def joined_observer(self, mutate_host=None, mutate_continuity=None, *, signed=False, corrupt_mac=False,
+                        signed_checkpoints=False, corrupt_role=None):
         class UnitGuest:
             def sample(guest_self):
                 return {"guest_available_bytes": 1000 * integrated.MIB,
@@ -175,9 +176,116 @@ class IntegrationChecks(unittest.TestCase):
         async def inventory():
             return self.writers[:]
 
+        if signed_checkpoints:
+            require_signed = signed
+            self.assertTrue(require_signed, "new checkpoint mode needs a signed host")
+            async def signed_provider(stage, nonce, call=continuity):
+                return await call()
+            async def signed_inventory(stage, nonce, call=inventory):
+                return {"writers": await call()}
+            def wrap(role, producer, key, provider, adapter):
+                binding = dict(attempt="S24-unit-integration", binding="a" * 64,
+                               producer=producer, role=role, record=lambda direction, raw: None)
+                responder = channel.ObserverResponder(provider, key, **binding)
+                async def exchange(raw):
+                    reply = await responder.respond(raw)
+                    if corrupt_role == role:
+                        envelope = parent.decode(reply)
+                        envelope["mac_sha256"] = "0" * 64
+                        return parent.encode(envelope)
+                    return reply
+                return adapter(channel.ObserverClient(exchange, key, **binding))
+            continuity = wrap("runtime-continuity", "UnitRuntime", bytes(range(1, 33)),
+                              signed_provider, channel.SignedRuntimeProvider)
+            inventory = wrap("writer-inventory", "UnitInventory", bytes(range(2, 34)),
+                             signed_inventory, channel.SignedInventoryProvider)
+
         joined = integrated.OfflineObservationJoin(UnitGuest(), host, continuity, inventory,
                                                    self.identities, self.writers, "a" * 64)
         return joined
+
+    def test_all_role_messages_bind_each_checkpoint_in_actual_supervised_matrix(self):
+        factory = integrated.SupervisedSdkFactory(self.root, term_grace=1, allow_kill=True)
+        joined = self.joined_observer(signed=True, signed_checkpoints=True)
+        result = asyncio.run(self.coordinator(joined, factory).run())
+        self.assertEqual((result["matrix_tool_calls"], result["checkpoints"], result["durable"]["audit_total"]),
+                         (124, 44, 30))
+        records = [json.loads(line) for line in (self.root / "integration-trace.jsonl").read_bytes().splitlines()]
+        message_kinds = {prefix + direction for prefix in
+                         ("observer-message-", "runtime-continuity-message-", "writer-inventory-message-")
+                         for direction in ("request", "response")}
+        self.assertEqual(sum(item["kind"] in message_kinds for item in records), 264)
+        for role in ("runtime-continuity", "writer-inventory"):
+            requests = [parent.decode(item["value"]["frame_ascii"].encode("ascii"))["message"]
+                        for item in records if item["kind"] == role + "-message-request"]
+            self.assertEqual([item["stage"] for item in requests], list(parent.STAGES))
+            self.assertEqual([item["seq"] for item in requests], list(range(1, 45)))
+            self.assertEqual(len({item["nonce"] for item in requests}), 44)
+            responses = [parent.decode(item["value"]["frame_ascii"].encode("ascii"))["message"]
+                         for item in records if item["kind"] == role + "-message-response"]
+            self.assertEqual([(item["stage"], item["seq"], item["nonce"]) for item in responses],
+                             [(item["stage"], item["seq"], item["nonce"]) for item in requests])
+        inputs = [item["value"] for item in records if item["kind"] == "offline-observer-inputs"]
+        self.assertEqual(len(inputs), 44)
+        for item in inputs:
+            host_proof = item["host"]["observer_message_proof"]
+            for role, proof in item["checkpoint_message_proofs"].items():
+                self.assertEqual(proof["role"], role)
+                self.assertEqual(proof["nonce"], host_proof["nonce"])
+                self.assertEqual(proof["stage"], item["stage"])
+                self.assertTrue(proof["message_mac_verified"])
+                self.assertFalse(proof["host_identity_proved"])
+        self.assertFalse(result["operational_b_ready"])
+        self.assertFalse(result["complete_writer_cessation_proved"])
+
+    def test_forged_continuity_or_inventory_never_dispatches_first_matrix_tool(self):
+        # Run each role in a fresh disposable evidence root, never retry an attempt.
+        for role in ("runtime-continuity", "writer-inventory"):
+            with self.subTest(role=role), tempfile.TemporaryDirectory() as directory:
+                original = self.root
+                self.root = Path(directory)
+                self.root.chmod(0o700)
+                try:
+                    joined = self.joined_observer(signed=True, signed_checkpoints=True, corrupt_role=role)
+                    coordinator = self.coordinator(joined)
+                    self.assert_leaf_failure(coordinator, parent.Hold, "observer MAC mismatch")
+                    self.assertTrue(joined.held)
+                    self.assertEqual(coordinator.tool_calls, 0)
+                    self.assertEqual(self.receipt()["status"], "HOLD")
+                finally:
+                    self.root = original
+
+    def test_partial_role_binding_reused_key_or_attempt_mismatch_rejected_before_dispatch(self):
+        for mutation in ("partial", "key", "attempt", "producer"):
+            with self.subTest(mutation=mutation):
+                joined = self.joined_observer(signed=True, signed_checkpoints=True)
+                if mutation == "partial":
+                    joined.inventory = lambda: None
+                elif mutation == "key":
+                    joined.inventory.client._key = joined.host.client._key
+                elif mutation == "attempt":
+                    joined.inventory.client.attempt = "different"
+                else:
+                    joined.inventory.client.producer = joined.host.client.producer
+                with self.assertRaises(parent.Hold):
+                    integrated.OfflineObservationJoin(joined.guest, joined.host, joined.continuity, joined.inventory,
+                                                       self.identities, self.writers, "a" * 64)
+
+    def test_valid_signed_messages_do_not_override_bad_continuity_or_writer_data(self):
+        joined = self.joined_observer(signed=True, signed_checkpoints=True,
+                                     mutate_continuity=lambda value: value.update(healthy=False))
+        with self.assertRaisesRegex(parent.Hold, "continuity input changed"):
+            asyncio.run(joined(parent.STAGES[0]))
+        self.assertTrue(joined.held)
+        joined = self.joined_observer(signed=True, signed_checkpoints=True)
+        old_writers = self.writers
+        self.writers = ["unaccounted-unit-writer"]
+        try:
+            with self.assertRaisesRegex(parent.Hold, "writer input changed"):
+                asyncio.run(joined(parent.STAGES[0]))
+            self.assertTrue(joined.held)
+        finally:
+            self.writers = old_writers
 
     def test_signed_host_tampering_holds_before_first_matrix_tool_and_never_falls_back(self):
         joined = self.joined_observer(signed=True, corrupt_mac=True)

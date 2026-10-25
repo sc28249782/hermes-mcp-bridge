@@ -182,14 +182,16 @@ class ObserverResponder(BoundMessages):
 class SignedHostProvider:
     """Adapter for OfflineObservationJoin; retains the sampler's false scope flags."""
 
+    ROLE = "host-memory"
+
     def __init__(self, client):
-        require(isinstance(client, ObserverClient) and client.role == "host-memory", "host observer client required")
+        require(isinstance(client, ObserverClient) and client.role == self.ROLE, "matching observer client required")
         self.client = client
         self._record_attached = False
 
     def attach_record(self, record):
         require(callable(record) and not self._record_attached and self.client.sequence == 0
-                and not self.client.busy and not self.client.held, "fresh host channel recorder required")
+                and not self.client.busy and not self.client.held, "fresh observer channel recorder required")
         previous = self.client.record
         def combined(direction, raw):
             previous(direction, raw)
@@ -198,8 +200,24 @@ class SignedHostProvider:
         self._record_attached = True
 
     async def __call__(self, stage, binding, challenge):
-        require(binding == self.client.binding, "host channel binding mismatch")
-        result = await self.client.observe(stage, nonce=challenge)
-        payload = result["payload"]
-        require("observer_message_proof" not in payload, "reserved observer proof field")
-        return {**payload, "observer_message_proof": result["message_proof"]}
+        try:
+            require(binding == self.client.binding, "observer provider binding mismatch")
+            result = await self.client.observe(stage, nonce=challenge)
+            payload = result["payload"]
+            require("observer_message_proof" not in payload, "reserved observer proof field")
+            return {**payload, "observer_message_proof": result["message_proof"]}
+        except BaseException:
+            self.client.held = True
+            raise
+
+
+class SignedRuntimeProvider(SignedHostProvider):
+    """Stage-bound continuity data; MAC verification is not runtime observation."""
+
+    ROLE = "runtime-continuity"
+
+
+class SignedInventoryProvider(SignedHostProvider):
+    """Stage-bound writers payload; matching data does not prove complete coverage."""
+
+    ROLE = "writer-inventory"
