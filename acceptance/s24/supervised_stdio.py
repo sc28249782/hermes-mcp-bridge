@@ -211,10 +211,10 @@ class RpcCapture:
                             "RPC error shape")
                 self._record(direction, raw)
                 method = self.pending.pop(key)
+                self.responses += 1  # Count the recorded error even when initialize fails.
                 if method == "initialize":
                     require("result" in value, "RPC initialize failed")
                     self.initialized = True
-                self.responses += 1
         except BaseException:
             self.held = True
             raise

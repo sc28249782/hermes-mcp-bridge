@@ -121,11 +121,16 @@ class SupervisorChecks(unittest.TestCase):
             self.assertTrue(factory.stop_receipt["leader"]["leader_reaped"])
             rpc = factory.stop_receipt["rpc_capture"]
             self.assertEqual((rpc["requests"], rpc["responses"], rpc["notifications"], rpc["pending"]),
-                             (3, 3, 1, 0))
+                             (4, 4, 1, 0))
             self.assertTrue(rpc["complete_pairs"])
             raw = (self.root / "supervisor-rpc.jsonl").read_bytes()
             self.assertEqual((len(raw), hashlib.sha256(raw).hexdigest()),
                              (rpc["trace_bytes"], rpc["trace_sha256"]))
+            requests = [json.loads(base64.b64decode(json.loads(line)["frame_base64"]))
+                        for line in raw.splitlines() if json.loads(line)["direction"] == "controller_ingress"]
+            self.assertEqual([item["method"] for item in requests],
+                             ["initialize", "notifications/initialized", "tools/call", "tools/list", "tools/list"])
+            # call_tool validates its structured result via one SDK-internal list_tools.
             self.assertFalse(factory.stop_receipt["cohort_coverage_proved"])
             self.assertTrue((self.root / supervised.CONTROL_NAME).exists())
             self.assertEqual(supervised.read_private(self.root, "supervisor-stop.json"), factory.stop_receipt)
@@ -326,6 +331,8 @@ class CaptureChecks(unittest.TestCase):
                 with self.assertRaisesRegex(Hold, "initialize failed"):
                     capture.observe("fixture_ingress", encode({"jsonrpc": "2.0", "id": 0,
                         "error": {"code": -32000, "message": "fixture"}}))
+                self.assertEqual((capture.requests, capture.responses, len(capture.pending)), (1, 1, 0))
+                self.assertTrue(capture.held)
             finally:
                 capture.close()
 
