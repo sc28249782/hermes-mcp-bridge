@@ -158,3 +158,7 @@ The [Phase A readiness record](S22-SHAREDHOST-PHASE-A-READINESS-TH.md) reports f
 ## Phase B source-design proposal — 24 October 2026
 
 The [adapter/control plan](S22-PHASE-B-ADAPTER-CONTROL-PLAN-TH.md) defines implementation/proof obligations for the actual independent connector, data-only matrix adapter, observers, finite supervisor and stopped-state verifier. PR #94 merged after independent readiness evidence review; operator Phase A readiness acceptance remains pending. This is design work only, with no new source/runtime, VM action, provisioning or activation approval. The original budgets, private bindings, shared-host limits, B acceptance sequence and PR #80 HOLD remain unchanged.
+
+## Metadata prebinding stage proposal — 25 October 2026
+
+The [staged plan](S24-METADATA-PREBIND-PLAN-TH.md) pins the reviewed permanently inactive peer at `70eca6dc` and proposes separate read-only inventory, inactive preparation and one bounded metadata attempt. It remains NOT EXECUTION-READY: compatibility disposition, any required §14 amendment, guest/private bindings, client/asset verification, observers/stop controls and separate operator scopes are open. No setup, credentials, client start, namespace, candidate discovery, B acceptance or original-runtime action is approved. Historical text and PR #80 HOLD remain unchanged.
