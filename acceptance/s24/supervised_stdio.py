@@ -5,8 +5,10 @@ provided. The supervisor owns one fixture leader through unchanged OwnedChild.
 """
 import argparse
 import asyncio
+import base64
 from contextlib import asynccontextmanager
 import ctypes
+import hashlib
 import json
 import math
 import os
@@ -137,6 +139,107 @@ class RpcGate:
         self.ids.add(request_id)
 
 
+class RpcCapture:
+    """Exact framed bytes at this offline proxy only, not an end-to-end capture.
+
+    An ingress record is intent to forward, not proof of write or consumption.
+    OwnedChild separately records bytes actually accepted by its stdin pipe.
+    """
+    def __init__(self, root):
+        self.gate = RpcGate()
+        self.pending = {}
+        self.initialized = self.held = self.closed = False
+        self.requests = self.responses = self.notifications = self.bytes = 0
+        self.digest = hashlib.sha256()
+        self.fd = None
+        _, directory, _ = private_directory(root)
+        try:
+            self.fd = os.open("supervisor-rpc.jsonl", os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW,
+                              0o600, dir_fd=directory)
+            require(stat.S_IMODE(os.fstat(self.fd).st_mode) == 0o600, "private RPC capture required")
+            os.fsync(self.fd)
+            os.fsync(directory)
+        except BaseException:
+            if self.fd is not None:
+                os.close(self.fd)
+                self.fd = None
+            raise
+        finally:
+            os.close(directory)
+
+    def _record(self, direction, raw):
+        event = (json.dumps({"sequence": self.requests + self.responses + self.notifications + 1,
+                        "direction": direction, "frame_sha256": hashlib.sha256(raw).hexdigest(),
+                        "frame_base64": base64.b64encode(raw).decode("ascii")},
+                            separators=(",", ":"), allow_nan=False) + "\n").encode("ascii")
+        require(self.bytes + len(event) <= 8 * 1024 * 1024, "RPC capture budget")
+        view = memoryview(event)
+        while view:
+            count = os.write(self.fd, view)
+            require(count > 0, "RPC capture write failed")
+            self.digest.update(view[:count])
+            self.bytes += count
+            view = view[count:]
+        os.fsync(self.fd)  # Persist the observation before any forward is attempted.
+
+    def observe(self, direction, raw):
+        try:
+            require(not self.closed and not self.held, "RPC capture closed or held")
+            require(direction in ("controller_ingress", "fixture_ingress"), "RPC capture direction")
+            value = decode(raw)
+            if direction == "controller_ingress":
+                if value.get("method") == "notifications/initialized":
+                    require(self.initialized, "notification before initialize response")
+                self.gate.accept(raw)
+                self._record(direction, raw)
+                if "id" in value:
+                    self.pending[(type(value["id"]), value["id"])] = value["method"]
+                    self.requests += 1
+                else:
+                    self.notifications += 1
+            else:
+                require(value.get("jsonrpc") == "2.0" and type(value.get("id")) in (int, str)
+                        and (set(value) == {"jsonrpc", "id", "result"}
+                             or set(value) == {"jsonrpc", "id", "error"}), "RPC response envelope")
+                key = (type(value["id"]), value["id"])
+                require(key in self.pending, "RPC response unknown or already completed")
+                if "error" in value:
+                    error = value["error"]
+                    require(type(error) is dict and {"code", "message"} <= set(error)
+                            and set(error) <= {"code", "message", "data"}
+                            and type(error["code"]) is int and type(error["message"]) is str,
+                            "RPC error shape")
+                self._record(direction, raw)
+                method = self.pending.pop(key)
+                if method == "initialize":
+                    require("result" in value, "RPC initialize failed")
+                    self.initialized = True
+                self.responses += 1
+        except BaseException:
+            self.held = True
+            raise
+
+    def close(self, *, complete=False):
+        require(not self.closed, "RPC capture already closed")
+        try:
+            require(type(complete) is bool, "RPC capture close flag")
+            os.fsync(self.fd)
+            require(not complete or (not self.held and self.initialized and self.gate.notified
+                                    and not self.pending), "RPC capture incomplete")
+            return {"evidence_class": "offline-proxy-framed-rpc", "requests": self.requests,
+                    "responses": self.responses, "notifications": self.notifications,
+                    "pending": len(self.pending), "trace_bytes": self.bytes,
+                    "trace_sha256": self.digest.hexdigest(), "complete_pairs": complete,
+                    "end_to_end_work_capture": False, "delivery_or_consumption_proved": False}
+        except BaseException:
+            self.held = True
+            raise
+        finally:
+            self.closed = True
+            os.close(self.fd)
+            self.fd = None
+
+
 def startup_frame(process, owner_fd, deadline):
     buffer = bytearray()
     until = min(deadline, time.monotonic() + 3)
@@ -173,7 +276,7 @@ def supervisor(candidate, root, deadline, lease, term_grace, allow_kill):
         raise
     listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     listener.setblocking(False)
-    control = process = stop_connection = None
+    control = process = stop_connection = capture = None
     reason = "supervisor_failure"
     signalled = []
     def request_stop(number, frame):
@@ -204,8 +307,9 @@ def supervisor(candidate, root, deadline, lease, term_grace, allow_kill):
         private_json(root, "supervisor-ready.json", {"evidence_class": EVIDENCE_CLASS,
             "supervisor": identity(os.getpid()), "owner": owner, "child": control.identity,
             "startup": frame, "deadline": deadline, "complete_writer_coverage_proved": False})
+        capture = RpcCapture(root)
         control.send(b"G")
-        gate, buffer, sequence = RpcGate(), bytearray(), 0
+        buffer, sequence = bytearray(), 0
         while True:
             ready, _, _ = select.select([sys.stdin.fileno(), owner_fd, listener], [], [], 0.02)
             if owner_fd in ready:
@@ -260,7 +364,7 @@ def supervisor(candidate, root, deadline, lease, term_grace, allow_kill):
                     end = buffer.index(b"\n") + 1
                     raw = bytes(buffer[:end])
                     del buffer[:end]
-                    gate.accept(raw)
+                    capture.observe("controller_ingress", raw)
                     control.send(raw)
             while True:
                 with control.lock:
@@ -268,6 +372,7 @@ def supervisor(candidate, root, deadline, lease, term_grace, allow_kill):
                 if not available:
                     break
                 raw = control.readline(timeout=0.1)
+                capture.observe("fixture_ingress", raw)
                 view = memoryview(raw)
                 while view:
                     count = os.write(sys.stdout.fileno(), view)
@@ -275,7 +380,9 @@ def supervisor(candidate, root, deadline, lease, term_grace, allow_kill):
                     view = view[count:]
         control.stop("parent_lost" if reason in ("owner_lost", "controller_eof") else "operator_stop")
         outcome = control.close()
+        rpc = capture.close(complete=reason == "controller_stop")
         receipt = {"evidence_class": EVIDENCE_CLASS, "reason": reason, "leader": outcome,
+                   "rpc_capture": rpc,
                    "supervisor_pid": os.getpid(), "owner_pid": owner["pid"],
                    "complete_writer_cessation_proved": False, "cohort_coverage_proved": False}
         private_json(root, "supervisor-stop.json", receipt)
@@ -308,6 +415,8 @@ def supervisor(candidate, root, deadline, lease, term_grace, allow_kill):
         if process is not None and process.poll() is not None:
             for stream in (process.stdin, process.stdout, process.stderr):
                 stream.close()
+        if capture is not None and not capture.closed:
+            capture.close()  # Preserve partial bytes; never create a complete receipt.
 
 
 class SupervisedSdkFactory:
@@ -331,7 +440,8 @@ class SupervisedSdkFactory:
         require(len(os.fsencode(self.root / CONTROL_NAME)) < 108, "controller socket path too long")
         require(not (self.root / "state").exists() and not (self.root / "state").is_symlink(),
                 "fresh supervised fixture state required")
-        for name in (CONTROL_NAME, "supervisor-ready.json", "supervisor-stop.json", "supervisor-pipes.jsonl"):
+        for name in (CONTROL_NAME, "supervisor-ready.json", "supervisor-stop.json", "supervisor-pipes.jsonl",
+                     "supervisor-rpc.jsonl"):
             require(not (self.root / name).exists() and not (self.root / name).is_symlink(), "supervisor target occupied")
         self.deadline = deadline
 
@@ -398,7 +508,8 @@ class SupervisedSdkFactory:
                         value = await asyncio.to_thread(self._control, "stop")
                         receipt = value.get("receipt")
                         require(type(receipt) is dict and receipt.get("reason") == "controller_stop"
-                                and receipt.get("leader", {}).get("leader_reaped") is True,
+                                and receipt.get("leader", {}).get("leader_reaped") is True
+                                and receipt.get("rpc_capture", {}).get("complete_pairs") is True,
                                 "supervisor stop uncertain")
                         self.stop_receipt = receipt
         except BaseException:

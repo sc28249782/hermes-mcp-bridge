@@ -117,6 +117,15 @@ class IntegrationChecks(unittest.TestCase):
         self.assertTrue(result["direct_fixture_supervisor_used"])
         self.assertTrue(result["direct_fixture_supervisor"]["leader"]["leader_reaped"])
         self.assertEqual(result["direct_fixture_supervisor"]["reason"], "controller_stop")
+        rpc = result["direct_fixture_supervisor"]["rpc_capture"]
+        self.assertTrue(rpc["complete_pairs"])
+        self.assertEqual(rpc["pending"], 0)
+        self.assertEqual(rpc["requests"], rpc["responses"])
+        self.assertGreaterEqual(rpc["requests"], 126)  # Matrix124 + identity/discovery/initialize.
+        raw = (self.root / "supervisor-rpc.jsonl").read_bytes()
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), rpc["trace_sha256"])
+        self.assertEqual(len(raw), rpc["trace_bytes"])
+        self.assertFalse(rpc["end_to_end_work_capture"])
         self.assertIs(result["outer_supervisor_integrated"], False)
         self.assertIs(result["complete_writer_cessation_proved"], False)
         self.assertIs(result["operational_b_ready"], False)

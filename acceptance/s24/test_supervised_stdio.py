@@ -1,8 +1,10 @@
 """Linux supervisor controls use only new disposable fixture/owner processes."""
 import argparse
 import asyncio
+import base64
 from contextlib import contextmanager
 import json
+import hashlib
 import os
 from pathlib import Path
 import select
@@ -117,6 +119,13 @@ class SupervisorChecks(unittest.TestCase):
                 os.close(child_fd)
             self.assertEqual(factory.stop_receipt["reason"], "controller_stop")
             self.assertTrue(factory.stop_receipt["leader"]["leader_reaped"])
+            rpc = factory.stop_receipt["rpc_capture"]
+            self.assertEqual((rpc["requests"], rpc["responses"], rpc["notifications"], rpc["pending"]),
+                             (3, 3, 1, 0))
+            self.assertTrue(rpc["complete_pairs"])
+            raw = (self.root / "supervisor-rpc.jsonl").read_bytes()
+            self.assertEqual((len(raw), hashlib.sha256(raw).hexdigest()),
+                             (rpc["trace_bytes"], rpc["trace_sha256"]))
             self.assertFalse(factory.stop_receipt["cohort_coverage_proved"])
             self.assertTrue((self.root / supervised.CONTROL_NAME).exists())
             self.assertEqual(supervised.read_private(self.root, "supervisor-stop.json"), factory.stop_receipt)
@@ -207,6 +216,148 @@ asyncio.run(run())
             self.assertTrue(select.select([child_fd], [], [], 3)[0])
             self.assertTrue(select.select([outer_fd], [], [], 3)[0])
             self.assertFalse((self.root / "supervisor-stop.json").exists())
+
+
+class CaptureChecks(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory(prefix="s24-rpc-")
+        self.root = Path(self.tmp.name)
+        self.root.chmod(0o700)
+        self.capture = supervised.RpcCapture(self.root)
+        self.addCleanup(self.tmp.cleanup)
+        self.addCleanup(lambda: None if self.capture.closed else self.capture.close())
+
+    def request(self, request_id, method="tools/list", **extras):
+        self.capture.observe("controller_ingress", encode({"jsonrpc": "2.0", "id": request_id,
+                                                          "method": method, **extras}))
+
+    def response(self, request_id, **extras):
+        self.capture.observe("fixture_ingress", encode({"jsonrpc": "2.0", "id": request_id, **extras}))
+
+    def initialize(self):
+        self.request(0, "initialize")
+        self.response(0, result={})
+        self.capture.observe("controller_ingress", encode({"jsonrpc": "2.0", "method": "notifications/initialized"}))
+
+    def test_exact_bytes_trace_digest_summary_and_private_exclusive_trace(self):
+        self.initialize()
+        self.request(1)
+        raw = b'{ "jsonrpc" : "2.0", "id": 1, "result": {"x":[true,null,3]} }\n'
+        self.capture.observe("fixture_ingress", raw)
+        summary = self.capture.close(complete=True)
+        trace = (self.root / "supervisor-rpc.jsonl").read_bytes()
+        events = [json.loads(line) for line in trace.splitlines()]
+        self.assertEqual([v["sequence"] for v in events], list(range(1, 6)))
+        self.assertEqual(base64.b64decode(events[-1]["frame_base64"]), raw)
+        self.assertEqual(events[-1]["frame_sha256"], hashlib.sha256(raw).hexdigest())
+        self.assertEqual((summary["requests"], summary["responses"], summary["notifications"]), (2, 2, 1))
+        self.assertEqual((summary["trace_bytes"], summary["trace_sha256"]),
+                         (len(trace), hashlib.sha256(trace).hexdigest()))
+        self.assertFalse(summary["end_to_end_work_capture"])
+        self.assertFalse(summary["delivery_or_consumption_proved"])
+        self.assertEqual((self.root / "supervisor-rpc.jsonl").stat().st_mode & 0o777, 0o600)
+        with self.assertRaises(FileExistsError):
+            supervised.RpcCapture(self.root)
+
+    def test_out_of_order_replies_and_integer_string_ids_remain_distinct(self):
+        self.initialize()
+        self.request(1)
+        self.request("1")
+        self.response("1", error={"code": -32000, "message": "fixture", "data": {"nested": [1]}})
+        self.assertIn((int, 1), self.capture.pending)
+        self.response(1, result={})
+        self.assertTrue(self.capture.close(complete=True)["complete_pairs"])
+
+    def test_unknown_duplicate_boolean_response_or_server_request_latches(self):
+        for value in ({"jsonrpc": "2.0", "id": 999, "result": {}},
+                      {"jsonrpc": "2.0", "id": True, "result": {}},
+                      {"jsonrpc": "2.0", "id": 0, "result": {}},
+                      {"jsonrpc": "2.0", "method": "notifications/message", "params": {}}):
+            with self.subTest(value=value), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                root.chmod(0o700)
+                capture = supervised.RpcCapture(root)
+                try:
+                    capture.observe("controller_ingress", encode({"jsonrpc": "2.0", "id": 0, "method": "initialize"}))
+                    capture.observe("fixture_ingress", encode({"jsonrpc": "2.0", "id": 0, "result": {}}))
+                    with self.assertRaises(Hold):
+                        capture.observe("fixture_ingress", encode(value))
+                    self.assertTrue(capture.held)
+                    with self.assertRaises(Hold):
+                        capture.observe("controller_ingress", encode({"jsonrpc": "2.0", "method": "notifications/initialized"}))
+                finally:
+                    capture.close()
+
+    def test_response_shapes_and_decoder_errors_fail_closed(self):
+        for raw in (b'{"jsonrpc":"2.0","id":0,"result":{},"error":{}}\n',
+                    b'{"jsonrpc":"2.0","id":0,"error":{"code":true,"message":"x"}}\n',
+                    b'{"jsonrpc":"2.0","id":0,"id":0,"result":{}}\n',
+                    b'{"jsonrpc":"2.0","id":0,"result":1e400}\n', b'{}', b'[]\n'):
+            with self.subTest(raw=raw), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                root.chmod(0o700)
+                capture = supervised.RpcCapture(root)
+                try:
+                    capture.observe("controller_ingress", encode({"jsonrpc": "2.0", "id": 0, "method": "initialize"}))
+                    with self.assertRaises(Hold):
+                        capture.observe("fixture_ingress", raw)
+                    self.assertTrue(capture.held)
+                finally:
+                    capture.close()
+
+    def test_initialize_response_must_precede_notification(self):
+        self.request(0, "initialize")
+        with self.assertRaisesRegex(Hold, "before initialize response"):
+            self.capture.observe("controller_ingress", encode({"jsonrpc": "2.0", "method": "notifications/initialized"}))
+        self.assertTrue(self.capture.held)
+
+    def test_pending_request_or_failed_initialize_cannot_complete(self):
+        self.initialize()
+        self.request(1)
+        with self.assertRaisesRegex(Hold, "incomplete"):
+            self.capture.close(complete=True)
+        self.assertTrue(self.capture.closed)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            root.chmod(0o700)
+            capture = supervised.RpcCapture(root)
+            try:
+                capture.observe("controller_ingress", encode({"jsonrpc": "2.0", "id": 0, "method": "initialize"}))
+                with self.assertRaisesRegex(Hold, "initialize failed"):
+                    capture.observe("fixture_ingress", encode({"jsonrpc": "2.0", "id": 0,
+                        "error": {"code": -32000, "message": "fixture"}}))
+            finally:
+                capture.close()
+
+    def test_write_sync_failure_and_budget_latch_without_forwarding(self):
+        with patch.object(supervised.os, "fsync", side_effect=OSError("unit-sync-failure")):
+            with self.assertRaises(OSError):
+                self.request(0, "initialize")
+        self.assertTrue(self.capture.held)
+        self.assertEqual(self.capture.requests, 0)
+        self.assertTrue((self.root / "supervisor-rpc.jsonl").read_bytes())
+        with self.assertRaises(Hold):
+            self.capture.close(complete=True)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            root.chmod(0o700)
+            capture = supervised.RpcCapture(root)
+            try:
+                capture.bytes = 8 * 1024 * 1024
+                with self.assertRaisesRegex(Hold, "budget"):
+                    capture.observe("controller_ingress", encode({"jsonrpc": "2.0", "id": 0, "method": "initialize"}))
+                self.assertTrue(capture.held)
+            finally:
+                capture.close()
+
+    def test_maximum_frame_is_recordable_after_base64_expansion(self):
+        self.initialize()
+        self.request(1)
+        raw = encode({"jsonrpc": "2.0", "id": 1, "result": "x" * 65000})
+        self.capture.observe("fixture_ingress", raw)
+        self.assertTrue(self.capture.close(complete=True)["complete_pairs"])
+        last = json.loads((self.root / "supervisor-rpc.jsonl").read_bytes().splitlines()[-1])
+        self.assertEqual(base64.b64decode(last["frame_base64"]), raw)
 
 
 if __name__ == "__main__":

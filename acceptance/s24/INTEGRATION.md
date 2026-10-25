@@ -223,6 +223,47 @@ Linux interface references (general semantics, not proof about the operator's ho
 - [PR_SET_PDEATHSIG](https://man7.org/linux/man-pages/man2/PR_SET_PDEATHSIG.2const.html)
 - [Unix sockets / SO_PEERCRED](https://man7.org/linux/man-pages/man7/unix.7.html)
 
+## Offline RPC frame correlation delta
+
+`RpcCapture` records accepted controller/fixture ingress frames in a separate
+exclusive 0600 `supervisor-rpc.jsonl` under the private attempt root. It retains
+exact newline frame bytes as base64, frame SHA-256, direction and sequence. Each
+record is synced before forwarding is attempted. Its encoded trace has a separate
+8 MiB cap; the cap includes base64/JSON expansion. The startup handoff is not an
+RPC frame and stays in the previous pipe evidence only. Invalid frames rejected
+before recording are not represented as captured accepted frames.
+
+Responses must match a pending request with the exact integer/string ID type.
+Unknown/duplicate IDs, malformed result/error envelopes, server-initiated messages,
+nonfinite/duplicate-key JSON and initialization-order violations cause HOLD.
+Out-of-order replies for distinct pending IDs are allowed. A protocol error reply
+is retained without changing its data; an initialize error cannot enable later
+requests. The gate is deliberately limited to this fixture protocol; it is not a
+policy for an actual Work client. The parent still enforces case arguments/order.
+
+A record means this proxy observed a frame, not that forwarding, SDK delivery or
+fixture consumption succeeded. OwnedChild's separate stdin_written evidence still
+means only pipe acceptance. The new trace digest/size and request/response counts
+are included in the direct-leader stop receipt. A normal controller-stop receipt
+requires successful initialization, no pending responses and a healthy capture;
+loss/expiry may preserve an incomplete summary but cannot claim complete pairs.
+Capture errors latch permanently. Storage failure preserves partial files and
+may prevent even a HOLD receipt; there is no overwrite, retry or resume.
+
+The full supervised SDK test correlates actual initialization/discovery and the
+124-call matrix before the same stopped-state verifier (audit30). It checks the
+saved trace digest/length. Eight new data/storage controls exercise exact bytes,
+integer-versus-string IDs, out-of-order/error replies, rejected replies and HOLD,
+initialization order, pending requests, failed fsync, budget and base64 expansion.
+The supervisor suite now has 20 controls; the coordinator suite retains 17.
+
+This is `offline-proxy-framed-rpc`, not end-to-end Work capture, delivery proof,
+connector invocation proof or an operational attempt receipt. Existing raw-wire,
+operational-B, outer-cohort and scoped-gate flags remain false. The session's
+available tool metadata shows Production/Dev namespaces but no bound fixture
+namespace; this is not a global statement that a route is unavailable. No bridge
+tool, client refresh, plugin setup, SSH, credential or guest action was used.
+
 ## Remaining work on this same integration PR
 
 | Gate | Current state / required closure |
