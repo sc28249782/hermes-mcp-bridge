@@ -200,3 +200,7 @@ All private bindings, guest measurements, asset/binary checks, operational obser
 and supervision proofs, compatibility disposition and operator scope remain OPEN.
 This plan is reviewable, not execution-ready. No provisioning, activation, original
 service change, release or deployment was performed while authoring it.
+
+## 9. R0/R1 preparation checkpoint — 25 October 2026
+
+The [R0/R1 preparation record](S24-PREBIND-R0-R1-RECORD-TH.md#s24-prebind-r0-r1-preparation-record) retains operator-reported inventory, pinned file preparation, local version/help inspection, the expired first R1 window and the separately approved continuation. The private profile/key record remains pending bindings and independent review. This later checkpoint was not in reviewed PR #104 head `30b5a93`; prior proposal text remains historical. No R2 approval, client/peer service start, discovery or gate closure is recorded.
