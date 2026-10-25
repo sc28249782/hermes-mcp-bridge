@@ -343,6 +343,10 @@ fabricated test host/guest/runtime inputs and MAC proofs. It validates stage,
 nonce, sequence, duration and the required false scope flags. Claimed complete
 coverage is rejected even with a valid MAC. A MAC does not authenticate where a
 producer obtained its process data; private producer/carrier binding is still open.
+The enclosing record is labeled offline-inputs-with-leader-metadata. Presence of
+producer-supplied metadata never upgrades its provenance to a verified local read.
+Only the independently run CI case establishes that its supplied collector actually
+read those CI-local processes; the join alone does not establish that fact.
 
 Five new coordinator controls cover the actual supervised SDK matrix with 44 live
 three-leader samples, pre-read binding rejection, permanent failure/ready drift,

@@ -312,7 +312,7 @@ class IntegrationChecks(unittest.TestCase):
         self.assertEqual(len(inputs), 44)
         for index, item in enumerate(inputs):
             observation = item["leader_observation"]
-            self.assertEqual(item["evidence_class"], "offline-inputs-with-local-leaders")
+            self.assertEqual(item["evidence_class"], "offline-inputs-with-leader-metadata")
             self.assertEqual((observation["stage"], observation["sequence"]), (parent.STAGES[index], index + 1))
             self.assertEqual(observation["nonce"], item["checkpoint_message_proofs"]["writer-inventory"]["nonce"])
             identities = [leader["identity"] for leader in observation["leaders"]]

@@ -212,7 +212,7 @@ class OfflineObservationJoin:
                                          "continuity": continuity, "writers": writers,
                                          "checkpoint_message_proofs": proofs,
                                          "leader_observation": leader_observation,
-                                         "evidence_class": "offline-inputs-with-local-leaders" if leader_observation
+                                         "evidence_class": "offline-inputs-with-leader-metadata" if leader_observation
                                          else "injected-offline-observer-inputs"})
             return {"stage": stage, "observed_at": started, "identities": deepcopy(self.identities),
                     "resources": {"host_available_mib": host["host_available_bytes"] / MIB,
