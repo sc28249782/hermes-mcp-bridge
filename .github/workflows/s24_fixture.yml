@@ -76,6 +76,12 @@ jobs:
           set -euo pipefail
           python -W error::ResourceWarning -B acceptance/s24/test_prebind_inventory.py -v 2>&1 | tee "$RUNNER_TEMP/s24-prebind-inventory.log"
           if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-prebind-inventory.log"; then exit 1; else test "$?" -eq 1; fi
+      - name: Offline inventory controller and direct-child controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -W error::ResourceWarning -B acceptance/s24/test_inventory_control.py -v 2>&1 | tee "$RUNNER_TEMP/s24-inventory-control.log"
+          if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-inventory-control.log"; then exit 1; else test "$?" -eq 1; fi
       - name: Offline owned-child watchdog and recorder
         shell: bash
         run: |

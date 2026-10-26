@@ -298,3 +298,16 @@ The [reviewable fixture artifact](../acceptance/s24/README.md) pins candidate `7
 - 25 October 2026 — The [metadata binding work package](S24-METADATA-BINDING-WORK-PACKAGE-TH.md#s24-metadata-binding-work-package) defines proposed negative-control and private-method review requirements. Pinned client source shows doctor can bind a health listener and does not authenticate the stdio tunnel key. No helper, new suite, guest/API observation or control proof is claimed. Source/private review and complete writer coverage remain prerequisites; R2/Phase B and PR #80 remain HOLD.
 
 - 25 October 2026 — The [private preparation inventory controls](../acceptance/s24/PREBIND-INVENTORY.md) add 22 synthetic-file/negative tests under the unchanged dedicated warning scanner. They forbid key-content open, spawn/socket and scope-flag upgrades, preserve partial/existing evidence and distinguish saved metadata from fresh measurements. No guest/host run, credential validity, complete writer coverage or R1/R2 acceptance is claimed.
+
+### S24 inventory controller — 26 October 2026
+
+[Controller controls](../acceptance/s24/INVENTORY-CONTROL.md#audit-and-offline-validation)
+add 33 mandatory offline checks: protocol/storage/timers16, synthetic completion7
+and fresh Linux child10. The synthetic class fabricates inventory/adoption; real
+pidfd/expiry/owner-loss/no-G/safe-failure checks are separate and never skipped.
+Development Python 3.12.14: exit1, 25 passes/one failure/seven errors at the known
+procfs/PID mismatch. No warning scan hits; no predicate relaxation, fallback,
+sleep/retry or suppressed failure. The unchanged helper suite remains 22/22 OK.
+Dedicated Linux 3.12/3.14 CI adds this suite with the identical warning gate;
+previous suites/pins stay intact. New exact-head CI/source review is required.
+These are disposable test processes, not operator VM/host or credential evidence.

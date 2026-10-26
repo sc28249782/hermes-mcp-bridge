@@ -161,3 +161,23 @@ or stop/writer coverage. Its collection deadline is post-hoc, not an outer
 supervisor. Complete the proposed invocation bindings and control/stop methods,
 then obtain separate finite scope before any guest/host run. No new R1 or R2
 approval is inferred from this source or a request to continue.
+
+## Inventory controller delta — 26 October 2026
+
+The same PR #106 adds [inventory controller source and offline controls](../acceptance/s24/INVENTORY-CONTROL.md).
+Reviewed inventory bytes/tests and prior candidate/fixture/contracts/collectors
+remain unchanged. The controller is limited to one newly owned inventory worker;
+it does not close metadata client/peer/observer/descendant/external-writer coverage.
+
+The source rejects existing evidence before spawn, uses a strict ready/G barrier,
+retains a validated pidfd and gates receipts on direct-child reap, pipe EOF and
+inventory verification. KILL stays default-off. The future finite acquisition
+scope must include both immutable sources, all read classes and four exclusive
+private evidence writes, exact timing/stop policy and independent console.
+Private nominations remain private; no prior window is reset or extended.
+
+Development's final 33-control run has 25 passes and eight unsuccessful controls
+at the known procfs/PID-namespace mismatch; no predicates or mandatory tests were
+weakened. Separate Linux CI is required. Synthetic completion is explicitly
+fabricated evidence, not real guest inventory. No VM execution, authenticated
+request, original-runtime action, merge, R1 completion, R2 or Phase B approval.

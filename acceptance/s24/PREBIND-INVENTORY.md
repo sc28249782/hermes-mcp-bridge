@@ -115,3 +115,12 @@ Dedicated Linux CI adds this suite under the unchanged post-exit warning scanner
 All earlier candidate/fixture/contracts/observer/supervisor sources and checks
 remain unchanged. No unit/CI result is guest readiness, R1 completion, R2 route
 proof, complete cessation, Phase B acceptance or a scoped §22 PASS.
+
+## Inventory controller source delta — 26 October 2026
+
+The [one-worker controller](INVENTORY-CONTROL.md) adds a proposed independent
+CLI timer, G barrier, exact owned-child pidfd stop and private claim/trace/receipt.
+The helper and its 22 controls stay unchanged. The controller's separate offline
+controls and exact-head CI require review; earlier helper CI does not cover them.
+Future combined acquisition must nominate both sources and all four evidence
+writes. No VM/host scope, merge instruction, R1 completion or R2 approval exists.
