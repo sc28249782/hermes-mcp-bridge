@@ -204,3 +204,7 @@ service change, release or deployment was performed while authoring it.
 ## 9. R0/R1 preparation checkpoint — 25 October 2026
 
 The [R0/R1 preparation record](S24-PREBIND-R0-R1-RECORD-TH.md#s24-prebind-r0-r1-preparation-record) retains operator-reported inventory, pinned file preparation, local version/help inspection, the expired first R1 window and the separately approved continuation. The private profile/key record remains pending bindings and independent review. This later checkpoint was not in reviewed PR #104 head `30b5a93`; prior proposal text remains historical. No R2 approval, client/peer service start, discovery or gate closure is recorded.
+
+## 10. Binding method proposal — 25 October 2026
+
+The [metadata binding work package](S24-METADATA-BINDING-WORK-PACKAGE-TH.md#s24-metadata-binding-work-package) maps each remaining private field to a proposed evidence method and HOLD condition. It distinguishes local doctor checks from authentication, retains complete cohort/control gaps and proposes one combined inventory followed by source/private review before R2. This is offline planning only; no new guest scope, helper execution, setup, API request or activation. All earlier text remains historical; PR #80 stays HOLD.
