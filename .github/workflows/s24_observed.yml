@@ -27,7 +27,22 @@ jobs:
           test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha }}'
           test "$RUNNER_ENVIRONMENT" = github-hosted
           umask 022
-          sudo -n --preserve-env=GITHUB_ACTIONS,RUNNER_ENVIRONMENT,RUNNER_OS "$(command -v python)" -I -S -B acceptance/s24/observed/run_ssh_carrier_controls.py
+          carrier_log="$RUNNER_TEMP/s24-ssh-carrier.log"
+          set +e
+          sudo -n --preserve-env=GITHUB_ACTIONS,RUNNER_ENVIRONMENT,RUNNER_OS "$(command -v python)" -W error::ResourceWarning -I -S -B acceptance/s24/observed/run_ssh_carrier_controls.py > "$carrier_log" 2>&1
+          carrier_exit=$?
+          set -e
+          cat "$carrier_log"
+          python -I -S -B - "$carrier_log" "$carrier_exit" <<'PY'
+          from pathlib import Path
+          import sys
+          raw=Path(sys.argv[1]).read_bytes()
+          markers=(b'ResourceWarning',b'Exception ignored in',b'Exception ignored while finalizing')
+          assert sys.argv[2]=='0', 'carrier fixture failed'
+          assert not any(marker in raw for marker in markers), 'post-exit warning gate failed'
+          assert raw.count(b'SSH carrier controls: 3 cases passed;')==1, 'carrier completion marker missing'
+          print('SSH carrier post-exit warning gate: CLEAN')
+          PY
 
   observed-linux:
     runs-on: ubuntu-24.04

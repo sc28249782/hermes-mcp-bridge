@@ -205,7 +205,10 @@ Three independent cases use the same one-job fixture server: successful frame
 exchange with exact post trace, wrong challenge yielding HOLD without post, and
 wrong known host key yielding HOLD before the forced peer starts. Each records
 false scope flags, requires no after sample on failure, and rejects coordinator
-reuse. There is no automatic connection retry. These are carrier-contract tests,
+reuse. ResourceWarning is fatal and the complete harness output is scanned after
+process exit for ResourceWarning/finalizer markers, even when it fails. The
+three-case completion marker is mandatory. There is no automatic connection retry.
+These are carrier-contract tests,
 not authorization for a finite operator R1/R2 attempt. Keep actual Windows entry
 bootstrap/ACL/CIM, collect join, operational supervision/cessation, real identity
 transitions and A6/A7 bindings OPEN pending independent review.
