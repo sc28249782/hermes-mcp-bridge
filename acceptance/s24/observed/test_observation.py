@@ -376,6 +376,123 @@ raise SystemExit(code)
         self.fixture('partial_eof')
 
 
+class WrapperHostHandshakeControls(unittest.TestCase):
+    """Actual wrapper/host pipes; synthetic controller and identity admission.
+
+    Only the disposable controller fixture waits for test orchestration. No
+    inventory worker, production marker, timer or no-delay contract is modified.
+    These controls prove local framing/ordering, not Windows sampling or SSH.
+    """
+    def handshake(self, mode):
+        import select
+        import time
+        release_read,release_write=os.pipe()
+        opening=p.encode(event('worker_bound'))+p.encode(event('collect_entered'))
+        leaving=p.encode(event('collect_leaving'))
+        receipt={'status':'CONTROL_COMPLETE_PENDING_REVIEW','receipt_sha256':'c'*64,**p.FALSE_FLAGS}
+        fixture=("import os,sys; fd=int(sys.argv[1]); gate=int(sys.argv[2]); "
+                 f"raw={opening!r}; assert os.write(fd,raw)==len(raw); "
+                 "os.read(gate,1); os.close(gate); "
+                 f"raw={leaving!r}; assert os.write(fd,raw)==len(raw); os.close(fd); "
+                 f"sys.stdout.buffer.write({p.encode(receipt)!r}); sys.stdout.flush()")
+        process=None
+        with tempfile.TemporaryDirectory() as root:
+            log_path=str(Path(root)/'handshake.jsonl')
+            script=f'''
+import os,sys,types
+sys.path.insert(0,{str(HERE)!r})
+import observer_guest as g
+g.P=g._load_observation_protocol()
+real_popen=g.subprocess.Popen
+children=[]
+def launch(argv,**kwargs):
+    fd=kwargs['pass_fds'][0]
+    kwargs['pass_fds']=(fd,{release_read})
+    child=real_popen([sys.executable,'-I','-S','-B','-c',{fixture!r},str(fd),str({release_read})],**kwargs)
+    children.append(child)
+    os.close({release_read})
+    return child
+class FixtureTarget:
+    def __init__(self,child,argv): self.child=child
+    def send_signal(self,sig): self.child.send_signal(sig)
+    def close(self): pass
+class FixtureWorker:
+    def __init__(self,*args): self.fd=os.open('/dev/null',os.O_RDONLY)
+    def live(self): return True
+g.subprocess.Popen=launch
+g.P.load_source=lambda *args: types.SimpleNamespace(Target=FixtureTarget,SCOPE_FLAGS=tuple(g.P.FALSE_FLAGS))
+g.ReadOnlyWorker=FixtureWorker
+code=g.run({{'log_path':{log_path!r},'binding_sha256':{B!r},'challenge':{C!r},
+    'controller_python':sys.executable,'root':'/synthetic','attempt_name':'r1-remaining-fixture',
+    'python_argv':sys.executable,'health_port':18081,'scope_start_epoch':0}})
+assert len(children)==1 and children[0].poll() is not None
+raise SystemExit(code)
+'''
+            frames=[]
+            def read_frame():
+                deadline=time.monotonic()+3
+                raw=bytearray()
+                while not raw.endswith(b'\n'):
+                    remaining=deadline-time.monotonic()
+                    self.assertGreater(remaining,0,'wrapper frame deadline')
+                    self.assertTrue(select.select([process.stdout],[],[],remaining)[0])
+                    part=os.read(process.stdout.fileno(),1)
+                    self.assertTrue(part,'unexpected wrapper EOF')
+                    raw.extend(part)
+                    self.assertLessEqual(len(raw),p.HOST_LIMIT)
+                value=p.loads(bytes(raw)); frames.append(value)
+                self.assertTrue(all(value[k] is False for k in p.FALSE_FLAGS))
+                return value['kind']
+            try:
+                process=subprocess.Popen([sys.executable,'-W','error::ResourceWarning','-I','-S','-B','-c',script],
+                    stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                    pass_fds=(release_read,),bufsize=0)
+                os.close(release_read); release_read=None
+                self.assertEqual(read_frame(),'sample_window_open')
+                message=post()
+                if mode=='wrong_challenge': message['challenge']='d'*64
+                process.stdin.write(p.encode(message)); process.stdin.flush()
+                if mode=='wrong_challenge':
+                    self.assertEqual(read_frame(),'hold')
+                else:
+                    self.assertEqual(read_frame(),'window_confirmed')
+                    if mode=='duplicate_post':
+                        process.stdin.write(p.encode(post())); process.stdin.flush()
+                        self.assertEqual(read_frame(),'hold')
+                    else:
+                        self.assertEqual(mode,'success')
+                        os.write(release_write,b'G')  # Fixture-only orchestration, not inventory G.
+                        self.assertEqual(read_frame(),'observation_complete_pending_review')
+                        self.assertEqual(frames[-1]['receipt_sha256'],receipt['receipt_sha256'])
+                # Keep host stdin open through the final frame, so EOF cannot win.
+                out,err=process.communicate(timeout=3)
+                self.assertEqual((out,err),(b'',b''))
+                self.assertEqual(process.returncode,0 if mode=='success' else 2)
+                logged=[p.loads(line)['kind'] for line in Path(log_path).read_bytes().splitlines()]
+                expected=['worker_bound','collect_entered','sample_window_open']
+                if mode!='wrong_challenge': expected+=['window_confirmed']
+                expected+=(['collect_leaving','observation_complete_pending_review'] if mode=='success' else ['hold'])
+                self.assertEqual(logged,expected)
+            finally:
+                if release_read is not None: os.close(release_read)
+                os.close(release_write)  # EOF also releases the fixture on a failed assertion.
+                if process is not None:
+                    try: process.communicate(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        process.kill()  # Test-owned wrapper only, never an operational fallback.
+                        process.communicate(timeout=3)
+                    for stream in (process.stdin,process.stdout,process.stderr): stream.close()
+
+    def test_wrapper_local_host_successful_post_handshake(self):
+        self.handshake('success')
+
+    def test_wrapper_local_host_wrong_challenge_holds(self):
+        self.handshake('wrong_challenge')
+
+    def test_wrapper_local_host_duplicate_post_holds(self):
+        self.handshake('duplicate_post')
+
+
 class WorkerIdentityControls(unittest.TestCase):
     """Real child/pidfd admission; UID/argv drift values are injected reads.
 
