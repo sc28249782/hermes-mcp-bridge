@@ -56,7 +56,11 @@ try {
         'ContainerInherit,ObjectInherit','None','Allow')
     $acl.AddAccessRule($rule)
     Set-Acl -LiteralPath $root -AclObject $acl
+    $pins=@{'HostSupport.ps1'='5b894a5563dd1ed1f9cbc0bf99e924065f90a53f5cf88b22d5711e93e4a52f7e';
+            'HostMemory.psm1'='4509e645295f6b5748d9dbdbe2ab10221386ec4504c788a3bd121f574a5f09f8';
+            'Read-S24HostSample.ps1'='b1c8387dca6c864066b0e58e345a9ba5f8cb1844e06c5211fd227b919745e321'}
     foreach ($name in @('HostSupport.ps1','HostMemory.psm1','Read-S24HostSample.ps1')) {
+        Assert-S24 ((Get-FileHash -LiteralPath (Join-Path $PSScriptRoot $name) -Algorithm SHA256).Hash.ToLowerInvariant() -ceq $pins[$name])
         Copy-Item -LiteralPath (Join-Path $PSScriptRoot $name) -Destination (Join-Path $root $name)
         Set-FixtureOwner (Join-Path $root $name)
     }
@@ -118,17 +122,6 @@ try {
     [Console]::Error.WriteLine('CI integration failed at stage: '+$stage)
     # Test-only stack contains fixture/source locations, no operator data.
     [Console]::Error.WriteLine($_.ScriptStackTrace)
-    if ($stage -eq 'receive-before') {
-        # Diagnostic copy only, never counted as a passing production-source test.
-        # Retain the original failure regardless of this probe's outcome.
-        $diagnostic=Join-Path $root 'diagnostic-sampler.ps1'
-        $code=[IO.File]::ReadAllText((Join-Path $root 'Read-S24HostSample.ps1'))
-        $code=$code.Replace("[Console]::Error.WriteLine('HOLD: host sample incomplete; no retry.')",
-            '[Console]::Error.WriteLine($_.ScriptStackTrace); [Console]::Error.WriteLine($_.Exception.GetType().FullName)')
-        [IO.File]::WriteAllText($diagnostic,$code)
-        Set-FixtureOwner $diagnostic
-        & $pwsh -NoLogo -NoProfile -NonInteractive -File $diagnostic -ConfigPath $path | Out-Null
-    }
     throw
 } finally {
     if ($null -ne $child) { Close-S24Child $child $true }
