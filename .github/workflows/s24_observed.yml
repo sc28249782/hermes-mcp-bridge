@@ -72,3 +72,13 @@ jobs:
           $text = Get-Content -LiteralPath $log -Raw
           Write-Output $text
           if ($code -ne 0 -or $text -notmatch 'Windows integration controls: 10 checks passed;') { throw 'Windows integration controls failed' }
+      - name: Checked host coordinator failure matrix
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $log = Join-Path $env:RUNNER_TEMP 's24-observed-windows-coordinator.log'
+          & pwsh -NoLogo -NoProfile -NonInteractive -File ./acceptance/s24/observed/Test-WindowsCoordinator.ps1 *> $log
+          $code = $LASTEXITCODE
+          $text = Get-Content -LiteralPath $log -Raw
+          Write-Output $text
+          if ($code -ne 0 -or $text -notmatch 'Windows coordinator controls: 16 cases passed;') { throw 'coordinator controls failed' }
