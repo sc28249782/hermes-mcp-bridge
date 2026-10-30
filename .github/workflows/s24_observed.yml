@@ -9,6 +9,26 @@ permissions:
   contents: read
 
 jobs:
+  observed-ssh-carrier:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Disposable loopback OpenSSH and checked coordinator
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha }}'
+          test "$RUNNER_ENVIRONMENT" = github-hosted
+          umask 022
+          sudo -n --preserve-env=GITHUB_ACTIONS,RUNNER_ENVIRONMENT,RUNNER_OS "$(command -v python)" -I -S -B acceptance/s24/observed/run_ssh_carrier_controls.py
+
   observed-linux:
     runs-on: ubuntu-24.04
     timeout-minutes: 5

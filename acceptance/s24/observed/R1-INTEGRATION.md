@@ -167,3 +167,45 @@ Rows 9–14 and A3 receive coordinator-level fixture evidence only. Source accep
 actual SSH transport/collect join, operational deadlines/stop and A6/A7 private
 bindings stay OPEN pending independent exact-source/evidence review. Keep this
 same PR draft; no matrix disposition or runtime scope is issued by E5.
+
+## E6 — real OpenSSH loopback / production coordinator contract fixture
+
+The CI-only carrier job runs the existing HostCoordinator and HostSupport on
+Linux PowerShell Core with an actual OpenSSH client; its process factory is not
+replaced. Only new-config writing is substituted because Windows ACL admission
+is outside this Linux fixture. Sample and remote peer are protocol fixtures, not
+CIM or inventory. This connects the production coordinator's exact hardened SSH
+argv to a real encrypted/authenticated loopback transport, without asserting the
+R1/Tunnel authenticated flag or host identity. E4 collect and E3 CIM evidence are
+still separate, not a complete production collect/Windows-sample join.
+
+The harness refuses execution outside root on GitHub-hosted Linux CI. It creates
+one fresh fixture account with an empty private home and /bin/sh, new Ed25519
+host/client keys, exact known_hosts and a foreground sshd bound only to loopback
+port 22229. The invalid password hash is not a password; password/keyboard/PAM
+and root login are disabled. Existing accounts, SSH config, services, keys and
+authorized_keys are never edited. The new account must not exist before the test.
+ForceCommand runs only the copied fixture peer, which rejects an unexpected
+SSH_ORIGINAL_COMMAND. The peer can exchange frames but cannot run inventory,
+backend tools or arbitrary original commands. Its wait is not a collect delay.
+
+Actors include the root CI harness/foreground sshd and SSH privilege-separation
+children, owned PowerShell driver/sample/client processes, and the fresh-account
+forced peer. This is disposable CI infrastructure, not an operational stop model.
+Teardown stops only the retained sshd pidfd and newly owned driver/child instances;
+the new account is removed only after its UID has no processes. A driver timeout
+stops only its own new session and fails without retry. No key bytes or server
+logs are printed/uploaded; private fixture files remain for runner teardown.
+The stock /run/sshd directory is created only if absent, never repaired/replaced.
+If required tools/account isolation/bind/host trust are unavailable, the job fails;
+there is no package installation, alternate port, existing-account fallback or
+host-key acceptance. No SSH/account/key operation is performed on an operator host.
+
+Three independent cases use the same one-job fixture server: successful frame
+exchange with exact post trace, wrong challenge yielding HOLD without post, and
+wrong known host key yielding HOLD before the forced peer starts. Each records
+false scope flags, requires no after sample on failure, and rejects coordinator
+reuse. There is no automatic connection retry. These are carrier-contract tests,
+not authorization for a finite operator R1/R2 attempt. Keep actual Windows entry
+bootstrap/ACL/CIM, collect join, operational supervision/cessation, real identity
+transitions and A6/A7 bindings OPEN pending independent review.
