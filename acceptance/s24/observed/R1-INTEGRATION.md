@@ -83,3 +83,36 @@ through a table edit. If host/transport capability cannot be implemented within
 the approved design, stop and present that concrete gap for design disposition.
 R1 PENDING_BINDINGS / NOT AUTHORIZED; R2 HOLD. No VM/SSH/operator CIM or key action,
 Phase B acceptance, #80/#96 disposition, release or deployment is performed.
+
+## E4 — joined collect/local carrier fixture delta
+
+`joined_collect_fixture.py` reuses the pinned baseline synthetic input builder,
+then calls the unchanged observed helper collect with real Marker writes. Hash
+constants and fixed system-read results are injected only for those synthetic
+inputs, as in E1. The synthetic ELF input includes a bounded 16 MiB read/hash
+workload within the existing input limit; it is never executed. No sleep, SIGSTOP,
+ACK wait inside collect or production timer change is introduced. A ten-second
+fixture alarm is independent of, and does not extend, production budgets.
+
+`test_joined_collect.py` uses real procfs/pidfd admission and actual entry/leaving
+pipe events. Its fixture coordinator drains, calls Window.pre, reads real local
+Linux MemAvailable through a bounded JSON pipe frame, then drains and calls
+Window.post only after the sample finishes. The natural case records either a
+confirmed fixture-only causal window or explicit fast-collect HOLD without retry.
+There is no requirement that a naturally fast worker produce a passing window.
+
+The exit-during-sample case stops only the test-owned Popen child from inside the
+sample producer. The leaving-before-post case waits for actual worker exit before
+post. Both must reach an opened window and complete a sample, then reject post;
+fast completion before their stimulus is a test failure, not substitute coverage.
+Each prints an outcome/sequence receipt with false R1/R2 flags, checks pipe EOF and
+worker reap, and retains the original mandatory coherence controls. Suite count:
+66 + 3 = 69. Existing tests remain unchanged.
+
+This adds fixture-based joined evidence for rows 3/5/6/17, not acceptance closure.
+The carrier is a local Linux pipe; coordinator is test code, not Observe-S24Host or
+the guest wrapper run loop. It does not prove Windows CIM inside an inventory
+window, SSH transport, operational source pins/inputs, host identity, production
+stop authority or full writer cessation. Actual joined production-carrier and
+coordinator/provider/output/log/deadline/stop obligations remain OPEN. No ledger
+row is closed or reclassified here; continue this same draft PR.

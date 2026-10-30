@@ -19,7 +19,7 @@ private invocation/transport bindings still require review before operator use.
 Correlation data is not approval or authentication. All scope flags stay false.
 
 This directory initially preserves the reviewed candidate's runtime and test
-bytes. The new CI wrapper runs all 66 tests with no skip, predicate relaxation or
+bytes. The new CI wrapper runs all 69 tests with no skip, predicate relaxation or
 numeric-PID fallback. The CI step sets umask 022 before running this suite.
 Source modes are checked fail-closed by the loaders (group/other-writable sources
 are rejected). Full post-exit output is inspected for warnings even on failure.
@@ -44,3 +44,5 @@ Three identity controls additionally require real coherent-procfs child admissio
 Three local host-handshake controls drive the unchanged wrapper through real stdin/stdout and observation pipes: successful post-check/final receipt, wrong challenge and duplicate post-check. Only the synthetic controller fixture waits on a test release pipe; no production worker is paused or modified. Controller loading and identity admission are fixtures. No memory sample, SSH or Windows host is involved, so these are local protocol integration evidence only.
 
 The continuing [R1 integration work package](R1-INTEGRATION.md) maps all eighteen design groups to evidence and blocking obligations. It reuses 22 unchanged baseline helper controls against the observed helper, adds a real controller/worker/collect failure-path control, and separates ten Windows CI ACL/CIM checks from offline checks. These additions do not complete source acceptance or prove a host sample during actual inventory.
+
+The joined E4 fixture adds real collect boundaries, real pidfd admission and a framed local Linux memory sample. Its coordinator and inventory inputs remain test fixtures; natural fast-collect HOLD is reported, not retried. Negative cases must actually reach sampling before testing worker exit or leaving-before-post. This is not the production Windows/SSH carrier.
