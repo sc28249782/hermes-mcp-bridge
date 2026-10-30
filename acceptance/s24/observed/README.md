@@ -56,3 +56,10 @@ E7 runs the exact Windows entry/bootstrap/ACL/config writer and real pinned CIM 
 E8 adds mandatory real exec/UID/PID-reuse controls in private Linux CI PID/mount namespaces, plus read-only Windows carrier capability facts. It changes no runtime source or predicate and writes no host sysctl. Capability absence/UNKNOWN is not route proof, a waiver or permission to provision a guest.
 
 The [E9 joined-path design](WINDOWS-LINUX-JOIN-PLAN.md) separates conditional CI guest setup, fixture-based causal join and later operational R1. Windows is the SSH client; a Windows SSH server is not required. Rootfs/kernel/lifecycle bindings and any persistent-sampler actor change require review before implementation; no provisioning or runtime change is made by this proposal.
+
+[E10 J0 capability/source review](J0-CAPABILITY-SOURCE-REVIEW.md) records an immutable
+provider manifest and explicitly unverified archive candidate, plus CI-only
+fixed-path WSL/SSH/kernel file snapshots without invoking those binaries. J0 is
+not ready: archive contents, guest binaries, setup, coexistence and lifecycle
+bindings remain open. This checkpoint performs no guest provisioning/start and
+changes no runtime/pins or source-acceptance/operational authority.

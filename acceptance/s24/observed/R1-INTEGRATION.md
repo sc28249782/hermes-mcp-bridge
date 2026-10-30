@@ -298,3 +298,16 @@ controller/readers versus operational R1, and requires measured causal timing
 before any sampler actor/lifetime change. It adds no controls/runtime/provisioning
 or gate closure. Review route/actors/failure/stop design before setup source;
 continue on #112. Existing operational and A6/A7 gaps remain OPEN.
+
+## E10 — partial J0 capability and provider-source binding
+
+[E10 review packet](J0-CAPABILITY-SOURCE-REVIEW.md) binds the Microsoft WSL metadata
+commit/blob/bytes and selected Ubuntu-24.04 amd64 URL/provider-reported archive
+digest. No archive bytes were downloaded/verified or contents inspected. The
+CI-only Windows capability script adds bounded fixed-path file/image snapshots;
+it invokes no WSL/SSH binary or guest. These snapshots do not establish configured
+kernel/client admission, boot/pidfd/route readiness or existing-distro inactivity.
+J0 remains NOT READY, with exact artifact/setup/lifecycle/source bindings still
+UNBOUND. Review this source/capability checkpoint before preparing setup source,
+then review provisioning separately. No ledger row/source acceptance/operational
+scope closes; runtime/pins and existing suites stay unchanged. Keep #112 draft.

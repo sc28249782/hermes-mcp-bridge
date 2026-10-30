@@ -1,0 +1,31 @@
+{
+  "evidence_class": "j0-provider-source-candidate-not-rootfs-verification",
+  "retrieved_on_utc": "2026-10-30",
+  "manifest": {
+    "repository": "microsoft/WSL",
+    "commit": "341f1ddf76f089ff6351590b03f92bad30041725",
+    "path": "distributions/DistributionInfo.json",
+    "git_blob_sha1": "115f72318dbd55ea02c5b2c41363be76e5a184ce",
+    "bytes": 18481,
+    "author_computed_sha256": "cf81b7b35b213a9568f4cfeb11c90dc6f5e96065b22a1559c29631d432a39739",
+    "retrieval": "GitHub contents API at exact commit; bytes cross-checked against tree blob SHA-1 and size"
+  },
+  "selection": {
+    "json_location": "ModernDistributions.Ubuntu[Name=Ubuntu-24.04].Amd64Url",
+    "architecture": "amd64",
+    "name": "Ubuntu-24.04",
+    "url": "https://releases.ubuntu.com/24.04.5/ubuntu-24.04.5-wsl-amd64.wsl",
+    "provider_reported_archive_sha256": "bb415d824822c4b878125729af451a5d18fb13d1cf5cbed9a7393ad64ac6039e"
+  },
+  "archive_downloaded": false,
+  "archive_bytes_verified": false,
+  "archive_contents_inspected": false,
+  "python_sshd_identities_bound": false,
+  "setup_source_accepted": false,
+  "guest_imported": false,
+  "guest_started": false,
+  "j0_ready": false,
+  "r1_complete": false,
+  "r2_authorized": false,
+  "scope_granted": false
+}
