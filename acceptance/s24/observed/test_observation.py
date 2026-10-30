@@ -376,6 +376,71 @@ raise SystemExit(code)
         self.fixture('partial_eof')
 
 
+class WorkerIdentityControls(unittest.TestCase):
+    """Real child/pidfd admission; UID/argv drift values are injected reads.
+
+    No actual credential change, exec, PID reuse or operator worker is claimed.
+    Coherent procfs is mandatory, just as in the original adoption control.
+    """
+    def adopted_child(self):
+        import observer_guest as guest
+        import select
+        import types
+        guest.P=guest._load_observation_protocol()
+        child=subprocess.Popen([sys.executable,'-I','-S','-B','-c',
+            "import signal; print('ready',flush=True); signal.pause()"],
+            stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        def cleanup():
+            try:
+                if child.poll() is None:
+                    child.terminate()  # Disposable direct child only; not a runtime fallback.
+                child.communicate(timeout=2)
+            finally:
+                if child.poll() is None:
+                    child.kill()  # Test-only last resort, never a worker signal API.
+                    child.communicate(timeout=2)
+                child.stdout.close()
+                child.stderr.close()
+        self.addCleanup(cleanup)
+        self.assertTrue(select.select([child.stdout],[],[],3)[0],'fixture not ready')
+        self.assertEqual(child.stdout.readline(),b'ready\n')
+        actual=guest.P.identity(child.pid)
+        worker=guest.ReadOnlyWorker(child.pid,guest.P.fingerprint(actual),
+                                   types.SimpleNamespace(pid=os.getpid()),sys.executable)
+        self.addCleanup(os.close,worker.fd)
+        self.assertEqual(worker.saved,actual)
+        self.assertTrue(worker.live())
+        return guest,child,worker
+
+    def test_retained_pidfd_rejects_exited_real_child(self):
+        guest,child,worker=self.adopted_child()
+        retained=worker.fd
+        child.terminate()  # Fixture owner stops its own direct child.
+        child.communicate(timeout=2)
+        self.assertFalse(guest.P.live(retained))
+        os.fstat(retained)  # Retained handle is still open; no reopen by numeric PID.
+        with patch.object(guest.P,'identity',side_effect=AssertionError('dead pidfd must short-circuit')):
+            self.assertFalse(worker.live())
+
+    def test_live_worker_rejects_injected_uid_drift(self):
+        guest,child,worker=self.adopted_child()
+        changed={**worker.saved,'uid':worker.saved['uid']+1}
+        self.assertTrue(guest.P.live(worker.fd))
+        with patch.object(guest.P,'identity',return_value=changed) as read:
+            self.assertFalse(worker.live())
+            read.assert_called_once_with(child.pid)
+        self.assertTrue(worker.live())  # Test patch removed; no Window HOLD is reset.
+
+    def test_live_worker_rejects_injected_argv_drift(self):
+        guest,child,worker=self.adopted_child()
+        changed={**worker.saved,'argv':[*worker.saved['argv'],'synthetic-drift']}
+        self.assertTrue(guest.P.live(worker.fd))
+        with patch.object(guest.P,'identity',return_value=changed) as read:
+            self.assertFalse(worker.live())
+            read.assert_called_once_with(child.pid)
+        self.assertTrue(worker.live())
+
+
 class RequiredRealAdoptionControls(unittest.TestCase):
     def test_real_owned_child_pidfd_adoption(self):
         # This deliberately fails on incoherent procfs. No skip or predicate relaxation.

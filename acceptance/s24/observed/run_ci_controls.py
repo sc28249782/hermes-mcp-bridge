@@ -22,8 +22,8 @@ def main():
     warnings = [marker.decode() for marker in (b'ResourceWarning', b'Exception ignored in',
                 b'Exception ignored while finalizing database', b'PytestUnraisableExceptionWarning') if marker in raw]
     counts = re.findall(rb'^Ran (\d+) tests? in ', raw, re.M)
-    complete = counts == [b'37'] and re.search(rb'^OK\s*$', raw, re.M) is not None
-    print(json.dumps({"suite_exit": result.returncode, "expected_tests": 37,
+    complete = counts == [b'40'] and re.search(rb'^OK\s*$', raw, re.M) is not None
+    print(json.dumps({"suite_exit": result.returncode, "expected_tests": 40,
                       "complete_without_skips": complete, "warning_markers": warnings,
                       "r1_complete": False, "r2_authorized": False}), flush=True)
     return result.returncode or int(bool(warnings) or not complete)

@@ -19,7 +19,7 @@ private invocation/transport bindings still require review before operator use.
 Correlation data is not approval or authentication. All scope flags stay false.
 
 This directory initially preserves the reviewed candidate's runtime and test
-bytes. The new CI wrapper runs all 37 tests with no skip, predicate relaxation or
+bytes. The new CI wrapper runs all 40 tests with no skip, predicate relaxation or
 numeric-PID fallback. The CI step sets umask 022 before running this suite.
 Source modes are checked fail-closed by the loaders (group/other-writable sources
 are rejected). Full post-exit output is inspected for warnings even on failure.
@@ -38,3 +38,5 @@ any separately approved finite operator run. No merge, R2, release or deployment
 is authorized by this draft source or a green CI result.
 
 Three wrapper-loop negative controls use real subprocess pipes with fixture controller/identity admission: atomically buffered leaving, malformed JSON and partial-marker EOF. Each requires a single HOLD, no sample-window frame, no retry and a reaped direct child. They do not exercise the inventory body, real worker adoption, Windows transport or successful host sampling.
+
+Three identity controls additionally require real coherent-procfs child admission and a retained pidfd. One verifies exit rejection without a numeric-PID identity read; two inject changed UID/argv reads while the admitted child remains alive. They do not perform an actual UID transition, exec or PID reuse, and do not exercise wrapper HOLD latching or Windows transport.
