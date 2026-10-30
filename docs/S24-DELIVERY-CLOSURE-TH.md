@@ -11,8 +11,10 @@ VM/host/API/plugin action และไม่กำหนดเลขรุ่น
 
 ## 1. เป้าหมายและตำแหน่งปัจจุบัน
 
-Release ล่าสุดคือ v1.2.8 (22 ตุลาคม 2026); deployment record ยังระบุ production
-v1.2.7 การเผยแพร่กับ deployment เป็นคนละการตัดสินใจ ไม่ได้ตรวจ production สด
+Release ล่าสุดคือ v1.2.8 (22 ตุลาคม 2026); deployment record ล่าสุดระบุ production
+อัปเกรดเป็น signed v1.2.8 เมื่อ 22 ตุลาคม 2026 โดย signed v1.2.7 เป็น rollback baseline รุ่นเก่า
+ตาม [deployment record](V1.2.8-DEPLOYMENT-TH.md) การเผยแพร่กับ deployment เป็นคนละการตัดสินใจ
+checkpoint นี้ไม่ได้ตรวจ production สด
 งาน S24 ปัจจุบันสร้าง source/control/evidence สำหรับ acceptance
 ยังไม่เพิ่ม Local Hands write/exec และไม่ใช่ release candidate ใหม่
 

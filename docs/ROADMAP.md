@@ -6,7 +6,7 @@ The [S24 delivery and closure overview](S24-DELIVERY-CLOSURE-TH.md) is the curre
 
 Complete the existing #110 review, then consolidate remaining R1 observer integration, control coverage and exact-source review into one work package. The overview separates pre-R1 source/private bindings, finite R1/R2 metadata evidence, Phase B acceptance and release/deployment decisions. It neither relaxes approved controls nor grants any execution scope. Earlier dated checkpoints below remain historical.
 
-Latest published release remains v1.2.8; the recorded production deployment remains v1.2.7. No new release version/date is assigned. Local Hands v1.3.0 stays deferred at its terminal-status/subscription capability gate; S24 completion alone does not release it.
+Latest published release remains v1.2.8; the recorded production deployment is the signed v1.2.8 deployment of 22 October 2026. No new release version/date is assigned. Local Hands v1.3.0 stays deferred at its terminal-status/subscription capability gate; S24 completion alone does not release it.
 
 ## Approved maintenance target — v1.2.7 (released)
 
