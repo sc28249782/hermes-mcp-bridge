@@ -1,5 +1,13 @@
 # Roadmap
 
+## Current delivery checkpoint — S24 (30 October 2026)
+
+The [S24 delivery and closure overview](S24-DELIVERY-CLOSURE-TH.md) is the current milestone map. PRs #107–#109 are merged; #110 remains a draft local-handshake control increment, not operational acceptance. The merged observed suite has 40 tests; #110 CI has 43. Counts do not measure release readiness. R1 is PENDING_BINDINGS / NOT AUTHORIZED; R2 and operational Phase B remain HOLD.
+
+Complete the existing #110 review, then consolidate remaining R1 observer integration, control coverage and exact-source review into one work package. The overview separates pre-R1 source/private bindings, finite R1/R2 metadata evidence, Phase B acceptance and release/deployment decisions. It neither relaxes approved controls nor grants any execution scope. Earlier dated checkpoints below remain historical.
+
+Latest published release remains v1.2.8; the recorded production deployment is the signed v1.2.8 deployment of 22 October 2026. No new release version/date is assigned. Local Hands v1.3.0 stays deferred at its terminal-status/subscription capability gate; S24 completion alone does not release it.
+
 ## Approved maintenance target — v1.2.7 (released)
 
 [Scope decision](V1.2.7-RELEASE-DECISION-TH.md) records operator approval at 18:47:56 +07 on 20 October 2026 for the reviewed Codex read-ahead fix and Context P1. Preparation, final-target signing/publication and production deployment require their separate steps. [Release preparation](V1.2.7-RELEASE-PREP-TH.md) stamps candidate 1.2.7/v1.2.7 with reviewed input `07ec0069b952f08a49adbd0ec778c204f85ee282`. Production remains signed v1.2.6; no signed tag/publication/deployment is performed. Dedicated read-only mount evidence and the existing P2/Hands/Events boundaries remain as documented.

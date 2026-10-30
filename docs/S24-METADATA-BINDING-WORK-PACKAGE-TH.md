@@ -8,6 +8,10 @@ Evidence: [R0/R1 record](S24-PREBIND-R0-R1-RECORD-TH.md#s24-prebind-r0-r1-prepar
 
 <a id="s24-metadata-binding-work-package"></a>
 
+## Current delivery map — 30 October 2026
+
+The [delivery and closure overview](S24-DELIVERY-CLOSURE-TH.md) consolidates remaining R1 source/integration work, private bindings, separately approved R1/R2 evidence, and later Phase B/release gates. #107–#109 are merged; #110 is draft/unmerged. This current map does not rewrite the dated proposal/evidence below, waive controls or authorize guest/host activity. R1 NOT AUTHORIZED; R2 HOLD.
+
 ## 1. Result and scope
 
 The operator-supplied independent review approved PR #105 head `bced5155d56424dd731976c346d30577d6624e14`.
