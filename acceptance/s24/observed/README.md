@@ -19,7 +19,7 @@ private invocation/transport bindings still require review before operator use.
 Correlation data is not approval or authentication. All scope flags stay false.
 
 This directory initially preserves the reviewed candidate's runtime and test
-bytes. The new CI wrapper runs all 43 tests with no skip, predicate relaxation or
+bytes. The new CI wrapper runs all 66 tests with no skip, predicate relaxation or
 numeric-PID fallback. The CI step sets umask 022 before running this suite.
 Source modes are checked fail-closed by the loaders (group/other-writable sources
 are rejected). Full post-exit output is inspected for warnings even on failure.
@@ -42,3 +42,5 @@ Three wrapper-loop negative controls use real subprocess pipes with fixture cont
 Three identity controls additionally require real coherent-procfs child admission and a retained pidfd. One verifies exit rejection without a numeric-PID identity read; two inject changed UID/argv reads while the admitted child remains alive. They do not perform an actual UID transition, exec or PID reuse, and do not exercise wrapper HOLD latching or Windows transport.
 
 Three local host-handshake controls drive the unchanged wrapper through real stdin/stdout and observation pipes: successful post-check/final receipt, wrong challenge and duplicate post-check. Only the synthetic controller fixture waits on a test release pipe; no production worker is paused or modified. Controller loading and identity admission are fixtures. No memory sample, SSH or Windows host is involved, so these are local protocol integration evidence only.
+
+The continuing [R1 integration work package](R1-INTEGRATION.md) maps all eighteen design groups to evidence and blocking obligations. It reuses 22 unchanged baseline helper controls against the observed helper, adds a real controller/worker/collect failure-path control, and separates ten Windows CI ACL/CIM checks from offline checks. These additions do not complete source acceptance or prove a host sample during actual inventory.

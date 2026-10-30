@@ -62,3 +62,13 @@ jobs:
           $text = Get-Content -LiteralPath $log -Raw
           Write-Output $text
           if ($code -ne 0 -or $text -notmatch 'Windows process controls: 9 checks passed;') { throw 'process controls failed' }
+      - name: CI ACL and pinned real CIM sampler integration
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $log = Join-Path $env:RUNNER_TEMP 's24-observed-windows-integration.log'
+          & pwsh -NoLogo -NoProfile -NonInteractive -File ./acceptance/s24/observed/Test-WindowsIntegration.ps1 *> $log
+          $code = $LASTEXITCODE
+          $text = Get-Content -LiteralPath $log -Raw
+          Write-Output $text
+          if ($code -ne 0 -or $text -notmatch 'Windows integration controls: 10 checks passed;') { throw 'Windows integration controls failed' }

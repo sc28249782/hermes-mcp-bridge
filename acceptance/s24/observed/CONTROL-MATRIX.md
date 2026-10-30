@@ -2,8 +2,6 @@
 
 Date: 30 October 2026. Status: incomplete acceptance controls; no VM scope.
 
-Current closure criteria and stage ownership are in the [S24 delivery overview](../../../docs/S24-DELIVERY-CLOSURE-TH.md). This matrix mixes dated evidence checkpoints and outstanding obligations: its original local ERROR/NOT RUN entries remain historical, with later CI evidence below. The merged suite is 40 tests after #109; draft #110 reports 43 only on its own head. No row is closed, reclassified or made optional by this link. The next source increment must address the consolidated R1 integration criteria, not a test-count target.
-
 PR #107 merged as `be88eef8cbf8d9726773f8579c4eaccc32d43c3d`. Exact reviewed head `81f18c6376c3b3a816f759860874e5050bac2eaa` passed coherent-Linux 34/34 on Python 3.12/3.14 and Windows 14+9 controls in CI runs [observed](https://github.com/sc28249782/hermes-mcp-bridge/actions/runs/41048443885), [Tests](https://github.com/sc28249782/hermes-mcp-bridge/actions/runs/41048443886), [fixture](https://github.com/sc28249782/hermes-mcp-bridge/actions/runs/41048444032). Earlier local failures below remain historical; the mandatory adoption and Windows-runner evidence gaps are closed by CI, not by an operator run.
 
 | # | Required group | Actual control / outstanding obligation |
@@ -38,3 +36,7 @@ Follow-up control scope: `WrapperPipeControls` exercises the unchanged guest wra
 Identity follow-up: `WorkerIdentityControls` requires actual `ReadOnlyWorker` admission against a live disposable direct child with coherent procfs and a retained pidfd. Exit is real; UID/argv drift is injected only into subsequent identity reads. No identity predicate is stubbed during admission. Real PID reuse, UID change, exec and full wrapper handling remain unproved. The mandatory suite count is now 40; original tests are unchanged.
 
 Local host-handshake follow-up: `WrapperHostHandshakeControls` drives the actual guest wrapper loop with real host stdin/stdout, a subprocess observation pipe and a private log. It covers successful post-check through final receipt plus wrong-challenge and duplicate-post HOLD paths, requiring exact frame/log order, false scope flags and a reaped fixture child. Fixture source loading/identity admission and a test-only release pipe isolate orchestration; no real sample or inventory body runs. Rows 3/5/6/9/10 still require actual sampling, worker/transport and scheduling evidence as applicable; this is not Windows/SSH evidence. The mandatory suite count is now 43, retaining every earlier test.
+
+## Consolidated integration ledger
+
+Continue remaining A1–A5 work in [R1-INTEGRATION.md](R1-INTEGRATION.md), which supplies a disposition/evidence entry for all eighteen rows. Its E1–E3 controls add helper regression, an actual controller/worker/collect failure path and separate Windows CI ACL/CIM checks. Rows remain PARTIAL/OPEN pending exact-source review and the stated integration obligations; this checkpoint does not overwrite historical results or claim source acceptance.
