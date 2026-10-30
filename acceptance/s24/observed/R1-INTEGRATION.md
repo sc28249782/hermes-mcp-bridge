@@ -212,3 +212,41 @@ These are carrier-contract tests,
 not authorization for a finite operator R1/R2 attempt. Keep actual Windows entry
 bootstrap/ACL/CIM, collect join, operational supervision/cessation, real identity
 transitions and A6/A7 bindings OPEN pending independent review.
+
+## E7 — exact Windows entry/bootstrap/ACL/config-write/CIM path
+
+Test-WindowsEntry runs byte-pinned copies of Observe-S24Host, HostCoordinator,
+HostSupport, Read-S24HostSample and HostMemory as real Windows processes. It
+replaces no functions, process factory, source loader, config writer or CIM
+provider. The only transport is a compiled console fixture selected as the cfg.ssh
+executable; it validates the hardened argv, exchanges the existing frame contract
+and has no SSH/CIM/inventory/backend execution capability. Its receipt hash is a
+fixture value, not an inventory receipt. E6 is still the separate actual SSH test;
+E4 is the separate collect test. This does not join them into one production path.
+
+The new CI driver is guarded to GitHub-hosted Windows. EntryFixtureOwner sets
+only that new driver's token default owner to its existing user SID, inherited
+by its children; it does not change user, groups or privileges, impersonate,
+modify another token, or install a runtime helper. This is a test precondition
+for elevated CI's default Administrators ownership, analogous to explicit fixture
+file ownership. A newly created probe must already have the correct owner without
+repair. Only new fixture-directory ACLs are prepared; no existing file/account/
+service/credential or operator host is touched. Production ACL gates remain exact.
+If token setup or the installed .NET Framework compiler is unavailable, fail;
+there is no policy relaxation, package installation or unreviewed fallback.
+
+Six cases require: success with three actual pinned-CIM samples, six log records
+and a post-received peer trace; wrong challenge with before-only observation and
+HOLD; broad config ACL, coordinator drift, sampler drift and preexisting log
+rejected before any sample config or transport peer. The existing log bytes must
+be preserved. The real entry's termination flags are both false. Test teardown may
+stop only its newly owned entry child on failure; this is not operational cohort
+or provider-cessation proof. Entry output/exit and source-created sample files,
+log and peer trace distinguish success from HOLD. Existing budget/false-flag gates
+are unchanged; all runtime sources/pins remain byte-identical to reviewed E5.
+
+The runner adds six entry cases after the existing Windows 14/9/10/16 suites.
+It queries CIM on the CI machine only. No real SSH, collect, operator resource,
+host identity, R1 completion, R2 authorization or A6/A7 binding is claimed.
+Operational joined carrier, outer deadline/stop/writer coverage and identity
+transition/reuse disposition remain OPEN. No row closes automatically; keep draft.

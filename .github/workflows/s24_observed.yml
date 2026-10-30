@@ -120,3 +120,13 @@ jobs:
           $text = Get-Content -LiteralPath $log -Raw
           Write-Output $text
           if ($code -ne 0 -or $text -notmatch 'Windows coordinator controls: 16 cases passed;') { throw 'coordinator controls failed' }
+      - name: Exact Windows entry bootstrap and real CIM integration
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $log = Join-Path $env:RUNNER_TEMP 's24-observed-windows-entry.log'
+          & pwsh -NoLogo -NoProfile -NonInteractive -File ./acceptance/s24/observed/Test-WindowsEntry.ps1 *> $log
+          $code = $LASTEXITCODE
+          $text = Get-Content -LiteralPath $log -Raw
+          Write-Output $text
+          if ($code -ne 0 -or $text -notmatch 'Windows entry controls: 6 cases passed;') { throw 'entry controls failed' }
