@@ -116,3 +116,54 @@ window, SSH transport, operational source pins/inputs, host identity, production
 stop authority or full writer cessation. Actual joined production-carrier and
 coordinator/provider/output/log/deadline/stop obligations remain OPEN. No ledger
 row is closed or reclassified here; continue this same draft PR.
+
+## E5 — checked host coordinator and failure matrix (source change)
+
+This increment changes production PowerShell: Observe-S24Host now loads the
+separate HostCoordinator function from exact checked bytes with a new SHA pin and
+private-ACL admission. Bootstrap/config/path/support/sampler admission stays in
+the entry script. The coordinator retains the same before/during/after sample
+and transport checks, 3 s child/1 s reported sample checks, and 92/95 s bounds.
+Its state object retains the actual children for the entry script's existing
+scope-controlled cleanup. The same coordinator instance cannot be invoked twice;
+reuse after success or failure latches HOLD before another process factory call.
+
+Test-WindowsCoordinator invokes that production function with only process
+creation and new-fixture-config writing substituted. All fixture processes are
+real, owned pwsh children. The factory never invokes SSH/CIM, even if a configured
+executable is unexpected; source/hash/ACL bootstrap of the main entry point is
+outside these tests. E3 remains the separate actual pinned-CIM/ACL evidence.
+This delta is not a joined production SSH/collect/Windows-sample route.
+
+The 16-case matrix covers successful frame/sample/log order; low/late-reported/
+missing/corrupt/stderr/blocked/wrong-binding providers; wrong-challenge/EOF/
+corrupt/partial/flood transport; closed log before/during and log budget exhaustion.
+Negative cases require HOLD, no after sample, no accepted fixture post, and no new
+launch on repeated invocation. The blocked provider exercises the unchanged 3 s
+I/O deadline. Test cleanup verifies no-termination permission refusal for that
+still-live owned sample child, then explicitly permits only fixture-child stop.
+It does not approve operational termination flags or prove a blocked CIM service
+has stopped. Log write faults use actual disposed streams; log Flush/fsync and
+blocked-output/start/outer-owner/deadline enforcement obligations remain OPEN.
+
+The first matrix run exposed a real exited-transport cleanup defect: buffered
+stdin disposal could raise IOException after failed post delivery and bypass the
+remaining handle disposals. HostSupport now tolerates that stdin cleanup error
+only after the retained child is known exited, and always attempts remaining
+handle disposal in finally blocks. This grants no input-delivery proof; the
+coordinator's failed exchange remains HOLD. KILL(false) authority and start/handle
+revalidation are unchanged. Dependent support/sampler pins are recomputed, not
+relaxed. Earlier reviewed unchanged-PowerShell statements describe earlier deltas,
+not E5. Existing 14/9/10 Windows suites and Linux 69 controls stay enabled.
+
+Exact runtime source hashes for this increment:
+
+- Observe-S24Host.ps1: `45e6d28943941bf72459a1ac0bfc2f7f365c945784b1dba8d40006d8aa1dfe8f`
+- HostCoordinator.ps1: `f093a18b78693e98e1c5d3ce1f32fc62c41b184092d22b3f9a9ec810d651b2df`
+- HostSupport.ps1: `9724d3ce4fb68f2172ce18ae9ed6006443077de94358aa46d1a23846f95f8180`
+- Read-S24HostSample.ps1: `79ed818637b4a26a07f36fca4c8645446a2a5eab7a6882f37cab610f130cc3b3`
+
+Rows 9–14 and A3 receive coordinator-level fixture evidence only. Source acceptance,
+actual SSH transport/collect join, operational deadlines/stop and A6/A7 private
+bindings stay OPEN pending independent exact-source/evidence review. Keep this
+same PR draft; no matrix disposition or runtime scope is issued by E5.
