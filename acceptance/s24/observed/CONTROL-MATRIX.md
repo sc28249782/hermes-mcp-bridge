@@ -9,7 +9,7 @@ PR #107 merged as `be88eef8cbf8d9726773f8579c4eaccc32d43c3d`. Exact reviewed hea
 | 1 | G written but not consumed | Real worker stdin EOF/no-G returns readiness only thenHOLD; protocol rejects no-entry |
 | 2 | Worker alive before collect | Window pre-check rejects bound-only state; live guest integration still blocked |
 | 3 | Sample before entry/after leaving | Pure protocol rejection tests pass; real host sample integration outstanding |
-| 4 | Exit/PIDreuse/identity drift | Synthetic pid/digest/liveness rejection tests pass; mandatory real adoption ERROR at procfs coherence; real stale-handle/UID/argv matrix outstanding |
+| 4 | Exit/PIDreuse/identity drift | Synthetic pid/digest/liveness rejection tests pass; mandatory real adoption ERROR at procfs coherence; retained pidfd after real child exit and injected UID/argv revalidation controls added; actual UID transition/exec/PID reuse still outstanding |
 | 5 | Exit during sample | Protocol false-liveness rejection passes; end-to-end fast-exit integration outstanding |
 | 6 | Buffered leaving before post | State rejection after fed leaving passes; real wrapper drain rejects atomically buffered entered+leaving with no sample frame; controller/identity are fixtures; live post scheduling still outstanding |
 | 7 | Full/short/closed marker pipe | Actual disposable subprocesses exit72, no success output; identity is fabricated only for marker fault isolation |
@@ -32,3 +32,5 @@ the prior transfer writer's26controls. All runtime predicates and private bindin
 must be reviewed independently of this matrix and its synthetic test results.
 
 Follow-up control scope: `WrapperPipeControls` exercises the unchanged guest wrapper event loop, actual nonblocking observation pipe, subprocess EOF, private log and direct-child cleanup. It substitutes controller source loading, target admission and worker identity/liveness only inside the disposable test subprocess. It does not close real identity, successful post-check, host transport, provider, ACL or inventory-regression obligations. The CI runner now requires all 37 tests; no original test is removed or skipped.
+
+Identity follow-up: `WorkerIdentityControls` requires actual `ReadOnlyWorker` admission against a live disposable direct child with coherent procfs and a retained pidfd. Exit is real; UID/argv drift is injected only into subsequent identity reads. No identity predicate is stubbed during admission. Real PID reuse, UID change, exec and full wrapper handling remain unproved. The mandatory suite count is now 40; original tests are unchanged.
