@@ -2,6 +2,8 @@
 
 Date: 30 October 2026. Status: incomplete acceptance controls; no VM scope.
 
+Current closure criteria and stage ownership are in the [S24 delivery overview](../../../docs/S24-DELIVERY-CLOSURE-TH.md). This matrix mixes dated evidence checkpoints and outstanding obligations: its original local ERROR/NOT RUN entries remain historical, with later CI evidence below. The merged suite is 40 tests after #109; draft #110 reports 43 only on its own head. No row is closed, reclassified or made optional by this link. The next source increment must address the consolidated R1 integration criteria, not a test-count target.
+
 PR #107 merged as `be88eef8cbf8d9726773f8579c4eaccc32d43c3d`. Exact reviewed head `81f18c6376c3b3a816f759860874e5050bac2eaa` passed coherent-Linux 34/34 on Python 3.12/3.14 and Windows 14+9 controls in CI runs [observed](https://github.com/sc28249782/hermes-mcp-bridge/actions/runs/41048443885), [Tests](https://github.com/sc28249782/hermes-mcp-bridge/actions/runs/41048443886), [fixture](https://github.com/sc28249782/hermes-mcp-bridge/actions/runs/41048444032). Earlier local failures below remain historical; the mandatory adoption and Windows-runner evidence gaps are closed by CI, not by an operator run.
 
 | # | Required group | Actual control / outstanding obligation |
