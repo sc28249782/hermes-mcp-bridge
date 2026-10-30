@@ -101,7 +101,8 @@ foreach ($script:case in $cases) {
     } finally {
         foreach ($name in @('SampleChild','SshChild')) {
             if ($null -ne $state[$name]) {
-                if (-not $state[$name].Process.HasExited) {
+                if ($case -eq 'provider_blocked' -and $name -eq 'SampleChild') {
+                    Assert-S24 (-not $state[$name].Process.HasExited)
                     $refused=$false
                     try { Close-S24Child $state[$name] $false } catch { $refused=$true }
                     Assert-S24 $refused

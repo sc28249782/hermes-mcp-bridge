@@ -176,10 +176,19 @@ function Close-S24Child($State, [bool] $PermitTermination) {
         $State.Process.Kill($false) # Proposed owned-child-only stop; never Kill(entireProcessTree).
         Assert-S24 ($State.Process.WaitForExit(1000))
     }
-    $State.Process.StandardInput.Dispose()
-    $State.Process.StandardOutput.Dispose()
-    $State.Process.StandardError.Dispose()
-    $State.Process.Dispose()
+    # The retained child is now known exited. A failed/EOF transport can leave
+    # buffered stdin whose disposal flush raises IOException. Discarding that
+    # input is cleanup only, never proof of delivery or a successful exchange.
+    try {
+        try { $State.Process.StandardInput.Dispose() }
+        catch [IO.IOException] { } # Exited child only; coordinator HOLD is retained.
+    } finally {
+        try { $State.Process.StandardOutput.Dispose() }
+        finally {
+            try { $State.Process.StandardError.Dispose() }
+            finally { $State.Process.Dispose() }
+        }
+    }
 }
 
 function Assert-S24FalseFlags($Frame) {

@@ -3,7 +3,7 @@ param([Parameter(Mandatory)][string] $ConfigPath)
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 # Bootstrap compiles exactly checked bytes; no dot-source reopening after hashing.
-function Import-CheckedSupport([string] $Path, [string] $Digest='5b894a5563dd1ed1f9cbc0bf99e924065f90a53f5cf88b22d5711e93e4a52f7e') {
+function Import-CheckedSupport([string] $Path, [string] $Digest='9724d3ce4fb68f2172ce18ae9ed6006443077de94358aa46d1a23846f95f8180') {
     $item=Get-Item -LiteralPath $Path -Force
     while ($null -ne $item) {
         if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'HOLD: support path' }
@@ -44,7 +44,7 @@ try {
     }
     # Empty, separately staged SSH config prevents Match/exec or implicit configuration hooks.
     $emptyConfig=Open-S24Pinned $cfg.sshConfigFile 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
-    $samplePin=Open-S24Pinned $cfg.sampleScript 'b1c8387dca6c864066b0e58e345a9ba5f8cb1844e06c5211fd227b919745e321'
+    $samplePin=Open-S24Pinned $cfg.sampleScript '79ed818637b4a26a07f36fca4c8645446a2a5eab7a6882f37cab610f130cc3b3'
     $logPath=Join-Path $cfg.outputDirectory 'host-observer.jsonl'
     $log=[IO.FileStream]::new($logPath,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::Read,4096,[IO.FileOptions]::WriteThrough)
     Assert-S24PrivateAcl $logPath

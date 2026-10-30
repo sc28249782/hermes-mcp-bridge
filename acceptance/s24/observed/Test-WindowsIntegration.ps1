@@ -56,9 +56,9 @@ try {
         'ContainerInherit,ObjectInherit','None','Allow')
     $acl.AddAccessRule($rule)
     Set-Acl -LiteralPath $root -AclObject $acl
-    $pins=@{'HostSupport.ps1'='5b894a5563dd1ed1f9cbc0bf99e924065f90a53f5cf88b22d5711e93e4a52f7e';
+    $pins=@{'HostSupport.ps1'='9724d3ce4fb68f2172ce18ae9ed6006443077de94358aa46d1a23846f95f8180';
             'HostMemory.psm1'='4509e645295f6b5748d9dbdbe2ab10221386ec4504c788a3bd121f574a5f09f8';
-            'Read-S24HostSample.ps1'='b1c8387dca6c864066b0e58e345a9ba5f8cb1844e06c5211fd227b919745e321'}
+            'Read-S24HostSample.ps1'='79ed818637b4a26a07f36fca4c8645446a2a5eab7a6882f37cab610f130cc3b3'}
     foreach ($name in @('HostSupport.ps1','HostMemory.psm1','Read-S24HostSample.ps1')) {
         Assert-S24 ((Get-FileHash -LiteralPath (Join-Path $PSScriptRoot $name) -Algorithm SHA256).Hash.ToLowerInvariant() -ceq $pins[$name])
         Copy-Item -LiteralPath (Join-Path $PSScriptRoot $name) -Destination (Join-Path $root $name)
