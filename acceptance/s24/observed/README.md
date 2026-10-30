@@ -9,7 +9,7 @@ operational configuration and execution packets are deliberately absent.
 
 The helper retains the original collect body as `_collect_body`; the test compares
 its AST with the immutable public baseline fixture. Entry/leaving write failure
-is fatal exit72. The worker never waits for a host ACK or sleeps to manufacture a
+is fatal exit 72. The worker never waits for a host ACK or sleeps to manufacture a
 sampling window. Fast completion can produce HOLD without a retry.
 
 The guest wrapper owns only its direct controller and observes the bound worker
@@ -19,14 +19,15 @@ private invocation/transport bindings still require review before operator use.
 Correlation data is not approval or authentication. All scope flags stay false.
 
 This directory initially preserves the reviewed candidate's runtime and test
-bytes. The new CI wrapper runs all34 tests with no skip, predicate relaxation or
-numeric-PID fallback. Source-fixture creation declares umask022; source modes are
-checked normally. Full post-exit output is inspected for warnings even on failure.
-Windows jobs parse the sources and run14 offline plus9 disposable-process checks;
+bytes. The new CI wrapper runs all 34 tests with no skip, predicate relaxation or
+numeric-PID fallback. The CI step sets umask 022 before running this suite.
+Source modes are checked fail-closed by the loaders (group/other-writable sources
+are rejected). Full post-exit output is inspected for warnings even on failure.
+Windows jobs parse the sources and run 14 offline plus 9 disposable-process checks;
 they do not launch SSH, query CIM or access an operator preparation directory.
 
-The author container's earlier suite had33passes/1procfs-coherence error. An
-independent review reported34/34 on coherent Linux. Neither result fills the
+The author container's earlier suite had 33 passes / 1 procfs-coherence error. An
+independent review reported 34/34 on coherent Linux. Neither result fills the
 remaining real-integration rows of [CONTROL-MATRIX.md](CONTROL-MATRIX.md).
 CI results must be read from the exact PR head; this document claims no new pass.
 
