@@ -287,3 +287,14 @@ Existing Linux 69, Windows 14/9/10/16/6 and E6 carrier controls remain unchanged
 A4 receives real exec/UID/reuse evidence only after exact-head CI and independent
 review. No ledger row closes automatically. Full Windows/collect/CIM route,
 operational supervision/stop/writer coverage and A6/A7 bindings stay OPEN.
+
+## E9 — next joined-path design, before provisioning
+
+[Windows/Linux join proposal](WINDOWS-LINUX-JOIN-PLAN.md) corrects the direction:
+Windows needs the SSH client; sshd belongs in the Linux guest, so missing Windows
+sshd is not a production prerequisite. It proposes conditional fresh-WSL2 CI
+setup with UNBOUND rootfs/kernel/source/lifecycle controls, declares fixture-only
+controller/readers versus operational R1, and requires measured causal timing
+before any sampler actor/lifetime change. It adds no controls/runtime/provisioning
+or gate closure. Review route/actors/failure/stop design before setup source;
+continue on #112. Existing operational and A6/A7 gaps remain OPEN.

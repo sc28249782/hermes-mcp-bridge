@@ -54,3 +54,5 @@ E6 exercises the existing coordinator through real OpenSSH on a disposable Linux
 E7 runs the exact Windows entry/bootstrap/ACL/config writer and real pinned CIM without function replacements, using only a transport executable fixture. A new CI driver prepares its own default token owner before creating fixtures; no runtime token/ACL repair is added. Six entry cases supplement E3/E5/E6 but do not establish an actual SSH/collect/CIM join.
 
 E8 adds mandatory real exec/UID/PID-reuse controls in private Linux CI PID/mount namespaces, plus read-only Windows carrier capability facts. It changes no runtime source or predicate and writes no host sysctl. Capability absence/UNKNOWN is not route proof, a waiver or permission to provision a guest.
+
+The [E9 joined-path design](WINDOWS-LINUX-JOIN-PLAN.md) separates conditional CI guest setup, fixture-based causal join and later operational R1. Windows is the SSH client; a Windows SSH server is not required. Rootfs/kernel/lifecycle bindings and any persistent-sampler actor change require review before implementation; no provisioning or runtime change is made by this proposal.
