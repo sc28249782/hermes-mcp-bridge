@@ -118,6 +118,17 @@ try {
     [Console]::Error.WriteLine('CI integration failed at stage: '+$stage)
     # Test-only stack contains fixture/source locations, no operator data.
     [Console]::Error.WriteLine($_.ScriptStackTrace)
+    if ($stage -eq 'receive-before') {
+        # Diagnostic copy only, never counted as a passing production-source test.
+        # Retain the original failure regardless of this probe's outcome.
+        $diagnostic=Join-Path $root 'diagnostic-sampler.ps1'
+        $code=[IO.File]::ReadAllText((Join-Path $root 'Read-S24HostSample.ps1'))
+        $code=$code.Replace("[Console]::Error.WriteLine('HOLD: host sample incomplete; no retry.')",
+            '[Console]::Error.WriteLine($_.ScriptStackTrace); [Console]::Error.WriteLine($_.Exception.GetType().FullName)')
+        [IO.File]::WriteAllText($diagnostic,$code)
+        Set-FixtureOwner $diagnostic
+        & $pwsh -NoLogo -NoProfile -NonInteractive -File $diagnostic -ConfigPath $path | Out-Null
+    }
     throw
 } finally {
     if ($null -ne $child) { Close-S24Child $child $true }
