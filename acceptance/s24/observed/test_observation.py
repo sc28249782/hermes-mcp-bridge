@@ -295,6 +295,87 @@ print('BAD')
         self.assertNotIn(b'inventory_result',result.stdout)
 
 
+class WrapperPipeControls(unittest.TestCase):
+    """Real wrapper loop/pipes; controller and identity admission are fixtures.
+
+    No inventory body, operator configuration, SSH or host sampling is invoked.
+    These negative controls do not establish real worker adoption or transport.
+    """
+    def fixture(self, mode):
+        frames = p.encode(event('worker_bound'))
+        if mode == 'fast_leave':
+            frames += p.encode(event('collect_entered')) + p.encode(event('collect_leaving'))
+        elif mode == 'malformed':
+            frames += b'{"kind":}\n'
+        elif mode == 'partial_eof':
+            frames += b'{"kind":'
+        else:
+            self.fail('unknown fixture')
+        # A single atomic write queues the complete fixture before any drain.
+        self.assertLessEqual(len(frames), p.FRAME_LIMIT)
+        controller_script = (
+            'import os,sys; fd=int(sys.argv[1]); '
+            f'raw={frames!r}; assert os.write(fd,raw)==len(raw); os.close(fd)')
+        with tempfile.TemporaryDirectory() as root:
+            log_path = str(Path(root) / 'wrapper.jsonl')
+            script = f'''
+import os,sys,types
+sys.path.insert(0,{str(HERE)!r})
+import observer_guest as g
+g.P=g._load_observation_protocol()
+real_popen=g.subprocess.Popen
+children=[]
+def launch(argv,**kwargs):
+    fd=kwargs['pass_fds'][0]
+    child=real_popen([sys.executable,'-I','-S','-B','-c',{controller_script!r},str(fd)],**kwargs)
+    children.append(child)
+    return child
+class FixtureTarget:
+    def __init__(self,child,argv): self.child=child
+    def send_signal(self,sig): self.child.send_signal(sig)
+    def close(self): pass
+class FixtureWorker:
+    def __init__(self,*args): self.fd=os.open('/dev/null',os.O_RDONLY)
+    def live(self): return True
+g.subprocess.Popen=launch
+g.P.load_source=lambda *args: types.SimpleNamespace(Target=FixtureTarget,SCOPE_FLAGS=tuple(g.P.FALSE_FLAGS))
+g.ReadOnlyWorker=FixtureWorker
+# Keep the host pipe open and empty: EOF must not mask the marker failure.
+host_read,host_write=os.pipe()
+sys.stdin=os.fdopen(host_read,'r')
+try:
+    code=g.run({{'log_path':{log_path!r},'binding_sha256':{'a'*64!r},'challenge':{'b'*64!r},
+        'controller_python':sys.executable,'root':'/synthetic','attempt_name':'r1-remaining-fixture',
+        'python_argv':sys.executable,'health_port':18081,'scope_start_epoch':0}})
+    assert len(children)==1 and children[0].poll() is not None
+finally:
+    os.close(host_write)
+    sys.stdin.close()
+raise SystemExit(code)
+'''
+            result = subprocess.run([sys.executable,'-W','error::ResourceWarning','-I','-S','-B','-c',script],
+                                    stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=5)
+            self.assertEqual(result.returncode,2,result.stderr)
+            self.assertEqual(result.stderr,b'')
+            output = [p.loads(line) for line in result.stdout.splitlines()]
+            self.assertEqual([frame['kind'] for frame in output],['hold'])
+            self.assertTrue(all(frame[key] is False for frame in output for key in p.FALSE_FLAGS))
+            logged = [p.loads(line) for line in Path(log_path).read_bytes().splitlines()]
+            self.assertEqual([frame['kind'] for frame in logged],
+                             (['worker_bound','collect_entered','collect_leaving','hold']
+                              if mode == 'fast_leave' else
+                              ['hold'] if mode == 'malformed' else ['worker_bound','hold']))
+
+    def test_wrapper_buffered_leaving_never_opens_or_resamples(self):
+        self.fixture('fast_leave')
+
+    def test_wrapper_malformed_real_pipe_holds(self):
+        self.fixture('malformed')
+
+    def test_wrapper_partial_marker_eof_holds(self):
+        self.fixture('partial_eof')
+
+
 class RequiredRealAdoptionControls(unittest.TestCase):
     def test_real_owned_child_pidfd_adoption(self):
         # This deliberately fails on incoherent procfs. No skip or predicate relaxation.
