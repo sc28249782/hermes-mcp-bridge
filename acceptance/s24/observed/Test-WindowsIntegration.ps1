@@ -9,14 +9,26 @@ $root=Join-Path ([IO.Path]::GetTempPath()) ('s24-integration-'+[Guid]::NewGuid()
 $null=New-Item -ItemType Directory -Path $root
 $passed=0
 $child=$null
+$stage='fixture-acl'
 function Check([bool] $Condition) {
     if (-not $Condition) { throw 'Windows integration control failed' }
     $script:passed++
 }
 function Config([string] $Name, [hashtable] $Value) {
     $path=Join-Path $root ($Name+'.json')
-    Write-S24New $path (ConvertTo-Json -InputObject $Value -Compress)
+    # Elevated CI tokens may default new-file ownership to Administrators.
+    # Prepare only this new fixture explicitly; never relax the runtime gate.
+    $raw=[Text.Encoding]::UTF8.GetBytes((ConvertTo-Json -InputObject $Value -Compress))
+    $s=[IO.FileStream]::new($path,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write)
+    try { $s.Write($raw,0,$raw.Length); $s.Flush($true) } finally { $s.Dispose() }
+    Set-FixtureOwner $path
     return $path
+}
+function Set-FixtureOwner([string] $Path) {
+    $fixtureAcl=Get-Acl -LiteralPath $Path
+    $fixtureAcl.SetOwner([Security.Principal.WindowsIdentity]::GetCurrent().User)
+    Set-Acl -LiteralPath $Path -AclObject $fixtureAcl
+    Assert-S24PrivateAcl $Path
 }
 function Launch([string] $Path) {
     $state=Start-S24Child $pwsh @('-NoLogo','-NoProfile','-NonInteractive','-File',
@@ -46,6 +58,7 @@ try {
     Set-Acl -LiteralPath $root -AclObject $acl
     foreach ($name in @('HostSupport.ps1','HostMemory.psm1','Read-S24HostSample.ps1')) {
         Copy-Item -LiteralPath (Join-Path $PSScriptRoot $name) -Destination (Join-Path $root $name)
+        Set-FixtureOwner (Join-Path $root $name)
     }
     Assert-S24PrivateAcl $root
     Assert-S24PrivateAcl (Join-Path $root 'HostSupport.ps1')
@@ -53,6 +66,7 @@ try {
     $binding='a'*64; $challenge='b'*64
     $module=Join-Path $root 'HostMemory.psm1'
     foreach ($phase in @('before','during','after')) {
+        $stage='sampler-'+$phase
         $path=Config $phase @{binding=$binding;challenge=$challenge;modulePath=$module;phase=$phase}
         $child=Launch $path
         $clock=[Diagnostics.Stopwatch]::StartNew()
@@ -69,6 +83,7 @@ try {
         Check ($child.Queue.Count -eq 0)
         Close-S24Child $child $false; $child=$null
     }
+    $stage='negative-acl-and-input'
     $world=[Security.Principal.SecurityIdentifier]::new('S-1-1-0')
     $badAcl=Get-Acl -LiteralPath $root
     $badAcl.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new($world,'Read','Allow'))
@@ -95,6 +110,9 @@ try {
     Reject-Sampler (Config 'bad-module' @{binding=$binding;challenge=$challenge;modulePath=$module;phase='before'})
     Assert-S24 ($passed -eq 10)
     [Console]::Out.WriteLine("Windows integration controls: $passed checks passed; CI ACL and CIM only; no SSH/operator evidence")
+} catch {
+    [Console]::Error.WriteLine('CI integration failed at stage: '+$stage)
+    throw
 } finally {
     if ($null -ne $child) { Close-S24Child $child $true }
     # Preserve fixtures for failed CI diagnosis; runner teardown owns their lifetime.
