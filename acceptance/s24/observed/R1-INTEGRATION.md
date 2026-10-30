@@ -158,8 +158,8 @@ not E5. Existing 14/9/10 Windows suites and Linux 69 controls stay enabled.
 
 Exact runtime source hashes for this increment:
 
-- Observe-S24Host.ps1: `45e6d28943941bf72459a1ac0bfc2f7f365c945784b1dba8d40006d8aa1dfe8f`
-- HostCoordinator.ps1: `f093a18b78693e98e1c5d3ce1f32fc62c41b184092d22b3f9a9ec810d651b2df`
+- Observe-S24Host.ps1: `8ea28ed095904039b778bdd0c9b97b65a369b7cd1148447a1657674a22eaca8c`
+- HostCoordinator.ps1: `38d8c10208b8816c95f46c21c7448db4f905d8967e2bc29bc4f8ec5392dc6151`
 - HostSupport.ps1: `9724d3ce4fb68f2172ce18ae9ed6006443077de94358aa46d1a23846f95f8180`
 - Read-S24HostSample.ps1: `79ed818637b4a26a07f36fca4c8645446a2a5eab7a6882f37cab610f130cc3b3`
 

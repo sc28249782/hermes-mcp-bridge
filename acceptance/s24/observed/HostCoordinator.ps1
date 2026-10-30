@@ -18,7 +18,7 @@ function Invoke-S24HostCoordinator([hashtable] $State) {
             $State.Log.Write($bytes,0,$bytes.Length)
             $State.Log.Flush($true)
         }
-    
+
         function Get-OneSample([string] $Phase) {
             Assert-S24 ($clock.Elapsed.TotalSeconds -lt 92)
             $sampleCfg=Join-Path $cfg.outputDirectory ("sample-"+$Phase+".json")
@@ -43,7 +43,7 @@ function Invoke-S24HostCoordinator([hashtable] $State) {
             Close-S24Child $State.SampleChild $false
             $State.SampleChild=$null
         }
-    
+
         function Receive-Transport([string] $Kind) {
             $frame=Receive-S24Line $State.SshChild $clock 95
             foreach ($name in @('kind','binding','challenge')) { Assert-S24 ($frame[$name] -is [string]) }
@@ -54,7 +54,7 @@ function Invoke-S24HostCoordinator([hashtable] $State) {
             Assert-S24 ((($frame.Keys|Sort-Object)-join ',') -ceq (($expected|Sort-Object)-join ','))
             Write-Observation $frame
         }
-    
+
         Get-OneSample 'before'
         $remote="'"+$cfg.guestPython+"' -I -S -B '"+$cfg.guestScript+"' --config '"+$cfg.guestConfig+"'"
         $arguments=@('-T','-F',$cfg.sshConfigFile,'-p',[string]$cfg.port,'-i',$cfg.identityFile,

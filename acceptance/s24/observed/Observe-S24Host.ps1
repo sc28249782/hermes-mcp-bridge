@@ -28,7 +28,7 @@ try {
     . (Import-CheckedSupport (Join-Path $PSScriptRoot 'HostSupport.ps1'))
     Assert-S24PrivateAcl (Join-Path $PSScriptRoot 'HostSupport.ps1')
     Assert-S24PrivateAcl (Join-Path $PSScriptRoot 'HostCoordinator.ps1')
-    . (Import-CheckedSupport (Join-Path $PSScriptRoot 'HostCoordinator.ps1') 'f093a18b78693e98e1c5d3ce1f32fc62c41b184092d22b3f9a9ec810d651b2df')
+    . (Import-CheckedSupport (Join-Path $PSScriptRoot 'HostCoordinator.ps1') '38d8c10208b8816c95f46c21c7448db4f905d8967e2bc29bc4f8ec5392dc6151')
     Assert-S24PrivateAcl $ConfigPath
     $cfg=Read-S24Config $ConfigPath
     $wanted='binding,challenge,destination,guestConfig,guestPython,guestScript,identityFile,knownHosts,modulePath,outputDirectory,permitOwnedSampleTermination,permitOwnedSshTermination,port,pwsh,sampleScript,ssh,sshConfigFile'

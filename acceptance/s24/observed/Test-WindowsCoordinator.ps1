@@ -10,7 +10,7 @@ foreach ($name in @('HostCoordinator.ps1','host_flow_fixture.ps1','Observe-S24Ho
     if ($errors.Count -ne 0) { throw 'coordinator source parse failed' }
 }
 $digest=(Get-FileHash (Join-Path $PSScriptRoot 'HostCoordinator.ps1') -Algorithm SHA256).Hash.ToLowerInvariant()
-if ($digest -cne 'f093a18b78693e98e1c5d3ce1f32fc62c41b184092d22b3f9a9ec810d651b2df') { throw 'coordinator source hash failed' }
+if ($digest -cne '38d8c10208b8816c95f46c21c7448db4f905d8967e2bc29bc4f8ec5392dc6151') { throw 'coordinator source hash failed' }
 . (Join-Path $PSScriptRoot 'HostSupport.ps1')
 . (Join-Path $PSScriptRoot 'HostCoordinator.ps1')
 $script:originalStart=(Get-Command Start-S24Child).ScriptBlock
