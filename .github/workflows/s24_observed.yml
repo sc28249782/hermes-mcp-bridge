@@ -9,6 +9,44 @@ permissions:
   contents: read
 
 jobs:
+  observed-real-identity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Real identity transitions and PID reuse in private namespaces
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha }}'
+          identity_log="$RUNNER_TEMP/s24-real-identity.log"
+          set +e
+          sudo -n --preserve-env=GITHUB_ACTIONS,RUNNER_ENVIRONMENT,RUNNER_OS "$(command -v python)" -W error::ResourceWarning -I -S -B acceptance/s24/observed/run_identity_namespace_controls.py > "$identity_log" 2>&1
+          identity_exit=$?
+          set -e
+          cat "$identity_log"
+          python -I -S -B - "$identity_log" "$identity_exit" <<'PY'
+          from pathlib import Path
+          import json, sys
+          raw=Path(sys.argv[1]).read_bytes()
+          markers=(b'ResourceWarning',b'Exception ignored in',b'Exception ignored while finalizing')
+          warnings=[marker.decode() for marker in markers if marker in raw]
+          print(json.dumps({'identity_exit':int(sys.argv[2]),'warning_markers':warnings}),flush=True)
+          assert not warnings and sys.argv[2]=='0', 'identity controls failed'
+          assert raw.count(b'Identity namespace controls: 3 cases passed;')==1
+          print('Identity namespace post-exit warning gate: CLEAN')
+          PY
+
   observed-ssh-carrier:
     runs-on: ubuntu-24.04
     timeout-minutes: 7
@@ -78,6 +116,12 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+      - name: Read-only Windows carrier capability inventory
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & pwsh -NoLogo -NoProfile -NonInteractive -File ./acceptance/s24/observed/Test-WindowsCarrierCapabilities.ps1
+          if ($LASTEXITCODE -ne 0) { throw 'capability inventory failed' }
       - name: PowerShell parser and offline controls
         shell: pwsh
         run: |

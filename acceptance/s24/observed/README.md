@@ -52,3 +52,5 @@ E5 changes the production host PowerShell coordinator/support and their pins; ea
 E6 exercises the existing coordinator through real OpenSSH on a disposable Linux CI loopback server with fresh fixture account/keys. Peer/sample and config-writing remain fixtures; no operator SSH/VM/account action or complete Windows/CIM/collect join is claimed. See the ledger for actors, teardown and remaining gates.
 
 E7 runs the exact Windows entry/bootstrap/ACL/config writer and real pinned CIM without function replacements, using only a transport executable fixture. A new CI driver prepares its own default token owner before creating fixtures; no runtime token/ACL repair is added. Six entry cases supplement E3/E5/E6 but do not establish an actual SSH/collect/CIM join.
+
+E8 adds mandatory real exec/UID/PID-reuse controls in private Linux CI PID/mount namespaces, plus read-only Windows carrier capability facts. It changes no runtime source or predicate and writes no host sysctl. Capability absence/UNKNOWN is not route proof, a waiver or permission to provision a guest.

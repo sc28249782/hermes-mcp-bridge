@@ -250,3 +250,40 @@ It queries CIM on the CI machine only. No real SSH, collect, operator resource,
 host identity, R1 completion, R2 authorization or A6/A7 binding is claimed.
 Operational joined carrier, outer deadline/stop/writer coverage and identity
 transition/reuse disposition remain OPEN. No row closes automatically; keep draft.
+
+## E8 — real identity transitions/reuse and CI carrier capability facts
+
+The namespace-only Linux job runs on both supported Python versions. It requires
+root on GitHub-hosted Linux CI and creates private PID and mount namespaces with
+new procfs. Before the only ns_last_pid write, require PID 1, namespace inode
+changes from the outer harness and /proc/self/stat PID coherence. The setting is
+virtualized per PID namespace ([Linux man-pages](https://man7.org/linux/man-pages/man7/pid_namespaces.7.html));
+there is no host sysctl write, host PID-max change, existing account/service action
+or fallback. Unavailable namespace privileges fail the control, never skip it.
+Root-owned NEW exact-hash source copies satisfy the unchanged loader owner gate;
+the checkout and runtime predicates are not repaired/relaxed.
+
+Actual ReadOnlyWorker admission/pidfd/identity reads are used throughout. Three
+cases require real exec to a different binary/argv with the same PID/start ticks;
+real UID/GID drop to 65534 while the worker remains live (false or unreadable
+identity must fail closed); and exact numeric PID reuse after exit/reap with
+changed start ticks, new live adoption and a still-dead old retained handle.
+No mocks supply identity/liveness/start ticks. Cleanup uses a separate parent-
+owned pidfd for the test's direct child, never signal authority on the read-only
+observer handle. The 10-second child and 35-second namespace deadlines are fixture
+bounds; no inventory worker/collect executes or is delayed. The unshare parent
+uses kill-child containment on its own namespace init; outer timeout is 45 s.
+Post-exit warning scans and the three-case completion marker are mandatory.
+These are identity primitive controls, not full wrapper/SSH/cessation acceptance.
+
+WindowsCarrierCapabilities records only CI image client/server file presence,
+service status and WSL/VirtualMachinePlatform feature states. UNKNOWN values stay
+unknown; no guest or SSH server is started, no feature enabled, package installed,
+service changed or operator machine queried. Binary/feature presence is not a
+working route. Actual results must guide the next Windows join design before
+adding another substitute-path test. This inventory is not a passing R1 control.
+
+Existing Linux 69, Windows 14/9/10/16/6 and E6 carrier controls remain unchanged.
+A4 receives real exec/UID/reuse evidence only after exact-head CI and independent
+review. No ledger row closes automatically. Full Windows/collect/CIM route,
+operational supervision/stop/writer coverage and A6/A7 bindings stay OPEN.
