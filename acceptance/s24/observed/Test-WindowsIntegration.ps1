@@ -68,10 +68,14 @@ try {
     foreach ($phase in @('before','during','after')) {
         $stage='sampler-'+$phase
         $path=Config $phase @{binding=$binding;challenge=$challenge;modulePath=$module;phase=$phase}
+        $stage='launch-'+$phase
         $child=Launch $path
         $clock=[Diagnostics.Stopwatch]::StartNew()
+        $stage='receive-'+$phase
         $sample=Receive-S24Line $child $clock 20
+        $stage='exit-'+$phase
         Wait-S24Exit $child $clock 20
+        $stage='sample-fields-'+$phase
         Assert-S24 ($sample.evidence_class -ceq 'local-read-only-windows-host-memory')
         Assert-S24 ($sample.binding_sha256 -ceq $binding -and $sample.challenge -ceq $challenge -and $sample.phase -ceq $phase)
         Assert-S24 ($sample.elapsed_seconds -ge 0 -and $sample.elapsed_seconds -le 1)
@@ -112,6 +116,8 @@ try {
     [Console]::Out.WriteLine("Windows integration controls: $passed checks passed; CI ACL and CIM only; no SSH/operator evidence")
 } catch {
     [Console]::Error.WriteLine('CI integration failed at stage: '+$stage)
+    # Test-only stack contains fixture/source locations, no operator data.
+    [Console]::Error.WriteLine($_.ScriptStackTrace)
     throw
 } finally {
     if ($null -ne $child) { Close-S24Child $child $true }
