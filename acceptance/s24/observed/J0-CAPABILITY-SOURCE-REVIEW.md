@@ -44,7 +44,7 @@ Windows version, plus size, SHA256 and file-version snapshots at four locations:
 
 The existing workflow step runs this checked-in script in a fresh pwsh child.
 The script invokes none of these files. It reads only these fixed candidates,
-rejects directories/reparse-point files and sizes outside 1–256 MiB, and hashes
+rejects directories/reparse-point files and sizes outside 1 byte–256 MiB, and hashes
 at most four files. No recursion, user-profile/Store scan, registry or distro
 listing, WSL/native child invocation, download, install, import, boot, feature or
 service mutation is included. Missing/inaccessible files remain
