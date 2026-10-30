@@ -35,11 +35,14 @@ jobs:
           cat "$carrier_log"
           python -I -S -B - "$carrier_log" "$carrier_exit" <<'PY'
           from pathlib import Path
+          import json
           import sys
           raw=Path(sys.argv[1]).read_bytes()
           markers=(b'ResourceWarning',b'Exception ignored in',b'Exception ignored while finalizing')
+          warnings=[marker.decode() for marker in markers if marker in raw]
+          print(json.dumps({'carrier_exit':int(sys.argv[2]),'warning_markers':warnings}),flush=True)
+          assert not warnings, 'post-exit warning gate failed'
           assert sys.argv[2]=='0', 'carrier fixture failed'
-          assert not any(marker in raw for marker in markers), 'post-exit warning gate failed'
           assert raw.count(b'SSH carrier controls: 3 cases passed;')==1, 'carrier completion marker missing'
           print('SSH carrier post-exit warning gate: CLEAN')
           PY
