@@ -63,3 +63,8 @@ fixed-path WSL/SSH/kernel file snapshots without invoking those binaries. J0 is
 not ready: archive contents, guest binaries, setup, coexistence and lifecycle
 bindings remain open. This checkpoint performs no guest provisioning/start and
 changes no runtime/pins or source-acceptance/operational authority.
+
+[E11 artifact-preparation source](ARTIFACT-PREPARATION-REVIEW.md) is available for
+review with 13 synthetic offline controls. CI does not execute the live download
+command. No archive verification, prepared image, complete setup source or guest
+provisioning is claimed; those require actual artifact evidence and later review.

@@ -311,3 +311,16 @@ J0 remains NOT READY, with exact artifact/setup/lifecycle/source bindings still
 UNBOUND. Review this source/capability checkpoint before preparing setup source,
 then review provisioning separately. No ledger row/source acceptance/operational
 scope closes; runtime/pins and existing suites stay unchanged. Keep #112 draft.
+
+## E11 — artifact-preparation source before guest setup
+
+[Exact preparation-source review](ARTIFACT-PREPARATION-REVIEW.md) supplies a fixed
+provider URL/digest/receipt pin, bounded HTTPS/temporary-file/hash-before-parser
+inspection driver and thirteen offline synthetic controls. CI executes those
+controls only; the live download command is not wired in or executed. The driver
+cannot extract, install, invoke WSL or provision even on success. Header catalog
+and selected regular-file hashes are not a complete content tree/prepared image;
+links remain unresolved. Actual archive evidence, guest package/image/setup
+source and Windows kernel/coexistence/owner/stop bindings remain missing. This is
+the artifact-preparation portion for source review, not completion of setup or
+J0. No row closes and runtime/pins/timers remain unchanged; keep #112 draft.
