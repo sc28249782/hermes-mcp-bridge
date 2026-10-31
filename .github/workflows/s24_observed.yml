@@ -9,6 +9,56 @@ permissions:
   contents: read
 
 jobs:
+  observed-catalog-proposal:
+    # REVIEW ONLY: operator must separately approve one fourth live invocation.
+    # Activation is a later one-line removal of this job-level false guard.
+    if: ${{ false }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Select one approved metadata catalog checkpoint (attempt four)
+        id: select
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha }}'
+          if test "$GITHUB_RUN_ATTEMPT" = 1 && test "$(git log -1 --format=%s)" = 'ci: run approved metadata catalog attempt four once'; then
+            echo 'run=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'run=false' >> "$GITHUB_OUTPUT"
+            echo 'Catalog live attempt NOT ATTEMPTED: checkpoint or attempt mismatch'
+          fi
+      - name: Proposed exact-source catalog attempt; no provisioning
+        if: steps.select.outputs.run == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -I -S -B - <<'PYVERIFY'
+          from pathlib import Path
+          import hashlib
+          root=Path('acceptance/s24/observed')
+          pins={'catalog_join_artifact.py':'cc170eef2afabce715d1b0cb47f39e6a35b330f22fdbbe09d5835cb4bbb8dfb5',
+                'gate_artifact_catalog.py':'266ef06341db67c95c069846967733c3bbc0cb4910e9898e5a4966f194332182',
+                'J0-PROVIDER-SOURCE.json':'41e2e56ff490475d899894e61c93b0e518439551f193031a8bef38b447805fbc'}
+          for name, expected in pins.items():
+              assert hashlib.sha256((root/name).read_bytes()).hexdigest()==expected, 'reviewed catalog source drift'
+          PYVERIFY
+          catalog_log="$RUNNER_TEMP/s24-catalog-proposed.log"
+          set +e
+          python -W error::ResourceWarning -I -S -B acceptance/s24/observed/catalog_join_artifact.py --download-and-catalog-metadata > "$catalog_log" 2>&1
+          catalog_exit=$?
+          set -e
+          # Never cat or upload raw output. Gate validates before emitting data.
+          # Exit 2 remains failure; no retry, alternate lane or fallback.
+          python -W error::ResourceWarning -I -S -B acceptance/s24/observed/gate_artifact_catalog.py "$catalog_log" "$catalog_exit"
+
   observed-diagnostic-proposal:
     # Source-review proposal ONLY. Operator approval plus a separate activation
     # commit is required; this job cannot execute at the proposal head.

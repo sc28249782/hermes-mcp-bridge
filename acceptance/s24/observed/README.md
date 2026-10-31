@@ -1,5 +1,15 @@
 # Observed inventory source — draft CI validation
 
+## Disabled catalog action proposal
+
+Catalog exact-source candidate at `74282917` received independent APPROVE.
+The [finite fourth-attempt proposal](CATALOG-ATTEMPT-PROPOSAL.md) now provides a
+new unused selector and pinned wrapper, with its job literally disabled. This
+prepares operator review/decision only; no fourth invocation or activation is
+authorized. Catalog/strict/runtime sources are unchanged. Earlier source-packet
+statements describe their own heads. Same A2/A3 J0 prerequisite; no row closed.
+J0 NOT READY; R1 NOT AUTHORIZED; R2 HOLD; keep #112 draft/unmerged.
+
 ## Selected source-work scope — catalog candidate
 
 Operator selected route `1` after review of the milestone map and E18 design.

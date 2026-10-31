@@ -1,5 +1,15 @@
 # R1 observer integration — consolidated source-acceptance work package
 
+## Disabled finite-action proposal — A2/A3 prerequisite
+
+Independent exact-source review accepted the separate catalog candidate at
+`74282917`; it does not accept the full R1 package. The next prepared artifact is
+[one fourth-invocation proposal](CATALOG-ATTEMPT-PROPOSAL.md), with an unused
+selector, exact source pins and a job-level false guard. No new action or row
+closure follows from source review or this disabled wrapper. All 18 dispositions
+stay OPEN. Three invocations consumed/TWO digest matches; no provider catalog
+receipt. No provisioning or merge. J0 NOT READY; R1 NOT AUTHORIZED; R2 HOLD.
+
 ## Selected source-work scope — J0 for A2/A3
 
 Operator selected route `1` after the E18 design and current milestone/ledger
