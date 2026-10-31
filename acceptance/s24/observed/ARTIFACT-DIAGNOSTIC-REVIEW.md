@@ -9,8 +9,8 @@ This variant cannot retroactively diagnose E12. Keep this work on draft #112.
 
 | New source | Author-computed SHA256 |
 | --- | --- |
-| prepare_join_artifact_diagnostic.py | `07cdb87787275d4a28a78a947ac801d68c45a7063b6790c104265611f189c824` |
-| test_artifact_diagnostic.py | `f5d4668c902cf634ba08af62c461ab5e28bd721c9460df64d2382a557f5b6adf` |
+| prepare_join_artifact_diagnostic.py | `ed1f9b689b6fb38593ffd101a437f1d8985260de993fb45c6b6213fee8d4482d` |
+| test_artifact_diagnostic.py | `0379589c28062d1c0c73100a8eaf776ebfc3745459f42bf89684fe9b6c271f46` |
 
 The diagnostic variant is a separately named copy with optional progress hooks,
 fixed error classification and bounded output. E11 source (`293f0f61…`), original
@@ -100,3 +100,16 @@ Review the enum/milestone/privacy/failure/output-contract delta before any secon
 attempt. No live download, retry, alternative image, setup source completion,
 prepared image, import or provisioning is claimed here. J0 NOT READY; R1 NOT
 AUTHORIZED; R2 HOLD; all outstanding ledger/private bindings and #80/#96 remain.
+
+## Initial CI finding and response cleanup correction
+
+Initial source head `d33060ad`, run 41171286462: 25 tests reported OK on 3.14,
+but the mandatory post-exit gate rejected ResourceWarning from unclosed synthetic
+HTTPError response wrappers. This failed result is retained; no warning filter,
+assertion relaxation or scan removal. Python 3.12 passed at that historical head.
+The variant now closes HTTPError before rethrow and closes rejected redirect
+responses before raising its fixed enum; tests explicitly assert both closures.
+Classification-only fixture exceptions also register close cleanup. This avoids
+finalizer warnings that can format an exception's private text, not just a test
+cosmetic issue. Failure still exits HOLD with bounded diagnostics and no retry;
+E11 bytes and the failed E12 record stay unchanged. No live download occurred.

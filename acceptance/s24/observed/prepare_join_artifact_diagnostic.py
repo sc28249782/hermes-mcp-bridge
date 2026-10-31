@@ -217,7 +217,11 @@ def inspect(stream, expected_sha, progress=None):
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
-        raise RedirectHold()
+        try:
+            if fp is not None:
+                fp.close()
+        finally:
+            raise RedirectHold()
 
 
 def download(output, progress=None):
@@ -226,7 +230,14 @@ def download(output, progress=None):
     request = urllib.request.Request(URL, headers={'Accept-Encoding': 'identity'})
     if progress is not None:
         progress.stage = 'HTTP_OPEN'
-    with opener.open(request, timeout=15) as response:
+    try:
+        response = opener.open(request, timeout=15)
+    except urllib.error.HTTPError as error:
+        # HTTPError owns a response wrapper even before with-entry. Close it
+        # explicitly: finalizer warnings could otherwise stringify private text.
+        error.close()
+        raise
+    with response:
         if progress is not None:
             progress.stage = 'HTTP_HEADERS'
         require(response.status == 200 and response.geturl() == URL)

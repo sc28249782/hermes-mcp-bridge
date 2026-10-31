@@ -84,7 +84,10 @@ class DiagnosticControls(unittest.TestCase):
             stack.enter_context(mock.patch.object(D.signal, 'signal'))
             alarm = stack.enter_context(mock.patch.object(D.signal, 'alarm'))
             opener = mock.Mock()
-            opener.open.side_effect = urllib.error.HTTPError('PRIVATE_SENTINEL',404,'PRIVATE_SENTINEL',{},None)
+            http_error = urllib.error.HTTPError('PRIVATE_SENTINEL',404,'PRIVATE_SENTINEL',{},None)
+            http_error.close = mock.Mock(wraps=http_error.close)
+            self.addCleanup(http_error.close)
+            opener.open.side_effect = http_error
             stack.enter_context(mock.patch.object(D.urllib.request, 'build_opener', return_value=opener))
             out = stack.enter_context(contextlib.redirect_stdout(io.StringIO()))
             self.assertEqual(D.main(), 2)
@@ -94,6 +97,7 @@ class DiagnosticControls(unittest.TestCase):
         self.assertNotIn('PRIVATE_SENTINEL', out.getvalue())
         self.assertEqual(alarm.call_args_list, [mock.call(120),mock.call(0)])
         opener.open.assert_called_once()
+        http_error.close.assert_called_once()
 
     def test_diagnostic_failure_has_fixed_fallback_without_exception_text(self):
         with mock.patch.object(D.sys, 'argv', []), \
@@ -123,6 +127,8 @@ class DiagnosticControls(unittest.TestCase):
             errors.append((urllib.error.HTTPError(private, code, private, {}, None),
                            {403:'HTTP_403',404:'HTTP_404',429:'HTTP_429'}.get(code, 'HTTP_5XX' if code>=500 else 'HTTP_OTHER')))
         for error, expected in errors:
+            if isinstance(error, urllib.error.HTTPError):
+                self.addCleanup(error.close)
             with self.subTest(expected=expected):
                 frame = json.loads(D.diagnostic_line(D.Diagnostic(), error))
                 self.assertEqual(frame['error'], expected)
@@ -212,6 +218,10 @@ class DiagnosticControls(unittest.TestCase):
             self.assertEqual(frame['error'], 'PREDICATE_REJECTED' if opened else 'HTTP_404')
             self.assertEqual(frame['received_bytes'], 0)
             self.assertNotIn('PRIVATE_SENTINEL', line)
+        response = io.BytesIO(b'PRIVATE_SENTINEL')
+        with self.assertRaises(D.RedirectHold):
+            D.NoRedirect().redirect_request(None,response,302,'PRIVATE_SENTINEL',{},'PRIVATE_SENTINEL')
+        self.assertTrue(response.closed)
 
     def test_instrumentation_preserves_success_receipt_and_limits(self):
         raw = B.archive([('usr/bin/python3.12','file',b'synthetic'), ('usr/bin/python3','link','python3.12')])
