@@ -352,3 +352,13 @@ synthetic offline controls run separately from mandatory 69+13 and do not contac
 the provider. No new live selector/wrapper/action is installed. E12 cannot be
 retrospectively diagnosed. Review this source/output-contract delta before any
 separately scoped/approved attempt; J0/setup/operational/private gaps stay open.
+
+## E14 — disabled two-line CI wrapper proposal
+
+[Finite diagnostic attempt proposal](DIAGNOSTIC-ATTEMPT-PROPOSAL.md) prepares a
+strict two-frame gate and exact-source CI wrapper with literal job-level false.
+No second attempt is activated. Ten offline synthetic controls supplement the
+unchanged 69/13/25 suites. Both wrapper source review and separate finite action
+approval precede activation; E12 selector/result and E13 source/pins remain
+unchanged. Successful gate evidence would still be inspection-only, not setup/
+J0/R1/R2 completion. Keep #112 draft and every outstanding binding/row open.
