@@ -382,3 +382,15 @@ operational runtime/pins stay unchanged. Eleven offline tests cover every label
 with real synthetic tar cases or explicitly disclosed reader faults. No third
 attempt/activation or parser relaxation is included; all J0/inspection/setup/
 operational/private gaps remain and #112 stays draft/unmerged.
+
+## E17 — actual third attempt, type predicate rejected
+
+[Third-attempt record](ARTIFACT-ATTEMPT-E17.md): operator separately approved ONE
+E17 CI request. Activation `0a2b07ae` / run 41200750250 / job 124535893803 returned
+schema-2 TYPE_REJECTED at ARCHIVE_PARSE, parsed_members=5; full 388,975,696-byte
+archive hash again matched provider `bb415d82…`. Gate kept HOLD/exit 2. This gives
+an actual rejected predicate, not a specific entry subtype/path or complete
+inspection/catalog/selected-hash evidence. Older E14 UNKNOWN is not backfilled.
+Budget consumed and job false-guard restored; no fourth attempt/parser relaxation
+or setup follows. Review type inspection/admission policy before additional source
+or action scope. All J0/operational/private/lifecycle gaps stay open; keep draft.

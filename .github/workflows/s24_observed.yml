@@ -12,6 +12,7 @@ jobs:
   observed-diagnostic-proposal:
     # Source-review proposal ONLY. Operator approval plus a separate activation
     # commit is required; this job cannot execute at the proposal head.
+    if: ${{ false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 4
     steps:

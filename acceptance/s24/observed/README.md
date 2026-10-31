@@ -97,3 +97,8 @@ consumed and its job is disabled again; see the appended proposal outcome/JSON.
 gate to schema 2 with nineteen enum labels, without changing parser admission.
 Eleven new offline controls cover those labels. Earlier source hashes are history;
 new pins remain inside a disabled job. No third live action is authorized or run.
+
+[E17 actual third attempt](ARTIFACT-ATTEMPT-E17.md) returned TYPE_REJECTED with
+HOLD/exit 2 after another full matching archive hash. Entry subtype/path remains
+unreported; no complete inspection receipt exists. Job is disabled again, with
+no fourth request or parser relaxation. Later green offline CI is separate evidence.
