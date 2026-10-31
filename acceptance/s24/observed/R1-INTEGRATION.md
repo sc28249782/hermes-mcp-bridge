@@ -342,3 +342,13 @@ no archive receipt was emitted. See the attempt record/JSON; no retry or local
 fallback occurred. Setup remains BLOCKED. The following docs-only checkpoint
 skips the consumed live action; green regression CI cannot replace failed live
 archive evidence. R1 NOT AUTHORIZED; R2 HOLD; no row closes.
+
+## E13 — diagnostic source candidate, no second attempt
+
+[Finite diagnostic contract](ARTIFACT-DIAGNOSTIC-REVIEW.md) introduces a separately
+named E11 variant with bounded stage/error enums and byte/hash milestones; the
+old source/controls/pins and E12 failed record remain unchanged. Twenty-five
+synthetic offline controls run separately from mandatory 69+13 and do not contact
+the provider. No new live selector/wrapper/action is installed. E12 cannot be
+retrospectively diagnosed. Review this source/output-contract delta before any
+separately scoped/approved attempt; J0/setup/operational/private gaps stay open.

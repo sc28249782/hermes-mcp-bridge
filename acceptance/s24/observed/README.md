@@ -77,3 +77,8 @@ receipt or HOLD must be read from that exact head/run, never inferred from wirin
 E12's actual live attempt returned HOLD/exit 2 with no verification receipt; its
 failure stage remains unknown. The attempt record preserves that failure and the
 no-retry boundary. Later green tests or a skipped live job do not verify rootfs.
+
+[E13 diagnostic source review](ARTIFACT-DIAGNOSTIC-REVIEW.md) adds fixed stage/error
+and byte/hash milestones in a separate variant, with 25 synthetic offline checks.
+No second live attempt is authorized or wired. E12 remains failed with UNKNOWN
+stage; the two-line diagnostic protocol needs review before a future CI action.

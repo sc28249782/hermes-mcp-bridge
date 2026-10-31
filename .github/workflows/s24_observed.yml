@@ -190,6 +190,28 @@ jobs:
           print('Artifact offline controls: 13 passed; no download/extraction/guest execution')
           PY
 
+      - name: Offline diagnostic source controls (no live attempt)
+        shell: bash
+        run: |
+          set -euo pipefail
+          diagnostic_log="$RUNNER_TEMP/s24-artifact-diagnostic-offline.log"
+          set +e
+          python -W error::ResourceWarning -I -S -B acceptance/s24/observed/test_artifact_diagnostic.py > "$diagnostic_log" 2>&1
+          diagnostic_exit=$?
+          set -e
+          cat "$diagnostic_log"
+          python -I -S -B - "$diagnostic_log" "$diagnostic_exit" <<'PY'
+          from pathlib import Path
+          import json, re, sys
+          raw=Path(sys.argv[1]).read_bytes()
+          warnings=[m.decode() for m in (b'ResourceWarning', b'Exception ignored in', b'Exception ignored while finalizing') if m in raw]
+          counts=re.findall(rb'^Ran (\d+) tests? in ', raw, re.M)
+          complete=counts==[b'25'] and re.search(rb'^OK\s*$', raw, re.M) is not None
+          print(json.dumps({'diagnostic_offline_exit':int(sys.argv[2]),'complete_without_skips':complete,'warning_markers':warnings}))
+          assert sys.argv[2]=='0' and complete and not warnings, 'diagnostic offline controls failed'
+          print('Artifact diagnostic offline controls: 25 passed; no live attempt')
+          PY
+
   observed-windows:
     runs-on: windows-2022
     timeout-minutes: 5
