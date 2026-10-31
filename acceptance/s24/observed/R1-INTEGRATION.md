@@ -394,3 +394,15 @@ inspection/catalog/selected-hash evidence. Older E14 UNKNOWN is not backfilled.
 Budget consumed and job false-guard restored; no fourth attempt/parser relaxation
 or setup follows. Review type inspection/admission policy before additional source
 or action scope. All J0/operational/private/lifecycle gaps stay open; keep draft.
+
+## E18 — metadata-only catalog design for review
+
+[Separate catalog policy](METADATA-CATALOG-DESIGN.md) proposes a named fixed lane
+for the original four logical types plus exact char/block device headers, with
+zero-payload/bounded metadata, no device extraction/hash/selected identity and
+an independent catalog-only receipt/gate. Strict TYPE_REJECTED remains unchanged;
+FIFO/sparse/unknown types and all bounds stay HOLD. This is design only, with no
+fourth request/source implementation/activation. Evidence accounting is THREE
+invocations but TWO recorded digest matches (E14/E17); E12 stays UNKNOWN and no
+raw member-six/path/subtype conclusion is claimed from parsed_members=5. Existing
+records remain intact, live job disabled and all J0/operational bindings open.

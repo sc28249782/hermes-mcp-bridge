@@ -102,3 +102,8 @@ new pins remain inside a disabled job. No third live action is authorized or run
 HOLD/exit 2 after another full matching archive hash. Entry subtype/path remains
 unreported; no complete inspection receipt exists. Job is disabled again, with
 no fourth request or parser relaxation. Later green offline CI is separate evidence.
+
+[E18 metadata catalog design](METADATA-CATALOG-DESIGN.md) proposes a separate
+catalog-only lane for bounded device metadata, with strict mode unchanged and
+no device extraction/import authority. Design/source/action reviews remain
+separate; no fourth request or runtime/source change occurs in this docs delta.
