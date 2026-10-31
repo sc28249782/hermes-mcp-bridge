@@ -305,6 +305,28 @@ jobs:
           print('Artifact predicate-reason controls: 11 passed; no live attempt')
           PY
 
+      - name: Offline metadata catalog source controls (no live attempt)
+        shell: bash
+        run: |
+          set -euo pipefail
+          catalog_log="$RUNNER_TEMP/s24-catalog-offline.log"
+          set +e
+          python -W error::ResourceWarning -I -S -B acceptance/s24/observed/test_artifact_catalog.py > "$catalog_log" 2>&1
+          catalog_exit=$?
+          set -e
+          cat "$catalog_log"
+          python -I -S -B - "$catalog_log" "$catalog_exit" <<'PYGATE'
+          from pathlib import Path
+          import json, re, sys
+          raw=Path(sys.argv[1]).read_bytes()
+          warnings=[m.decode() for m in (b'ResourceWarning', b'Exception ignored', b'Traceback') if m in raw]
+          counts=re.findall(rb'^Ran (\d+) tests? in ', raw, re.M)
+          complete=counts==[b'36'] and re.search(rb'^OK\s*$', raw, re.M) is not None
+          print(json.dumps({'catalog_offline_exit':int(sys.argv[2]),'complete_without_skips':complete,'warning_markers':warnings}))
+          assert sys.argv[2]=='0' and complete and not warnings, 'metadata catalog controls failed'
+          print('Metadata catalog controls: 36 passed; synthetic/offline only; no live attempt')
+          PYGATE
+
   observed-windows:
     runs-on: windows-2022
     timeout-minutes: 5

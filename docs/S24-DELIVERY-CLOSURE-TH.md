@@ -1,5 +1,16 @@
 # S24 — ภาพรวมการส่งมอบและเกณฑ์จบงาน
 
+## Selected source-work scope
+
+หลังอนุมัติภาพรวม/closure ledger และ E18 design แล้ว operator เลือก `1`:
+เดิน CI route เดิมต่อเฉพาะ producer/gate/controls สำหรับ metadata catalog
+เพื่อส่ง exact-source review ใน PR #112 เดิม รายละเอียดและ SHA อยู่ใน
+[source candidate](../acceptance/s24/observed/CATALOG-SOURCE-REVIEW.md).
+นี่คือ J0 prerequisite ของ A2/A3 ไม่ใช่การปิด joined-path หรือ source acceptance
+ทั้งแพ็กเกจ พักการเพิ่มเลข E ต่อไป; ข้อความ pause ด้านล่างเป็นสถานะก่อนเลือกนี้
+ไม่มี attempt ครั้งที่สี่/provisioning/merge ได้รับอนุมัติจากการเลือก source work นี้
+A1–A7 ยัง incomplete · J0 NOT READY · R1 NOT AUTHORIZED · R2 HOLD.
+
 ## Current milestone status
 
 วันที่: **31 ตุลาคม 2026 (Asia/Bangkok)** · ฐาน main `93e9601` · หลักฐานจาก

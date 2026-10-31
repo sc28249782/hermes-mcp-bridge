@@ -1,5 +1,15 @@
 # Roadmap
 
+## Selected source-work scope — A2/A3 prerequisite
+
+After approving the milestone map and E18 design, operator selected route `1`:
+resume only the existing CI route's separately named metadata catalog source,
+gate and offline controls for exact-source review on draft #112. See the
+[candidate source packet](../acceptance/s24/observed/CATALOG-SOURCE-REVIEW.md).
+This narrowly supersedes the implementation pause below; no new E increments,
+row closure, fourth archive action, provisioning or merge is authorized.
+A1–A7 remain incomplete; J0 NOT READY, R1 NOT AUTHORIZED and R2 HOLD.
+
 ## Current delivery checkpoint — S24 (31 October 2026)
 
 Main `93e9601` includes merged #107–#111; the continuing [draft #112](https://github.com/sc28249782/hermes-mcp-bridge/pull/112)

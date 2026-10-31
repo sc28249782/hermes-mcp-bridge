@@ -1,5 +1,14 @@
 # Approved design §9 — implementation control coverage
 
+## Selected source-work scope
+
+The reviewed milestone map remains binding. Operator chose `1` to resume only
+[J0 metadata catalog source/gate/offline controls](CATALOG-SOURCE-REVIEW.md) for
+exact-source review, as an A2/A3 prerequisite. No row acceptance follows; all
+18 current dispositions stay OPEN. This narrowly supersedes the source pause
+below, with no new E counter, live attempt, provisioning or merge authorization.
+J0 NOT READY; R1 NOT AUTHORIZED; R2 HOLD.
+
 ## Current status — 31 October 2026
 
 Use the [current 18-row closure ledger](R1-INTEGRATION.md#current-closure-ledger)

@@ -1,5 +1,16 @@
 # Observed inventory source — draft CI validation
 
+## Selected source-work scope — catalog candidate
+
+Operator selected route `1` after review of the milestone map and E18 design.
+The [new catalog producer/gate/controls](CATALOG-SOURCE-REVIEW.md) implement only
+the J0 prerequisite source candidate for A2/A3, on this same draft PR. Strict
+sources/pins are unchanged; 36 offline tests include synthetic tar and disclosed
+header/network faults, with no provider download. No new E number is introduced.
+The pause below is historical for this narrowly resumed source work; it still
+does not permit a fourth request, provisioning, merge or operator inventory.
+No row is closed. J0 NOT READY; R1 NOT AUTHORIZED; R2 HOLD.
+
 ## Current delivery checkpoint — 31 October 2026
 
 **PRE-R1 / SOURCE ACCEPTANCE INCOMPLETE / IMPLEMENTATION PAUSED**.

@@ -1,5 +1,18 @@
 # R1 observer integration — consolidated source-acceptance work package
 
+## Selected source-work scope — J0 for A2/A3
+
+Operator selected route `1` after the E18 design and current milestone/ledger
+review: implement only the separate fixed-policy catalog producer/gate/offline
+controls on this draft PR for exact-source review. [Source packet and hashes](CATALOG-SOURCE-REVIEW.md).
+This narrowly resumes source work against the J0 prerequisite for A2/A3 (rows
+3/5/9–14/17); it supplies no joined proof and closes no row. The eighteen-row
+current ledger below remains acceptance-OPEN. Earlier pause/design-proposal
+statements describe the preceding checkpoint, not authorization for live work.
+No new E counter, fourth request, provisioning, merge or private binding scope.
+Three requests consumed; TWO recorded digest matches; no provider catalog receipt.
+J0 NOT READY; R1 NOT AUTHORIZED; R2 HOLD; A6/A7 and #80/#96 unchanged.
+
 ## Current closure ledger
 
 Checkpoint: **31 October 2026**, reviewed-input head `c5c2ea66`; main `93e9601`
