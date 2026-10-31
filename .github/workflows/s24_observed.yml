@@ -12,6 +12,7 @@ jobs:
   observed-catalog-proposal:
     # REVIEW ONLY: operator must separately approve one fourth live invocation.
     # Activation is a later one-line removal of this job-level false guard.
+    if: ${{ false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 4
     steps:

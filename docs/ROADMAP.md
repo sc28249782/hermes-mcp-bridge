@@ -1,5 +1,16 @@
 # Roadmap
 
+## Latest J0 result — fourth invocation HOLD
+
+The operator-approved [catalog attempt four](../acceptance/s24/observed/CATALOG-ATTEMPT-FOUR.md)
+ended gate exit 2 / job FAILURE at `2ee4167d`, run `41213711915`:
+ARCHIVE_PARSE/PREDICATE_REJECTED/BACKSLASH after a matching provider digest.
+Four live invocations consumed, THREE recorded digest matches; E12 UNKNOWN.
+No completed catalog/inspection receipt or joined A2/A3 proof. Catalog guard is
+restored; no fifth action/predicate change is authorized. All eighteen obligations
+remain OPEN; earlier scope/count checkpoints below are history at their heads.
+Draft/unmerged; J0 NOT READY; R1 NOT AUTHORIZED; R2 HOLD; no release/merge decision.
+
 ## Selected source-work scope — A2/A3 prerequisite
 
 After approving the milestone map and E18 design, operator selected route `1`:

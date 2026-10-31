@@ -1,5 +1,17 @@
 # R1 observer integration — consolidated source-acceptance work package
 
+## Actual catalog result — A2/A3 prerequisite remains blocked
+
+[Fourth-invocation record](CATALOG-ATTEMPT-FOUR.md): one explicitly approved CI
+invocation at `2ee4167d` / run `41213711915` / job `124573771376` ended gate exit 2,
+job FAILURE. Digest equality is real; ARCHIVE_PARSE/PREDICATE_REJECTED/BACKSLASH,
+partial counts only, no completed catalog. No member/path/root cause is inferred.
+Current accounting: FOUR consumed, THREE full digest matches (E14/E17/fourth),
+E12 UNKNOWN. This record restores the catalog job false guard; fifth action and
+predicate relaxation are not authorized. Prior 3/2 figures below are dated history.
+No A2/A3 or other row closure; all 18 remain acceptance-OPEN. A6/A7 and #80/#96
+unchanged. Same draft; J0 NOT READY; R1 NOT AUTHORIZED; R2 HOLD.
+
 ## Disabled finite-action proposal — A2/A3 prerequisite
 
 Independent exact-source review accepted the separate catalog candidate at

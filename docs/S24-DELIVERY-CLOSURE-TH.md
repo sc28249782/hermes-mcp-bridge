@@ -1,5 +1,19 @@
 # S24 — ภาพรวมการส่งมอบและเกณฑ์จบงาน
 
+## Latest J0 result — attempt four
+
+ผล [attempt ครั้งที่ 4](../acceptance/s24/observed/CATALOG-ATTEMPT-FOUR.md)
+ที่ operator อนุมัติ: activation `2ee4167d` / run `41213711915` / job `124573771376`
+จบ **HOLD / gate exit 2 / job FAILURE** แม้ digest ตรง provider pin แล้ว
+stage/error/reason = ARCHIVE_PARSE/PREDICATE_REJECTED/BACKSLASH; counts เป็น
+partial และยังไม่มี completed catalog receipt ไม่อนุมานชื่อ member/path หรือเหตุอื่น
+
+สถานะปัจจุบัน: consumed **4 ครั้ง**, digest match ที่มีหลักฐาน **3 ครั้ง**
+(E14/E17/ครั้งที่ 4); E12 ยัง UNKNOWN ปิด catalog guard กลับใน record commit นี้
+ไม่มี retry ครั้งที่ 5 หรือการผ่อน predicate ได้รับอนุมัติ ข้อความ 3/2 และ scope
+ก่อนหน้าด้านล่างเป็นประวัติที่ named heads ของตน A2/A3 prerequisite ยังไม่ปิด
+ทั้ง 18 แถวยัง OPEN · คง draft · J0 NOT READY · R1 NOT AUTHORIZED · R2 HOLD.
+
 ## Selected source-work scope
 
 หลังอนุมัติภาพรวม/closure ledger และ E18 design แล้ว operator เลือก `1`:

@@ -1,5 +1,16 @@
 # Observed inventory source — draft CI validation
 
+## Actual catalog attempt four — HOLD
+
+Operator approved one invocation under the reviewed wrapper. [Actual record](CATALOG-ATTEMPT-FOUR.md):
+activation `2ee4167d`, run `41213711915`, job `124573771376`, gate exit 2 / job
+FAILURE. Digest matches provider pin; ARCHIVE_PARSE/PREDICATE_REJECTED/BACKSLASH.
+Partial counts are not a completed catalog. Four invocations consumed, THREE
+recorded digest matches (E14/E17/fourth); E12 remains UNKNOWN. This commit restores
+the catalog false guard; no fifth request or predicate change is authorized.
+Older scope/proposal/count statements below are historical at their own heads.
+All 18 rows remain OPEN; J0 NOT READY; R1 NOT AUTHORIZED; R2 HOLD; keep draft.
+
 ## Disabled catalog action proposal
 
 Catalog exact-source candidate at `74282917` received independent APPROVE.
