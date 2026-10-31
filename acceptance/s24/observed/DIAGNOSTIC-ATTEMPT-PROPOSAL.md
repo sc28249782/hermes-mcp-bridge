@@ -92,3 +92,51 @@ Review the wrapper/gate and this finite proposal before operator action approval
 A source APPROVE alone leaves the job disabled. Preserve E12 as failed evidence;
 J0 NOT READY, R1 NOT AUTHORIZED, R2 HOLD and all outstanding integration/private/
 kernel/lifecycle bindings remain. No merge, #80/#96, release or deployment change.
+
+## 4. Actual approved action — digest milestone, parser HOLD
+
+The proposal statements above describe the pre-approval checkpoint. Operator
+answered **“อนุมัติ”** to the explicit one-attempt CI scope (no retry/fallback,
+provisioning or merge). Approval date: 31 October 2026 Bangkok; no exact approval
+timestamp was supplied. Activation head
+`a579d7a563cfe1a193f1157d5569cb6ef3c20623` removed ONLY the false guard (one line),
+with the exact E14 subject, based on reviewed `66036bd8`. Source/gate/receipt
+hashes and limits were unchanged.
+
+Actual [observed run 41195199976](https://github.com/sc28249782/hermes-mcp-bridge/actions/runs/41195199976),
+job `124519859911`, run attempt 1: the live step ran 18:02:45–18:02:49 Bangkok time
+(11:02:45–11:02:49 UTC) on 31 October 2026. It emitted a schema-validated
+j0-artifact-gate-hold record and exited **2**; the job/workflow FAILED correctly.
+[Machine-readable evidence](ARTIFACT-ATTEMPT-E14.json) preserves the exact
+allowlisted gate frame and separates byte/hash milestones from inspection.
+
+| Actual milestone | Recorded value |
+| --- | --- |
+| download_complete / hash_complete / digest_matches | true / true / true |
+| received_bytes / hashed_bytes | 388,975,696 / 388,975,696 |
+| author-computed full archive SHA256 | `bb415d824822c4b878125729af451a5d18fb13d1cf5cbed9a7393ad64ac6039e` — matches the pinned provider digest |
+| stage / error | ARCHIVE_PARSE / PREDICATE_REJECTED |
+| parsed_members | 5, meaning members admitted to the normalized unique-name set before remaining checks; not proof that member 5 caused failure |
+| archive_inspection_verified / archive_verified_receipt | false / false |
+| complete header catalog / selected-entry hashes | NOT AVAILABLE |
+| setup/J0/guest/R1/R2/scope | all false |
+
+This establishes a successful download/full-archive digest-equality milestone.
+It does NOT establish completed inspection, a complete content tree, a prepared
+image, selected guest binary identities, provider signature or import suitability.
+The specific parser predicate/member/path remains UNKNOWN; do not infer device,
+link, path, size or any other cause from the coarse enum/count. E12 remains its
+own failed UNKNOWN-stage result; E14 does not retrospectively diagnose it.
+The gate accepted this valid failure telemetry and kept exit 2, never recovered
+success, printed raw stderr or relaxed a parser predicate.
+
+The authorized second attempt is now consumed. This result-only checkpoint
+RESTORES the job-level false guard in addition to having a non-activation
+subject. No rerun, third request, local download, alternate artifact, parser gate
+relaxation, guest package/setup or provisioning follows. The original source's
+private temporary archive is closed/removed; it is not a saved prepared rootfs.
+A later green regression run or disabled job cannot replace this live HOLD.
+Next review topic, if continued, is a bounded predicate-reason contract without
+member names/paths/content, preserving limits and independent approval before
+any additional live attempt. J0 NOT READY; R1 NOT AUTHORIZED; R2 HOLD; keep draft
+and unmerged, with all remaining operational/private/lifecycle bindings open.

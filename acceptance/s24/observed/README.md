@@ -87,3 +87,8 @@ stage; the two-line diagnostic protocol needs review before a future CI action.
 two-line validator, exact source pins and finite action scope for review. Its live
 job is hard-disabled; only ten synthetic gate controls run. Source approval alone
 does not authorize activation or a second provider request.
+
+The separately approved E14 action downloaded/hashed 388,975,696 bytes matching
+the provider SHA, then returned ARCHIVE_PARSE/PREDICATE_REJECTED and HOLD/exit 2.
+No complete inspection receipt or selected hashes exist. The second attempt is
+consumed and its job is disabled again; see the appended proposal outcome/JSON.

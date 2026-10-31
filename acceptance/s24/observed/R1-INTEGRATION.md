@@ -362,3 +362,12 @@ unchanged 69/13/25 suites. Both wrapper source review and separate finite action
 approval precede activation; E12 selector/result and E13 source/pins remain
 unchanged. Successful gate evidence would still be inspection-only, not setup/
 J0/R1/R2 completion. Keep #112 draft and every outstanding binding/row open.
+
+E14 actual authorized second attempt: activation `a579d7a5`, run 41195199976 / job
+124519859911, exit 2/HOLD. Download/hash completed for 388,975,696 bytes with exact
+provider digest `bb415d82…`; ARCHIVE_PARSE/PREDICATE_REJECTED at parsed_members=5.
+This is a byte/hash milestone, not a complete inspection/catalog/selected-hash or
+J0 pass. Specific predicate/member remains UNKNOWN. Exact frame is preserved in
+ARTIFACT-ATTEMPT-E14.json. Budget consumed; result commit restores job-level false.
+No third attempt/local fallback or parser relaxation. Guest setup and all other
+outstanding source/operational/private bindings remain BLOCKED/open.
