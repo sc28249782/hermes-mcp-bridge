@@ -97,4 +97,4 @@ private/kernel/lifecycle/stop bindings remain unchanged. No merge/provisioning.
 | gate_artifact_diagnostic.py | `ad9c2e0e1c8c550c14b4449eb46dffd88d89f63bccfa0573e6e4c40178f4d915` |
 | test_artifact_diagnostic.py | `a1c7be6d42fad60100042977d5775f31010c102013769d7df602a660498c2a58` |
 | test_artifact_gate.py | `9bf756768b7afbadfe41b5763be8cb951944248b40170eafe3302c6326ef65dc` |
-| test_artifact_predicate_reason.py | `314b08dd7924ae8c8ce251655711e80367d71ecdb984ac6c1fd8584b778a2ee1` |
+| test_artifact_predicate_reason.py | `2b6efee9aa56fa89adec69d002151dbd48d4a79b76062f605f5fffe5ea7daee3` |

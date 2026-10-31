@@ -57,7 +57,7 @@ class PredicateReasonControls(unittest.TestCase):
                ('PRIVATE_SENTINEL\\x','BACKSLASH'),('../PRIVATE_SENTINEL','PATH_COMPONENT'),
                ('PRIVATE_SENTINEL\x01','NAME_CONTROL')]
         for name,expected in cases:
-            with self.subTest(reason=expected):self.reason(lambda:D.member_name(name),expected)
+            with self.subTest(reason=expected):self.inspect_reason([(name,'file',b'x')],expected)
 
     def test_duplicate_and_root_type_real_tar(self):
         self.inspect_reason([('PRIVATE_SENTINEL','file',b'x'),('./PRIVATE_SENTINEL','file',b'y')],'NAME_DUPLICATE')
