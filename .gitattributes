@@ -1,0 +1,2 @@
+# Preserve the reviewed bytes consumed by the observed source hash loaders.
+acceptance/s24/observed/** text eol=lf

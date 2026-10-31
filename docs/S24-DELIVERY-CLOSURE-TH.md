@@ -1,5 +1,112 @@
 # S24 — ภาพรวมการส่งมอบและเกณฑ์จบงาน
 
+## Latest J0 result — attempt four
+
+ผล [attempt ครั้งที่ 4](../acceptance/s24/observed/CATALOG-ATTEMPT-FOUR.md)
+ที่ operator อนุมัติ: activation `2ee4167d` / run `41213711915` / job `124573771376`
+จบ **HOLD / gate exit 2 / job FAILURE** แม้ digest ตรง provider pin แล้ว
+stage/error/reason = ARCHIVE_PARSE/PREDICATE_REJECTED/BACKSLASH; counts เป็น
+partial และยังไม่มี completed catalog receipt ไม่อนุมานชื่อ member/path หรือเหตุอื่น
+
+สถานะปัจจุบัน: consumed **4 ครั้ง**, digest match ที่มีหลักฐาน **3 ครั้ง**
+(E14/E17/ครั้งที่ 4); E12 ยัง UNKNOWN ปิด catalog guard กลับใน record commit นี้
+ไม่มี retry ครั้งที่ 5 หรือการผ่อน predicate ได้รับอนุมัติ ข้อความ 3/2 และ scope
+ก่อนหน้าด้านล่างเป็นประวัติที่ named heads ของตน A2/A3 prerequisite ยังไม่ปิด
+ทั้ง 18 แถวยัง OPEN · คง draft · J0 NOT READY · R1 NOT AUTHORIZED · R2 HOLD.
+
+## Selected source-work scope
+
+หลังอนุมัติภาพรวม/closure ledger และ E18 design แล้ว operator เลือก `1`:
+เดิน CI route เดิมต่อเฉพาะ producer/gate/controls สำหรับ metadata catalog
+เพื่อส่ง exact-source review ใน PR #112 เดิม รายละเอียดและ SHA อยู่ใน
+[source candidate](../acceptance/s24/observed/CATALOG-SOURCE-REVIEW.md).
+นี่คือ J0 prerequisite ของ A2/A3 ไม่ใช่การปิด joined-path หรือ source acceptance
+ทั้งแพ็กเกจ พักการเพิ่มเลข E ต่อไป; ข้อความ pause ด้านล่างเป็นสถานะก่อนเลือกนี้
+ไม่มี attempt ครั้งที่สี่/provisioning/merge ได้รับอนุมัติจากการเลือก source work นี้
+A1–A7 ยัง incomplete · J0 NOT READY · R1 NOT AUTHORIZED · R2 HOLD.
+
+## Current milestone status
+
+วันที่: **31 ตุลาคม 2026 (Asia/Bangkok)** · ฐาน main `93e9601` · หลักฐานจาก
+PR [#112](https://github.com/sc28249782/hermes-mcp-bridge/pull/112) ที่ `c5c2ea66`
+ก่อน checkpoint เอกสารนี้ สถานะ **PRE-R1 / SOURCE ACCEPTANCE INCOMPLETE**.
+
+Operator เห็นด้วยให้ **พักการเพิ่ม E ย่อยและ implementation รอบใหม่** แล้วปรับ
+ภาพรวม/closure ledger ก่อน การตัดสินใจนี้ไม่อนุมัติ implementation E18, request
+ครั้งที่สี่, operator probe, R1/R2, merge, release หรือ deployment ส่วน CI เดิม
+ยังตรวจ regression ของเอกสารได้ตามเดิม ไม่มี live artifact action เปิดขึ้น
+
+### แผนส่งมอบที่ใช้ติดตามต่อจากนี้
+
+| Milestone | หลักฐาน/สถานะปัจจุบัน | สิ่งที่ยังต้องปิด |
+| --- | --- | --- |
+| A1 controls/dispositions | มี ledger ครบ 18 แถว; หลักฐานหลาย component ผ่าน review | disposition ของทุกแถวต่อ exact package ยังเปิด; ไม่มีแถวปิดจาก CI หรือ design approval โดยอัตโนมัติ |
+| A2 joined observation | มี real collect/local sample (E4), real Linux SSH (E6), Windows entry/ACL/CIM (E7) | native Windows SSH → guest wrapper/collect → Windows CIM ใน invocation เดียว พร้อม negative window/worker-exit/post paths ยังไม่ครบ |
+| A3 transport/failure/stop | E3/E5–E7 ให้ ACL/CIM/coordinator/provider/transport/log evidence ตาม fixture boundaries | combined path, blocked output/start/provider, owner loss, independent deadline/confirmed stop และ writer coverage ยังต้อง bind/prove/review |
+| A4 identity/regression | baseline regressions, real adoption และ real exec/UID/PID reuse primitive controls (E8) มีหลักฐาน | disposition ใน full wrapper/joined package และรักษา regression/false-flag contract ไม่ใช่เริ่ม primitive work ใหม่ทั้งหมด |
+| A5 exact source package | candidate hashes/pins และ supported CI suites มีผลผ่านที่ named heads | package รวมทุกข้อ/ขอบเขต substitutions/ข้อจำกัดและ source-acceptance review ยังไม่ complete; tests count ไม่ใช่ release readiness |
+| A6 private bindings | nominations/ข้อเท็จจริงบางส่วนอยู่ใน private packet | bindings ส่วน 4 ยังไม่ครบ; ไม่ infer operator machine/authority/writer/stop จาก CI และไม่ probe เพิ่มโดยปริยาย |
+| A7 source acceptance | design/component/source deltas หลายรอบได้รับ review | independent review ของ package + 18 dispositions + private bindings แล้ว operator จึงพิจารณา finite R1 scope |
+| B1–B4 acquisition/metadata | R1 NOT AUTHORIZED; R2 HOLD | finite R1, metadata preparation, finite R2 และ independent outcome review ตามเกณฑ์ §3 ด้านล่าง |
+| C1–C3 operational acceptance | ยังไม่พร้อม actual operational Phase B/closure | readiness + finite connector-route run + acceptance §22 ตามเกณฑ์ §4; R2 metadata ไม่แทนขั้นนี้ |
+| C4–C5 release | ยังไม่กำหนด release scope/version/date ใหม่ | scope decision → candidate/docs/validation → signed tag/assets/checksum/download verification/record ตาม runbook |
+| C6 deployment | deployment record ล่าสุดเป็น signed v1.2.8 วันที่ 22 ต.ค. | deploy/not-deploy เป็นการตัดสินใจแยกของ release ใหม่; ไม่ได้ตรวจ production สดใน checkpoint นี้ |
+
+รายละเอียด 18 แถวฉบับปัจจุบัน: [current closure ledger](../acceptance/s24/observed/R1-INTEGRATION.md#current-closure-ledger).
+เกณฑ์ A/B/C ใน sections 2–4 ด้านล่างยังใช้ครบ; dated status statements ใน snapshot
+30 ต.ค. เป็นประวัติที่ checkpoint นี้ supersede เฉพาะสถานะ ไม่ลด obligation
+
+### ตำแหน่งของ J0 และการนับหลักฐาน
+
+J0 เป็น prerequisite ของเส้นทาง disposable Windows/Linux CI ที่เลือกมาทดสอบ
+joined observer ใน A2/A3 ไม่ใช่ release milestone แยกหรือการรัน operator inventory
+E4/E6/E7 เป็นคนละ run/คนละ fixture boundary; ห้ามประกอบ receipts แล้วอ้าง joined PASS
+
+| J0 fact | ผลที่พิสูจน์ได้ |
+| --- | --- |
+| live archive invocations | 3 ครั้งที่อนุมัติและ consumed: E12, E14, E17 |
+| full-archive digest equality | **2 ครั้งเท่านั้น: E14/E17**, 388,975,696 bytes, bb415d82… ตรง provider pin; E12 ยัง UNKNOWN |
+| full inspection/catalog/selected binary hashes | ยังไม่มี completed receipt; E17 HOLD ที่ TYPE_REJECTED; parsed_members=5 ไม่ระบุ raw member ที่ 6/path/subtype |
+| kernel/boot/guest/ports/lifecycle | ยังไม่ครบ/UNBOUND; snapshots ของไฟล์และ feature ไม่ใช่ route/boot/stop proof |
+| E18 | metadata-catalog design PROPOSAL เท่านั้น; ยังไม่ implement และพักไว้รอ milestone/route decision |
+
+E1–E18 ใน PR เป็น evidence/checkpoints ไม่ใช่ phases ไปสู่ release และไม่มีเลข E
+สุดท้ายที่ใช้เป็น completion target ภาคผนวก F/G ใน private binding packet เป็น
+บันทึก environment/source review และ publication/CI ที่มีแล้ว ไม่ใช่สอง phase
+ท้ายที่เหลือก่อน final release อย่าปะปนกับ A1–A7 ใน delivery criteria นี้
+
+### การตัดสินใจก่อนกลับไป implementation
+
+1. Review ภาพรวม/18-row ledger นี้และยืนยัน blocker/disposition ที่ต้องการ ยังไม่มี
+   row waiver หรือ source-acceptance PASS จากการอัปเดตเอกสาร
+2. เลือกว่าจะเดินต่อบน CI route ปัจจุบัน, เสนอ environment/route อื่นให้ review,
+   หรือ defer acceptance track โดยคง HOLD การเลือก route ใหม่ไม่ยกเว้นเกณฑ์เดิม
+   E18 เป็น proposal หนึ่งของ prerequisite นี้; catalog สำเร็จอย่างเดียวไม่ปิด J0
+3. ถ้าจะเดินต่อ ให้ bind งาน source/control แต่ละชิ้นกับแถวที่ยังเปิดและส่งเป็น
+   joined package บน #112 เดิม โดยมี exact source/input/actor/budget/stop evidence
+   อ้าง provenance และ substitutions ชัดเจน ไม่เพิ่มงานตาม test count หรือ E counter
+4. ปิด A1–A5 และ A6/A7 ด้วย review ตามเดิมก่อนเสนอ finite R1; แยก authorization
+   ของ setup/provisioning/แต่ละ live request ไม่ใช้ approval ของ design แทน action
+
+Exit ของชุดก่อน R1 คือ **A1–A7 ผ่าน review และพร้อมเสนอ finite R1 scope**;
+exit ของ source/integration PR ต้องมี disposition ชัดต่อ obligation ทั้ง 18 แถว
+หรือ explicit approved disposition ตาม §14 เมื่อเกี่ยวข้อง ไม่มีข้อใดกลายเป็น
+optional ผ่านการจัดตารางใหม่ หลังนั้นยังมี B/C ไม่ใช่เริ่ม tag/releaseทันที
+
+Final release ใหม่อยู่ที่ C5 หลังเลือก scope/version และผ่าน acceptance/release
+กฎเดิม Release ปัจจุบันยัง v1.2.8; Local Hands v1.3.0 ยัง deferred ที่ terminal-
+status/subscription gate แยกต่างหาก S24 completion ไม่ปลด gate นั้นหรือส่งมอบ
+Windows Host Adapter v1.4.0 / Computer Use v1.5.0 โดยอัตโนมัติ
+
+รายงานรอบถัดไปต้องระบุ milestone/row ที่เปลี่ยน, evidence ก่อน/หลัง, blockers ที่
+เหลือ, exact head และ scope ที่ได้รับอนุมัติ ไม่ใช้จำนวน PR/E/tests เป็นเปอร์เซ็นต์
+ความพร้อม Current status: **J0 NOT READY · R1 NOT AUTHORIZED · R2 HOLD**;
+#80/#96/Phase B/release/deployment คงเดิม
+
+## Dated status snapshot — 30 October 2026
+
+ข้อความสถานะด้านล่างคงไว้เป็นประวัติ ณ วันนั้น โดยเกณฑ์ A/B/C ยังใช้ตามที่ระบุ
+
 วันที่ตรวจสถานะ: 30 ตุลาคม 2026 (Asia/Bangkok)
 ฐานที่ตรวจ: main `d839b74eeaa4460aa7e14ca9b8012f3f4bb73d09`
 สถานะ: **SOURCE/INTEGRATION IN PROGRESS — R1 NOT AUTHORIZED / R2 HOLD**

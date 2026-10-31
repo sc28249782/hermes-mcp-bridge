@@ -9,6 +9,242 @@ permissions:
   contents: read
 
 jobs:
+  observed-catalog-proposal:
+    # REVIEW ONLY: operator must separately approve one fourth live invocation.
+    # Activation is a later one-line removal of this job-level false guard.
+    if: ${{ false }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Select one approved metadata catalog checkpoint (attempt four)
+        id: select
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha }}'
+          if test "$GITHUB_RUN_ATTEMPT" = 1 && test "$(git log -1 --format=%s)" = 'ci: run approved metadata catalog attempt four once'; then
+            echo 'run=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'run=false' >> "$GITHUB_OUTPUT"
+            echo 'Catalog live attempt NOT ATTEMPTED: checkpoint or attempt mismatch'
+          fi
+      - name: Proposed exact-source catalog attempt; no provisioning
+        if: steps.select.outputs.run == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -I -S -B - <<'PYVERIFY'
+          from pathlib import Path
+          import hashlib
+          root=Path('acceptance/s24/observed')
+          pins={'catalog_join_artifact.py':'cc170eef2afabce715d1b0cb47f39e6a35b330f22fdbbe09d5835cb4bbb8dfb5',
+                'gate_artifact_catalog.py':'266ef06341db67c95c069846967733c3bbc0cb4910e9898e5a4966f194332182',
+                'J0-PROVIDER-SOURCE.json':'41e2e56ff490475d899894e61c93b0e518439551f193031a8bef38b447805fbc'}
+          for name, expected in pins.items():
+              assert hashlib.sha256((root/name).read_bytes()).hexdigest()==expected, 'reviewed catalog source drift'
+          PYVERIFY
+          catalog_log="$RUNNER_TEMP/s24-catalog-proposed.log"
+          set +e
+          python -W error::ResourceWarning -I -S -B acceptance/s24/observed/catalog_join_artifact.py --download-and-catalog-metadata > "$catalog_log" 2>&1
+          catalog_exit=$?
+          set -e
+          # Never cat or upload raw output. Gate validates before emitting data.
+          # Exit 2 remains failure; no retry, alternate lane or fallback.
+          python -W error::ResourceWarning -I -S -B acceptance/s24/observed/gate_artifact_catalog.py "$catalog_log" "$catalog_exit"
+
+  observed-diagnostic-proposal:
+    # Source-review proposal ONLY. Operator approval plus a separate activation
+    # commit is required; this job cannot execute at the proposal head.
+    if: ${{ false }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Select one independently approved diagnostic checkpoint
+        id: select
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha }}'
+          if test "$GITHUB_RUN_ATTEMPT" = 1 && test "$(git log -1 --format=%s)" = 'ci: run approved predicate-reason artifact attempt once (E17)'; then
+            echo 'run=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'run=false' >> "$GITHUB_OUTPUT"
+            echo 'Diagnostic live attempt NOT ATTEMPTED: checkpoint or attempt mismatch'
+          fi
+      - name: Proposed exact-source diagnostic attempt; no provisioning
+        if: steps.select.outputs.run == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -I -S -B - <<'PY'
+          from pathlib import Path
+          import hashlib
+          root=Path('acceptance/s24/observed')
+          pins={'prepare_join_artifact_diagnostic.py':'f9d1c3ed88eaf6da3988e6b93dc43b90c37566d03ce59f890e6b500fd4435988',
+                'J0-PROVIDER-SOURCE.json':'41e2e56ff490475d899894e61c93b0e518439551f193031a8bef38b447805fbc',
+                'gate_artifact_diagnostic.py':'ad9c2e0e1c8c550c14b4449eb46dffd88d89f63bccfa0573e6e4c40178f4d915'}
+          for name, expected in pins.items():
+              assert hashlib.sha256((root/name).read_bytes()).hexdigest()==expected, 'reviewed source drift'
+          PY
+          diagnostic_log="$RUNNER_TEMP/s24-diagnostic-proposed.log"
+          set +e
+          python -W error::ResourceWarning -I -S -B acceptance/s24/observed/prepare_join_artifact_diagnostic.py --download-and-inspect-diagnostic > "$diagnostic_log" 2>&1
+          diagnostic_exit=$?
+          set -e
+          # Never cat raw output: the gate scans/rejects and emits allowlisted data.
+          python -W error::ResourceWarning -I -S -B acceptance/s24/observed/gate_artifact_diagnostic.py "$diagnostic_log" "$diagnostic_exit"
+
+  observed-artifact-once:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Select the single reviewed E12 checkpoint (never a retry)
+        id: select
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha }}'
+          if test "$GITHUB_RUN_ATTEMPT" = 1 && test "$(git log -1 --format=%s)" = 'ci: run reviewed E11 artifact inspection once (E12)'; then
+            echo 'run=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'run=false' >> "$GITHUB_OUTPUT"
+            echo 'Artifact inspection NOT ATTEMPTED: outside the one E12 checkpoint or a rerun'
+          fi
+      - name: One exact-source provider archive inspection; no provisioning
+        if: steps.select.outputs.run == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -I -S -B - <<'PY'
+          from pathlib import Path
+          import hashlib
+          root=Path('acceptance/s24/observed')
+          pins={'prepare_join_artifact.py':'293f0f61077d5636bd728a779c803097887ae84bf7c4c261d42d04c0591be0a4',
+                'J0-PROVIDER-SOURCE.json':'41e2e56ff490475d899894e61c93b0e518439551f193031a8bef38b447805fbc'}
+          for name, expected in pins.items():
+              assert hashlib.sha256((root/name).read_bytes()).hexdigest()==expected, 'reviewed source drift'
+          PY
+          artifact_log="$RUNNER_TEMP/s24-artifact-live-once.log"
+          set +e
+          python -W error::ResourceWarning -I -S -B acceptance/s24/observed/prepare_join_artifact.py --download-and-inspect > "$artifact_log" 2>&1
+          artifact_exit=$?
+          set -e
+          cat "$artifact_log"
+          python -I -S -B - "$artifact_log" "$artifact_exit" <<'PY'
+          from pathlib import Path
+          import json, sys
+          raw=Path(sys.argv[1]).read_bytes()
+          warnings=[m.decode() for m in (b'ResourceWarning', b'Exception ignored in', b'Exception ignored while finalizing') if m in raw]
+          print(json.dumps({'artifact_live_exit':int(sys.argv[2]),'warning_markers':warnings,'attempts':1,'retry_permitted':False}))
+          assert not warnings, 'post-exit warning gate failed'
+          assert sys.argv[2]=='0', 'HOLD: one artifact attempt failed; no retry/fallback'
+          assert len(raw)<=65537 and len(raw.splitlines())==1, 'unexpected receipt framing'
+          result=json.loads(raw)
+          assert result['evidence_class']=='j0-archive-inspection-only'
+          assert result['archive_matches_provider_digest'] is True
+          assert result['author_computed_archive_sha256']=='bb415d824822c4b878125729af451a5d18fb13d1cf5cbed9a7393ad64ac6039e'
+          for key in ('provider_signature_verified','links_resolved','import_compatibility_tested','prepared_guest_artifact','setup_ready','j0_ready','guest_imported','guest_started','r1_complete','r2_authorized','scope_granted'):
+              assert result[key] is False, 'unexpected readiness/scope claim'
+          print('Artifact single-attempt post-exit gate: CLEAN; inspection only; J0 NOT READY')
+          PY
+
+  observed-real-identity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Real identity transitions and PID reuse in private namespaces
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha }}'
+          identity_log="$RUNNER_TEMP/s24-real-identity.log"
+          set +e
+          sudo -n --preserve-env=GITHUB_ACTIONS,RUNNER_ENVIRONMENT,RUNNER_OS "$(command -v python)" -W error::ResourceWarning -I -S -B acceptance/s24/observed/run_identity_namespace_controls.py > "$identity_log" 2>&1
+          identity_exit=$?
+          set -e
+          cat "$identity_log"
+          python -I -S -B - "$identity_log" "$identity_exit" <<'PY'
+          from pathlib import Path
+          import json, sys
+          raw=Path(sys.argv[1]).read_bytes()
+          markers=(b'ResourceWarning',b'Exception ignored in',b'Exception ignored while finalizing')
+          warnings=[marker.decode() for marker in markers if marker in raw]
+          print(json.dumps({'identity_exit':int(sys.argv[2]),'warning_markers':warnings}),flush=True)
+          assert not warnings and sys.argv[2]=='0', 'identity controls failed'
+          assert raw.count(b'Identity namespace controls: 3 cases passed;')==1
+          print('Identity namespace post-exit warning gate: CLEAN')
+          PY
+
+  observed-ssh-carrier:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Disposable loopback OpenSSH and checked coordinator
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha }}'
+          test "$RUNNER_ENVIRONMENT" = github-hosted
+          umask 022
+          carrier_log="$RUNNER_TEMP/s24-ssh-carrier.log"
+          set +e
+          sudo -n --preserve-env=GITHUB_ACTIONS,RUNNER_ENVIRONMENT,RUNNER_OS "$(command -v python)" -W error::ResourceWarning -I -S -B acceptance/s24/observed/run_ssh_carrier_controls.py > "$carrier_log" 2>&1
+          carrier_exit=$?
+          set -e
+          cat "$carrier_log"
+          python -I -S -B - "$carrier_log" "$carrier_exit" <<'PY'
+          from pathlib import Path
+          import json
+          import sys
+          raw=Path(sys.argv[1]).read_bytes()
+          markers=(b'ResourceWarning',b'Exception ignored in',b'Exception ignored while finalizing')
+          warnings=[marker.decode() for marker in markers if marker in raw]
+          print(json.dumps({'carrier_exit':int(sys.argv[2]),'warning_markers':warnings}),flush=True)
+          assert not warnings, 'post-exit warning gate failed'
+          assert sys.argv[2]=='0', 'carrier fixture failed'
+          assert raw.count(b'SSH carrier controls: 3 cases passed;')==1, 'carrier completion marker missing'
+          print('SSH carrier post-exit warning gate: CLEAN')
+          PY
+
   observed-linux:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
@@ -31,6 +267,115 @@ jobs:
           test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha }}'
           umask 022
           python -B acceptance/s24/observed/run_ci_controls.py
+      - name: Offline artifact preparation source controls (no download)
+        shell: bash
+        run: |
+          set -euo pipefail
+          artifact_log="$RUNNER_TEMP/s24-artifact-offline.log"
+          set +e
+          python -W error::ResourceWarning -I -S -B acceptance/s24/observed/test_join_artifact.py > "$artifact_log" 2>&1
+          artifact_exit=$?
+          set -e
+          cat "$artifact_log"
+          python -I -S -B - "$artifact_log" "$artifact_exit" <<'PY'
+          from pathlib import Path
+          import json, re, sys
+          raw=Path(sys.argv[1]).read_bytes()
+          warnings=[m.decode() for m in (b'ResourceWarning', b'Exception ignored in', b'Exception ignored while finalizing') if m in raw]
+          counts=re.findall(rb'^Ran (\d+) tests? in ', raw, re.M)
+          complete=counts==[b'13'] and re.search(rb'^OK\s*$', raw, re.M) is not None
+          print(json.dumps({'artifact_offline_exit':int(sys.argv[2]),'complete_without_skips':complete,'warning_markers':warnings}))
+          assert sys.argv[2]=='0' and complete and not warnings, 'artifact offline controls failed'
+          print('Artifact offline controls: 13 passed; no download/extraction/guest execution')
+          PY
+
+      - name: Offline diagnostic source controls (no live attempt)
+        shell: bash
+        run: |
+          set -euo pipefail
+          diagnostic_log="$RUNNER_TEMP/s24-artifact-diagnostic-offline.log"
+          set +e
+          python -W error::ResourceWarning -I -S -B acceptance/s24/observed/test_artifact_diagnostic.py > "$diagnostic_log" 2>&1
+          diagnostic_exit=$?
+          set -e
+          cat "$diagnostic_log"
+          python -I -S -B - "$diagnostic_log" "$diagnostic_exit" <<'PY'
+          from pathlib import Path
+          import json, re, sys
+          raw=Path(sys.argv[1]).read_bytes()
+          warnings=[m.decode() for m in (b'ResourceWarning', b'Exception ignored in', b'Exception ignored while finalizing') if m in raw]
+          counts=re.findall(rb'^Ran (\d+) tests? in ', raw, re.M)
+          complete=counts==[b'25'] and re.search(rb'^OK\s*$', raw, re.M) is not None
+          print(json.dumps({'diagnostic_offline_exit':int(sys.argv[2]),'complete_without_skips':complete,'warning_markers':warnings}))
+          assert sys.argv[2]=='0' and complete and not warnings, 'diagnostic offline controls failed'
+          print('Artifact diagnostic offline controls: 25 passed; no live attempt')
+          PY
+
+      - name: Offline two-frame gate controls (no live attempt)
+        shell: bash
+        run: |
+          set -euo pipefail
+          diagnostic_log="$RUNNER_TEMP/s24-artifact-gate-offline.log"
+          set +e
+          python -W error::ResourceWarning -I -S -B acceptance/s24/observed/test_artifact_gate.py > "$diagnostic_log" 2>&1
+          diagnostic_exit=$?
+          set -e
+          cat "$diagnostic_log"
+          python -I -S -B - "$diagnostic_log" "$diagnostic_exit" <<'PY'
+          from pathlib import Path
+          import json, re, sys
+          raw=Path(sys.argv[1]).read_bytes()
+          warnings=[m.decode() for m in (b'ResourceWarning', b'Exception ignored', b'Exception ignored while finalizing') if m in raw]
+          counts=re.findall(rb'^Ran (\d+) tests? in ', raw, re.M)
+          complete=counts==[b'10'] and re.search(rb'^OK\s*$', raw, re.M) is not None
+          print(json.dumps({'artifact_gate_offline_exit':int(sys.argv[2]),'complete_without_skips':complete,'warning_markers':warnings}))
+          assert sys.argv[2]=='0' and complete and not warnings, 'two-frame gate controls failed'
+          print('Artifact two-frame gate controls: 10 passed; no live attempt')
+          PY
+
+      - name: Offline predicate-reason controls (no live attempt)
+        shell: bash
+        run: |
+          set -euo pipefail
+          diagnostic_log="$RUNNER_TEMP/s24-artifact-predicate-offline.log"
+          set +e
+          python -W error::ResourceWarning -I -S -B acceptance/s24/observed/test_artifact_predicate_reason.py > "$diagnostic_log" 2>&1
+          diagnostic_exit=$?
+          set -e
+          cat "$diagnostic_log"
+          python -I -S -B - "$diagnostic_log" "$diagnostic_exit" <<'PY'
+          from pathlib import Path
+          import json, re, sys
+          raw=Path(sys.argv[1]).read_bytes()
+          warnings=[m.decode() for m in (b'ResourceWarning', b'Exception ignored', b'Exception ignored while finalizing') if m in raw]
+          counts=re.findall(rb'^Ran (\d+) tests? in ', raw, re.M)
+          complete=counts==[b'11'] and re.search(rb'^OK\s*$', raw, re.M) is not None
+          print(json.dumps({'predicate_reason_offline_exit':int(sys.argv[2]),'complete_without_skips':complete,'warning_markers':warnings}))
+          assert sys.argv[2]=='0' and complete and not warnings, 'predicate-reason controls failed'
+          print('Artifact predicate-reason controls: 11 passed; no live attempt')
+          PY
+
+      - name: Offline metadata catalog source controls (no live attempt)
+        shell: bash
+        run: |
+          set -euo pipefail
+          catalog_log="$RUNNER_TEMP/s24-catalog-offline.log"
+          set +e
+          python -W error::ResourceWarning -I -S -B acceptance/s24/observed/test_artifact_catalog.py > "$catalog_log" 2>&1
+          catalog_exit=$?
+          set -e
+          cat "$catalog_log"
+          python -I -S -B - "$catalog_log" "$catalog_exit" <<'PYGATE'
+          from pathlib import Path
+          import json, re, sys
+          raw=Path(sys.argv[1]).read_bytes()
+          warnings=[m.decode() for m in (b'ResourceWarning', b'Exception ignored', b'Traceback') if m in raw]
+          counts=re.findall(rb'^Ran (\d+) tests? in ', raw, re.M)
+          complete=counts==[b'36'] and re.search(rb'^OK\s*$', raw, re.M) is not None
+          print(json.dumps({'catalog_offline_exit':int(sys.argv[2]),'complete_without_skips':complete,'warning_markers':warnings}))
+          assert sys.argv[2]=='0' and complete and not warnings, 'metadata catalog controls failed'
+          print('Metadata catalog controls: 36 passed; synthetic/offline only; no live attempt')
+          PYGATE
 
   observed-windows:
     runs-on: windows-2022
@@ -40,6 +385,12 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+      - name: Read-only Windows carrier capability inventory
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & pwsh -NoLogo -NoProfile -NonInteractive -File ./acceptance/s24/observed/Test-WindowsCarrierCapabilities.ps1
+          if ($LASTEXITCODE -ne 0) { throw 'capability inventory failed' }
       - name: PowerShell parser and offline controls
         shell: pwsh
         run: |
@@ -62,3 +413,33 @@ jobs:
           $text = Get-Content -LiteralPath $log -Raw
           Write-Output $text
           if ($code -ne 0 -or $text -notmatch 'Windows process controls: 9 checks passed;') { throw 'process controls failed' }
+      - name: CI ACL and pinned real CIM sampler integration
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $log = Join-Path $env:RUNNER_TEMP 's24-observed-windows-integration.log'
+          & pwsh -NoLogo -NoProfile -NonInteractive -File ./acceptance/s24/observed/Test-WindowsIntegration.ps1 *> $log
+          $code = $LASTEXITCODE
+          $text = Get-Content -LiteralPath $log -Raw
+          Write-Output $text
+          if ($code -ne 0 -or $text -notmatch 'Windows integration controls: 10 checks passed;') { throw 'Windows integration controls failed' }
+      - name: Checked host coordinator failure matrix
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $log = Join-Path $env:RUNNER_TEMP 's24-observed-windows-coordinator.log'
+          & pwsh -NoLogo -NoProfile -NonInteractive -File ./acceptance/s24/observed/Test-WindowsCoordinator.ps1 *> $log
+          $code = $LASTEXITCODE
+          $text = Get-Content -LiteralPath $log -Raw
+          Write-Output $text
+          if ($code -ne 0 -or $text -notmatch 'Windows coordinator controls: 16 cases passed;') { throw 'coordinator controls failed' }
+      - name: Exact Windows entry bootstrap and real CIM integration
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $log = Join-Path $env:RUNNER_TEMP 's24-observed-windows-entry.log'
+          & pwsh -NoLogo -NoProfile -NonInteractive -File ./acceptance/s24/observed/Test-WindowsEntry.ps1 *> $log
+          $code = $LASTEXITCODE
+          $text = Get-Content -LiteralPath $log -Raw
+          Write-Output $text
+          if ($code -ne 0 -or $text -notmatch 'Windows entry controls: 6 cases passed;') { throw 'entry controls failed' }

@@ -1,5 +1,32 @@
 # Approved design §9 — implementation control coverage
 
+## Selected source-work scope
+
+The reviewed milestone map remains binding. Operator chose `1` to resume only
+[J0 metadata catalog source/gate/offline controls](CATALOG-SOURCE-REVIEW.md) for
+exact-source review, as an A2/A3 prerequisite. No row acceptance follows; all
+18 current dispositions stay OPEN. This narrowly supersedes the source pause
+below, with no new E counter, live attempt, provisioning or merge authorization.
+J0 NOT READY; R1 NOT AUTHORIZED; R2 HOLD.
+
+## Current status — 31 October 2026
+
+Use the [current 18-row closure ledger](R1-INTEGRATION.md#current-closure-ledger)
+for consolidated E1–E18 evidence and pending dispositions, and the
+[A/B/C milestone map](../../../docs/S24-DELIVERY-CLOSURE-TH.md#current-milestone-status)
+for delivery/authorization/release boundaries. All eighteen obligations remain
+acceptance-OPEN; actual identity/component CI evidence is now available where the
+original dated table says ERROR/NOT RUN/outstanding. Those old statements are
+historical, not a claim that later evidence is missing. They are retained below
+without weakening any obligation or replacing operator evidence with CI.
+
+#107–#111 are merged; #112 remains draft/incomplete. No row closure/optional move,
+source acceptance or R1 authority follows from this documentation update.
+New E increments and implementation are paused pending milestone/route review.
+J0 NOT READY; R1 NOT AUTHORIZED; R2 HOLD; live artifact job remains disabled.
+
+## Historical control/evidence snapshots
+
 Date: 30 October 2026. Status: incomplete acceptance controls; no VM scope.
 
 Current closure criteria and stage ownership are in the [S24 delivery overview](../../../docs/S24-DELIVERY-CLOSURE-TH.md). This matrix mixes dated evidence checkpoints and outstanding obligations: its original local ERROR/NOT RUN entries remain historical, with later CI evidence below. The merged suite is 40 tests after #109; draft #110 reports 43 only on its own head. No row is closed, reclassified or made optional by this link. The next source increment must address the consolidated R1 integration criteria, not a test-count target.
@@ -38,3 +65,7 @@ Follow-up control scope: `WrapperPipeControls` exercises the unchanged guest wra
 Identity follow-up: `WorkerIdentityControls` requires actual `ReadOnlyWorker` admission against a live disposable direct child with coherent procfs and a retained pidfd. Exit is real; UID/argv drift is injected only into subsequent identity reads. No identity predicate is stubbed during admission. Real PID reuse, UID change, exec and full wrapper handling remain unproved. The mandatory suite count is now 40; original tests are unchanged.
 
 Local host-handshake follow-up: `WrapperHostHandshakeControls` drives the actual guest wrapper loop with real host stdin/stdout, a subprocess observation pipe and a private log. It covers successful post-check through final receipt plus wrong-challenge and duplicate-post HOLD paths, requiring exact frame/log order, false scope flags and a reaped fixture child. Fixture source loading/identity admission and a test-only release pipe isolate orchestration; no real sample or inventory body runs. Rows 3/5/6/9/10 still require actual sampling, worker/transport and scheduling evidence as applicable; this is not Windows/SSH evidence. The mandatory suite count is now 43, retaining every earlier test.
+
+## Consolidated integration ledger
+
+Continue remaining A1–A5 work in [R1-INTEGRATION.md](R1-INTEGRATION.md), which supplies a disposition/evidence entry for all eighteen rows. Its E1–E3 controls add helper regression, an actual controller/worker/collect failure path and separate Windows CI ACL/CIM checks. Rows remain PARTIAL/OPEN pending exact-source review and the stated integration obligations; this checkpoint does not overwrite historical results or claim source acceptance.

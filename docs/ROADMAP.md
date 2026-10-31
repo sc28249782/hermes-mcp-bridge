@@ -1,5 +1,59 @@
 # Roadmap
 
+## Latest J0 result — fourth invocation HOLD
+
+The operator-approved [catalog attempt four](../acceptance/s24/observed/CATALOG-ATTEMPT-FOUR.md)
+ended gate exit 2 / job FAILURE at `2ee4167d`, run `41213711915`:
+ARCHIVE_PARSE/PREDICATE_REJECTED/BACKSLASH after a matching provider digest.
+Four live invocations consumed, THREE recorded digest matches; E12 UNKNOWN.
+No completed catalog/inspection receipt or joined A2/A3 proof. Catalog guard is
+restored; no fifth action/predicate change is authorized. All eighteen obligations
+remain OPEN; earlier scope/count checkpoints below are history at their heads.
+Draft/unmerged; J0 NOT READY; R1 NOT AUTHORIZED; R2 HOLD; no release/merge decision.
+
+## Selected source-work scope — A2/A3 prerequisite
+
+After approving the milestone map and E18 design, operator selected route `1`:
+resume only the existing CI route's separately named metadata catalog source,
+gate and offline controls for exact-source review on draft #112. See the
+[candidate source packet](../acceptance/s24/observed/CATALOG-SOURCE-REVIEW.md).
+This narrowly supersedes the implementation pause below; no new E increments,
+row closure, fourth archive action, provisioning or merge is authorized.
+A1–A7 remain incomplete; J0 NOT READY, R1 NOT AUTHORIZED and R2 HOLD.
+
+## Current delivery checkpoint — S24 (31 October 2026)
+
+Main `93e9601` includes merged #107–#111; the continuing [draft #112](https://github.com/sc28249782/hermes-mcp-bridge/pull/112)
+is the PRE-R1 source/integration package. Current milestone authority is the
+[S24 delivery overview](S24-DELIVERY-CLOSURE-TH.md#current-milestone-status) and
+[18-row closure ledger](../acceptance/s24/observed/R1-INTEGRATION.md#current-closure-ledger).
+The 30 October status statements below are historical; their draft-#110/count
+snapshot does not describe current main or the later #112 evidence.
+
+Operator agreed to pause new E increments and implementation while the milestone
+map and closure ledger are reviewed. E1–E18 are evidence checkpoints, not release
+phases. Current position is A1–A5 INCOMPLETE, A6/A7 private bindings/source
+acceptance pending, R1 NOT AUTHORIZED and R2/operational Phase B HOLD. Individual
+CI/component/design approvals do not close the eighteen integration obligations.
+
+J0 is an environment prerequisite for the selected disposable CI join route,
+not a new release target. Three consumed archive requests yielded TWO recorded
+matching full digests (E14/E17); E12 remains UNKNOWN. Complete inspection and
+selected hashes are missing after E17 TYPE_REJECTED. E18 is a metadata-catalog
+DESIGN PROPOSAL, not implementation or fourth-request approval. Before resuming
+code, decide the route-or-defer disposition against the existing A/B/C criteria;
+no automatic next E control, environment fallback or gate waiver.
+
+The final pre-R1 exit is reviewed A1–A7 and a finite R1 scope proposal. Later
+B1–B4 acquisition/metadata and C1–C3 operational acceptance remain separate.
+A new final release requires C4 scope/version decision and C5 release integrity;
+C6 deployment is a separate decision. Latest published release and deployment
+record remain signed v1.2.8 (22 October 2026); no new version/date is assigned.
+Local Hands v1.3.0 remains deferred at its terminal-status/subscription gate;
+S24 does not itself release v1.3.0 or deliver the v1.4/v1.5 adapters.
+
+Earlier dated statements below preserve their original evidence and gates.
+
 ## Current delivery checkpoint — S24 (30 October 2026)
 
 The [S24 delivery and closure overview](S24-DELIVERY-CLOSURE-TH.md) is the current milestone map. PRs #107–#109 are merged; #110 remains a draft local-handshake control increment, not operational acceptance. The merged observed suite has 40 tests; #110 CI has 43. Counts do not measure release readiness. R1 is PENDING_BINDINGS / NOT AUTHORIZED; R2 and operational Phase B remain HOLD.

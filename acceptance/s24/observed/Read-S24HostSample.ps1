@@ -14,7 +14,7 @@ function Import-CheckedSupport([string] $Path) {
         if ($s.Length -gt 131072) { throw 'HOLD: support size' }
         $b=[byte[]]::new([int]$s.Length); $i=0
         while ($i -lt $b.Length) { $n=$s.Read($b,$i,$b.Length-$i); if ($n -le 0) { throw 'HOLD: support read' }; $i+=$n }
-        if ([Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($b)).ToLowerInvariant() -cne '5b894a5563dd1ed1f9cbc0bf99e924065f90a53f5cf88b22d5711e93e4a52f7e') { throw 'HOLD: support hash' }
+        if ([Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($b)).ToLowerInvariant() -cne '9724d3ce4fb68f2172ce18ae9ed6006443077de94358aa46d1a23846f95f8180') { throw 'HOLD: support hash' }
         return [scriptblock]::Create([Text.UTF8Encoding]::new($false,$true).GetString($b))
     } finally { $s.Dispose() }
 }

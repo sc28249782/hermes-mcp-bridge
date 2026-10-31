@@ -1,0 +1,129 @@
+#requires -Version 7.0
+# Real ACL/pinned sampler/CIM on the CI machine; never SSH or operator evidence.
+Set-StrictMode -Version Latest
+$ErrorActionPreference='Stop'
+if (-not $IsWindows) { throw 'HOLD: Windows integration requires Windows' }
+. (Join-Path $PSScriptRoot 'HostSupport.ps1')
+$pwsh=(Get-Process -Id $PID).Path
+$root=Join-Path ([IO.Path]::GetTempPath()) ('s24-integration-'+[Guid]::NewGuid().ToString('N'))
+$null=New-Item -ItemType Directory -Path $root
+$passed=0
+$child=$null
+$stage='fixture-acl'
+function Check([bool] $Condition) {
+    if (-not $Condition) { throw 'Windows integration control failed' }
+    $script:passed++
+}
+function Config([string] $Name, [hashtable] $Value) {
+    $path=Join-Path $root ($Name+'.json')
+    # Elevated CI tokens may default new-file ownership to Administrators.
+    # Prepare only this new fixture explicitly; never relax the runtime gate.
+    $raw=[Text.Encoding]::UTF8.GetBytes((ConvertTo-Json -InputObject $Value -Compress))
+    $s=[IO.FileStream]::new($path,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write)
+    try { $s.Write($raw,0,$raw.Length); $s.Flush($true) } finally { $s.Dispose() }
+    Set-FixtureOwner $path
+    return $path
+}
+function Set-FixtureOwner([string] $Path) {
+    $fixtureAcl=Get-Acl -LiteralPath $Path
+    $fixtureAcl.SetOwner([Security.Principal.WindowsIdentity]::GetCurrent().User)
+    Set-Acl -LiteralPath $Path -AclObject $fixtureAcl
+    Assert-S24PrivateAcl $Path
+}
+function Launch([string] $Path) {
+    $state=Start-S24Child $pwsh @('-NoLogo','-NoProfile','-NonInteractive','-File',
+        (Join-Path $root 'Read-S24HostSample.ps1'),'-ConfigPath',$Path)
+    $state.Process.StandardInput.Close()
+    return $state
+}
+function Reject-Sampler([string] $Path) {
+    $script:child=Launch $Path
+    $rejected=$false
+    try { $null=Receive-S24Line $script:child ([Diagnostics.Stopwatch]::StartNew()) 20 }
+    catch { $rejected=$true }
+    $exited=$script:child.Process.WaitForExit(10000)
+    Check ($rejected -and $exited -and $script:child.Process.ExitCode -eq 2)
+    Close-S24Child $script:child $true
+    $script:child=$null
+}
+try {
+    # Fixture creation only. Production Assert-S24PrivateAcl never repairs ACLs.
+    $sid=[Security.Principal.WindowsIdentity]::GetCurrent().User
+    $acl=[Security.AccessControl.DirectorySecurity]::new()
+    $acl.SetOwner($sid)
+    $acl.SetAccessRuleProtection($true,$false)
+    $rule=[Security.AccessControl.FileSystemAccessRule]::new($sid,'FullControl',
+        'ContainerInherit,ObjectInherit','None','Allow')
+    $acl.AddAccessRule($rule)
+    Set-Acl -LiteralPath $root -AclObject $acl
+    $pins=@{'HostSupport.ps1'='9724d3ce4fb68f2172ce18ae9ed6006443077de94358aa46d1a23846f95f8180';
+            'HostMemory.psm1'='4509e645295f6b5748d9dbdbe2ab10221386ec4504c788a3bd121f574a5f09f8';
+            'Read-S24HostSample.ps1'='79ed818637b4a26a07f36fca4c8645446a2a5eab7a6882f37cab610f130cc3b3'}
+    foreach ($name in @('HostSupport.ps1','HostMemory.psm1','Read-S24HostSample.ps1')) {
+        Assert-S24 ((Get-FileHash -LiteralPath (Join-Path $PSScriptRoot $name) -Algorithm SHA256).Hash.ToLowerInvariant() -ceq $pins[$name])
+        Copy-Item -LiteralPath (Join-Path $PSScriptRoot $name) -Destination (Join-Path $root $name)
+        Set-FixtureOwner (Join-Path $root $name)
+    }
+    Assert-S24PrivateAcl $root
+    Assert-S24PrivateAcl (Join-Path $root 'HostSupport.ps1')
+    Check $true
+    $binding='a'*64; $challenge='b'*64
+    $module=Join-Path $root 'HostMemory.psm1'
+    foreach ($phase in @('before','during','after')) {
+        $stage='sampler-'+$phase
+        $path=Config $phase @{binding=$binding;challenge=$challenge;modulePath=$module;phase=$phase}
+        $stage='launch-'+$phase
+        $child=Launch $path
+        $clock=[Diagnostics.Stopwatch]::StartNew()
+        $stage='receive-'+$phase
+        $sample=Receive-S24Line $child $clock 20
+        $stage='exit-'+$phase
+        Wait-S24Exit $child $clock 20
+        $stage='sample-fields-'+$phase
+        Assert-S24 ($sample.evidence_class -ceq 'local-read-only-windows-host-memory')
+        Assert-S24 ($sample.binding_sha256 -ceq $binding -and $sample.challenge -ceq $challenge -and $sample.phase -ceq $phase)
+        Assert-S24 ($sample.elapsed_seconds -ge 0 -and $sample.elapsed_seconds -le 1)
+        Assert-S24 ($sample.host_available_bytes -ge 1610612736 -and $sample.host_limit_failures.Count -eq 0)
+        foreach ($flag in @('full_checkpoint_pass','host_identity_proved','authenticated','guest_observed',
+                           'original_runtime_continuity_observed','complete_writer_coverage')) {
+            Assert-S24 ($sample[$flag] -is [bool] -and -not $sample[$flag])
+        }
+        Check ($child.Queue.Count -eq 0)
+        Close-S24Child $child $false; $child=$null
+    }
+    $stage='negative-acl-and-input'
+    $world=[Security.Principal.SecurityIdentifier]::new('S-1-1-0')
+    $badAcl=Get-Acl -LiteralPath $root
+    $badAcl.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new($world,'Read','Allow'))
+    Set-Acl -LiteralPath $root -AclObject $badAcl
+    $rejected=$false
+    try { Assert-S24PrivateAcl $root } catch { $rejected=$true }
+    Check $rejected
+    Set-Acl -LiteralPath $root -AclObject $acl  # Restore only the disposable fixture.
+    $alias=Join-Path $root 'junction'
+    $target=Join-Path $root 'target'
+    $null=New-Item -ItemType Directory -Path $target
+    $null=New-Item -ItemType Junction -Path $alias -Target $target
+    $rejected=$false
+    try { Assert-S24NoReparse $alias } catch { $rejected=$true }
+    Check $rejected
+    Reject-Sampler (Config 'bad-phase' @{binding=$binding;challenge=$challenge;modulePath=$module;phase='unknown'})
+    Reject-Sampler (Config 'bad-schema' @{binding=$binding;challenge=$challenge;modulePath=$module;phase='before';extra=1})
+    $badConfig=Config 'bad-acl' @{binding=$binding;challenge=$challenge;modulePath=$module;phase='before'}
+    $fileAcl=Get-Acl -LiteralPath $badConfig
+    $fileAcl.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new($world,'Read','Allow'))
+    Set-Acl -LiteralPath $badConfig -AclObject $fileAcl
+    Reject-Sampler $badConfig
+    [IO.File]::AppendAllText($module,"`n# disposable source drift`n")
+    Reject-Sampler (Config 'bad-module' @{binding=$binding;challenge=$challenge;modulePath=$module;phase='before'})
+    Assert-S24 ($passed -eq 10)
+    [Console]::Out.WriteLine("Windows integration controls: $passed checks passed; CI ACL and CIM only; no SSH/operator evidence")
+} catch {
+    [Console]::Error.WriteLine('CI integration failed at stage: '+$stage)
+    # Test-only stack contains fixture/source locations, no operator data.
+    [Console]::Error.WriteLine($_.ScriptStackTrace)
+    throw
+} finally {
+    if ($null -ne $child) { Close-S24Child $child $true }
+    # Preserve fixtures for failed CI diagnosis; runner teardown owns their lifetime.
+}
