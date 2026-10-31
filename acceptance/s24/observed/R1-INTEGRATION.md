@@ -371,3 +371,14 @@ J0 pass. Specific predicate/member remains UNKNOWN. Exact frame is preserved in
 ARTIFACT-ATTEMPT-E14.json. Budget consumed; result commit restores job-level false.
 No third attempt/local fallback or parser relaxation. Guest setup and all other
 outstanding source/operational/private bindings remain BLOCKED/open.
+
+## E16 — predicate-reason source/schema delta, no third attempt
+
+[Source review](PREDICATE-REASON-REVIEW.md) adds nineteen closed parser reason labels
+in diagnostic schema 2, with exact gate validation and unchanged rejection rules.
+Current diagnostic producer/gate and disabled proposal pins CHANGE; earlier E13/
+E14 source hashes are historical, not current claims. Old attempt records/E11 and
+operational runtime/pins stay unchanged. Eleven offline tests cover every label
+with real synthetic tar cases or explicitly disclosed reader faults. No third
+attempt/activation or parser relaxation is included; all J0/inspection/setup/
+operational/private gaps remain and #112 stays draft/unmerged.

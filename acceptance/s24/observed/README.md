@@ -92,3 +92,8 @@ The separately approved E14 action downloaded/hashed 388,975,696 bytes matching
 the provider SHA, then returned ARCHIVE_PARSE/PREDICATE_REJECTED and HOLD/exit 2.
 No complete inspection receipt or selected hashes exist. The second attempt is
 consumed and its job is disabled again; see the appended proposal outcome/JSON.
+
+[E16 predicate reasons](PREDICATE-REASON-REVIEW.md) changes the diagnostic producer/
+gate to schema 2 with nineteen enum labels, without changing parser admission.
+Eleven new offline controls cover those labels. Earlier source hashes are history;
+new pins remain inside a disabled job. No third live action is authorized or run.

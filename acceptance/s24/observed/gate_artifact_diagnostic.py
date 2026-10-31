@@ -11,10 +11,11 @@ STAGES = frozenset(('START','GUARD','RESOURCE_LIMITS','RECEIPT_BINDING','TEMPFIL
 ERRORS = frozenset(('NONE','PREDICATE_REJECTED','REDIRECT_REJECTED','HTTP_403','HTTP_404',
     'HTTP_429','HTTP_5XX','HTTP_OTHER','TLS_ERROR','TIMEOUT','TRANSPORT_ERROR','IO_ERROR',
     'MEMORY_LIMIT','ARCHIVE_ERROR','JSON_ERROR','UNEXPECTED_ERROR'))
+PREDICATE_REASONS = frozenset(('NAME_LENGTH_OR_TYPE', 'ABSOLUTE_PATH', 'BACKSLASH', 'PATH_COMPONENT', 'NAME_CONTROL', 'NAME_DUPLICATE', 'COUNT_MEMBERS', 'HEADER_SIZE_RANGE', 'SIZE_LOGICAL', 'LINK_LENGTH', 'SPARSE', 'TYPE_REJECTED', 'ROOT_NOT_DIRECTORY', 'COUNT_SELECTED', 'SIZE_SELECTED', 'SELECTED_STREAM_MISSING', 'SIZE_SELECTED_READ', 'SELECTED_READ_SIZE', 'EMPTY_ARCHIVE'))
 FLAGS = frozenset(('archive_verified_receipt','j0_ready','setup_ready','guest_imported',
                   'guest_started','r1_complete','r2_authorized','scope_granted'))
 DIAG_KEYS = FLAGS | {'evidence_class','schema','stage','error','received_bytes','hashed_bytes',
-                    'download_complete','hash_complete','archive_sha256','digest_matches','parsed_members'}
+                    'download_complete','hash_complete','archive_sha256','digest_matches','parsed_members','predicate_reason'}
 RESULT_FLAGS = (FLAGS - {'archive_verified_receipt'}) | {'provider_signature_verified',
     'links_resolved','import_compatibility_tested','prepared_guest_artifact'}
 RESULT_KEYS = RESULT_FLAGS | {'evidence_class','archive_bytes','author_computed_archive_sha256',
@@ -57,8 +58,11 @@ def parse(raw):
 
 def diagnostic(d):
     need(type(d) is dict and set(d) == DIAG_KEYS)
-    need(d['evidence_class']=='j0-artifact-diagnostic-only' and type(d['schema']) is int and d['schema']==1)
+    need(d['evidence_class']=='j0-artifact-diagnostic-only' and type(d['schema']) is int and d['schema']==2)
     need(d['stage'] in STAGES and d['error'] in ERRORS)
+    reason=d['predicate_reason']
+    need(reason is None or (type(reason) is str and reason in PREDICATE_REASONS
+         and d['stage']=='ARCHIVE_PARSE' and d['error']=='PREDICATE_REJECTED'))
     for key in FLAGS:
         need(d[key] is False)
     for key in ('download_complete','hash_complete'):

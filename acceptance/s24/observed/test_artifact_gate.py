@@ -71,7 +71,7 @@ class GateControls(unittest.TestCase):
                    dict(frame,exception='PRIVATE_SENTINEL'),dict(frame,schema=True)]
         for d in mutations:
             with self.assertRaises(G.Rejected):G.validate(raw.splitlines()[0]+b'\n'+line(d)+b'\n',2)
-        bad=line(frame).replace(b'"schema":1',b'"schema":1,"schema":1')
+        bad=line(frame).replace(b'"schema":2',b'"schema":2,"schema":2')
         with self.assertRaises(G.Rejected):G.validate(raw.splitlines()[0]+b'\n'+bad+b'\n',2)
 
     def test_false_scope_and_milestone_types_enforced(self):

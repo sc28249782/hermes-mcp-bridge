@@ -235,7 +235,7 @@ class DiagnosticControls(unittest.TestCase):
 
     def test_frame_allowlist_and_false_flags(self):
         frame = D.Diagnostic().frame(None)
-        self.assertEqual(set(frame), {'evidence_class','schema','stage','error','received_bytes','hashed_bytes',
+        self.assertEqual(set(frame), {'evidence_class','schema','stage','error','predicate_reason','received_bytes','hashed_bytes',
             'download_complete','hash_complete','archive_sha256','digest_matches','parsed_members',
             'archive_verified_receipt','j0_ready','setup_ready','guest_imported','guest_started',
             'r1_complete','r2_authorized','scope_granted'})

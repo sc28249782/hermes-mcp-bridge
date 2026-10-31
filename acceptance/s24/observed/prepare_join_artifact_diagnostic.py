@@ -35,6 +35,9 @@ ERRORS = frozenset(('PREDICATE_REJECTED', 'REDIRECT_REJECTED', 'HTTP_403', 'HTTP
                     'JSON_ERROR', 'UNEXPECTED_ERROR', 'NONE'))
 
 
+PREDICATE_REASONS = frozenset(('NAME_LENGTH_OR_TYPE', 'ABSOLUTE_PATH', 'BACKSLASH', 'PATH_COMPONENT', 'NAME_CONTROL', 'NAME_DUPLICATE', 'COUNT_MEMBERS', 'HEADER_SIZE_RANGE', 'SIZE_LOGICAL', 'LINK_LENGTH', 'SPARSE', 'TYPE_REJECTED', 'ROOT_NOT_DIRECTORY', 'COUNT_SELECTED', 'SIZE_SELECTED', 'SELECTED_STREAM_MISSING', 'SIZE_SELECTED_READ', 'SELECTED_READ_SIZE', 'EMPTY_ARCHIVE'))
+
+
 class Diagnostic:
     def __init__(self):
         self.stage = 'START'
@@ -54,7 +57,13 @@ class Diagnostic:
         require(0 <= self.parsed_members <= MAX_MEMBERS)
         require(self.archive_sha256 is None or re.fullmatch('[0-9a-f]{64}', self.archive_sha256))
         # No error object/args/reason/URL/path/header/content appears in this frame.
-        return {'evidence_class': 'j0-artifact-diagnostic-only', 'schema': 1,
+        reason = None
+        if (isinstance(error, PredicateHold) and code == 'PREDICATE_REJECTED'
+                and self.stage == 'ARCHIVE_PARSE'):
+            require(type(error.reason) is str and error.reason in PREDICATE_REASONS)
+            reason = error.reason
+        return {'evidence_class': 'j0-artifact-diagnostic-only', 'schema': 2,
+                'predicate_reason': reason,
                 'stage': self.stage, 'error': code, 'received_bytes': self.received_bytes,
                 'hashed_bytes': self.hashed_bytes, 'download_complete': self.download_complete,
                 'hash_complete': self.hash_complete, 'archive_sha256': self.archive_sha256,
@@ -106,6 +115,19 @@ class Hold(Exception):
     pass
 
 
+class PredicateHold(Hold):
+    def __init__(self, reason):
+        require(type(reason) is str and reason in PREDICATE_REASONS)
+        self.reason = reason
+        # No input member name/value/error text is stored in exception args.
+        super().__init__()
+
+
+def predicate(value, reason):
+    if not value:
+        raise PredicateHold(reason)
+
+
 class RedirectHold(Hold):
     pass
 
@@ -119,7 +141,7 @@ def require(value):
         raise Hold()
 
 
-def digest(stream, ceiling, progress=None):
+def digest(stream, ceiling, progress=None, reason=None):
     total = 0
     h = hashlib.sha256()
     while True:
@@ -129,20 +151,24 @@ def digest(stream, ceiling, progress=None):
         total += len(block)
         if progress is not None:
             progress.hashed_bytes = total
-        require(total <= ceiling)
+        if reason is None:
+            require(total <= ceiling)
+        else:
+            predicate(total <= ceiling, reason)
         h.update(block)
 
 
 def member_name(name):
-    require(isinstance(name, str) and 0 < len(name) <= 4096)
+    predicate(isinstance(name, str) and 0 < len(name) <= 4096, 'NAME_LENGTH_OR_TYPE')
     while name.startswith('./'):
         name = name[2:]
     if name in ('', '.'):
         return '.'
-    require(not name.startswith('/') and '\\' not in name)
+    predicate(not name.startswith('/'), 'ABSOLUTE_PATH')
+    predicate('\\' not in name, 'BACKSLASH')
     name = name.rstrip('/')
-    require(all(part not in ('', '.', '..') for part in name.split('/')))
-    require(not any(ord(c) < 32 or ord(c) == 127 for c in name))
+    predicate(all(part not in ('', '.', '..') for part in name.split('/')), 'PATH_COMPONENT')
+    predicate(not any(ord(c) < 32 or ord(c) == 127 for c in name), 'NAME_CONTROL')
     return name
 
 
@@ -172,37 +198,39 @@ def inspect(stream, expected_sha, progress=None):
         progress.stage = 'ARCHIVE_PARSE'
     with tarfile.open(fileobj=stream, mode='r|*') as archive:
         for item in archive:
-            require(len(seen) < MAX_MEMBERS)
+            predicate(len(seen) < MAX_MEMBERS, 'COUNT_MEMBERS')
             name = member_name(item.name)
-            require(name not in seen and 0 <= item.size <= MAX_LOGICAL_BYTES)
+            predicate(name not in seen, 'NAME_DUPLICATE')
+            predicate(0 <= item.size <= MAX_LOGICAL_BYTES, 'HEADER_SIZE_RANGE')
             seen.add(name)
             if progress is not None:
                 progress.parsed_members = len(seen)
             logical += item.size
-            require(logical <= MAX_LOGICAL_BYTES)
-            require(len(item.linkname) <= 4096 and not item.sparse)
-            require(item.isreg() or item.isdir() or item.issym() or item.islnk())
-            require(name != '.' or item.isdir())
+            predicate(logical <= MAX_LOGICAL_BYTES, 'SIZE_LOGICAL')
+            predicate(len(item.linkname) <= 4096, 'LINK_LENGTH')
+            predicate(not item.sparse, 'SPARSE')
+            predicate(item.isreg() or item.isdir() or item.issym() or item.islnk(), 'TYPE_REJECTED')
+            predicate(name != '.' or item.isdir(), 'ROOT_NOT_DIRECTORY')
             record = {'name': name, 'type_hex': item.type.hex(), 'size': item.size,
                       'mode': item.mode, 'uid': item.uid, 'gid': item.gid,
                       'link': item.linkname}
             catalog.update((json.dumps(record, sort_keys=True, ensure_ascii=True,
                                        separators=(',', ':')) + '\n').encode('ascii'))
             if selected(name):
-                require(len(targets) < 32)
+                predicate(len(targets) < 32, 'COUNT_SELECTED')
                 target = dict(record)
                 # No link following/resolution. Only regular selected file data
                 # receives a content hash; links are disclosed, not admitted.
                 if item.isreg():
-                    require(item.size <= MAX_SELECTED_FILE)
+                    predicate(item.size <= MAX_SELECTED_FILE, 'SIZE_SELECTED')
                     data = archive.extractfile(item)
-                    require(data is not None)
+                    predicate(data is not None, 'SELECTED_STREAM_MISSING')
                     with data:
-                        read_size, content_sha = digest(data, MAX_SELECTED_FILE)
-                    require(read_size == item.size)
+                        read_size, content_sha = digest(data, MAX_SELECTED_FILE, reason='SIZE_SELECTED_READ')
+                    predicate(read_size == item.size, 'SELECTED_READ_SIZE')
                     target['content_sha256'] = content_sha
                 targets.append(target)
-    require(seen)
+    predicate(seen, 'EMPTY_ARCHIVE')
     return {'evidence_class': 'j0-archive-inspection-only', 'archive_bytes': size,
             'author_computed_archive_sha256': sha, 'archive_matches_provider_digest': True,
             'tar_header_count': len(seen), 'declared_logical_bytes': logical,

@@ -44,9 +44,9 @@ jobs:
           from pathlib import Path
           import hashlib
           root=Path('acceptance/s24/observed')
-          pins={'prepare_join_artifact_diagnostic.py':'ed1f9b689b6fb38593ffd101a437f1d8985260de993fb45c6b6213fee8d4482d',
+          pins={'prepare_join_artifact_diagnostic.py':'f9d1c3ed88eaf6da3988e6b93dc43b90c37566d03ce59f890e6b500fd4435988',
                 'J0-PROVIDER-SOURCE.json':'41e2e56ff490475d899894e61c93b0e518439551f193031a8bef38b447805fbc',
-                'gate_artifact_diagnostic.py':'ef7a8fc8923eacb565cfd559312aa372609204fe118d8e765e7a173ddc0987f2'}
+                'gate_artifact_diagnostic.py':'ad9c2e0e1c8c550c14b4449eb46dffd88d89f63bccfa0573e6e4c40178f4d915'}
           for name, expected in pins.items():
               assert hashlib.sha256((root/name).read_bytes()).hexdigest()==expected, 'reviewed source drift'
           PY
@@ -281,6 +281,28 @@ jobs:
           print(json.dumps({'artifact_gate_offline_exit':int(sys.argv[2]),'complete_without_skips':complete,'warning_markers':warnings}))
           assert sys.argv[2]=='0' and complete and not warnings, 'two-frame gate controls failed'
           print('Artifact two-frame gate controls: 10 passed; no live attempt')
+          PY
+
+      - name: Offline predicate-reason controls (no live attempt)
+        shell: bash
+        run: |
+          set -euo pipefail
+          diagnostic_log="$RUNNER_TEMP/s24-artifact-predicate-offline.log"
+          set +e
+          python -W error::ResourceWarning -I -S -B acceptance/s24/observed/test_artifact_predicate_reason.py > "$diagnostic_log" 2>&1
+          diagnostic_exit=$?
+          set -e
+          cat "$diagnostic_log"
+          python -I -S -B - "$diagnostic_log" "$diagnostic_exit" <<'PY'
+          from pathlib import Path
+          import json, re, sys
+          raw=Path(sys.argv[1]).read_bytes()
+          warnings=[m.decode() for m in (b'ResourceWarning', b'Exception ignored', b'Exception ignored while finalizing') if m in raw]
+          counts=re.findall(rb'^Ran (\d+) tests? in ', raw, re.M)
+          complete=counts==[b'11'] and re.search(rb'^OK\s*$', raw, re.M) is not None
+          print(json.dumps({'predicate_reason_offline_exit':int(sys.argv[2]),'complete_without_skips':complete,'warning_markers':warnings}))
+          assert sys.argv[2]=='0' and complete and not warnings, 'predicate-reason controls failed'
+          print('Artifact predicate-reason controls: 11 passed; no live attempt')
           PY
 
   observed-windows:
