@@ -1,5 +1,75 @@
 # R1 observer integration — consolidated source-acceptance work package
 
+## Current closure ledger
+
+Checkpoint: **31 October 2026**, reviewed-input head `c5c2ea66`; main `93e9601`
+contains merged #107–#111. #112 is DRAFT/UNMERGED. Current delivery map:
+[S24 milestones A/B/C](../../../docs/S24-DELIVERY-CLOSURE-TH.md#current-milestone-status).
+Operator agreed to pause new E increments and implementation pending this
+closure/route review. This is a documentation checkpoint, not another E item.
+
+**All eighteen obligations remain acceptance-OPEN.** PRESENT means evidence is
+available for independent disposition, not that a row is accepted/optional. The
+separate artifact/J0 lane is a test-environment prerequisite; no operator R1 run
+is required or authorized to substitute for source-control closure. Component
+fixtures can support acceptance only for the predicates they actually exercise.
+
+| Row | Current evidence and boundary | Remaining disposition / acceptance evidence |
+| --- | --- | --- |
+| 1 no-G/consumption | E0 readiness/no-entry controls; E2 real failed controller chain; E5 coordinator latch fixtures | Review combined worker/carrier path: no sample permission without actual entry; retain false flags/HOLD |
+| 2 live-before-entry | Real worker admission/pidfd in E2/E4, bound-only rejection in E0 | Joined host route must refuse sampling before entry despite a live worker |
+| 3 sample window | E4 actual collect/local Linux sample and post handshake; E7 actual Windows CIM separately | SAME invocation through native Windows SSH/guest wrapper/collect and actual CIM; reject before-entry/after-leaving; separate receipts cannot close this |
+| 4 identity/reuse | E8 supplies real exec/UID/PID reuse in private namespaces; mandatory adoption passes coherent-Linux CI | Primitive evidence PRESENT; review its scope plus wrapper/HOLD integration and exact source disposition; no claim that real transitions are still wholly untested |
+| 5 worker exits during sample | E4 real local-window worker-exit negative; E5 provider/transport fixtures | Joined carrier/CIM worker-exit path must reach its stimulus, HOLD and never resample/recover |
+| 6 buffered leaving/post | E0 actual pipe-buffer rejection; E4 leaving-before-post; E5 post/latch fixtures | Joined pre-drain/post-drain scheduling and no successful confirmation after leaving/exit |
+| 7 fatal marker failures | E0 actual full/short/closed-pipe fatal exits; E2 real marker chain | Evidence PRESENT; assess failure propagation/no success without boundaries in joined package |
+| 8 return/exception/finally | Body AST/regression evidence; E1 baseline helper cases; E2 actual failed collect | Preserve/review all boundary and exception semantics in joined package, including receipts after failure |
+| 9 framing/order/EOF | Strict parser/real-pipe controls; E5 host matrix; E6 actual Linux SSH argv/peer contract | Native Windows SSH → guest wrapper framing/EOF/oversize/flood/error paths in same bound route |
+| 10 correlation/identity | E5 mismatch fixtures; E6 actual SSH challenge/host-key cases; E7 entry challenge case | Review real joined correlation/worker binding rejection; digest is not authentication/approval |
+| 11 provider failures | E3/E7 actual ACL/pinned CIM; E5 missing/late/low/corrupt/blocked provider fixtures | Combined provider/window/error behavior and stop/partial-evidence policy; fixture scope disclosed |
+| 12 cancellation/adoption/stop | Disposable direct-child controls; E2 reap/EOF; E6 owner teardown; E7 entry cleanup | Full transport/provider/actor ownership, cancellation/adoption/EOF and confirmed stop; CI teardown is not operational cessation |
+| 13 deadlines/blockage | Real alarms and parser/output bounds; E5 blocked-provider/async-I/O cases | Independent outer deadline/owner-loss/start/output supervision and writer coverage; unknown stop remains HOLD |
+| 14 logs/fsync/preserve | Private-log failures; E5 closed/budget log fixtures; E7 existing-log preservation | Combined guest/host write/fsync/output failure and preserved partial evidence, with no after-step on HOLD |
+| 15 no-delay/fast completion | Marker contract unchanged; E4 natural fast-HOLD disclosed without retry | Natural joined timing evidence; no worker sleep/SIGSTOP/ACK wait, input inflation or timer widening to manufacture success |
+| 16 regressions/pins/flags | E1 complete baseline regression; exact-head CI/pins/false-flag controls; artifact suites separate | Current complete source/package and all substitutions/limitations require review; count/green CI is not acceptance |
+| 17 real process join | E2 actual controller/worker/collect failure; E4 local sample; E6 SSH and E7 Windows entry/CIM separately | Complete disposable joined Windows/SSH/collect/CIM source-control path with real predicates; synthetic input/readers remain explicitly labeled |
+| 18 offline/CI/operator separation | Offline runners remain distinct from E3/E7 CIM/process jobs; E8/E10 image facts | Scope attribution PRESENT; review separation, then bind actual operator observer/control only through private A6/A7 |
+
+### Milestone summary and work boundary
+
+| Gate | Current disposition |
+| --- | --- |
+| A1 ledger | Eighteen rows mapped above, all acceptance-OPEN; no automatic closures or reclassification |
+| A2 | Joined Windows/SSH/collect/CIM evidence still incomplete |
+| A3 | Component ACL/provider/coordinator/carrier evidence available; independent combined deadline/stop/writer obligations open |
+| A4 | Real identity primitives/regression evidence available; package/combined-path review disposition pending |
+| A5 | Current candidate hashes/pins and named-head CI exist; complete source package acceptance remains incomplete |
+| A6/A7 | Private binding section 4 and whole-package source acceptance remain unfilled/pending; no values published here |
+| B/C | R1 not authorized; R2/operational Phase B HOLD; no scoped §22 closure or release decision |
+
+J0 has three consumed requests, TWO recorded matching full digests (E14/E17),
+E12 UNKNOWN, and no completed inspection/catalog/selected hashes. E17 rejected
+TYPE_REJECTED; no actual subtype/path is known. E18 is a DESIGN PROPOSAL, with no
+implementation or fourth action. Current source/loader pins and actual records
+stay unchanged by this checkpoint. Kernel/boot/guest/port/lifecycle facts remain
+unbound; a metadata catalog alone cannot close the environment or joined route.
+
+Before more implementation, review this milestone/row map and make an explicit
+route-or-defer decision. Any chosen route must satisfy the same approved
+predicates and its own exact source/actor/timer/stop bindings; no unreviewed
+fallback or operator-VM substitution. Resume source/control work only with an
+identified open row and reviewable evidence target on this PR. Normative change
+uses §14; no requirement is waived by this pause or by a table edit.
+
+Historical E1–E18 entries below retain original evidence and source claims at
+their own heads. They are not phases or release milestones. The old A1/A2–A5
+snapshot below is superseded for current status only; approved obligations and
+history are preserved. No merge, R1/R2, provisioning, further live request,
+#80/#96 disposition, release or deployment authorized. **J0 NOT READY; R1 NOT
+AUTHORIZED; R2 HOLD**.
+
+## Historical work-package snapshots
+
 Status: **DRAFT / INCOMPLETE — NO SOURCE ACCEPTANCE OR EXECUTION AUTHORITY**.
 Base: main `93e9601f74b3e0bc1d963d65635d82f7083eca8a` (merged #110/#111).
 Delivery criteria: [A1–A5](../../../docs/S24-DELIVERY-CLOSURE-TH.md).

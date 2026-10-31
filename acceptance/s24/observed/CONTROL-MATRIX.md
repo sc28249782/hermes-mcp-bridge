@@ -1,5 +1,23 @@
 # Approved design §9 — implementation control coverage
 
+## Current status — 31 October 2026
+
+Use the [current 18-row closure ledger](R1-INTEGRATION.md#current-closure-ledger)
+for consolidated E1–E18 evidence and pending dispositions, and the
+[A/B/C milestone map](../../../docs/S24-DELIVERY-CLOSURE-TH.md#current-milestone-status)
+for delivery/authorization/release boundaries. All eighteen obligations remain
+acceptance-OPEN; actual identity/component CI evidence is now available where the
+original dated table says ERROR/NOT RUN/outstanding. Those old statements are
+historical, not a claim that later evidence is missing. They are retained below
+without weakening any obligation or replacing operator evidence with CI.
+
+#107–#111 are merged; #112 remains draft/incomplete. No row closure/optional move,
+source acceptance or R1 authority follows from this documentation update.
+New E increments and implementation are paused pending milestone/route review.
+J0 NOT READY; R1 NOT AUTHORIZED; R2 HOLD; live artifact job remains disabled.
+
+## Historical control/evidence snapshots
+
 Date: 30 October 2026. Status: incomplete acceptance controls; no VM scope.
 
 Current closure criteria and stage ownership are in the [S24 delivery overview](../../../docs/S24-DELIVERY-CLOSURE-TH.md). This matrix mixes dated evidence checkpoints and outstanding obligations: its original local ERROR/NOT RUN entries remain historical, with later CI evidence below. The merged suite is 40 tests after #109; draft #110 reports 43 only on its own head. No row is closed, reclassified or made optional by this link. The next source increment must address the consolidated R1 integration criteria, not a test-count target.

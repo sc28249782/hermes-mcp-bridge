@@ -1,5 +1,22 @@
 # Observed inventory source — draft CI validation
 
+## Current delivery checkpoint — 31 October 2026
+
+**PRE-R1 / SOURCE ACCEPTANCE INCOMPLETE / IMPLEMENTATION PAUSED**.
+Follow the [A/B/C milestone overview](../../../docs/S24-DELIVERY-CLOSURE-TH.md#current-milestone-status)
+and [current 18-row closure ledger](R1-INTEGRATION.md#current-closure-ledger).
+E1–E18 below are historical evidence checkpoints, not a progress bar or phases.
+Merged #107–#111 form main `93e9601`; #112 stays draft/unmerged. Current live
+artifact job is disabled; all three approved requests are consumed and only
+E14/E17 have recorded digest equality. E12 stays UNKNOWN; full inspection and
+selected hashes remain absent. E18 is a design proposal, with implementation and
+additional action paused pending milestone/route review. No source, pin, budget,
+private/operator scope, integration gate, release or deployment changes here.
+Existing regression CI may validate docs unchanged. J0 NOT READY; R1 NOT
+AUTHORIZED; R2 HOLD.
+
+## Historical source and evidence notes
+
 Status: **SOURCE CANDIDATE / NO OPERATOR EXECUTION SCOPE / R1 INCOMPLETE / R2 HOLD**.
 
 The original inventory controller/helper remain unchanged. These separately named
