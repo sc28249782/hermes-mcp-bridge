@@ -39,3 +39,39 @@ receipt or failure. Do not overwrite historical false flags or reinterpret a
 NOT ATTEMPTED job as an archive pass. Windows configured kernel, boot/coexistence,
 setup/lifecycle/stop bindings and operational row dispositions remain open.
 R1 NOT AUTHORIZED; R2 HOLD; #80/#96 unchanged; keep #112 draft and unmerged.
+
+## Actual E12 outcome — HOLD, not archive verification
+
+The pending statement above describes the initial source checkpoint. The actual
+attempt at head `2bf5741a5fbd917795d006d7b90ddc23165c8378` ran in
+[observed workflow 41170222586](https://github.com/sc28249782/hermes-mcp-bridge/actions/runs/41170222586),
+job `124446375046` (`observed-artifact-once`), run attempt 1, Python 3.12.15.
+Its live step ran 11:51:15–11:51:17 Bangkok time on 31 October 2026
+(04:51:15–04:51:17 UTC in the original log). The checked source
+returned constant `HOLD: artifact preparation incomplete`, exit **2**. The wrapper
+printed `artifact_live_exit=2`, `attempts=1`, `retry_permitted=false`, with empty
+ResourceWarning/finalizer markers, then correctly rejected the exit (gate exit 1,
+job failure). The separate runner reported Node.js 20 action deprecation; empty
+preparation-process warning markers do not mean the entire Actions log had no
+warnings. No retry or local download was executed.
+
+[Machine-readable attempt facts](ARTIFACT-ATTEMPT-E12.json) deliberately contain
+no computed archive hash. There is NO verification receipt, inspected catalog or
+selected guest binary evidence. Constant HOLD does not identify the failure stage:
+network success, completed download, hash match and parser progress are UNKNOWN.
+Duration alone is not a diagnosis. Do not infer HTTP error, digest mismatch,
+unsupported format or missing guest package from this output. E10/E11's historical
+archive flags remain unchanged; this failed attempt does not turn them true.
+
+The approved single attempt has been consumed. This documentation commit has a
+different subject and must skip the live step, as must a rerun. Successful tests
+at a later documentation head do not supersede this failed live result. Guest
+package/build/setup source remains BLOCKED on actual artifact evidence, alongside
+the existing Windows kernel/boot/coexistence and lifecycle bindings.
+
+Next source-review topic: a privacy-safe finite diagnostic contract, if a future
+attempt is authorized. It would need explicit stage/error enums and completed
+byte/hash milestones without URLs from redirects, exception text, host/temp paths
+or credentials, preserving all limits, no retries and constant HOLD. No such new
+source, telemetry, network probe, alternate download or second attempt is executed
+in E12. No provisioning, setup or R1/R2 authority follows this HOLD.

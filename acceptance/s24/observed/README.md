@@ -73,3 +73,7 @@ provisioning is claimed; those require actual artifact evidence and later review
 instruction after E11 source approval. The live step is limited to its unique
 checkpoint and first run attempt; later commits/reruns skip it. Actual archive
 receipt or HOLD must be read from that exact head/run, never inferred from wiring.
+
+E12's actual live attempt returned HOLD/exit 2 with no verification receipt; its
+failure stage remains unknown. The attempt record preserves that failure and the
+no-retry boundary. Later green tests or a skipped live job do not verify rootfs.

@@ -334,3 +334,11 @@ The actual live outcome must be appended; source wiring alone establishes no
 archive evidence. No provisioning/extraction/setup, retry or alternative route
 is included. Reviewed runtime/pins/preparation source and existing tests remain
 unchanged; keep all outstanding J0/operational bindings and #112 draft status.
+
+E12 actual result at `2bf5741a`: run 41170222586 / artifact job 124446375046
+returned constant HOLD, preparation exit 2, warning markers empty; the exit gate
+failed correctly. Failure stage/download/hash/parser progress remain UNKNOWN and
+no archive receipt was emitted. See the attempt record/JSON; no retry or local
+fallback occurred. Setup remains BLOCKED. The following docs-only checkpoint
+skips the consumed live action; green regression CI cannot replace failed live
+archive evidence. R1 NOT AUTHORIZED; R2 HOLD; no row closes.
