@@ -1,5 +1,15 @@
 # R1 observer integration — consolidated source-acceptance work package
 
+## A2/A3 J0 disposition — decision proposal only
+
+The [BACKSLASH disposition/route packet](CATALOG-BACKSLASH-DISPOSITION.md) relates
+the actual fourth HOLD to existing V1 source and proposes choices A/B/C. Separate
+literal-name V2 is a design recommendation only, with no selected operator route,
+implementation or fifth action. V1/strict/runtime/workflow/actual records remain
+unchanged; all eighteen dispositions remain OPEN. Current four-consumed / THREE
+matching-digest accounting and disabled guards remain as recorded below.
+No J0/A2/A3 closure, provisioning or merge. R1 NOT AUTHORIZED; R2 HOLD.
+
 ## Actual catalog result — A2/A3 prerequisite remains blocked
 
 [Fourth-invocation record](CATALOG-ATTEMPT-FOUR.md): one explicitly approved CI

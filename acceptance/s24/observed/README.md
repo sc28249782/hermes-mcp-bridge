@@ -1,5 +1,15 @@
 # Observed inventory source — draft CI validation
 
+## BACKSLASH disposition and route choices — design only
+
+[Decision/design packet](CATALOG-BACKSLASH-DISPOSITION.md) records attempt four's
+BACKSLASH as a correct V1 policy HOLD, without inferring a member/path or defect.
+It compares another bound artifact, a separate literal-name catalog V2, and route
+deferral. V2 is recommended for design review, not selected or implemented.
+No source/pin/workflow change, fifth invocation or row closure. Four consumed /
+THREE digest matches; both proposal jobs stay disabled. J0 NOT READY;
+R1 NOT AUTHORIZED; R2 HOLD; same draft/unmerged.
+
 ## Actual catalog attempt four — HOLD
 
 Operator approved one invocation under the reviewed wrapper. [Actual record](CATALOG-ATTEMPT-FOUR.md):
