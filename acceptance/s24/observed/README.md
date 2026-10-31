@@ -68,3 +68,8 @@ changes no runtime/pins or source-acceptance/operational authority.
 review with 13 synthetic offline controls. CI does not execute the live download
 command. No archive verification, prepared image, complete setup source or guest
 provisioning is claimed; those require actual artifact evidence and later review.
+
+[E12 single CI attempt](ARTIFACT-ATTEMPT-RECORD.md) follows the operator's next-step
+instruction after E11 source approval. The live step is limited to its unique
+checkpoint and first run attempt; later commits/reruns skip it. Actual archive
+receipt or HOLD must be read from that exact head/run, never inferred from wiring.

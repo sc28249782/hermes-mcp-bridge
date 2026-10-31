@@ -324,3 +324,13 @@ links remain unresolved. Actual archive evidence, guest package/image/setup
 source and Windows kernel/coexistence/owner/stop bindings remain missing. This is
 the artifact-preparation portion for source review, not completion of setup or
 J0. No row closes and runtime/pins/timers remain unchanged; keep #112 draft.
+
+## E12 — operator-directed single CI archive inspection
+
+[Single-attempt record](ARTIFACT-ATTEMPT-RECORD.md) adds one exact-source-pinned
+CI execution of the approved E11 preparation driver. A unique checkpoint subject
+and run_attempt=1 prevent later commits/reruns from silently downloading again.
+The actual live outcome must be appended; source wiring alone establishes no
+archive evidence. No provisioning/extraction/setup, retry or alternative route
+is included. Reviewed runtime/pins/preparation source and existing tests remain
+unchanged; keep all outstanding J0/operational bindings and #112 draft status.

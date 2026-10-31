@@ -9,6 +9,67 @@ permissions:
   contents: read
 
 jobs:
+  observed-artifact-once:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Select the single reviewed E12 checkpoint (never a retry)
+        id: select
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha }}'
+          if test "$GITHUB_RUN_ATTEMPT" = 1 && test "$(git log -1 --format=%s)" = 'ci: run reviewed E11 artifact inspection once (E12)'; then
+            echo 'run=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'run=false' >> "$GITHUB_OUTPUT"
+            echo 'Artifact inspection NOT ATTEMPTED: outside the one E12 checkpoint or a rerun'
+          fi
+      - name: One exact-source provider archive inspection; no provisioning
+        if: steps.select.outputs.run == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -I -S -B - <<'PY'
+          from pathlib import Path
+          import hashlib
+          root=Path('acceptance/s24/observed')
+          pins={'prepare_join_artifact.py':'293f0f61077d5636bd728a779c803097887ae84bf7c4c261d42d04c0591be0a4',
+                'J0-PROVIDER-SOURCE.json':'41e2e56ff490475d899894e61c93b0e518439551f193031a8bef38b447805fbc'}
+          for name, expected in pins.items():
+              assert hashlib.sha256((root/name).read_bytes()).hexdigest()==expected, 'reviewed source drift'
+          PY
+          artifact_log="$RUNNER_TEMP/s24-artifact-live-once.log"
+          set +e
+          python -W error::ResourceWarning -I -S -B acceptance/s24/observed/prepare_join_artifact.py --download-and-inspect > "$artifact_log" 2>&1
+          artifact_exit=$?
+          set -e
+          cat "$artifact_log"
+          python -I -S -B - "$artifact_log" "$artifact_exit" <<'PY'
+          from pathlib import Path
+          import json, sys
+          raw=Path(sys.argv[1]).read_bytes()
+          warnings=[m.decode() for m in (b'ResourceWarning', b'Exception ignored in', b'Exception ignored while finalizing') if m in raw]
+          print(json.dumps({'artifact_live_exit':int(sys.argv[2]),'warning_markers':warnings,'attempts':1,'retry_permitted':False}))
+          assert not warnings, 'post-exit warning gate failed'
+          assert sys.argv[2]=='0', 'HOLD: one artifact attempt failed; no retry/fallback'
+          assert len(raw)<=65537 and len(raw.splitlines())==1, 'unexpected receipt framing'
+          result=json.loads(raw)
+          assert result['evidence_class']=='j0-archive-inspection-only'
+          assert result['archive_matches_provider_digest'] is True
+          assert result['author_computed_archive_sha256']=='bb415d824822c4b878125729af451a5d18fb13d1cf5cbed9a7393ad64ac6039e'
+          for key in ('provider_signature_verified','links_resolved','import_compatibility_tested','prepared_guest_artifact','setup_ready','j0_ready','guest_imported','guest_started','r1_complete','r2_authorized','scope_granted'):
+              assert result[key] is False, 'unexpected readiness/scope claim'
+          print('Artifact single-attempt post-exit gate: CLEAN; inspection only; J0 NOT READY')
+          PY
+
   observed-real-identity:
     runs-on: ubuntu-24.04
     timeout-minutes: 3
