@@ -1,5 +1,23 @@
 # Roadmap
 
+## Handoff/checkpoint priority — 2 November 2026 (design only)
+
+Operator requested the attached verifiable-handoff work before returning to J0.
+[Gap analysis/design/schema](HANDOFF-CHECKPOINT-DESIGN-TH.md),
+[preregistered recovery experiment plan](HANDOFF-RECOVERY-EXPERIMENT-PLAN-TH.md)
+and [session checklist](HANDOFF-SESSION-CHECKLIST-TH.md) are a separate design candidate.
+No runtime implementation, experiment gain, Dev pilot, tool/config/approval-policy
+change or release scope is claimed. Design/schema review precedes a small offline
+validator/store/planner PR; backend adapters and runtime pilot need separate scope.
+
+Main `93e9601` contains merged #107–#111. The earlier #110/count snapshot below
+is historical. Current S24 evidence remains on draft [#112](https://github.com/sc28249782/hermes-mcp-bridge/pull/112)
+at `84b1ec3e`: four consumed archive invocations, three recorded matching digests,
+latest actual HOLD/BACKSLASH, no completed catalog; V2 design not selected.
+J0 is parked during this handoff work. R1 NOT AUTHORIZED / R2 HOLD, #80/#96,
+private bindings, signed v1.2.8 release/deployment record and Hands v1.3 deferral
+remain unchanged; no production probe, inventory attempt, merge or deployment.
+
 ## Current delivery checkpoint — S24 (30 October 2026)
 
 The [S24 delivery and closure overview](S24-DELIVERY-CLOSURE-TH.md) is the current milestone map. PRs #107–#109 are merged; #110 remains a draft local-handshake control increment, not operational acceptance. The merged observed suite has 40 tests; #110 CI has 43. Counts do not measure release readiness. R1 is PENDING_BINDINGS / NOT AUTHORIZED; R2 and operational Phase B remain HOLD.
