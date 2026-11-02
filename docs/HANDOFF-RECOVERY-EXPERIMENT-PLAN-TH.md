@@ -1,4 +1,19 @@
-# Recovery experiments — preregistration v1 (NOT RUN)
+# Recovery experiments — preregistration v1 and results
+
+## Current evaluation disposition — 2 November 2026
+
+The preregistered offline phase has completed: development 200 arm-trials and
+heldout 200 arm-trials, one separately approved invocation each. Both receipts and
+independent result reviews are accepted and merged through #115. Shared-contract
+outcomes tie; no candidate task-success/recovery gain is demonstrated. Do not pool
+split/eligibility denominators or infer operational reliability from these fixtures.
+[Results, immutable receipts and staged exit](HANDOFF-OFFLINE-CLOSURE-TH.md) implement
+delivery 4 as a docs-only candidate. No fresh trial/tuning or Dev pilot is authorized.
+The original preregistration below preserves its NOT RUN/UNBOUND/NOT_MEASURED
+statements as proposal-time history; they are not current result claims. Protocol,
+corpus, source pins and completed receipts remain unchanged. J0 stays parked.
+
+## Original preregistration snapshot (before implementation and runs)
 
 วันที่ 2 พฤศจิกายน 2026. อ้าง [checkpoint design](HANDOFF-CHECKPOINT-DESIGN-TH.md).
 นี่เป็น protocol สำหรับ source review ก่อน implementation ไม่ใช่รายงานผลทดลอง

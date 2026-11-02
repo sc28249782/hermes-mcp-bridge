@@ -1,5 +1,19 @@
 # Roadmap
 
+## Current handoff closure — 2 November 2026
+
+Design #113 and offline/evaluation #114–#115 are merged; main checkpoint
+`7fcb3f39dfaa3fcf2535fafe5104f425cf72bc00`. Development and heldout each completed
+200 arm-trials once; shared-contract outcomes tie, with no candidate outcome gain
+demonstrated. Both experiment jobs are disabled; source/protocol/receipts remain frozen.
+[Current disposition and delivery-4 closure criteria](HANDOFF-OFFLINE-CLOSURE-TH.md)
+map the completed offline work, current docs candidate and remaining runtime gates.
+No new evaluation, Dev pilot, J0 activation, release or deployment is authorized.
+J0 parked; R1 NOT AUTHORIZED / R2 HOLD; #112/#80/#96/private bindings unchanged.
+The following dated handoff/preparation paragraphs retain their proposal-time
+statements; this current checkpoint supersedes their handoff merge/run status only.
+Existing S24/Hands capability and release gates elsewhere remain unchanged.
+
 ## Handoff paired-evaluation preparation — 2 November 2026
 
 Reviewed #114 candidate `c953b6f4` remains draft/unmerged. A separate stacked
