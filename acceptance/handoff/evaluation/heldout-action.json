@@ -1,0 +1,40 @@
+{
+  "approval_verbatim": "อนุมัติทำขั้นถัดไป",
+  "approval_timestamp": "NOT_PROVIDED",
+  "approval_scope": "one heldout split after independent development-result review; no retry/tuning/merge",
+  "reviewed_head": "fb3e796cdfcdb0a377dde1db065db48bdeea1f60",
+  "activation_sha": "6f7b81d7f7362c71f6d0e9f5a36bb81886b3fa5c",
+  "workflow_run": 41437912825,
+  "run_attempt": 1,
+  "job": 125252238491,
+  "development_receipt_sha256": "d1a023c6a52aba5b9f6ea4f51f88e7777317a1004dca4d8457887ba83cfafaed",
+  "heldout_invocations": 1,
+  "heldout_arm_trials": 200,
+  "development_rerun": false,
+  "retry_authorized": false,
+  "merge_authorized": false,
+  "j0": "PARKED",
+  "r1": "NOT_AUTHORIZED",
+  "r2": "HOLD",
+  "result": {
+    "actual_runtime": {
+      "filesystem_magic": 61267,
+      "kernel": "7.0.0-1017-azure",
+      "machine": "x86_64",
+      "os": "linux",
+      "python": "3.12.15",
+      "sqlite": "3.45.1",
+      "temporary_filesystem_magic": 61267
+    },
+    "harness_exit": 0,
+    "heldout_executed": true,
+    "paired_threshold_passed": true,
+    "receipt_sha256": "9f7862f212397956c4fbd7f1140dddf3f021cc8aae3e04aad797d92ecd4fe07f",
+    "record_type": "heldout_action_summary",
+    "retry_permitted": false,
+    "rows": 200,
+    "runtime_matches": true,
+    "state": "COMPLETE",
+    "warning_markers": []
+  }
+}
