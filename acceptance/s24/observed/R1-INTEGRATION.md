@@ -1,5 +1,20 @@
 # R1 observer integration — consolidated source-acceptance work package
 
+## Inspection/import decision — after accepted V2 catalog
+
+[Requirement mapping and next-stage choices](J0-INSPECTION-IMPORT-DECISION.md)
+separate strict E17 TYPE_REJECTED from V1 catalog BACKSLASH and V2's completed
+49190-entry metadata catalog. Counts/types are not transferred across policies;
+strict evidence and every historical record remain unchanged.
+The existing J0 contract still requires reviewed artifact-preparation/admission,
+an immutable artifact/manifest and all environment/setup/lifecycle bindings.
+No catalog flag is promoted. Recommendation is a single consumer-specific
+prepared-artifact admission **design**, subject to review and operator choice;
+A/C remain open. This packet neither selects/implements that design nor opens
+invocation six. FIVE consumed / FOUR digest matches; E12 UNKNOWN.
+All eighteen rows OPEN; J0 NOT READY; R1 NOT AUTHORIZED / R2 HOLD; same draft.
+
+
 ## Actual fifth invocation — V2 CATALOG ONLY complete
 
 [Attempt-five record](LITERAL-CATALOG-ATTEMPT-FIVE.md) reports one separately
