@@ -1,5 +1,18 @@
 # R1 observer integration — consolidated source-acceptance work package
 
+## Current resumption — 2 November 2026
+
+#116 merged at `d7515c5fb4e33b41f81a8535fb06a0ea2cd72255`, completing the
+offline handoff documentation work. Operator approved returning to J0 preparation
+with “ดำเนินการตามเสนอได้” (exact timestamp NOT_PROVIDED).
+[One bounded artifact-policy work package](J0-RESUMPTION-WORK-PACKAGE.md) now
+focuses on independent disposition/design review and route A/B/C choice after
+the actual BACKSLASH HOLD. Returning to J0 is not selecting V2 or a fifth action.
+No source/pin/workflow/record change or new E counter; strict/V1 and both disabled
+proposal jobs remain unchanged. All eighteen obligations remain OPEN; J0 NOT READY;
+R1 NOT AUTHORIZED / R2 HOLD. Earlier handoff pause/checkpoints remain historical.
+
+
 ## A2/A3 J0 disposition — decision proposal only
 
 The [BACKSLASH disposition/route packet](CATALOG-BACKSLASH-DISPOSITION.md) relates
