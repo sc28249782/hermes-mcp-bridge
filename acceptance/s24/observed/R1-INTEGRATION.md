@@ -1,5 +1,18 @@
 # R1 observer integration — consolidated source-acceptance work package
 
+## Current selected B source candidate — 2 November 2026
+
+Operator selected the recommended B source-preparation scope with
+“ดำเนินการตามที่แนะนำได้” (exact timestamp NOT_PROVIDED), after the round-21
+resumption/decision-packet APPROVE. [V2 exact sources and control inventory](LITERAL-CATALOG-SOURCE-REVIEW.md)
+now provide a separately named literal-name producer/gate and 46 offline tests.
+This is not a fifth invocation, full source acceptance, provisioning or merge.
+Strict/V1/tests/actual records remain unchanged; only an offline CI step is added.
+No new E counter. Earlier NOT SELECTED/NOT IMPLEMENTED statements are historical.
+FOUR consumed / THREE digest matches; E12 UNKNOWN; all eighteen rows OPEN;
+J0 NOT READY; R1 NOT AUTHORIZED / R2 HOLD; #80/#96/A6/A7 unchanged.
+
+
 ## Current resumption — 2 November 2026
 
 #116 merged at `d7515c5fb4e33b41f81a8535fb06a0ea2cd72255`, completing the
