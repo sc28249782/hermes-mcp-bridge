@@ -174,3 +174,13 @@ Following separate operator action approval, one development split completed:
 See [the development result and authority record](DEVELOPMENT-RUN.md) and
 [the exact receipt](development-receipt.json). Heldout remains unexecuted and
 requires a separate decision; candidate/protocol inputs remain frozen.
+
+## Current checkpoint — heldout executed once
+
+Following independent development-result review and separate operator approval,
+one heldout split completed: 200 arm-trials, threshold passed. Shared-contract
+outcomes tie again; no candidate task-success/recovery gain is demonstrated.
+See [the heldout authority, results and combined disposition](HELDOUT-RUN.md) and
+[the exact heldout receipt](heldout-receipt.json). Both split jobs are disabled;
+400 arm-trials across two frozen splits are complete, with separate denominators.
+No further run, tuning, merge or runtime integration is authorized by this action.

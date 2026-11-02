@@ -11,7 +11,7 @@ permissions:
 jobs:
   heldout-once:
     # Operator-approved heldout split only; spent after this subject/attempt.
-    if: ${{ github.run_attempt == 1 }}
+    if: ${{ false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 180
     steps:
