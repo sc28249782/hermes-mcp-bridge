@@ -9,6 +9,111 @@ permissions:
   contents: read
 
 jobs:
+  development-once:
+    # Operator-approved development split only; spent after this subject/attempt.
+    if: ${{ github.run_attempt == 1 }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.15'
+      - name: Select the single approved development checkpoint
+        id: select
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha }}'
+          if test "$GITHUB_RUN_ATTEMPT" = 1 && test "$(git log -1 --format=%s)" = 'ci: run approved handoff development split once'; then
+            echo 'run=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'run=false' >> "$GITHUB_OUTPUT"
+            echo 'Development split NOT ATTEMPTED: checkpoint or attempt mismatch'
+          fi
+      - name: One approved development split; no heldout or retry
+        if: steps.select.outputs.run == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -I -S -B - <<'PIN'
+          from pathlib import Path
+          import hashlib
+          root=Path('acceptance/handoff/evaluation')
+          assert hashlib.sha256((root/'protocol.json').read_bytes()).hexdigest()=='af1b4b2c1db2bdd422c7954a5065a601c7e88f4097d08e05ade4a8c4a1e2c903'
+          assert hashlib.sha256((root/'harness.py').read_bytes()).hexdigest()=='ca211b2be3bcb414a08c7eb97c5d2d9d0ba1c5aa2d7892281d63568ea732c2b3'
+          PIN
+          development_root="$RUNNER_TEMP/handoff-development-once"
+          development_log="$RUNNER_TEMP/handoff-development-once.log"
+          set +e
+          python -W error::ResourceWarning -I -S -B acceptance/handoff/evaluation/harness.py development --output-root "$development_root" > "$development_log" 2>&1
+          development_exit=$?
+          set -e
+          # Never cat raw harness/child stderr. Emit checked synthetic evidence.
+          python -I -S -B - "$development_root" "$development_log" "$development_exit" "$RUNNER_TEMP/handoff-development-action-summary.json" <<'COLLECT'
+          from pathlib import Path
+          import hashlib,importlib.util,json,sys
+          def dump(value):return json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=True,allow_nan=False)
+          def need(value):
+              if not value:raise ValueError()
+          root=Path(sys.argv[1]);log=Path(sys.argv[2]);code=int(sys.argv[3]);summary_path=Path(sys.argv[4])
+          result={'record_type':'development_action_summary','harness_exit':code,'paired_threshold_passed':False,'heldout_executed':False,'retry_permitted':False}
+          try:
+              with log.open('rb') as handle:raw=handle.read(1048577)
+              need(len(raw)<=1048576)
+              warnings=[m.decode() for m in (b'ResourceWarning',b'Exception ignored',b'Traceback') if m in raw]
+              result['warning_markers']=warnings
+              p=Path('acceptance/handoff/evaluation/harness.py')
+              spec=importlib.util.spec_from_file_location('development_collector',p)
+              h=importlib.util.module_from_spec(spec);spec.loader.exec_module(h)
+              manifest_raw,manifest,schedules,profiles=h.validate_corpus()
+              need(h.sha(manifest_raw)=='af1b4b2c1db2bdd422c7954a5065a601c7e88f4097d08e05ade4a8c4a1e2c903')
+              result['actual_runtime']=h.runtime_facts(root.parent)
+              result['runtime_matches']=h.encoded(result['actual_runtime'])==h.encoded(manifest['runtime_binding'])
+              oracle=h.load_module('development_oracle',p.with_name('oracle.py'))
+              if (root/'receipt.json').exists():
+                  receipt_raw,receipt=h.read_json(root/'receipt.json',4*1024**2)
+                  need(set(receipt)=={'kind','manifest_sha256','split','rows','rows_sha256','summary','threshold_passed','model_comparison','human_comparison','tokens_per_verified_success','runtime_facts'})
+                  need(receipt['kind']=='paired-recovery-fixture-receipt' and receipt['split']=='development' and receipt['manifest_sha256']==h.sha(manifest_raw))
+                  need(receipt['rows_sha256']==h.sha(h.encoded(receipt['rows'])) and h.encoded(receipt['runtime_facts'])==h.encoded(manifest['runtime_binding']))
+                  passed=h.validate_records(receipt['rows'],schedules,profiles,oracle,'development')
+                  need(receipt['threshold_passed'] is passed and receipt['summary']==oracle.aggregate(receipt['rows']))
+                  need(code==(0 if passed else 2))
+                  result.update(state='COMPLETE' if passed and not warnings else 'HOLD_COMPLETE',rows=len(receipt['rows']),receipt_sha256=h.sha(receipt_raw),paired_threshold_passed=passed and not warnings)
+                  header={k:v for k,v in receipt.items() if k!='rows'}
+                  print(dump({'record_type':'development_receipt_header','receipt':header}))
+                  for row in receipt['rows']:
+                      need(len(h.encoded(row))<=16384)
+                      print(dump({'record_type':'development_arm_trial','row':row}))
+                  print(dump({'record_type':'development_receipt_end','rows':len(receipt['rows']),'receipt_sha256':h.sha(receipt_raw)}))
+              else:
+                  result['state']='HOLD_INCOMPLETE'
+                  if (root/'records.jsonl').exists():
+                      with (root/'records.jsonl').open('rb') as handle:journal=handle.read(4*1024**2+1)
+                      need(len(journal)<=4*1024**2)
+                      result.update(journal_sha256=h.sha(journal),journal_bytes=len(journal),journal_lines=len(journal.splitlines()))
+                  else:result.update(journal_bytes=0,journal_lines=0)
+          except Exception:
+              result['state']='HOLD_COLLECTOR_REJECTED'
+          summary_path.write_text(dump(result)+'\n')
+          print(dump(result))
+          sys.exit(0 if result['paired_threshold_passed'] and result.get('state')=='COMPLETE' else 2)
+          COLLECT
+      - name: Retain only synthetic journal receipt and action summary
+        if: always() && steps.select.outputs.run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: handoff-development-once-${{ github.run_id }}
+          retention-days: 30
+          if-no-files-found: warn
+          path: |
+            ${{ runner.temp }}/handoff-development-once/records.jsonl
+            ${{ runner.temp }}/handoff-development-once/receipt.json
+            ${{ runner.temp }}/handoff-development-action-summary.json
+
   preparation:
     runs-on: ubuntu-24.04
     timeout-minutes: 4
