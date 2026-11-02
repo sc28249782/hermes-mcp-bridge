@@ -1,5 +1,19 @@
 # Observed inventory source — draft CI validation
 
+## Current fifth-invocation proposal — DISABLED
+
+The reviewed V2 source at `e1e438f0` now has a
+[disabled finite-action proposal](LITERAL-CATALOG-ATTEMPT-FIVE-PROPOSAL.md).
+New job `observed-literal-catalog-proposal` has a literal job-level false guard;
+this is preparation for wrapper review, not operator action approval.
+A/C remain available alternatives; B's possible fifth invocation is limited to
+one CI producer call with fixed source/receipt pins and unchanged budgets.
+A future HOLD returns to route-or-defer, with no automatic sixth attempt.
+No source/test/actual-record change or new E counter; all old guards/selectors
+remain intact. FOUR consumed / THREE digest matches, E12 UNKNOWN; no fifth action.
+All eighteen rows OPEN; J0 NOT READY; R1 NOT AUTHORIZED / R2 HOLD; same draft.
+
+
 ## Current selected B source candidate — 2 November 2026
 
 Operator selected the recommended B source-preparation scope with

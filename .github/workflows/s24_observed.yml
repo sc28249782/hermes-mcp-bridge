@@ -9,6 +9,57 @@ permissions:
   contents: read
 
 jobs:
+  observed-literal-catalog-proposal:
+    # REVIEW ONLY: operator must separately approve one fifth live invocation.
+    # Activation is a later one-line removal of this job-level false guard.
+    if: ${{ false }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Select one approved literal metadata catalog checkpoint (attempt five)
+        id: select
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha }}'
+          if test "$GITHUB_RUN_ATTEMPT" = 1 && test "$(git log -1 --format=%s)" = 'ci: run approved literal metadata catalog attempt five once'; then
+            echo 'run=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'run=false' >> "$GITHUB_OUTPUT"
+            echo 'Catalog live attempt NOT ATTEMPTED: checkpoint or attempt mismatch'
+          fi
+      - name: Proposed exact-source literal catalog attempt; no provisioning
+        if: steps.select.outputs.run == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -I -S -B - <<'PYVERIFY'
+          from pathlib import Path
+          import hashlib
+          root=Path('acceptance/s24/observed')
+          pins={'catalog_join_artifact_literal.py':'16d1953d2094281d39c328dd54bada15de6be3e1b3f84cbddf8b69acbf39fc90',
+                'gate_artifact_catalog_literal.py':'f7cf5136f8aaedecbe640fe960e0ae4f7c9fe5b7daf9f5992e410830ad53d4ba',
+                'J0-PROVIDER-SOURCE.json':'41e2e56ff490475d899894e61c93b0e518439551f193031a8bef38b447805fbc'}
+          for name, expected in pins.items():
+              assert hashlib.sha256((root/name).read_bytes()).hexdigest()==expected, 'reviewed literal catalog source drift'
+          PYVERIFY
+          catalog_log="$RUNNER_TEMP/s24-literal-catalog-proposed.log"
+          set +e
+          python -W error::ResourceWarning -I -S -B acceptance/s24/observed/catalog_join_artifact_literal.py --download-and-catalog-literal-metadata > "$catalog_log" 2>&1
+          catalog_exit=$?
+          set -e
+          # Never cat or upload raw output. Gate validates before emitting data.
+          # Exit 2 remains failure; no retry, alternate lane or fallback.
+          python -W error::ResourceWarning -I -S -B acceptance/s24/observed/gate_artifact_catalog_literal.py "$catalog_log" "$catalog_exit"
+
+
   observed-catalog-proposal:
     # REVIEW ONLY: operator must separately approve one fourth live invocation.
     # Activation is a later one-line removal of this job-level false guard.
