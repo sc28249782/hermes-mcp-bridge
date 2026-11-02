@@ -7,13 +7,12 @@ import json
 import multiprocessing as mp
 import os
 from pathlib import Path
-import sqlite3
 import tempfile
 import unittest
 
 import checkpoint as C
 from checkpoint import Hold, plan, validate
-from fixtures import BackendFixture, ROOT, encode, envelope, ready
+from fixtures import BackendFixture, ROOT, database, encode, envelope, ready
 import store as S
 
 
@@ -65,7 +64,8 @@ class ValidationControls(unittest.TestCase):
     def test_timestamp_always_checked_without_optional_library(self):
         for timestamp in ('bad', '2026-02-30T00:00:00Z', '2026-11-02',
                           '2026-11-02T00:00:00', '2026-11-02T24:00:00Z',
-                          '2026-11-02T00:00:60Z', '2026-11-02T00:00:00+25:00'):
+                          '2026-11-02T00:00:60Z', '2026-11-02T00:00:00+25:00',
+                          '2026-11-02T00:00:00+00:60', '2026-11-02T00:60:00Z'):
             e = envelope(); e['payload']['created_at'] = timestamp
             with self.subTest(timestamp=timestamp), self.assertRaises(Hold): validate(encode(e))
         self.assertEqual(C.timestamp('2026-11-02T07:00:00+07:00'), C.timestamp('2026-11-02T00:00:00Z'))
@@ -115,7 +115,7 @@ class StoreControls(unittest.TestCase):
         with S.Store(self.root) as other:
             self.assertEqual(other.head('chain_fixture_001')['payload']['generation'],2)
         self.assertEqual((self.root/S.DB).stat().st_mode & 0o777,0o600)
-        with sqlite3.connect(self.root/S.DB) as db:
+        with database(self.root/S.DB) as db:
             self.assertEqual(db.execute('SELECT count(*) FROM checkpoints').fetchone()[0],2)
             self.assertEqual(db.execute('SELECT envelope FROM checkpoints WHERE generation=1').fetchone()[0],self.raw)
 
@@ -149,12 +149,12 @@ class StoreControls(unittest.TestCase):
         (self.root/S.DB).chmod(0o644)
         with self.assertRaises(Hold):self.db.head('chain_fixture_001')
         (self.root/S.DB).chmod(0o600)
-        with sqlite3.connect(self.root/S.DB) as db:db.execute('CREATE TABLE injected(value)')
+        with database(self.root/S.DB) as db:db.execute('CREATE TABLE injected(value)')
         with self.assertRaises(Hold):self.db.head('chain_fixture_001')
 
     def test_corrupt_record_and_wrong_parent_detected(self):
         self.db.append(self.next(),1,self.sha)
-        with sqlite3.connect(self.root/S.DB) as db:db.execute('UPDATE checkpoints SET envelope=? WHERE generation=1',(b'{}',))
+        with database(self.root/S.DB) as db:db.execute('UPDATE checkpoints SET envelope=? WHERE generation=1',(b'{}',))
         with self.assertRaises(Hold):self.db.head('chain_fixture_001')
 
     def test_root_rename_keeps_descriptor_binding(self):

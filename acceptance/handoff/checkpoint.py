@@ -33,6 +33,9 @@ def timestamp(value):
     need(type(value) is str and re.fullmatch(
         r'[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}'
         r'(?:\.[0-9]{1,6})?(?:Z|[+-][0-9]{2}:[0-9]{2})', value))
+    need(int(value[11:13]) <= 23 and int(value[14:16]) <= 59 and int(value[17:19]) <= 59)
+    if not value.endswith('Z'):
+        need(int(value[-5:-3]) <= 23 and int(value[-2:]) <= 59)
     try:
         result = datetime.fromisoformat(value.replace('Z', '+00:00'))
         need(result.tzinfo is not None)

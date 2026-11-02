@@ -10,10 +10,10 @@ J0 is parked; no inventory/model/Dev/production/guest call, fifth attempt or mer
 
 | File | SHA256 |
 | --- | --- |
-| `checkpoint.py` | `114bc057cb6ffbdc9d0c09f37250e52e9aed0673220b9d444e3508cfa44f854e` |
+| `checkpoint.py` | `b3f2b58aa939340c043f4999868b5c9989db6f7ad7b5dee74762fbd0eb4ab5ed` |
 | `store.py` | `d5106483892ea9ae4832204bdfd9c446013b44e1894e21d5f8614fe245806c97` |
-| `fixtures.py` | `953c8f833d803fe363fb281807cca12d995562875bcd2345c55f0aa0029b50c9` |
-| `test_offline.py` | `569d6e09aa99149b62c6452014f0a5d7a575edb776444045de4edf72869c35f3` |
+| `fixtures.py` | `bcae1fb49e643d827b34be80a63cf527ea61c03e74ef5044f1eccc03e57a65b7` |
+| `test_offline.py` | `023cb303428a8753a41106d8700d405c09a99bce36ec6ae13d468b0ddd2cf901` |
 
 Approved schema remains byte-identical at SHA256
 `3dc3f73a5d67f859c2f779e1f8bc9c49831420a4044f71de5f09aa71c241fadf`;
@@ -115,3 +115,14 @@ No source acceptance/merge/release claim follows automatically from green CI.
 Next: independent exact-source review, then freeze a separate harness/schedules /
 protocol for paired evaluation before any scoped adapter or runtime pilot.
 R1 NOT AUTHORIZED / R2 HOLD; #80/#96/#112 and private bindings unchanged.
+
+## Initial CI failure retained
+
+Initial candidate `a98f0bd` [run 41415101885](https://github.com/sc28249782/hermes-mcp-bridge/actions/runs/41415101885)
+passed 3.12 but FAILED 3.14: its fromisoformat accepted hour 24, and fixture/test
+SQLite connections emitted unclosed-database ResourceWarnings. The failure is
+retained, not rerun away. Fix: explicit hour/minute/second/offset range checks
+before datetime parsing; explicit closing around fixture/test connection contexts.
+The store already had explicit connection-finally-close. The original hour-24
+negative assertion and warning gate remain; minute/offset overflow subcases added.
+No timestamp acceptance widened, warning suppressed, test skipped or count reduced.

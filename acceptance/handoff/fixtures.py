@@ -1,4 +1,5 @@
 """Test-only durable ledger and owned child. No real backend or model contract proof."""
+from contextlib import closing, contextmanager
 import hashlib
 import json
 import multiprocessing as mp
@@ -8,6 +9,14 @@ import sqlite3
 from checkpoint import Facts, Hold, canonical
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+@contextmanager
+def database(path):
+    # sqlite Connection.__exit__ commits/rolls back but does not close.
+    with closing(sqlite3.connect(path)) as db:
+        with db:
+            yield db
 
 
 def envelope():
@@ -42,7 +51,7 @@ def ready(backend='opencode', unknown_job=False):
 
 def _worker(db_path, artifact, conn):
     try:
-        with sqlite3.connect(db_path) as db:
+        with database(db_path) as db:
             db.execute("UPDATE jobs SET status='running' WHERE job_id='job_fixture_001'")
             db.execute('INSERT INTO effects VALUES (?)', ('job_fixture_001',))
         conn.send('accepted')
@@ -50,7 +59,7 @@ def _worker(db_path, artifact, conn):
         if command == 'crash':
             import os
             os._exit(91)
-        with sqlite3.connect(db_path) as db:
+        with database(db_path) as db:
             db.execute('BEGIN IMMEDIATE')
             cancelled = db.execute('SELECT cancel_flag FROM jobs').fetchone()[0]
             if command == 'complete' and not cancelled:
@@ -70,12 +79,12 @@ class BackendFixture:
         self.artifact = Path(root)/'artifact.txt'
         self.child = None
         self.channel = None
-        with sqlite3.connect(self.db) as db:
+        with database(self.db) as db:
             db.execute('CREATE TABLE IF NOT EXISTS jobs(request_id TEXT PRIMARY KEY,job_id TEXT UNIQUE,fingerprint TEXT,status TEXT,exit_code INTEGER,cancel_flag INTEGER)')
             db.execute('CREATE TABLE IF NOT EXISTS effects(job_id TEXT PRIMARY KEY)')
 
     def admit(self, fingerprint='fingerprint_fixture_001'):
-        with sqlite3.connect(self.db) as db:
+        with database(self.db) as db:
             db.execute('BEGIN IMMEDIATE')
             row = db.execute('SELECT job_id,fingerprint FROM jobs WHERE request_id=?', ('request_fixture_001',)).fetchone()
             if row:
@@ -94,16 +103,16 @@ class BackendFixture:
         return 'job_fixture_001'
 
     def observation(self):
-        with sqlite3.connect(self.db) as db:
+        with database(self.db) as db:
             row = db.execute('SELECT request_id,job_id,fingerprint,status,exit_code FROM jobs').fetchone()
         return dict(zip(('request_id','job_id','input_fingerprint_ref','status','exit_code'), row), session_id='session_fixture_001', workspace_ref='workspace_fixture_001')
 
     def effects(self):
-        with sqlite3.connect(self.db) as db:
+        with database(self.db) as db:
             return db.execute('SELECT count(*) FROM effects').fetchone()[0]
 
     def cancel_request(self):
-        with sqlite3.connect(self.db) as db:
+        with database(self.db) as db:
             return db.execute("UPDATE jobs SET cancel_flag=1 WHERE status='running'").rowcount == 1
 
     def finish(self, command):
