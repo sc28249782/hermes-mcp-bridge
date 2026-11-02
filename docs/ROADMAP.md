@@ -1,5 +1,16 @@
 # Roadmap
 
+## Handoff offline source candidate — 2 November 2026
+
+Design #113 merged at `53c37737` after review/operator approval. The next separate
+[source candidate](../acceptance/handoff/README.md) adds a standalone validator,
+private immutable SQLite store and advisory planner with 26 offline source
+controls. No bridge/MCP/CLI/config/backend adapter is wired; no paired recovery
+trial or measured gain is claimed. Independent exact-source review precedes the
+frozen evaluation harness and any separately scoped Dev pilot. The design-stage
+statements below preserve their original checkpoint. J0 stays parked; S24 #112,
+R1 NOT AUTHORIZED / R2 HOLD, private bindings/release/deployment remain unchanged.
+
 ## Handoff/checkpoint priority — 2 November 2026 (design only)
 
 Operator requested the attached verifiable-handoff work before returning to J0.
