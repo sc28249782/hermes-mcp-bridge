@@ -1,5 +1,19 @@
 # R1 observer integration — consolidated source-acceptance work package
 
+## Actual fifth invocation — V2 CATALOG ONLY complete
+
+[Attempt-five record](LITERAL-CATALOG-ATTEMPT-FIVE.md) reports one separately
+approved invocation at `c5a8b6c2`, run `41456279214` / job `125313650375`,
+attempt 1, SUCCESS/gate exit 0. Digest matches; COMPLETE/NONE; normalized members
+49,190, six-class counts complete, seven selected entries, metadata catalog complete.
+Strict inspection/prepared/import/setup/J0/R1/R2/scope remain false.
+This record restores the literal job false guard; old proposal guards stay false.
+Current accounting: FIVE consumed / FOUR recorded digest matches; E12 UNKNOWN.
+Earlier four/three and disabled-proposal snapshots are historical, not overwritten.
+No sixth invocation, setup/provisioning or merge. All eighteen rows stay OPEN;
+J0 NOT READY; R1 NOT AUTHORIZED / R2 HOLD; independent actual-result review pending.
+
+
 ## Current fifth-invocation proposal — DISABLED
 
 The reviewed V2 source at `e1e438f0` now has a
