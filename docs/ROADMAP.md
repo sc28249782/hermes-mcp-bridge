@@ -1,5 +1,74 @@
 # Roadmap
 
+## Current J0 preparation resumption — 2 November 2026
+
+Handoff deliveries 1–4 are merged through #116 at `d7515c5f`; the offline
+component/evaluation work package is closed at that scope, with tied outcomes.
+Operator approved returning to J0 preparation; this does not select route A/B/C
+or authorize a fifth archive invocation, provisioning or R1/R2. The next bounded
+[artifact-policy decision package](../acceptance/s24/observed/J0-RESUMPTION-WORK-PACKAGE.md)
+on draft #112 prepares independent result/design disposition and route choice
+for the existing BACKSLASH HOLD. Catalog/diagnostic and handoff experiment jobs
+remain disabled. J0 NOT READY; all eighteen rows OPEN; R1 NOT AUTHORIZED / R2 HOLD.
+The following dated handoff/J0 checkpoints preserve their original status; this
+current note supersedes their pause/merge status only, not acceptance obligations.
+
+
+## Current handoff closure — 2 November 2026
+
+Design #113 and offline/evaluation #114–#115 are merged; main checkpoint
+`7fcb3f39dfaa3fcf2535fafe5104f425cf72bc00`. Development and heldout each completed
+200 arm-trials once; shared-contract outcomes tie, with no candidate outcome gain
+demonstrated. Both experiment jobs are disabled; source/protocol/receipts remain frozen.
+[Current disposition and delivery-4 closure criteria](HANDOFF-OFFLINE-CLOSURE-TH.md)
+map the completed offline work, current docs candidate and remaining runtime gates.
+No new evaluation, Dev pilot, J0 activation, release or deployment is authorized.
+J0 parked; R1 NOT AUTHORIZED / R2 HOLD; #112/#80/#96/private bindings unchanged.
+The following dated handoff/preparation paragraphs retain their proposal-time
+statements; this current checkpoint supersedes their handoff merge/run status only.
+Existing S24/Hands capability and release gates elsewhere remain unchanged.
+
+## Handoff paired-evaluation preparation — 2 November 2026
+
+Reviewed #114 candidate `c953b6f4` remains draft/unmerged. A separate stacked
+[harness/profile/schedule candidate](../acceptance/handoff/evaluation/README.md)
+prepares frozen source/config inputs and 200 schedules / 400 proposed arm-trials.
+CI performs preparation/oracle controls only; neither corpus arm nor heldout
+measurement has run. Comparator is an explicit scripted client reference, not
+native baseline runtime/human performance; checkpoint-specific faults are separate.
+Independent harness/runtime/profile review precedes a finite development run.
+No candidate tuning/merge, auto-heldout action, runtime pilot or S24 attempt.
+J0 parked; R1 NOT AUTHORIZED / R2 HOLD; #112 and private bindings unchanged.
+
+## Handoff offline source candidate — 2 November 2026
+
+Design #113 merged at `53c37737` after review/operator approval. The next separate
+[source candidate](../acceptance/handoff/README.md) adds a standalone validator,
+private immutable SQLite store and advisory planner with 26 offline source
+controls. No bridge/MCP/CLI/config/backend adapter is wired; no paired recovery
+trial or measured gain is claimed. Independent exact-source review precedes the
+frozen evaluation harness and any separately scoped Dev pilot. The design-stage
+statements below preserve their original checkpoint. J0 stays parked; S24 #112,
+R1 NOT AUTHORIZED / R2 HOLD, private bindings/release/deployment remain unchanged.
+
+## Handoff/checkpoint priority — 2 November 2026 (design only)
+
+Operator requested the attached verifiable-handoff work before returning to J0.
+[Gap analysis/design/schema](HANDOFF-CHECKPOINT-DESIGN-TH.md),
+[preregistered recovery experiment plan](HANDOFF-RECOVERY-EXPERIMENT-PLAN-TH.md)
+and [session checklist](HANDOFF-SESSION-CHECKLIST-TH.md) are a separate design candidate.
+No runtime implementation, experiment gain, Dev pilot, tool/config/approval-policy
+change or release scope is claimed. Design/schema review precedes a small offline
+validator/store/planner PR; backend adapters and runtime pilot need separate scope.
+
+Main `93e9601` contains merged #107–#111. The earlier #110/count snapshot below
+is historical. Current S24 evidence remains on draft [#112](https://github.com/sc28249782/hermes-mcp-bridge/pull/112)
+at `84b1ec3e`: four consumed archive invocations, three recorded matching digests,
+latest actual HOLD/BACKSLASH, no completed catalog; V2 design not selected.
+J0 is parked during this handoff work. R1 NOT AUTHORIZED / R2 HOLD, #80/#96,
+private bindings, signed v1.2.8 release/deployment record and Hands v1.3 deferral
+remain unchanged; no production probe, inventory attempt, merge or deployment.
+
 ## Latest J0 result — fourth invocation HOLD
 
 The operator-approved [catalog attempt four](../acceptance/s24/observed/CATALOG-ATTEMPT-FOUR.md)

@@ -1,0 +1,53 @@
+{
+  "baseline_commit": "93e9601f74b3e0bc1d963d65635d82f7083eca8a",
+  "baseline_kind": "scripted_client_reference_not_runtime",
+  "budgets": {
+    "checkpoint_bytes": 65536,
+    "emergency_cleanup_seconds": 40,
+    "evidence_records": 32,
+    "max_owned_children": 4,
+    "model_calls": 0,
+    "new_request_ids": 0,
+    "observation_events": 3,
+    "same_logical_replays": 1,
+    "trial_seconds": 10
+  },
+  "candidate_commit": "c953b6f44116ba0740540e3c78d0b6e2c910573b",
+  "candidate_mutable": false,
+  "heldout_requires_development": true,
+  "kind": "paired-recovery-protocol",
+  "runtime_binding": {
+    "filesystem_magic": 61267,
+    "kernel": "7.0.0-1017-azure",
+    "machine": "x86_64",
+    "os": "linux",
+    "python": "3.12.15",
+    "sqlite": "3.45.1",
+    "temporary_filesystem_magic": 61267
+  },
+  "schema": 1,
+  "source_files": {
+    "acceptance/handoff/checkpoint.py": "b3f2b58aa939340c043f4999868b5c9989db6f7ad7b5dee74762fbd0eb4ab5ed",
+    "acceptance/handoff/evaluation/baseline.py": "b32f9df34b91ad2cf0b0e606f240749f3c32fc0c6b5eb668a3f04bce3633e3b6",
+    "acceptance/handoff/evaluation/harness.py": "ca211b2be3bcb414a08c7eb97c5d2d9d0ba1c5aa2d7892281d63568ea732c2b3",
+    "acceptance/handoff/evaluation/oracle.py": "c401d9f5060c926c063e4260a6adb37e178c680790b3d965fd0dddbc0e339b24",
+    "acceptance/handoff/evaluation/profiles.json": "da1380278fdf51e53501947a20d078bdd48c2830c1777dcd017f14513fe6571b",
+    "acceptance/handoff/evaluation/schedules.json": "047c4ae9b2abe8a99cd1227ac615bed8439d14224b0743e9150031309ffd27b9",
+    "acceptance/handoff/evaluation/world.py": "a7975194ca6e4e73aa9c52864f5c27ae855f326b390f3fbce852e75a787662c9",
+    "acceptance/handoff/fixtures.py": "bcae1fb49e643d827b34be80a63cf527ea61c03e74ef5044f1eccc03e57a65b7",
+    "acceptance/handoff/store.py": "d5106483892ea9ae4832204bdfd9c446013b44e1894e21d5f8614fe245806c97",
+    "acceptance/handoff/test_offline.py": "023cb303428a8753a41106d8700d405c09a99bce36ec6ae13d468b0ddd2cf901",
+    "codex_core.py": "c72add0aebb3c7ddb1ed4f2b0a82cc40238657643cc9e67a7a8e0cc6ea98a1fc",
+    "contexts.py": "dab9aab464b3090464efccc7e156c298bfe1eb51deb43f00d3b8514c1a0fb5e0",
+    "core.py": "45feadb5042f11aa1182aa6d1292af8699a3d05786fe725f6f3addcfde70f7d7",
+    "docs/SPEC.md": "d0f97851b7d1984cc6f2b249541f4b54bcd8f6f2e2f0c9f238d21055bcdccc65",
+    "docs/examples/handoff-checkpoint-v1.synthetic.json": "77166b839c51cc77f54d24c11532932ddac7ecac671580b25557f1c7e00fbb95",
+    "docs/schemas/handoff-checkpoint-v1.schema.json": "3dc3f73a5d67f859c2f779e1f8bc9c49831420a4044f71de5f09aa71c241fadf",
+    "opencode_tasks.py": "abdcaba0a8df0477000e2e4717e209a637d258e9ce79574e03103a810a52433a"
+  },
+  "split_sizes": {
+    "development": 100,
+    "heldout": 100
+  },
+  "status": "PREPARED_NOT_RUN"
+}

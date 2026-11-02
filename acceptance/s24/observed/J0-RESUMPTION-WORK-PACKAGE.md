@@ -105,5 +105,7 @@ after source acceptance; any live fifth invocation needs separate operator appro
 All eighteen dispositions stay OPEN; A2/A3 are the target, not accepted outcomes.
 J0 NOT READY; R1 NOT AUTHORIZED / R2 HOLD; #80/#96 and private bindings unchanged.
 No #112 merge, guest provisioning, model/backend call, release or deployment.
-The main/branch distinction above is deliberate: #112 is not claimed synchronized
-with main or independently accepted merely because the handoff work merged.
+The input #112 at 84b1ec3e predates the handoff work on main. The resumption
+integration brings the reviewed main history into #112 without editing either
+parent's source bytes; ROADMAP keeps both dated prefixes. This is integration,
+not independent S24 acceptance, and does not authorize any live action.
