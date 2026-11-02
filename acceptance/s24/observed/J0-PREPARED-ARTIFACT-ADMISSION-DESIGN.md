@@ -212,29 +212,48 @@ cleanup have separate ownership; neither CI teardown nor pipe EOF is R1 stop pro
 | Existing contracts | Old strict/V1/V2 tests/pins/results/false flags and all eighteen rows retained. Native Windows SSH, guest collect and fresh Windows CIM must later be proved in the SAME invocation |
 
 Compatibility/import controls themselves require exact actors/bytes, private creation/
-stop bindings, source review and separate finite action approval BEFORE running.
-They are not a pretext to boot the real artifact while admission remains unknown.
+stop bindings, pre-import structural/data admission, source review and separate
+finite action approval BEFORE running. That bounded first test may measure as-yet
+unknown runtime behavior; it must not assert compatibility, boot or stopped-state
+success in advance. Its failure/unknown stop is preserved HOLD, never J1 permission.
+The initial consumer test's artifact and host-write/ownership boundaries must be
+explicitly reviewed; it cannot silently substitute an unadmitted real image.
 Any confirmed incompatibility returns to explicit design disposition or A/C, not an
 automatic parser/consumer-policy increment or sixth invocation.
 
 Design exit requested: independent acceptance of this selected consumer,
 transformations, trust/flag boundaries, proposed budgets/controls and HOLD conditions.
 Then exact builder/verifier/manifest and owner source may be prepared offline.
-**Source/action acceptance remains BLOCKED** while any required binding below is
-UNBOUND; synthetic source controls alone cannot discharge these facts.
+No action-ready claim is made. Bindings and results apply to their dependent stage;
+a measured output is not a prerequisite for the same action that first creates it.
 
-| Blocking execution binding | Current state |
+| Stage | Prerequisites before that action | Outcome / next gate |
+|---|---|---|
+| Offline builder source preparation/review | Accepted design; exact code/schema/control evidence for input, graph, output and ownership behavior | Source verdict only; no real inputs fetched or artifact claimed |
+| Finite acquisition/build | Reviewed exact source, sealed immutable rootfs/package-object/trust lock, explicit object/request budget, controlled config/transform policy, resources/owned storage and protected retention bindings | Produces actual artifact/full manifest/critical-payload hashes or HOLD. Those output hashes are NOT invented or required before this first build |
+| Build-result review / transfer | Actual produced bytes and complete evidence; approved output verifier and protected transfer method | Independently accepted artifact/manifest and end-to-end digests; no import or guest authority |
+| Finite first consumer compatibility test | Exact accepted test artifact hashes; pre-import structural/data admission; configured client/kernel and host capability/coexistence preflight; reviewed driver/owner/stop method, risk and finite scope | Measures import/boot/name/link/config/binary/route/stop behavior. Actual runtime success or cessation is an outcome, NOT assumed before first test |
+| J1 joined fixture | Reviewed successful required compatibility evidence, current bindings, full fixture source/actors/stop controls and separate finite scope | Same-invocation Windows SSH/collect/CIM result and remaining eighteen-row dispositions; no R1 authority |
+| Operational R1 | Complete source/package/private A6/A7 review and explicit finite operator approval | Outside this preparation design |
+
+Source review may use synthetic inputs to prove implementation contracts; it cannot
+turn unknown real input/environment facts into readiness. Exact action bindings
+must be complete before their dependent action; no such action is approved today.
+
+| Currently unbound or unmeasured item | Current state / stage blocked |
 |---|---|
-| Immutable package object/trust/dependency lock, executable/library/stdlib closure | UNBOUND |
-| Exact generated configs/overlays/user/source hashes and closed extension/output format | UNBOUND |
-| Actual prepared artifact/full manifest hashes and protected retention/transfer | NOT BUILT |
-| WSL/client/configured kernel/boot/coexistence and import TOCTOU method | UNBOUND / NOT TESTED |
-| Distro/path/key/port/owner/stop authority and enforcement implementation | UNBOUND |
-| Actual consumer compatibility and complete writer/cessation evidence | NOT TESTED |
-| Operational A6/A7 and joined full package acceptance | OPEN |
+| Package object/trust/dependency lock and reviewed input/config/source identities | UNBOUND; real acquisition/build blocked |
+| Exact generated configs/overlays/user, extension/output policy source | UNBOUND; build-source acceptance and build action blocked |
+| Prepared artifact/full manifest/critical payload hashes | NOT BUILT; actual result review/transfer/import blocked, not a logical prerequisite to first approved build |
+| Protected retention/transfer/publication enforcement | UNBOUND; dependent publication/transfer blocked; no ordinary upload assumed confidential |
+| WSL/client/configured kernel and host capability/coexistence preflight | UNBOUND / NOT TESTED; consumer action blocked |
+| Distro/path/key/port/owner/stop authority and enforcement | UNBOUND; dependent create/start/stop/cleanup actions blocked |
+| Actual consumer compatibility and writer/cessation outcomes | NOT TESTED; dependent J1 admission blocked; a separately scoped first test must measure them honestly |
+| Operational A6/A7 and joined full package acceptance | OPEN; operational R1 remains unauthorized |
 
-Finite success is a closed reviewed design/source/input/owner plan with actual hashes
-before action; finite failure is declared infeasibility/HOLD or explicit A/C selection.
+Finite success is a reviewed design/source/input/owner plan for the specifically
+selected next stage, followed by actual output hashes before any dependent import.
+Finite failure is declared infeasibility/HOLD or explicit A/C selection.
 No placeholder is a pass, no repeated catalog measurement is required to settle
 this design, and there is no guarantee this CI route can satisfy J0.
 FIVE consumed invocations / FOUR digest matches, E12 UNKNOWN; no sixth authorization.
