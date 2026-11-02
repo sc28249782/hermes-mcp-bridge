@@ -194,6 +194,7 @@ class World:
                 new_raw=self.fx.encode(newer)
                 child,_=self._spawn(new_raw,p['generation'],e['payload_sha256'],v)
                 child.join(5);assert child.exitcode==(88 if v=='crash_before' else 89)
+                self.events.append('crash_child_exit_'+str(child.exitcode))
                 expected=e if v=='crash_before' else newer
                 with _db(self.store_root/'checkpoints.sqlite3') as db:
                     actual=db.execute('SELECT generation,digest FROM heads').fetchone()
@@ -213,6 +214,7 @@ class World:
                 for child,ch in pairs:
                     assert ch.poll(5);outcomes.append(ch.recv());child.join(5);assert child.exitcode==0
                 assert sorted(outcomes)==['CONCURRENT_UPDATE','committed']
+                self.events.extend('cas_outcome_'+v for v in sorted(outcomes))
                 with _db(self.store_root/'checkpoints.sqlite3') as db:tip=db.execute('SELECT generation,digest FROM heads').fetchone()
                 assert tip[0]==p['generation']+1
                 f=replace(f,head=(p['chain_id'],tip[0],tip[1]))
@@ -227,7 +229,9 @@ class World:
         expected=hashlib.sha256(b'fixture verified artifact\n').hexdigest()
         body=self.fixture.artifact.read_bytes() if self.fixture.artifact.exists() else None
         with _db(self.fixture.db) as db:requests=db.execute('SELECT count(*) FROM jobs').fetchone()[0]
-        return dict(effects=self.fixture.effects(),requests=requests,artifact_verified=body is not None and hashlib.sha256(body).hexdigest()==expected,
+        ledger=self.fixture.observation()
+        artifact_sha=None if body is None else hashlib.sha256(body).hexdigest()
+        return dict(effects=self.fixture.effects(),requests=requests,ledger=ledger,artifact_sha256=artifact_sha,artifact_verified=body is not None and hashlib.sha256(body).hexdigest()==expected,
                     terminal_status=self.facts.job.get('status') if self.facts.job else None,
                     verifier_passed=self.facts.verifier_passed)
 

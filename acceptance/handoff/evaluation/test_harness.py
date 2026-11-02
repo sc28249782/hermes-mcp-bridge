@@ -110,7 +110,7 @@ class PreparationControls(unittest.TestCase):
         _,_,s,p=H.validate_corpus()
         with self.assertRaises(H.Invalid):H.validate_records([],s,p,O,'development')
         wrong=[dict(schedule_id='H01_00',arm='candidate')]*200
-        with self.assertRaises((H.Invalid,KeyError)):H.validate_records(wrong,s,p,O,'development')
+        with self.assertRaises(H.Invalid):H.validate_records(wrong,s,p,O,'development')
 
     def test_runtime_facts_are_path_and_hostname_free(self):
         with tempfile.TemporaryDirectory() as root:facts=H.runtime_facts(root)

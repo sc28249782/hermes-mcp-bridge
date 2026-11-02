@@ -143,3 +143,25 @@ Next boundary: independent harness/profile/schedule/comparator/runtime review,
 then a finite development-run instruction; preserve failures and review results
 before any heldout action. Keep both source PRs draft until operator disposition.
 #112/#80/#96/private A6/A7, J0/R1/R2 and release/deployment stay unchanged.
+
+## Proposed runtime bound from actual preparation CI
+
+[Typed facts](runtime-binding.json) came from source `2006ae20`, run `41425613884`,
+job `125211375519` (3.12): CPython 3.12.15, SQLite 3.45.1, Linux x86_64,
+kernel 7.0.0-1017-azure, both filesystem magic values 61267. The protocol now pins
+that exact profile for review. This observation ran ZERO evaluation arms. It
+proves no future runner availability; GitHub-hosted pools can expose different
+kernels. An actual mismatch HOLDs before trials/output, with no install, feature
+change, alternate environment or retry. Preparation controls still run on both
+interpreters because they do not execute an evaluation.
+
+Receipts retain bounded synthetic ledger fields (IDs/status/exit/cancel metadata),
+artifact digest and event trace, including actual crash exit/CAS outcomes, so the
+trace hash can be independently recomputed without private worker output. All
+this remains fixture evidence, not authenticated native backend observations.
+
+Abrupt supervisor/host loss (for example SIGKILL/default SIGTERM) is not a proven
+cleanup route. Any missing final receipt/unknown stop remains incomplete/HOLD;
+the journal is not permission to replay. Interactive interruption attempts owned
+cleanup and retains a bounded aborted-arm row. No automatic recovery/retry of a
+partially executed matrix is implemented or authorized by this source packet.
