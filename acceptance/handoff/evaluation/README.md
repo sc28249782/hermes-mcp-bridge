@@ -165,3 +165,12 @@ cleanup route. Any missing final receipt/unknown stop remains incomplete/HOLD;
 the journal is not permission to replay. Interactive interruption attempts owned
 cleanup and retains a bounded aborted-arm row. No automatic recovery/retry of a
 partially executed matrix is implemented or authorized by this source packet.
+
+## Current checkpoint — development executed once
+
+The preparation-only statements above describe the reviewed preparation snapshot.
+Following separate operator action approval, one development split completed:
+200 arm-trials, threshold passed, with no shared-contract outcome gain observed.
+See [the development result and authority record](DEVELOPMENT-RUN.md) and
+[the exact receipt](development-receipt.json). Heldout remains unexecuted and
+requires a separate decision; candidate/protocol inputs remain frozen.

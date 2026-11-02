@@ -1,0 +1,37 @@
+{
+  "approval_verbatim": "ทำขั้นถัดไป และอนุมัติ development run แยกจากผลรีวิว source",
+  "approval_timestamp": "NOT_PROVIDED",
+  "reviewed_head": "41c5d55b373dfc9ff4be33b81a6f216534c72ab2",
+  "activation_sha": "b8d5c58597b6dd6532586b7a27e3d1a7218329a0",
+  "workflow_run": 41436015130,
+  "run_attempt": 1,
+  "job": 125245843034,
+  "development_invocations": 1,
+  "development_arm_trials": 200,
+  "heldout_authorized": false,
+  "merge_authorized": false,
+  "j0": "PARKED",
+  "r1": "NOT_AUTHORIZED",
+  "r2": "HOLD",
+  "result": {
+    "actual_runtime": {
+      "filesystem_magic": 61267,
+      "kernel": "7.0.0-1017-azure",
+      "machine": "x86_64",
+      "os": "linux",
+      "python": "3.12.15",
+      "sqlite": "3.45.1",
+      "temporary_filesystem_magic": 61267
+    },
+    "harness_exit": 0,
+    "heldout_executed": false,
+    "paired_threshold_passed": true,
+    "receipt_sha256": "d1a023c6a52aba5b9f6ea4f51f88e7777317a1004dca4d8457887ba83cfafaed",
+    "record_type": "development_action_summary",
+    "retry_permitted": false,
+    "rows": 200,
+    "runtime_matches": true,
+    "state": "COMPLETE",
+    "warning_markers": []
+  }
+}
