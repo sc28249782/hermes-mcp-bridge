@@ -1,4 +1,21 @@
-# Session handoff / recovery checklist — proposed v1
+# Session handoff / recovery checklist — v1
+
+## Current handoff checkpoint — 2 November 2026
+
+Repo main `7fcb3f39dfaa3fcf2535fafe5104f425cf72bc00`: #113/#114/#115 merged;
+standalone offline validator/store/planner and both frozen evaluation splits complete.
+Development/heldout each have 200 recorded arm-trials; shared-contract outcomes tie.
+[Current closure/disposition](HANDOFF-OFFLINE-CLOSURE-TH.md) is the delivery-4 docs
+candidate; its review/merge remains separate. No bridge tool/runtime recovery feature,
+production Facts collector or live-backend recovery acceptance is supplied.
+
+For the next session: refresh main/PR states; read the closure and immutable receipt
+references; retain both disabled jobs and consumed trial budgets; propose only the
+next reviewed scope. Do not auto-run a pilot or unpark J0. R1 NOT AUTHORIZED / R2 HOLD;
+#112/#80/#96 and private A6/A7 remain unchanged. The manual checklist still applies;
+the initial design-era checkpoint at the end is historical, not current remote state.
+
+## Original manual checklist and initial checkpoint
 
 ใช้กับ [design](HANDOFF-CHECKPOINT-DESIGN-TH.md) และ [experiment plan](HANDOFF-RECOVERY-EXPERIMENT-PLAN-TH.md).
 วันที่ 2 พฤศจิกายน 2026; schema เป็น candidate ยังไม่มี command/tool สำหรับ runtime checkpoint

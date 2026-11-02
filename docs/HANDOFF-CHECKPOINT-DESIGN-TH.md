@@ -1,5 +1,19 @@
 # Verifiable Handoff / Checkpoint v1 — design และ gap analysis
 
+## Current implementation/evidence checkpoint — 2 November 2026
+
+Design #113, standalone offline source #114 and evaluation #115 are merged at
+main `7fcb3f39dfaa3fcf2535fafe5104f425cf72bc00`. The offline validator/store/planner
+exists; production/runtime Facts collection and dispatch do not. Frozen development
+and heldout results meet their contracts but demonstrate no shared-contract outcome
+gain over the scripted reference. See [delivery-4 disposition](HANDOFF-OFFLINE-CLOSURE-TH.md).
+This docs update does not amend schema, semantic/source contracts or live-action gates.
+The design-stage status/baseline/results below are historical snapshots; current
+implementation/evaluation status is in the closure document. J0 parked; R1 NOT
+AUTHORIZED / R2 HOLD. No Dev pilot, new experiment, release or deployment.
+
+## Original design-stage snapshot
+
 วันที่ตรวจ: 2 พฤศจิกายน 2026 (Asia/Bangkok). **DESIGN CANDIDATE / ยังไม่มี runtime implementation**.
 รับงานจากใบส่งต่อ HERMES-HANDOFF-CHECKPOINT-RECOVERY-20261102.md
 (SHA256 `528df62443378d97685d6ca048be9a40eef2d9228feb2c934ec728fb455de529`); ไม่คัดลอก private packet

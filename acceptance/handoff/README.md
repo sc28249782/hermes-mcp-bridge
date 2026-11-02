@@ -1,4 +1,18 @@
-# Handoff offline source candidate — delivery 2
+# Handoff offline package — delivery 2
+
+## Current merged status — 2 November 2026
+
+#114 merged at `d0b8ed91544f0ad0957ab892faa54854f1f282e7`; evaluation #115 merged
+at `7fcb3f39dfaa3fcf2535fafe5104f425cf72bc00`. Both frozen splits completed once
+and passed independent result review; shared-contract outcomes tie with no candidate
+outcome gain demonstrated. See [current closure and remaining gates](../../docs/HANDOFF-OFFLINE-CLOSURE-TH.md).
+This remains a standalone offline component, without bridge/MCP/CLI dispatch or
+production Facts collection. Original source/schema bytes, pins and receipts stay
+unchanged. The candidate-stage statements below retain their historical scope and
+run status; they do not supersede the current closure. J0 parked; R1 NOT AUTHORIZED /
+R2 HOLD. No additional trial, runtime pilot, release or deployment is authorized.
+
+## Original source-review snapshot
 
 Status: **SOURCE CANDIDATE / STANDALONE OFFLINE ONLY**. Design #113 merged at
 `53c37737f242e87d55cea1cf525977d0202a2b01` after operator approval. This candidate
