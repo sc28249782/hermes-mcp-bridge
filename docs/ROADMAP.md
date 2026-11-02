@@ -1,5 +1,17 @@
 # Roadmap
 
+## Handoff paired-evaluation preparation — 2 November 2026
+
+Reviewed #114 candidate `c953b6f4` remains draft/unmerged. A separate stacked
+[harness/profile/schedule candidate](../acceptance/handoff/evaluation/README.md)
+prepares frozen source/config inputs and 200 schedules / 400 proposed arm-trials.
+CI performs preparation/oracle controls only; neither corpus arm nor heldout
+measurement has run. Comparator is an explicit scripted client reference, not
+native baseline runtime/human performance; checkpoint-specific faults are separate.
+Independent harness/runtime/profile review precedes a finite development run.
+No candidate tuning/merge, auto-heldout action, runtime pilot or S24 attempt.
+J0 parked; R1 NOT AUTHORIZED / R2 HOLD; #112 and private bindings unchanged.
+
 ## Handoff offline source candidate — 2 November 2026
 
 Design #113 merged at `53c37737` after review/operator approval. The next separate
