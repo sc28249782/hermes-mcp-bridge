@@ -1,5 +1,20 @@
 # Observed inventory source — draft CI validation
 
+## Protected transfer — separate design candidate
+
+Round-26 APPROVE accepted admission design B and requested a
+[separate protected-transfer design](J0-PROTECTED-TRANSFER-DESIGN.md).
+The proposal separates standard ciphertext confidentiality from authenticated
+publisher provenance, binds independent receiver-key custody, keeps full plaintext
+metadata private, and requires complete retained-payload verification after decrypt.
+This is DESIGN ONLY: no key/secret/tool install, attestation permission, publisher,
+receiver/external-owner source, transfer, build/import or invocation six.
+Exact custody/tools/provenance/claim mapping/ACL/TOCTOU/timing remain blockers;
+the existing owner/job timers are not reset or widened.
+FIVE consumed / FOUR digest matches; E12 UNKNOWN; all eighteen rows OPEN;
+J0 NOT READY; R1 NOT AUTHORIZED / R2 HOLD; same draft.
+
+
 ## Current B design — consumer-specific prepared artifact
 
 Operator selected “ทำขั้นถัดไป B” (exact timestamp NOT_PROVIDED), after the
