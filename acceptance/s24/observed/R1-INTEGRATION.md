@@ -1,5 +1,21 @@
 # R1 observer integration — consolidated source-acceptance work package
 
+## Current B design — consumer-specific prepared artifact
+
+Operator selected “ทำขั้นถัดไป B” (exact timestamp NOT_PROVIDED), after the
+round-25 mapping APPROVE. [Prepared-artifact admission design](J0-PREPARED-ARTIFACT-ADMISSION-DESIGN.md)
+now specifies a fixture tar/manifest builder and native WSL2 tar importer for one
+new disposable CI distro, with explicit type/link/device/config transformations,
+binary/package closure, immutable publication/transfer and external owner/stop
+controls. This is DESIGN ONLY; execution bindings, actual artifacts, configured
+kernel/boot/consumer behavior and package lock remain UNBOUND/unproved.
+New preparation budgets are proposed for review, never production observer timer
+changes. No builder/import/source implementation, package/archival request or
+invocation six. FIVE consumed / FOUR digest matches; E12 UNKNOWN.
+Existing source/test/workflow/records unchanged; all eighteen rows OPEN;
+J0 NOT READY; R1 NOT AUTHORIZED / R2 HOLD; same draft, no merge.
+
+
 ## Inspection/import decision — after accepted V2 catalog
 
 [Requirement mapping and next-stage choices](J0-INSPECTION-IMPORT-DECISION.md)
