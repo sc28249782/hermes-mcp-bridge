@@ -1,5 +1,18 @@
 # R1 observer integration — consolidated source-acceptance work package
 
+## Protected transfer binding inventory — review candidate
+
+[Tool/provenance/custody binding packet](J0-TRANSFER-BINDING-PACKET.md) records
+round-28 fixture approval and reviewer-reported local 26/26 separately from author
+CI. It maps exact missing tool, signed-claim, permission, custody, schema, native
+quarantine and owner prerequisites to dependent actions; every real execution
+binding remains UNBOUND. The next source boundary is tool authenticity and signed
+claim verification, with separate custody scaffolding/generation proposals.
+No source/test/workflow/pin/actual record changes or new action approval.
+FIVE consumed / FOUR digest matches; E12 UNKNOWN; all eighteen rows OPEN;
+J0 NOT READY; R1 NOT AUTHORIZED / R2 HOLD; same draft.
+
+
 ## Offline transfer fixture source candidate
 
 [Offline source/control scope](TRANSFER-OFFLINE-SOURCE-REVIEW.md) adds strict
