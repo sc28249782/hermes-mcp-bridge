@@ -1,0 +1,50 @@
+name: OpenCode observer preflight offline controls
+
+on:
+  pull_request:
+    branches: [main]
+    paths: ['acceptance/handoff/opencode/**', 'docs/OPENCODE-HANDOFF-*.md', '.github/workflows/opencode_observer_preflight.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Test only fixture admission claims and private witness pipes
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha }}'
+          umask 022
+          preflight_log="$RUNNER_TEMP/opencode-observer-preflight.log"
+          set +e
+          python -W error::ResourceWarning -I -S -B acceptance/handoff/opencode/test_observer_preflight.py > "$preflight_log" 2>&1
+          preflight_exit=$?
+          set -e
+          cat "$preflight_log"
+          python -I -S -B - "$preflight_log" "$preflight_exit" <<'PY'
+          from pathlib import Path
+          import json,re,sys
+          raw=Path(sys.argv[1]).read_bytes()
+          markers=[m.decode() for m in (b'ResourceWarning',b'Exception ignored',b'Traceback') if m in raw]
+          complete=(re.findall(rb'^Ran (\d+) tests? in ',raw,re.M)==[b'22']
+                    and re.search(rb'^OK\s*$',raw,re.M) is not None
+                    and re.search(rb'\bskipped\b',raw,re.I) is None)
+          print(json.dumps({'preflight_exit':int(sys.argv[2]),'complete_without_skips':complete,
+                            'warning_markers':markers,'dev_observed':False,'authorizes_actions':False}))
+          assert sys.argv[2]=='0' and complete and not markers,'observer preflight controls failed'
+          PY

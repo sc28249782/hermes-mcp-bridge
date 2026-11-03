@@ -1,0 +1,29 @@
+{
+  "kind": "observer-preflight-fixture-source-identity",
+  "source": [
+    {
+      "path": "acceptance/handoff/opencode/observer_preflight.py",
+      "bytes": 10367,
+      "sha256": "2b92ecea9b625048c80e1ad114b0184c676c9416153e29a3752caa06eb580810"
+    },
+    {
+      "path": "acceptance/handoff/opencode/test_observer_preflight.py",
+      "bytes": 13730,
+      "sha256": "a9abe5c4585ccba694aa8ce049f5093b899a3712e5bd2eab0a2beb9f2006b7fb"
+    },
+    {
+      "path": ".github/workflows/opencode_observer_preflight.yml",
+      "bytes": 2010,
+      "sha256": "43909d5794514a7e772ef95aed50766c6e60c235fe9358d9dd4f4612848a1da9"
+    }
+  ],
+  "unchanged_dependencies": [
+    {
+      "path": "docs/OPENCODE-HANDOFF-OBSERVER-ADOPTION-CONTRACT-TH.md",
+      "bytes": 27021,
+      "sha256": "a2c0527d3bc4f207a6146630224ee07f74f1daa22c0f7858845f2f58013468fa"
+    }
+  ],
+  "dev_observed": false,
+  "authorizes_actions": false
+}
