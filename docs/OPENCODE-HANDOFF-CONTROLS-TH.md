@@ -1,5 +1,21 @@
 # OpenCode handoff passive observation — preregistered controls
 
+## Source-contract refinements — proposed, not run
+
+The [snapshot/VFS contract](OPENCODE-HANDOFF-SNAPSHOT-CONTRACT.md) refines
+OC03/04/07/08/09/15 with retained native descriptor identity, real standard-unix
+read transactions, explicit SHARED-lock contention and denial of mutation/
+secondary/recovery/WAL/SHM operations. No default Python SQLite or unsafe-copy fallback.
+
+The [Facts/admission contract](OPENCODE-HANDOFF-FACTS-CONTRACT.md) refines
+OC02/06/10/11/12/13/14/16/17, including current-versus-original binary proof,
+pre-admitted non-null handoff-context association and non-caller-mintable admission.
+Exact shim/runtime dependencies, authority schema/resolver, native identity and
+original goal/verifier are implementation/acceptance obligations, not filled by
+these proposals. All OC01–OC18 remain NOT RUN; no Dev/pilot action or original
+control/assertion change. Review contracts before their bounded source package.
+
+
 Date: 3 November 2026. Companion to the
 [integration design](OPENCODE-HANDOFF-INTEGRATION-DESIGN-TH.md).
 **DESIGN ONLY: controls executed=0; Dev/backend calls=0; pilot NOT AUTHORIZED.**

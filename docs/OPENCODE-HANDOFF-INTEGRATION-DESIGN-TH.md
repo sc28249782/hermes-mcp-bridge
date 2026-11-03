@@ -1,5 +1,24 @@
 # OpenCode handoff integration — passive observation v0.1 design
 
+## Source-contract checkpoint — 3 November 2026
+
+Operator-supplied round-1 review APPROVED this design at `7fb2088f`.
+The next request prepares [SQLite/TOCTOU source contract](OPENCODE-HANDOFF-SNAPSHOT-CONTRACT.md)
+and [current admission/context/Facts contract](OPENCODE-HANDOFF-FACTS-CONTRACT.md)
+for independent review, not implementation or pilot activation. Chosen candidate:
+retained-FD read-only VFS shim delegating normal unix SQLite read locking, with
+no secondary/write/recovery/WAL/SHM path. Ordinary SHARED locks can contend with
+writer commits: that effect needs explicit review/read scope and is not hidden
+under a zero-interference claim. Literal zero-blocking requirements would HOLD.
+
+Context requires a pre-admitted non-null existing handoff-context association;
+today's binary hash cannot fill missing original invocation provenance.
+These refine source blockers rather than close them. No helper/adapter exists,
+controls executed=0 and no current Dev values observed. Six pilot gates remain
+UNBOUND/NOT AUTHORIZED. Earlier design text below retains its reviewed bytes;
+candidate contracts do not override it before review. J0 stays PAUSED, #112 unchanged.
+
+
 Date: 3 November 2026 (Asia/Bangkok). Base main
 `d7515c5fb4e33b41f81a8535fb06a0ea2cd72255` (merged through #116).
 **DESIGN / SOURCE-REVIEW CANDIDATE; NO DEV OR BACKEND EXECUTION.**
