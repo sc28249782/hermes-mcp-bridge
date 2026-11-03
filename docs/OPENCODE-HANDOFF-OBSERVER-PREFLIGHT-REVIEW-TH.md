@@ -12,7 +12,7 @@ Parent contract: `baf0c196693da54ac4bad665a3e20f89b2350c8b`, draft PR #117
 รอบนี้เริ่ม preflight/single-use reservation ก่อน ไม่อ้างว่า implement OA ทั้ง 12 ครบ
 
 เพิ่ม [observer_preflight.py](../acceptance/handoff/opencode/observer_preflight.py),
-[22 controls](../acceptance/handoff/opencode/test_observer_preflight.py),
+[23 controls](../acceptance/handoff/opencode/test_observer_preflight.py),
 [source/contract manifest](../acceptance/handoff/opencode/observer-preflight-hashes.json) และ
 [workflow แยก](../.github/workflows/opencode_observer_preflight.yml)
 source component ใช้ stdlib เท่านั้น ไม่ import native runtime/Facts/Batch/planner
@@ -51,7 +51,7 @@ environment='dev' และ missing/boolean containment ถูกปฏิเส
 
 ## 3. Actual controls และ failures
 
-Author-local Python 3.12.14: **22/22 OK**, ResourceWarning-as-error, ไม่มี skips
+Author-local Python 3.12.14: **23/23 OK**, ResourceWarning-as-error, ไม่มี skips
 ใช้ disposable private roots และ anonymous pipes เท่านั้น ไม่มี dependency install
 development run ก่อนสร้าง manifest พบ missing manifest ตามจริง ไม่ถือเป็น final pass
 CI ต้องอ้าง exact candidate head แยก; historical local broad baseline NOT PASS ไม่เปลี่ยน
@@ -59,7 +59,7 @@ CI ต้องอ้าง exact candidate head แยก; historical local bro
 | Evidence family | Actual stimulus / asserted result |
 | --- | --- |
 | Preflight deny | forged dict/unknown ref, dev environment, missing/boolean containment, missing scopes/cleanup, wrong generation/boolean generation, hidden actor count และ expiry/revoke => ไม่มี claim ใหม่ |
-| Cross-process single-use | fork สอง disposable children โดยปล่อย gate พร้อมกัน; O_EXCL ให้ winner หนึ่งคนและ ATTEMPT_CONSUMED อีกคน; exact child waitpid/reap และหนึ่ง claim เท่านั้น |
+| Cross-process single-use | fork สอง disposable children โดยปล่อย gate พร้อมกัน; แต่ละ child สร้าง trusted fixture issuer ของตนก่อนแข่ง O_EXCL; winner หนึ่งคนและ ATTEMPT_CONSUMED อีกคน; exact child waitpid/reap และหนึ่ง claim เท่านั้น |
 | Unknown crash | child ตายจริงหลัง exclusive create ก่อน write; zero-byte claim ยังคงอยู่; next reserve ต้อง ATTEMPT_CONSUMED ไม่ respawn/repair |
 | Persistence failure | injected fsync error หลัง actual write => CLAIM_UNCONFIRMED; file ไม่ถูกลบ; next reserve ถูก deny; raw exception sentinel ไม่ถูก echo |
 | Limited rollback | rollback data-file generation พร้อมสร้าง issuer/Binding object ใหม่จาก fixture snapshot โดย retained claim root แยกยังอยู่; claim เดิมยังกัน replay |
@@ -68,6 +68,11 @@ CI ต้องอ้าง exact candidate head แยก; historical local bro
 | Revocation after reserve | actual frame อยู่ใน pipe แต่ source reject ก่อน read; limited cleanup eligibility ยังคืนได้ภายใน deadline/current fixture epoch โดยไม่มี action authority |
 | Budget | future/stale/nonfinite T0 และเวลาที่กัน cleanup ไม่พอ reject; exact shared 3/20/45 arithmetic; witness ไม่เลื่อน deadline |
 | Privacy/source | Result ไม่รวม refs/nonces/source/dossier hashes/paths; AST audit ไม่พบ process/backend/mutation dispatch; manifest เทียบ actual SHA256 และ byte length |
+
+Registry เป็น process-local; inherited issuer หลัง fork ถูกปฏิเสธด้วย
+ISSUER_PROCESS_CHANGED ก่อนสร้าง claim ไม่ใช้ snapshot memory เป็น current authority
+fresh issuers ใน race เป็น test bootstrap คนละตัวและ share เฉพาะ retained claim root
+ไม่ใช่หลักฐานของ cross-process production issuer/epoch/revocation service
 
 Rollback experiment นี้ไม่ใช่ real native DB+authority+dossier+context rollback corpus
 และไม่พิสูจน์ anchor root/issuer restart state ว่าต้าน host snapshot/power-loss ได้
@@ -97,7 +102,7 @@ preregistration; ตารางนี้เพิ่ม actual disposition โ�
 | OA11 PARTIAL | new private claim retained on failure/symlink no repair; allowlisted Result | full private evidence/retention/audit/output ownership/cleanup acceptance |
 | OA12 NOT RUN | ไม่มี Facts/planner/verifier/state capture path และไม่คืน Done | full joined original FINAL/context/head/authority/goal evidence; G ยังไม่ implement |
 
-22 tests เป็น source controls ไม่ใช่ OA trial count หรือ recovery gain
+23 tests เป็น source controls ไม่ใช่ OA trial count หรือ recovery gain
 type-check/AST/source identity และ green CI ไม่ใช่ production security boundary proof
 B1–B7/OC18 ไม่ถูกปิด; actual Dev/current model/provider/job/context facts ไม่ถูกสังเกต
 

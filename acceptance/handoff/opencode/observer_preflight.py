@@ -108,6 +108,7 @@ class FixtureIssuer:
         self.rootfd = os.dup(rootfd)
         self.root_identity = info.st_dev, info.st_ino
         self.generation = generation
+        self.issuer_pid = os.getpid()
         self.registry = {}
 
     def close(self):
@@ -130,6 +131,8 @@ class FixtureIssuer:
         self.registry[ref] = b, fd, identity, False
 
     def _current(self, ref, expected=None, *, cleanup=False):
+        # A copied in-memory catalog after fork is not current authority.
+        require(os.getpid() == self.issuer_pid, 'ISSUER_PROCESS_CHANGED')
         try:
             item = self.registry[_ref(ref)]
         except (KeyError, TypeError):

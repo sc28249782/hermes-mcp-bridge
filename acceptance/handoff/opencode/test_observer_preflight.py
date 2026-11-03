@@ -130,7 +130,10 @@ class PreflightControls(unittest.TestCase):
                 signal.signal(signal.SIGALRM, lambda *_: os._exit(99)); signal.alarm(3)
                 os.read(gate_r, 1)
                 try:
-                    r = self.issuer.reserve(self.binding.attempt_ref); r.close(); os._exit(0)
+                    child_issuer = P.FixtureIssuer(self.rootfd, 1)
+                    child_issuer.register(replace(self.binding), self.read)
+                    r = child_issuer.reserve(self.binding.attempt_ref)
+                    r.close(); child_issuer.close(); os._exit(0)
                 except P.Hold as error:
                     os._exit(10 if error.reason == 'ATTEMPT_CONSUMED' else 11)
             children.append(pid)
@@ -142,8 +145,10 @@ class PreflightControls(unittest.TestCase):
     def test_crash_after_exclusive_create_consumes_unknown_attempt(self):
         self.register(); pid = os.fork()
         if pid == 0:
+            child_issuer = P.FixtureIssuer(self.rootfd, 1)
+            child_issuer.register(replace(self.binding), self.read)
             with mock.patch.object(P.os, 'write', side_effect=lambda *_: os._exit(91)):
-                self.issuer.reserve(self.binding.attempt_ref)
+                child_issuer.reserve(self.binding.attempt_ref)
             os._exit(92)
         self.assertEqual(os.waitstatus_to_exitcode(os.waitpid(pid, 0)[1]), 91)
         files = list(self.anchor.iterdir())
@@ -279,6 +284,17 @@ class PreflightControls(unittest.TestCase):
             self.assertEqual(len(raw), entry['bytes'])
             self.assertEqual(hashlib.sha256(raw).hexdigest(), entry['sha256'])
         self.assertFalse(m['dev_observed']); self.assertFalse(m['authorizes_actions'])
+
+    def test_inherited_issuer_after_fork_is_not_current_authority(self):
+        self.register(); pid = os.fork()
+        if pid == 0:
+            try:
+                self.issuer.reserve(self.binding.attempt_ref)
+            except P.Hold as error:
+                os._exit(0 if error.reason == 'ISSUER_PROCESS_CHANGED' else 11)
+            os._exit(12)
+        self.assertEqual(os.waitstatus_to_exitcode(os.waitpid(pid, 0)[1]), 0)
+        self.assertEqual(list(self.anchor.iterdir()), [])
 
 
 if __name__ == '__main__':
