@@ -1,5 +1,19 @@
 # R1 observer integration — consolidated source-acceptance work package
 
+## Current route pause
+
+Operator accepted [pausing this J0 route](J0-ROUTE-PAUSE.md) after round-32 review
+at `38db8218`. No independently authenticated seed is bound. Stop new source/
+control/proposal increments and repeated seed probes; retain reviewed components
+and actual records on this draft. No image substitution, alternate route,
+replacement work, bootstrap/tool/custody action, merge or sixth invocation.
+Resume only with an independently accepted authenticated seed package plus
+explicit operator resumption, or an explicitly selected/reviewed alternate route.
+FIVE consumed / FOUR digest matches; E12 UNKNOWN; T1/T2/P1/P2 acceptance-OPEN;
+all eighteen rows OPEN; J0 NOT READY; R1 NOT AUTHORIZED / R2 HOLD.
+Older current/resumption/count notes below are historical; requirements unchanged.
+
+
 ## Bootstrap prerequisite disposition — seed unavailable
 
 [Concrete candidate root/seed and finite exit](J0-BOOTSTRAP-PREREQUISITES.md)

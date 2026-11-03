@@ -1,5 +1,39 @@
 # S24 — ภาพรวมการส่งมอบและเกณฑ์จบงาน
 
+## Current route pause status
+
+วันที่บันทึก: **3 พฤศจิกายน 2026 (Asia/Bangkok)** · input draft #112 `38db8218`.
+Operator รับข้อเสนอให้ **พัก J0 route ที่เลือกอยู่** หลังผลรีวิวรอบ 32;
+[decision record](../acceptance/s24/observed/J0-ROUTE-PAUSE.md) เก็บคำตอบ verbatim
+และเปิดเผยว่าไม่มี exact approval timestamp.
+
+เหตุผลคือยังไม่มี authenticated seed package ที่ผูกได้ตาม
+[bootstrap prerequisites](../acceptance/s24/observed/J0-BOOTSTRAP-PREREQUISITES.md).
+หยุดเพิ่ม source/controls/proposal layers และ probe seed ซ้ำใน route นี้
+ไม่แทน image/ref/main และไม่เลือก route ใหม่โดยอัตโนมัติ เก็บงานและหลักฐาน
+บน draft #112; ไม่ merge, ไม่เริ่ม replacement work และไม่อนุมัติ execution ใดเพิ่ม.
+
+| Milestone | สถานะหลังพัก |
+|---|---|
+| A1–A5 / 18 rows | เก็บ component evidence ที่รีวิวแล้ว; full-package acceptance ยัง incomplete และทุกแถวยัง OPEN |
+| A2/A3 joined route | BLOCKED ที่ J0 prerequisite; E4/E6/E7 แยกกันยังไม่ใช่ joined PASS |
+| A6/A7 | private bindings/source acceptance ยังไม่ครบ; ไม่มี operator probe/read scope เพิ่ม |
+| T1/T2/P1/P2 | acceptance OPEN; initial seed/tool/real signed-verifier bindings ยังไม่ผ่าน |
+| B / C | gates เดิมคงอยู่; R1 NOT AUTHORIZED / R2 HOLD; final release ยังต้องผ่าน C4/C5 และ deployment C6 แยก |
+| Handoff offline | deliveries 1–4 จบในขอบเขตเดิม; 400 arm-trials tie/no demonstrated gain; ไม่มี pilot/evaluation ใหม่ |
+
+บัญชีปัจจุบัน **5 consumed / 4 digest matches; E12 UNKNOWN**; V2 catalog complete
+เป็น metadata-only evidence ไม่ใช่ strict inspection/prepared image/J0 token.
+Release/deployment record ล่าสุดยัง signed v1.2.8; checkpoint นี้ไม่ได้ตรวจ production สด.
+
+เงื่อนไขกลับมาทำต่อ: มี authenticated seed package หนึ่งชุดที่ review อิสระรับแล้ว
+และ operator สั่ง resume route อย่างชัดเจน หรือ operator เลือก alternate route
+ที่ผ่าน review/bindings ของตน ทั้งสองทางยังต้อง source review/finite action approval
+ตามเดิม ไม่เริ่มใหม่จาก green CI หรือจำนวน tests และไม่อนุมัติ invocation ที่ 6.
+ข้อความสถานะ/counts/resumption เก่าด้านล่างเป็นประวัติที่ supersede เฉพาะสถานะ;
+เกณฑ์ A/B/C และ actual records คงเดิม · **J0 NOT READY · R1 NOT AUTHORIZED / R2 HOLD**.
+
+
 ## Latest J0 result — attempt four
 
 ผล [attempt ครั้งที่ 4](../acceptance/s24/observed/CATALOG-ATTEMPT-FOUR.md)

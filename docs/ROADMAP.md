@@ -1,5 +1,29 @@
 # Roadmap
 
+## Current J0 route pause — 3 November 2026
+
+Operator accepted [pausing the selected J0 route](../acceptance/s24/observed/J0-ROUTE-PAUSE.md)
+after round-32 review at `38db8218`: BOOTSTRAP_SEED_UNAVAILABLE remains a
+prerequisite disposition; no independently authenticated seed is bound.
+Stop new source/control/proposal increments and repeated seed probes on this route.
+No image/ref/main substitution, alternate route, bootstrap/adapter/tool/custody
+action, sixth archive invocation, merge or replacement work is authorized.
+
+Current accounting: FIVE consumed / FOUR recorded digest matches; E12 UNKNOWN.
+V2 catalog completion remains metadata-only evidence; full transfer/authenticated
+adapter and T1/T2/P1/P2 acceptance remain OPEN. All eighteen integration rows
+remain OPEN, A1–A7 incomplete; R1 NOT AUTHORIZED / R2 HOLD; J0 NOT READY.
+Resume only after independent acceptance of an authenticated seed package and
+explicit operator resumption, or an explicitly selected/reviewed alternate route.
+
+[Current delivery status](S24-DELIVERY-CLOSURE-TH.md#current-route-pause-status)
+and [ledger pause](../acceptance/s24/observed/R1-INTEGRATION.md#current-route-pause)
+map impact and exit. Handoff offline work remains closed with tied outcomes;
+no new pilot/evaluation or release/deployment scope. The dated checkpoints below
+are retained as history: this note supersedes their current-status, resumption
+and count statements only, never their acceptance requirements or actual records.
+
+
 ## Current J0 preparation resumption — 2 November 2026
 
 Handoff deliveries 1–4 are merged through #116 at `d7515c5f`; the offline
