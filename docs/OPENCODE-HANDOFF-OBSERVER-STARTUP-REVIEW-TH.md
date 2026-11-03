@@ -15,8 +15,9 @@ G ใน Reservation.capture() ยัง deny เสมอและ B4 ยัง
 [21 controls](../acceptance/handoff/opencode/test_observer_startup.py),
 [manifest](../acceptance/handoff/opencode/observer-startup-hashes.json) และ
 [workflow แยก](../.github/workflows/opencode_observer_startup.yml)
-เก็บ [preflight source](../acceptance/handoff/opencode/observer_preflight.py)
-และ [contract](OPENCODE-HANDOFF-OBSERVER-ADOPTION-CONTRACT-TH.md) เดิม byte-identical
+[contract](OPENCODE-HANDOFF-OBSERVER-ADOPTION-CONTRACT-TH.md) คง byte-identical
+[preflight source](../acceptance/handoff/opencode/observer_preflight.py) มี exact-budget
+correction ตาม CI failure ที่บันทึกใน section 6 ไม่ผ่อน assertion เดิม
 
 **นี่คือ topology prototype ที่ใช้ inert Python H ไม่ใช่ native SQLite helper**
 H fork จาก S ตาม fixed internal code; ไม่ exec OpenCode/CLI/native binary
@@ -78,6 +79,7 @@ capture_allowed/authorizes_actions/dev_observed/goal_verified=false ทุก Ou
 ## 4. Actual controls
 
 Author-local Python 3.12.14: **21/21 OK**, ResourceWarning-as-error, ไม่มี skips
+preflight final suite **24/24 OK** รวม deterministic numeric regression เพิ่มหนึ่งข้อ
 20 process cases ใช้ fresh isolated R และ fixture objects/anonymous pipes ใหม่เท่านั้น
 test runner ตรวจ subreaper setting ของตนไม่เปลี่ยนและ reap R ด้วย retained pidfd
 ใน fresh R ใช้ waitpid(-1,WNOHANG) เป็น **test-only** ECHILD oracle หลัง source จบ
@@ -120,7 +122,29 @@ extra test runner ไม่ถูกอนุมัติเป็น production
 private frames<=512, fixed message count; proof/output<=64 KiB/error<=4 KiB drain caps
 uninterruptible I/O/scheduler/fork/exec-source closure ยังไม่ใช่ hard real-time proof
 
-## 6. OA disposition และ residual blockers
+## 6. Exact-budget correction จาก CI จริง
+
+initial candidate `cf37340d4c80b18c2935c1f3c44051a0e0247080` startup 21/21 ผ่าน
+แต่ preflight run `41644122495`, Python 3.12 job `125944837128` ล้มที่ assertion เดิม
+`attempt_deadline - ta <= 20` เพราะ binary-float cancellation ให้ 20.000000000000004
+Python 3.14 ผ่านใน run เดียวกัน จึงไม่อ้างว่า initial candidate CI เขียวครบ
+ไม่มีการ rerun เพื่อกลบผลหรือเพิ่ม tolerance/skip/relax assertion
+
+แก้ Budget ให้เก็บ exact rational ของ input clock เดิมด้วย Fraction
+แล้วบวก/ลบ 20/3/45 seconds แบบ exact; ค่า T0/Ta ที่รับไม่ถูกเลื่อน/round ใหม่
+private dataclass endpoints เปลี่ยนเป็น Fraction ไม่ใช่ public schema/API change
+Startup ใช้ exact endpoints ต่อ และแปลงเป็น POSIX float timeouts แบบ inward rounding
+ไม่เริ่ม clock ใหม่หรือขยาย deadline; hard real-time/kernel assumptions ยังไม่ถูกพิสูจน์
+
+เพิ่ม regression จาก `math.nextafter(17.0,-math.inf)` ที่ reproduce ผลลบเกิน 20 เดิม
+และตรวจ exact 20/3/45 พร้อม preservation ของ input clock values
+คง assertions ของ 23 controls เดิมครบ; final preflight 24 controls ไม่ใช่ 47 trials
+อัปเดต strict workflow count 23→24 และ manifest ตาม actual changed bytes
+จึงมี pre-existing files เปลี่ยน 4 ไฟล์: observer_preflight.py,
+test_observer_preflight.py, opencode_observer_preflight.yml และ observer-preflight-hashes.json
+new startup manifest ใช้ pinned_dependencies ไม่เรียก dependencies ที่แก้ว่า unchanged
+
+## 7. OA disposition และ residual blockers
 
 ไม่มี OA row ใดเป็น full PASS/CLOSED จาก inert startup profile นี้
 
@@ -145,7 +169,7 @@ unknown witness/helper_launch_known=false ไม่แปลว่า helper_sta
 source จะไม่แต่ง all-process-cessation หรือ no-orphan proof ให้สถานการณ์ที่ยังไม่มีหลักฐาน
 การไม่เหลือ child ใน controls ที่รันไม่ปิดข้อจำกัดเหล่านี้
 
-## 7. Review boundary
+## 8. Review boundary
 
 ขอ exact-source review เฉพาะ owned inert startup/ACK/arbitration profile นี้
 ต่อไปต้องปิด launch-identity gap/accepted containment และวาง native capture/goal join
@@ -153,7 +177,8 @@ source จะไม่แต่ง all-process-cessation หรือ no-orphan 
 FixtureIssuer, catalog tag, file hash และ parent PID ไม่เป็น production authority
 SPEC §14 และหก pre-pilot gates ต้องผ่านก่อน future implementation merge/action แยก
 
-ไฟล์/source/tests/workflows/manifests/schema/SPEC/receipts/OC definitions ที่รับแล้วไม่เปลี่ยน
+accepted native/supervision sources, 29/9/48 controls, schema/SPEC/receipts/OC definitions
+ไม่เปลี่ยน; preflight 4 files เปลี่ยนเฉพาะ numeric correction/regression/pins ตาม section 6
 PR #117 draft/unmerged; B1–B7 OPEN; J0 PAUSED; #112 ไม่เปลี่ยน
 R1 NOT AUTHORIZED / R2 HOLD; OC18 NOT RUN
 ไม่มี Dev/pilot/native job/model/API/key/config/archive invocation/evaluation arm/release/deployment

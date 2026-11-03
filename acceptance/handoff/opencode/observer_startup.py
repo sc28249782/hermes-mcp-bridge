@@ -6,6 +6,7 @@ Reservation.capture(), production authority/containment and native code unchange
 """
 import ctypes
 from dataclasses import dataclass
+from fractions import Fraction
 import fcntl
 import hashlib
 import json
@@ -55,7 +56,15 @@ def _ready(fd):
 
 
 def _until(fd, deadline):
-    return bool(select.select([fd], [], [], max(0, deadline-time.monotonic()))[0])
+    return bool(select.select([fd], [], [], _remaining(deadline))[0])
+
+
+def _remaining(deadline):
+    # POSIX timeout APIs take float; round inward, never extend an exact bound.
+    value=Fraction(deadline)-Fraction(time.monotonic())
+    if value<=0:return 0.0
+    seconds=float(value)
+    return math.nextafter(seconds,0.0) if Fraction(seconds)>value else seconds
 
 
 def _byte(fd, deadline):
@@ -73,7 +82,7 @@ def _emit(fd, value):
 
 
 def _frame(fd, deadline, deathfds=()):
-    ready = select.select([fd, *deathfds], [], [], max(0, deadline-time.monotonic()))[0]
+    ready = select.select([fd, *deathfds], [], [], _remaining(deadline))[0]
     _need(not any(item in ready for item in deathfds), 'ACTOR_LOST')
     _need(fd in ready, 'BUDGET_EXHAUSTED')
     return P._frame(os.read(fd, 513))
@@ -89,6 +98,7 @@ class Child:
 
 def _fork(child, function, args, keep, deadline):
     # function/args are fixed internal actor code, never caller callbacks/argv.
+    _need(_remaining(deadline)>0,'BUDGET_EXHAUSTED')
     child.attempted = True
     pid = os.fork()
     if pid == 0:
@@ -96,7 +106,9 @@ def _fork(child, function, args, keep, deadline):
             _close_except(keep)
             signal.signal(signal.SIGTERM, signal.SIG_DFL)
             signal.signal(signal.SIGALRM, lambda *_: os._exit(88))
-            signal.setitimer(signal.ITIMER_REAL, max(0.001, deadline-time.monotonic()))
+            remaining=_remaining(deadline)
+            if remaining<=0:os._exit(88)
+            signal.setitimer(signal.ITIMER_REAL, remaining)
             _limits()
             function(*args)
             os._exit(0)
@@ -130,12 +142,12 @@ def _signal(child, sig):
 
 def _stop_group(children, deadline):
     pending = [c for c in children if c.pid is not None and c.rc is None]
-    for sig, grace in ((signal.SIGTERM, 0.2), (signal.SIGKILL, 1.0)):
+    for sig, grace in ((signal.SIGTERM, Fraction(1,5)), (signal.SIGKILL, 1)):
         for child in pending:
             _reap(child)
             if child.rc is None:
                 _signal(child, sig)
-        phase = min(deadline, time.monotonic()+grace)
+        phase = min(deadline, Fraction(time.monotonic())+grace)
         for child in pending:
             if child.rc is None and _until(child.pidfd, phase):
                 _reap(child)
@@ -157,7 +169,7 @@ def _eof(fd, cap, deadline):
 
 def _helper(gate, output, error):
     # No DB, native method, executable, model, caller payload or arbitrary path.
-    if _byte(gate, time.monotonic()+1) != b'G':
+    if _byte(gate, Fraction(time.monotonic())+1) != b'G':
         raise P.Hold('CHANNEL_LOST')
     _need(os.write(output, b'HG1\n') == 4)
 
@@ -192,7 +204,7 @@ def _supervisor(command, lease, report, gate_r, gate_w, proof_r, proof_w,
         _need(_byte(command, capture_deadline) == b'K', 'ACK_REJECTED')
         _need(not _ready(h.pidfd), 'ACTOR_LOST')
         _emit(report, dict(kind='acked', nonce=binding.nonce))
-        ready = select.select([command, lease], [], [], max(0, capture_deadline-time.monotonic()))[0]
+        ready = select.select([command, lease], [], [], _remaining(capture_deadline))[0]
         _need(command not in ready and lease in ready, 'CHANNEL_LOST')
         _need(_byte(lease, capture_deadline) == b'G')
         _need(os.write(gate_w, b'G') == 1)
@@ -310,7 +322,7 @@ class Startup:
             def expired(*_): raise P.Hold('BUDGET_EXHAUSTED')
             signal.signal(signal.SIGALRM, expired)
             timer_set = True
-            remaining = binding.t0+45-time.monotonic()
+            remaining = _remaining(Fraction(binding.t0)+45)
             _need(remaining > 0, 'BUDGET_EXHAUSTED')
             signal.setitimer(signal.ITIMER_REAL, remaining)
             self.reservation = self.issuer.reserve(self.ref)
@@ -319,7 +331,7 @@ class Startup:
             _need(hashlib.sha256(Path(__file__).read_bytes()).hexdigest() == b.source_sha256,
                   'SOURCE_CHANGED')
             deadline = min(self.reservation.budget.attempt_deadline,
-                           self.reservation.budget.ta+self.seconds)
+                           self.reservation.budget.ta+Fraction(self.seconds))
             self.capture_deadline = deadline-3
             self._current_setup()
             self.trace.append('SUBREAPER')
@@ -370,7 +382,7 @@ class Startup:
                     try: os.write(command_w, b'C')
                     except OSError: pass
                 self._close(*(fd for fd in (command_w, owner_w) if fd is not None))
-                cooperative = min(deadline, time.monotonic()+0.2)
+                cooperative = min(deadline, Fraction(time.monotonic())+Fraction(1,5))
                 for c in (self.o, self.s):
                     if c.pidfd is not None and c.rc is None and _until(c.pidfd, cooperative):
                         _reap(c)

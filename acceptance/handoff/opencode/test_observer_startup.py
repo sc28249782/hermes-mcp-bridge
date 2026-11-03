@@ -271,7 +271,7 @@ class StartupControls(unittest.TestCase):
 
     def test_source_and_unchanged_dependency_manifest(self):
         m=json.loads((SOURCE/'observer-startup-hashes.json').read_bytes())
-        for entry in m['source']+m['unchanged_dependencies']:
+        for entry in m['source']+m['pinned_dependencies']:
             raw=(ROOT/entry['path']).read_bytes()
             self.assertEqual(len(raw),entry['bytes'])
             self.assertEqual(hashlib.sha256(raw).hexdigest(),entry['sha256'])

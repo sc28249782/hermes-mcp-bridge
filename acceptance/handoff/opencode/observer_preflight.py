@@ -6,6 +6,7 @@ capture, Facts/planner call, checkpoint append or permission to send G exists.
 Host/same-process/same-uid compromise is outside this fixture trust model.
 """
 from dataclasses import dataclass
+from fractions import Fraction
 import fcntl
 import hashlib
 import json
@@ -62,19 +63,22 @@ class Binding:
 
 @dataclass(frozen=True)
 class Budget:
-    t0: float
-    ta: float
-    attempt_deadline: float
-    capture_deadline: float
-    outer_deadline: float
+    t0: Fraction
+    ta: Fraction
+    attempt_deadline: Fraction
+    capture_deadline: Fraction
+    outer_deadline: Fraction
 
     @classmethod
     def start(cls, t0, now):
         _number(t0); _number(now)
-        require(0 <= now-t0 < 45, 'BUDGET_UNAVAILABLE')
-        deadline = min(now+20, t0+45)
-        require(deadline-now > 3, 'BUDGET_UNAVAILABLE')
-        return cls(t0, now, deadline, deadline-3, t0+45)
+        # Preserve the exact input clock values, then add/subtract exact seconds.
+        # Binary-float cancellation can otherwise report 20.000000000000004 s.
+        origin, admitted = Fraction(t0), Fraction(now)
+        require(0 <= admitted-origin < 45, 'BUDGET_UNAVAILABLE')
+        deadline = min(admitted+20, origin+45)
+        require(deadline-admitted > 3, 'BUDGET_UNAVAILABLE')
+        return cls(origin, admitted, deadline, deadline-3, origin+45)
 
 
 @dataclass(frozen=True)

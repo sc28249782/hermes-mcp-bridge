@@ -3,18 +3,18 @@
   "source": [
     {
       "path": "acceptance/handoff/opencode/observer_preflight.py",
-      "bytes": 10553,
-      "sha256": "55d05a3cb3a10a083df77261b47c69d4f183354371f226c27ec8909b29b41bff"
+      "bytes": 10851,
+      "sha256": "1580395addd0dbf209d24eb281f5f7bb4820e4a6f57730b24662d81790afc126"
     },
     {
       "path": "acceptance/handoff/opencode/test_observer_preflight.py",
-      "bytes": 14535,
-      "sha256": "2652e1b51d48a04e7c15b6620101d0315e8554f7e01eb59fb07d9a8895010142"
+      "bytes": 15183,
+      "sha256": "3f2fbcfaa448c0f17119f17f238407a78bfddd22f880077873b59036016480e7"
     },
     {
       "path": ".github/workflows/opencode_observer_preflight.yml",
       "bytes": 2010,
-      "sha256": "1bc032213cbb84c4ed7599459cc92ffa009d735ea85b8e939f6cb2dd37c3af8a"
+      "sha256": "223f9227081eb6589a0d52f1040d823d7ed4f1a50e7076a5455b62815691aab5"
     }
   ],
   "unchanged_dependencies": [

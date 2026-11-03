@@ -1,8 +1,10 @@
 """Owned offline preflight controls; no Dev/backend or observer process launch."""
 import ast
 from dataclasses import asdict, replace
+from fractions import Fraction
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import signal
@@ -284,6 +286,17 @@ class PreflightControls(unittest.TestCase):
             self.assertEqual(len(raw), entry['bytes'])
             self.assertEqual(hashlib.sha256(raw).hexdigest(), entry['sha256'])
         self.assertFalse(m['dev_observed']); self.assertFalse(m['authorizes_actions'])
+
+    def test_float_cancellation_cannot_extend_exact_budget(self):
+        tick=math.nextafter(17.0,-math.inf)
+        self.assertGreater((tick+20)-tick,20)  # Reproduce the old CI failure.
+        budget=P.Budget.start(tick,tick)
+        self.assertEqual(budget.t0,Fraction(tick))
+        self.assertEqual(budget.ta,Fraction(tick))
+        self.assertEqual(budget.attempt_deadline-budget.ta,20)
+        self.assertEqual(budget.attempt_deadline-budget.capture_deadline,3)
+        self.assertEqual(budget.outer_deadline-budget.t0,45)
+        self.assertLessEqual(budget.attempt_deadline,Fraction(tick)+20)
 
     def test_inherited_issuer_after_fork_is_not_current_authority(self):
         self.register(); pid = os.fork()
