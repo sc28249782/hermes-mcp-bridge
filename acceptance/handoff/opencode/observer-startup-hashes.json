@@ -1,0 +1,39 @@
+{
+  "kind": "observer-startup-fixture-source-identity",
+  "source": [
+    {
+      "path": "acceptance/handoff/opencode/observer_startup.py",
+      "bytes": 17451,
+      "sha256": "cdd71cf1086887ef792efc878fe120251907444db4b149f6336d68295f471f9e"
+    },
+    {
+      "path": "acceptance/handoff/opencode/test_observer_startup.py",
+      "bytes": 15019,
+      "sha256": "44aa5a5fc0c0a8b1cf51f0324491d30c1d8f9ee9f3767654c43684e16bfb9952"
+    },
+    {
+      "path": ".github/workflows/opencode_observer_startup.yml",
+      "bytes": 1969,
+      "sha256": "9d53a92884da8d1086fe19129a55b8ccf6d0315b76b7bb2ebd58f1e1ea8a4f1f"
+    }
+  ],
+  "unchanged_dependencies": [
+    {
+      "path": "acceptance/handoff/opencode/observer_preflight.py",
+      "bytes": 10553,
+      "sha256": "55d05a3cb3a10a083df77261b47c69d4f183354371f226c27ec8909b29b41bff"
+    },
+    {
+      "path": "acceptance/handoff/opencode/observer-preflight-hashes.json",
+      "bytes": 916,
+      "sha256": "aff41f548ace7b177d38a6e7be3663b2ec43f1fc770ebdf89b16269b241bb6eb"
+    },
+    {
+      "path": "docs/OPENCODE-HANDOFF-OBSERVER-ADOPTION-CONTRACT-TH.md",
+      "bytes": 27021,
+      "sha256": "a2c0527d3bc4f207a6146630224ee07f74f1daa22c0f7858845f2f58013468fa"
+    }
+  ],
+  "dev_observed": false,
+  "authorizes_actions": false
+}
