@@ -1,5 +1,19 @@
 # Observed inventory source — draft CI validation
 
+## Offline transfer fixture source candidate
+
+[Offline source/control scope](TRANSFER-OFFLINE-SOURCE-REVIEW.md) adds strict
+fixture lock/descriptor/envelope validation, an in-memory quarantine/HOLD latch
+and complete retained-REGULAR payload verification with 26 synthetic controls.
+It does not implement crypto/provenance/custody, native filesystem quarantine,
+protected transfer or the external owner driver. Every authority/readiness flag
+stays false; reduced fixture schemas/limits are not production admission.
+Local exec-server unavailable; local tests NOT RUN; exact-head CI reported separately.
+No new archive/transfer/key/build/import action; all previous guards/records retained.
+FIVE consumed / FOUR digest matches; E12 UNKNOWN; all eighteen rows OPEN;
+J0 NOT READY; R1 NOT AUTHORIZED / R2 HOLD; same draft.
+
+
 ## Protected transfer — separate design candidate
 
 Round-26 APPROVE accepted admission design B and requested a
