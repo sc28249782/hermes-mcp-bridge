@@ -1,5 +1,26 @@
 # Handoff/checkpoint — สรุปปิดขอบเขต offline และเกณฑ์งานถัดไป
 
+## Current selected next design — 3 November 2026
+
+Delivery 4 merged through #116 at `d7515c5f`; earlier candidate statements below
+are historical. The offline component/evaluation package remains closed with
+tie/no demonstrated gain; its source/protocol/receipts and consumed budgets stay frozen.
+
+Operator explicitly selected the separate
+[OpenCode passive observation design](OPENCODE-HANDOFF-INTEGRATION-DESIGN-TH.md)
+with [preregistered controls](OPENCODE-HANDOFF-CONTROLS-TH.md).
+This selects one backend and a narrow design/source-analysis profile only.
+No Dev/backend calls, implementation, new experiment, runtime tool/config change
+or pilot approval. The six gates in section 5 remain required; safe SQLite
+capture and current authority/context/goal-verifier contracts are source blockers.
+
+J0 remains paused on draft #112 at the operator-approved
+[pause record](https://github.com/sc28249782/hermes-mcp-bridge/blob/e7142cf71792475af9375140df39acd55944d8d1/acceptance/s24/observed/J0-ROUTE-PAUSE.md).
+R1 NOT AUTHORIZED / R2 HOLD; no S24 obligation/authority or release/deployment
+gate is changed. This new explicit selection supersedes only earlier statements
+that no backend/design path had been selected, not their execution restrictions.
+
+
 วันที่ 2 พฤศจิกายน 2026 (Asia/Bangkok). ตรวจจาก main
 `7fcb3f39dfaa3fcf2535fafe5104f425cf72bc00`.
 เอกสารนี้เป็น delivery 4 ตาม
