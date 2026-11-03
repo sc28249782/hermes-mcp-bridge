@@ -69,8 +69,27 @@ import/action audit. No original test/assertion/selector is changed.
 The workspace exec-server was unavailable at task start and a minimal exec check
 failed. **Local tests NOT RUN.** Dedicated CI runs only these synthetic controls
 on 3.12/3.14 with exact 26/OK/no-skips/post-exit warning gates and prints actual
-source SHA256 values. Real CI hashes/results will be recorded after inspection;
-no hash or pass is invented in this initial candidate.
+source SHA256 values. At initial publication hashes/results were pending actual CI inspection; the
+checkpoint below records the subsequently observed evidence without a local pass.
+
+## Actual source hashes and author-CI evidence
+
+The initial candidate at `96ebb41ee4b6016bf45c565961bad98ad47a422f`
+ran [observed CI 41571409334](https://github.com/sc28249782/hermes-mcp-bridge/actions/runs/41571409334).
+Jobs 125704898901 (3.12) and 125704898846 (3.14) independently printed identical
+actual SHA256 values, then each ran **26/26 OK**, transfer_fixture_exit=0,
+complete_without_skips=true and warning_markers=[]. Crypto/provenance/scope flags
+in the CI gate remained false. This is author-triggered GitHub CI, not the operator
+host and not a local or real-transfer trial.
+
+| Source | Actual CI-computed SHA256 |
+|---|---|
+| transfer_offline.py | `ac9cc086ec41e2dcca9c47f85629f9aef3bec9479526452e5a7fc1a44dd46d7c` |
+| test_transfer_offline.py | `8255938df978c9656d56f79a6b534be142314bbd284bf42025ea835a8956d12e` |
+
+This later docs-only hash-record commit does not change either source or the
+workflow. Final-head regression/no-action evidence is reported separately in the
+PR. Local execution remains unavailable; no local test pass is claimed.
 
 ## Remaining source/action gates
 
