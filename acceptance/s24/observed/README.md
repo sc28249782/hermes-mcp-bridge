@@ -1,5 +1,19 @@
 # Observed inventory source — draft CI validation
 
+## Bootstrap prerequisite disposition — seed unavailable
+
+[Concrete candidate root/seed and finite exit](J0-BOOTSTRAP-PREREQUISITES.md)
+selects hosted-image provisioning as a proposed initial trust boundary, not an
+accepted anchor. Existing CI reports ubuntu-24.04 / 20261025.353.1; the exact
+referenced manifest could not be resolved by the recorded API checks. No seed
+executable/version/hash/authenticity is known. BOOTSTRAP_SEED_UNAVAILABLE is a
+document disposition, not a runtime result or new enum. No fallback image/main,
+tool execution or bootstrap/adapter implementation. Resume only with independently
+reviewable authenticated seed evidence, otherwise explicit route/defer decision.
+T1/T2/P1/P2 OPEN; FIVE consumed / FOUR digest matches; E12 UNKNOWN;
+all eighteen rows OPEN; J0 NOT READY; R1 NOT AUTHORIZED / R2 HOLD; same draft.
+
+
 ## Authenticated adapter and tool bootstrap — proposal only
 
 [Source architecture, bootstrap chain and real signed controls](J0-AUTHENTICATED-ADAPTER-PROPOSAL.md)

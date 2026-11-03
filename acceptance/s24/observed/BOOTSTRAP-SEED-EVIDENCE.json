@@ -1,0 +1,45 @@
+{
+  "kind": "j0-bootstrap-seed-prerequisite-evidence-only",
+  "schema": 1,
+  "observed_date": "2026-11-03",
+  "input_head": "ce97cfd485d1a374940e40a74fdb522def99e670",
+  "candidate_root": "GitHub-managed hosted image provisioning; not yet accepted",
+  "initial_seed": "preprovisioned gh; not observed",
+  "existing_ci": {
+    "run_id": 41589022058,
+    "job_id": 125761168209,
+    "head": "ce97cfd485d1a374940e40a74fdb522def99e670",
+    "reported_image": "ubuntu-24.04",
+    "reported_version": "20261025.353.1",
+    "reported_ref": "ubuntu24/20261025.353",
+    "image_measurement_verified": false
+  },
+  "lookups": [
+    {
+      "url": "https://api.github.com/repos/actions/runner-images/contents/images/ubuntu/Ubuntu2404-Readme.md?ref=ubuntu24%2F20261025.353",
+      "outcome": "HTTP_404_NO_COMMIT_FOUND",
+      "root_cause": "UNKNOWN"
+    },
+    {
+      "url": "https://api.github.com/repos/actions/runner-images/git/matching-refs/tags/ubuntu24/20261025.353",
+      "outcome": "EMPTY_LIST",
+      "root_cause": "UNKNOWN"
+    }
+  ],
+  "platform_documentation": {
+    "url": "https://raw.githubusercontent.com/actions/runner-images/4da2307112a0fad2fd2ecaca8ba7d08683b8c581/README.md",
+    "sha256": "7691efc4ce2d8a54055e2a504ce5b168413158c0c6169005f59ece6acf9ee2f2"
+  },
+  "disposition": "BOOTSTRAP_SEED_UNAVAILABLE",
+  "disposition_is_runtime_enum": false,
+  "bootstrap_executed": false,
+  "root_authority_accepted": false,
+  "seed_binary_observed": false,
+  "seed_sha256": null,
+  "seed_authenticity_verified": false,
+  "adapter_implemented": false,
+  "scope_granted": false,
+  "j0_ready": false,
+  "r1_complete": false,
+  "r2_authorized": false
+}
