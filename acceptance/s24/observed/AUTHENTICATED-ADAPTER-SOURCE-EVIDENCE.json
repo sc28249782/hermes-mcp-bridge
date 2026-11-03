@@ -1,0 +1,70 @@
+{
+  "kind": "j0-authenticated-adapter-source-inspection-only",
+  "schema": 1,
+  "observed_date": "2026-11-03",
+  "input_pr_head": "e192a67d58b32177dc89561723031e025c864885",
+  "source_commitments": [
+    {
+      "url": "https://raw.githubusercontent.com/cli/cli/63837fb778d6a39f02be0ce76ff89f2bc8d74bdc/pkg/cmd/attestation/verification/sigstore.go",
+      "utf8_bytes": 13152,
+      "sha256": "33e776307f070e0d32722055bf5e42118555305c8eaf50fe092629acca39f212",
+      "trust_anchor_accepted": false,
+      "executable_pin": false
+    },
+    {
+      "url": "https://raw.githubusercontent.com/cli/cli/63837fb778d6a39f02be0ce76ff89f2bc8d74bdc/pkg/cmd/attestation/verification/tuf.go",
+      "utf8_bytes": 1604,
+      "sha256": "d2e59a7585a59a5110c1ae507a8e49e823dd6af5f8d97a3cded04376e3ba7106",
+      "trust_anchor_accepted": false,
+      "executable_pin": false
+    },
+    {
+      "url": "https://raw.githubusercontent.com/cli/cli/63837fb778d6a39f02be0ce76ff89f2bc8d74bdc/pkg/cmd/attestation/verification/embed/tuf-repo.github.com/root.json",
+      "utf8_bytes": 7480,
+      "sha256": "98cba97be9075bc98b2322de3de85fbd1b70ec7392991dfd2f53d215bede1a8d",
+      "trust_anchor_accepted": false,
+      "executable_pin": false
+    },
+    {
+      "url": "https://raw.githubusercontent.com/cli/cli/63837fb778d6a39f02be0ce76ff89f2bc8d74bdc/pkg/cmd/attestation/verify/policy.go",
+      "utf8_bytes": 7782,
+      "sha256": "3a61062d3004833e1b7edd208b23a3b0a4a70ba8e2a33d89f56bf6d68a8edcc8",
+      "trust_anchor_accepted": false,
+      "executable_pin": false
+    },
+    {
+      "url": "https://raw.githubusercontent.com/cli/cli/63837fb778d6a39f02be0ce76ff89f2bc8d74bdc/pkg/cmd/attestation/verify/verify.go",
+      "utf8_bytes": 17508,
+      "sha256": "b1f00a4a8895eaac9b701c0a0c13e6f289e10cf16833b4694da8d0d5df84fe42",
+      "trust_anchor_accepted": false,
+      "executable_pin": false
+    },
+    {
+      "url": "https://raw.githubusercontent.com/cli/cli/63837fb778d6a39f02be0ce76ff89f2bc8d74bdc/docs/release-process-deep-dive.md",
+      "utf8_bytes": 47394,
+      "sha256": "c228d632ae642d616fb31238bbdc81119c329b3761cc8a4793affacf08b763a0",
+      "trust_anchor_accepted": false,
+      "executable_pin": false
+    },
+    {
+      "url": "https://raw.githubusercontent.com/FiloSottile/age/b74dce4cdbe35b5e5f66c06d9612b72f89028758/SIGSUM.md",
+      "utf8_bytes": 1979,
+      "sha256": "08ce1309d237f1bff07872d3e776463867a4badb0c642e290b2122d3e6576339",
+      "trust_anchor_accepted": false,
+      "executable_pin": false
+    }
+  ],
+  "embedded_tuf_root": {
+    "version": 3,
+    "expires": "2025-04-11T14:36:57Z",
+    "rotation_verified": false,
+    "runtime_root_admitted": false
+  },
+  "tool_binary_verified": false,
+  "signature_or_proof_verified": false,
+  "adapter_implemented": false,
+  "scope_granted": false,
+  "j0_ready": false,
+  "r1_complete": false,
+  "r2_authorized": false
+}

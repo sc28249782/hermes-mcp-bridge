@@ -1,5 +1,19 @@
 # R1 observer integration — consolidated source-acceptance work package
 
+## Authenticated adapter and tool bootstrap — proposal only
+
+[Source architecture, bootstrap chain and real signed controls](J0-AUTHENTICATED-ADAPTER-PROPOSAL.md)
+maps the next implementation boundary without another unsigned matcher.
+Pinned source inspection finds default gh TUF retry/cache behavior; proposed
+local-bundle/custom-root verification additionally requires native network denial.
+Historical embedded TUF root is not a runtime Sigstore trust set or a verified
+rotation chain. All inspection hashes are evidence commitments, not executable
+or accepted trust pins. Independent bootstrap, production schema and actual
+signed/native controls remain UNBOUND/NOT RUN. No adapter implementation or action.
+T1/T2/P1/P2 acceptance-OPEN; FIVE consumed / FOUR digest matches; E12 UNKNOWN;
+all eighteen rows OPEN; J0 NOT READY; R1 NOT AUTHORIZED / R2 HOLD; same draft.
+
+
 ## Tool/source discovery and unsigned provenance preflight
 
 [Exact source and per-claim feasibility](PROVENANCE-PREFLIGHT-SOURCE-REVIEW.md)
