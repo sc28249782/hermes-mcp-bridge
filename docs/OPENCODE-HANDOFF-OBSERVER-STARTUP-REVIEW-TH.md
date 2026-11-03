@@ -12,7 +12,7 @@ G ใน Reservation.capture() ยัง deny เสมอและ B4 ยัง
 ไม่มี exact approval timestamp; บันทึกเป็น operator-supplied review ไม่ impersonate submission
 
 เพิ่ม [observer_startup.py](../acceptance/handoff/opencode/observer_startup.py),
-[21 controls](../acceptance/handoff/opencode/test_observer_startup.py),
+[22 controls](../acceptance/handoff/opencode/test_observer_startup.py),
 [manifest](../acceptance/handoff/opencode/observer-startup-hashes.json) และ
 [workflow แยก](../.github/workflows/opencode_observer_startup.yml)
 [contract](OPENCODE-HANDOFF-OBSERVER-ADOPTION-CONTRACT-TH.md) คง byte-identical
@@ -78,9 +78,9 @@ capture_allowed/authorizes_actions/dev_observed/goal_verified=false ทุก Ou
 
 ## 4. Actual controls
 
-Author-local Python 3.12.14: **21/21 OK**, ResourceWarning-as-error, ไม่มี skips
+Author-local Python 3.12.14: **22/22 OK**, ResourceWarning-as-error, ไม่มี skips
 preflight final suite **24/24 OK** รวม deterministic numeric regression เพิ่มหนึ่งข้อ
-20 process cases ใช้ fresh isolated R และ fixture objects/anonymous pipes ใหม่เท่านั้น
+21 process cases ใช้ fresh isolated R และ fixture objects/anonymous pipes ใหม่เท่านั้น
 test runner ตรวจ subreaper setting ของตนไม่เปลี่ยนและ reap R ด้วย retained pidfd
 ใน fresh R ใช้ waitpid(-1,WNOHANG) เป็น **test-only** ECHILD oracle หลัง source จบ
 ทุก case ที่รันต้องไม่มี live/unreaped fixture child เหลือ ไม่ใช่ universal kernel guarantee
@@ -93,6 +93,7 @@ test runner ตรวจ subreaper setting ของตนไม่เปลี�
 | S death at binding | SIGKILL S จริงหลัง valid witness ก่อน retain หรือก่อน ACK; no G; kernel adoption+retained-pidfd cleanup/reap โดย R |
 | Post-G loss | inert H fixture ถึง actual private readiness marker แล้ว ignore TERM; SIGKILL S หรือ O/S จริง; R ยืนยัน adoption ก่อน TERM/KILL/reap และ stdout/stderr EOF; original FINAL หายยัง UNKNOWN |
 | FINAL/proof | H เขียน wrong proof จริง => S ไม่ส่ง FINAL; S exit จริงหลัง reap H แต่ก่อน FINAL => UNKNOWN/no invented observer reap; helper_reaped='true' string reject |
+| Late publication | หลัง actual FINAL/reap/EOF ครบ inject clock anomaly ก่อนสร้าง Outcome; source ต้อง UNKNOWN/BUDGET_EXHAUSTED ไม่ส่ง startup success ย้อน deadline |
 | Identity | manifest ตรวจ actual source/workflow/P/accepted contract hashes และ byte lengths; no skip หาก platform/process support ไม่ตรง |
 
 Fault hooks อยู่ใน controls เพื่อเปลี่ยน frame/เลือก crash boundary หรือใช้ inert H แบบค้าง

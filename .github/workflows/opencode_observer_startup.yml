@@ -41,7 +41,7 @@ jobs:
           import json,re,sys
           raw=Path(sys.argv[1]).read_bytes()
           markers=[m.decode() for m in (b'ResourceWarning',b'Exception ignored',b'Traceback') if m in raw]
-          complete=(re.findall(rb'^Ran (\d+) tests? in ',raw,re.M)==[b'21']
+          complete=(re.findall(rb'^Ran (\d+) tests? in ',raw,re.M)==[b'22']
                     and re.search(rb'^OK\s*$',raw,re.M) is not None
                     and re.search(rb'\bskipped\b',raw,re.I) is None)
           print(json.dumps({'startup_exit':int(sys.argv[2]),'complete_without_skips':complete,

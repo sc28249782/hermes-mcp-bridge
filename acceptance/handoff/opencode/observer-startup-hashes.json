@@ -3,18 +3,18 @@
   "source": [
     {
       "path": "acceptance/handoff/opencode/observer_startup.py",
-      "bytes": 17910,
-      "sha256": "2a7db495cfa9b8156a2e8c9f3f683e8b6d82bc650f9c5637c357240e4f6412a2"
+      "bytes": 18034,
+      "sha256": "1c46328ee4b96b4d7d2b2c82a80260204c91f41d34413c856499b9f4813076f8"
     },
     {
       "path": "acceptance/handoff/opencode/test_observer_startup.py",
-      "bytes": 15016,
-      "sha256": "8824c79ead2e699788255757d252c4e7bc8a4b4f1fa27038cc604c92e89ce42c"
+      "bytes": 16060,
+      "sha256": "b7b5e1ca9acc10b2673b4f7a98d4f41acfa61431311f73963e082f715bf4bb1a"
     },
     {
       "path": ".github/workflows/opencode_observer_startup.yml",
       "bytes": 1969,
-      "sha256": "9d53a92884da8d1086fe19129a55b8ccf6d0315b76b7bb2ebd58f1e1ea8a4f1f"
+      "sha256": "5b1bbc1edba58ef143b6cfcc5c0d716cd2681c7c8793363cdfecb5c850f4c00f"
     }
   ],
   "dev_observed": false,

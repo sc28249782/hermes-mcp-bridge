@@ -423,6 +423,8 @@ class Startup:
             if timer_set:
                 signal.setitimer(signal.ITIMER_REAL, 0)
                 signal.signal(signal.SIGALRM, previous_handler)
+        if reason=='STARTUP_ONLY' and Fraction(time.monotonic())>=Fraction(deadline):
+            reason='BUDGET_EXHAUSTED'
         state = 'FIXTURE_STARTUP_CONFIRMED' if reason == 'STARTUP_ONLY' else 'UNKNOWN' if consumed else 'HOLD'
         return Outcome(state, reason, tuple(self.trace), consumed, self.go, self.final, self.known,
                        exit_observed, reaper, stdout_eof, stderr_eof,

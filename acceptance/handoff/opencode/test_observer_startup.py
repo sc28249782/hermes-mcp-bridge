@@ -58,6 +58,14 @@ class StartupControls(unittest.TestCase):
                     issuer.register(binding, dummy_r)
                     native_emit, native_ack, native_go = S._emit, S.Startup._ack, S.Startup._go
                     native_retain = S.Startup._retain
+                    native_eof,native_clock=S._eof,S.time.monotonic
+                    observer_pid=os.getpid();late=[False];eof_count=[0]
+                    def clock():return native_clock()+(100 if late[0] else 0)
+                    def eof(fd,cap,deadline):
+                        native_eof(fd,cap,deadline)
+                        if case=='late_publication' and os.getpid()==observer_pid:
+                            eof_count[0]+=1
+                            if eof_count[0]==3:late[0]=True
 
                     def emitting(fd, value):
                         if value['kind'] == 'witness' and case == 'bad_nonce':
@@ -112,7 +120,9 @@ class StartupControls(unittest.TestCase):
                         if S._byte(gate,time.monotonic()+1)!=b'G':raise P.Hold('CHANNEL_LOST')
                         os.write(output,b'BAD\n')
 
-                    with mock.patch.object(S,'_emit',side_effect=emitting), \
+                    with mock.patch.object(S.time,'monotonic',side_effect=clock), \
+                         mock.patch.object(S,'_eof',side_effect=eof), \
+                         mock.patch.object(S,'_emit',side_effect=emitting), \
                          mock.patch.object(S.Startup,'_ack',ack), \
                          mock.patch.object(S.Startup,'_go',go), \
                          mock.patch.object(S.Startup,'_retain',retain):
@@ -268,6 +278,12 @@ class StartupControls(unittest.TestCase):
         r,_=self.trial('both_after_g')
         self.assertTrue(r['fixture_g_sent']);self.assertFalse(r['original_final'])
         self.assertEqual(r['state'],'UNKNOWN');self.assertEqual(r['helper_reaped_by'],'R')
+
+    def test_late_publication_rejects_even_after_actual_final_reap_and_eof(self):
+        r,_=self.trial('late_publication')
+        self.assertTrue(r['original_final']);self.assertEqual(r['helper_reaped_by'],'S')
+        self.assertTrue(r['stdout_eof']);self.assertTrue(r['stderr_eof'])
+        self.assertEqual(r['state'],'UNKNOWN');self.assertEqual(r['reason'],'BUDGET_EXHAUSTED')
 
     def test_source_and_unchanged_dependency_manifest(self):
         m=json.loads((SOURCE/'observer-startup-hashes.json').read_bytes())
