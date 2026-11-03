@@ -68,3 +68,15 @@ authorizes submit/resume or establishes general recovery gain.
 Privacy-safe source/result review precedes any public runtime/MCP/config change.
 A new execution feature needs its own SPEC section-14 change control and release
 scope. J0 stays PAUSED; #112 remains separate, R1 NOT AUTHORIZED / R2 HOLD.
+
+
+## Offline source candidate — 3 November 2026
+
+The [source-review packet](../acceptance/handoff/opencode/SOURCE-REVIEW.md)
+adds a fixture-scoped retained-FD native VFS/helper, private batch owner,
+fixture-only admission/Facts and exact-artifact verifier plus 48 owned source
+controls. Original design/preregistration text above is historical and unchanged;
+current per-row disposition is in that packet. This is not whole-integration
+source acceptance: production authority/bindings, external-owner death/stop,
+independent rollback anchor and original Dev goal gates remain OPEN. OC18 NOT RUN.
+No Dev/pilot/merge, J0 resumption or R1/R2 authorization.

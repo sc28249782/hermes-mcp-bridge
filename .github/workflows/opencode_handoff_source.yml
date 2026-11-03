@@ -1,0 +1,52 @@
+name: OpenCode passive observation source controls
+
+on:
+  pull_request:
+    branches: [main]
+    paths: ['acceptance/handoff/opencode/**', 'docs/OPENCODE-HANDOFF-*.md', '.github/workflows/opencode_handoff_source.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Compile and test only new owned SQLite and process fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha }}'
+          umask 022
+          source_log="$RUNNER_TEMP/opencode-source.log"
+          set +e
+          python -W error::ResourceWarning -I -S -B acceptance/handoff/opencode/test_observation.py > "$source_log" 2>&1
+          source_exit=$?
+          set -e
+          # Output contains only test-owned synthetic data and bounded build facts.
+          cat "$source_log"
+          python -I -S -B - "$source_log" "$source_exit" <<'PY'
+          from pathlib import Path
+          import json,re,sys
+          raw=Path(sys.argv[1]).read_bytes()
+          markers=[m.decode() for m in (b'ResourceWarning',b'Exception ignored',b'Traceback') if m in raw]
+          complete=(re.findall(rb'^Ran (\d+) tests? in ',raw,re.M)==[b'48']
+                    and re.search(rb'^OK\s*$',raw,re.M) is not None
+                    and re.search(rb'\bskipped\b',raw,re.I) is None)
+          print(json.dumps({'source_exit':int(sys.argv[2]),'complete_without_skips':complete,
+                            'warning_markers':markers,'dev_observed':False,'authorizes_actions':False}))
+          assert sys.argv[2]=='0' and complete and not markers,'source controls failed'
+          print('OpenCode observation source controls: 48 passed; owned offline fixtures only; no Dev observation')
+          PY

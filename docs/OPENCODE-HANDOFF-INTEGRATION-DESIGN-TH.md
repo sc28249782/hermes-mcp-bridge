@@ -228,3 +228,15 @@ development/heldout tie and budgets/receipts stay frozen. This work supplies no
 new gain/evaluation/release claim. J0 PAUSED; R1 NOT AUTHORIZED / R2 HOLD;
 #112/#80/#96/private bindings unchanged. Latest recorded release/deployment remains
 signed v1.2.8; no new version/date, production observation or implementation merge.
+
+
+## Offline source candidate — 3 November 2026
+
+The [source-review packet](../acceptance/handoff/opencode/SOURCE-REVIEW.md)
+adds a fixture-scoped retained-FD native VFS/helper, private batch owner,
+fixture-only admission/Facts and exact-artifact verifier plus 48 owned source
+controls. Original design/preregistration text above is historical and unchanged;
+current per-row disposition is in that packet. This is not whole-integration
+source acceptance: production authority/bindings, external-owner death/stop,
+independent rollback anchor and original Dev goal gates remain OPEN. OC18 NOT RUN.
+No Dev/pilot/merge, J0 resumption or R1/R2 authorization.
