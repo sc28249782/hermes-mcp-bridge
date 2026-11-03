@@ -477,6 +477,29 @@ jobs:
           assert sys.argv[2]=='0' and complete and not warnings,'offline transfer fixture controls failed'
           GATE
 
+      - name: Unsigned provenance policy preflight (no verifier or tools)
+        shell: bash
+        run: |
+          set -euo pipefail
+          preflight_log="$RUNNER_TEMP/s24-provenance-preflight.log"
+          set +e
+          python -W error::ResourceWarning -I -S -B acceptance/s24/observed/test_provenance_preflight.py > "$preflight_log" 2>&1
+          preflight_exit=$?
+          set -e
+          cat "$preflight_log"
+          python -I -S -B - "$preflight_log" "$preflight_exit" <<'GATE'
+          from pathlib import Path
+          import hashlib,json,re,sys
+          raw=Path(sys.argv[1]).read_bytes()
+          warnings=[m.decode() for m in (b'ResourceWarning',b'Exception ignored',b'Traceback') if m in raw]
+          counts=re.findall(rb'^Ran (\d+) tests? in ',raw,re.M)
+          complete=counts==[b'20'] and re.search(rb'^OK\s*$',raw,re.M) is not None
+          root=Path('acceptance/s24/observed')
+          hashes={n:hashlib.sha256((root/n).read_bytes()).hexdigest() for n in ('provenance_preflight.py','test_provenance_preflight.py','TOOL-SOURCE-DISCOVERY.json')}
+          print(json.dumps({'preflight_exit':int(sys.argv[2]),'complete_without_skips':complete,'warning_markers':warnings,'source_sha256':hashes,'provenance_authenticated':False,'tool_authenticated':False,'scope_granted':False},sort_keys=True))
+          assert sys.argv[2]=='0' and complete and not warnings,'unsigned policy preflight failed'
+          GATE
+
   observed-windows:
     runs-on: windows-2022
     timeout-minutes: 5

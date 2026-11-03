@@ -1,5 +1,18 @@
 # R1 observer integration — consolidated source-acceptance work package
 
+## Tool/source discovery and unsigned provenance preflight
+
+[Exact source and per-claim feasibility](PROVENANCE-PREFLIGHT-SOURCE-REVIEW.md)
+supplies read-only upstream tool metadata plus a bounded unsigned policy
+comparison contract and 20 synthetic controls. MATCHED_UNAUTHENTICATED is never
+a signed-verifier result or secret-release capability. Release API digests are
+provider-reported; executable bytes/authenticity, trust roots, authenticated adapter
+and actual-route claim availability remain UNBOUND. T1/T2/P1/P2 stay acceptance-OPEN.
+No crypto/tool/custody/transfer action or invocation six; all eighteen rows OPEN.
+FIVE consumed / FOUR digest matches; E12 UNKNOWN; J0 NOT READY;
+R1 NOT AUTHORIZED / R2 HOLD; keep draft. Prior source/records remain unchanged.
+
+
 ## Protected transfer binding inventory — review candidate
 
 [Tool/provenance/custody binding packet](J0-TRANSFER-BINDING-PACKET.md) records

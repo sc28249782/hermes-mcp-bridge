@@ -1,0 +1,79 @@
+{
+  "schema": 1,
+  "kind": "j0-tool-source-discovery-only",
+  "observed_date": "2026-11-03",
+  "archive_bytes_verified": false,
+  "binary_identity_verified": false,
+  "publisher_authenticity_verified": false,
+  "tools": [
+    {
+      "repository": "FiloSottile/age",
+      "release_id": 379059621,
+      "tag": "v1.3.2",
+      "source_commit": "b74dce4cdbe35b5e5f66c06d9612b72f89028758",
+      "source_commit_is_execution_pin": false,
+      "release_api": "https://api.github.com/repos/FiloSottile/age/releases/379059621",
+      "assets": [
+        {
+          "name": "age-v1.3.2-linux-amd64.tar.gz",
+          "url": "https://github.com/FiloSottile/age/releases/download/v1.3.2/age-v1.3.2-linux-amd64.tar.gz",
+          "size": 19405817,
+          "provider_reported_digest": "sha256:cbe24006683f8eb669266162894b9a522a1af52f2665fbc63a4bb032ed26ac10",
+          "bytes_verified": false,
+          "executable_sha256": null
+        },
+        {
+          "name": "age-v1.3.2-linux-amd64.tar.gz.proof",
+          "url": "https://github.com/FiloSottile/age/releases/download/v1.3.2/age-v1.3.2-linux-amd64.tar.gz.proof",
+          "size": 1921,
+          "provider_reported_digest": "sha256:98402fa59b4e433426156b4a7e74a32e44902e0434c61158f7de18ffc84f1f97",
+          "bytes_verified": false,
+          "executable_sha256": null
+        },
+        {
+          "name": "age-v1.3.2-windows-amd64.zip",
+          "url": "https://github.com/FiloSottile/age/releases/download/v1.3.2/age-v1.3.2-windows-amd64.zip",
+          "size": 20250704,
+          "provider_reported_digest": "sha256:f48d8f8f9ebe903ab5027ed067652f2cc1db94bc206976430133b905dcd8e8c7",
+          "bytes_verified": false,
+          "executable_sha256": null
+        },
+        {
+          "name": "age-v1.3.2-windows-amd64.zip.proof",
+          "url": "https://github.com/FiloSottile/age/releases/download/v1.3.2/age-v1.3.2-windows-amd64.zip.proof",
+          "size": 1921,
+          "provider_reported_digest": "sha256:00ae35a24a47b9bace52ec62f06d402f38f6ecba4ca099d060a137e82ef0bc1d",
+          "bytes_verified": false,
+          "executable_sha256": null
+        }
+      ]
+    },
+    {
+      "repository": "cli/cli",
+      "release_id": 424663522,
+      "tag": "v2.103.3",
+      "source_commit": "63837fb778d6a39f02be0ce76ff89f2bc8d74bdc",
+      "source_commit_is_execution_pin": false,
+      "release_api": "https://api.github.com/repos/cli/cli/releases/424663522",
+      "assets": [
+        {
+          "name": "gh_2.103.3_linux_amd64.tar.gz",
+          "url": "https://github.com/cli/cli/releases/download/v2.103.3/gh_2.103.3_linux_amd64.tar.gz",
+          "size": 15031972,
+          "provider_reported_digest": "sha256:4c806978ffce1cec70853302a56d70ac6da4f19bae7adca4e1a8ab00633dd91d",
+          "bytes_verified": false,
+          "executable_sha256": null
+        },
+        {
+          "name": "gh_2.103.3_windows_amd64.zip",
+          "url": "https://github.com/cli/cli/releases/download/v2.103.3/gh_2.103.3_windows_amd64.zip",
+          "size": 15197187,
+          "provider_reported_digest": "sha256:98d0cfa794721665d7973dd728c78aff7bd836d58f10f6d7a03568eccb0a22e0",
+          "bytes_verified": false,
+          "executable_sha256": null
+        }
+      ]
+    }
+  ],
+  "scope_granted": false
+}
