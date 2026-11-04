@@ -1,7 +1,9 @@
 """Owned native integration controls; no real backend, credentials or Dev state."""
 from dataclasses import asdict,replace
 import ast
+import array
 import ctypes
+import fcntl
 import hashlib
 import json
 import os
@@ -13,6 +15,7 @@ import sqlite3
 import subprocess
 import sys
 import tempfile
+import termios
 import time
 import unittest
 from unittest import mock
@@ -24,6 +27,7 @@ SOURCE=Path(__file__).resolve().parent
 LOSS_PHASES=('nonreading','read_lock','first_frame','complete_prefix')
 LOSS_CASES={f'both_{phase}_{order}':(phase,order)
             for phase in LOSS_PHASES for order in ('os','so')}
+PIPE_CASES=('held_stdout','held_stderr','held_report','full_stdout','full_stderr','full_report')
 
 
 def loss_shim(phase):
@@ -117,6 +121,18 @@ class NativeControls(unittest.TestCase):
             target.chmod(0o700)
             for case,(selected,_) in LOSS_CASES.items():
                 if selected==phase:cls.helpers[case]=target
+        for name,stream in (('full_stdout',1),('full_stderr',2)):
+            shim=Path(cls.build.name)/(name+'.c');target=Path(cls.build.name)/name
+            shim.write_text('#define main accepted_main\n#include "'+str(SOURCE/'oc_snapshot_vfs.c')+'"\n#undef main\n'
+                'int main(void){signal(SIGTERM,SIG_IGN);int f='+str(stream)+';int flags=fcntl(f,F_GETFL);'
+                'if(flags<0||fcntl(f,F_SETFL,flags|O_NONBLOCK))return 93;char b[4096]={0};'
+                'for(;;){ssize_t n=write(f,b,sizeof(b));if(n<0&&errno==EAGAIN)break;if(n<=0)return 94;}'
+                'if(write(201,"F",1)!=1||fcntl(f,F_SETFL,flags))return 95;'
+                'if(write(f,"X",1)!=1)return 96;return 97;}\n')
+            result=subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-O2',str(shim),
+                '/lib/x86_64-linux-gnu/libsqlite3.so.0','-o',str(target)],capture_output=True,timeout=20)
+            if result.returncode:raise AssertionError(result.stderr.decode())
+            target.chmod(0o700);cls.helpers[name]=target
         facts=subprocess.run([str(cls.helper),'--build-facts'],capture_output=True,check=True,timeout=2)
         if not facts.stdout.startswith(b'SQLite=3.45.1\n'):raise AssertionError('unsupported native SQLite fixture build')
         print(json.dumps({'kind':'offline-native-build','source_sha256':hashlib.sha256((SOURCE/'oc_snapshot_vfs.c').read_bytes()).hexdigest(),
@@ -175,14 +191,51 @@ class NativeControls(unittest.TestCase):
                         phase_r,phase_w=os.pipe2(os.O_CLOEXEC)
                         block_r,block_w=os.pipe2(os.O_CLOEXEC)
                         os.dup2(phase_w,198,inheritable=True);os.dup2(block_r,199,inheritable=True)
+                    pipe_case=case in PIPE_CASES
+                    events_r=events_w=stall_r=stall_w=None
+                    if pipe_case:
+                        events_r,events_w=os.pipe2(os.O_CLOEXEC)
+                        stall_r,stall_w=os.pipe2(os.O_CLOEXEC)
+                        os.dup2(events_w,201,inheritable=True);os.dup2(stall_r,202,inheritable=True)
                     original_close=S._close_except
                     def closing(keep):
-                        return original_close((*keep,198,199) if loss else keep)
+                        extra=(198,199) if loss else (201,202) if pipe_case else ()
+                        return original_close((*keep,*extra))
                     stimulus={'phase_seen':False,'both_exited':False,'h_live_after_loss':False}
+                    pipe_stimulus={};pairs=[];held=[];observed=[];pipe_setup=[False]
+                    native_pipe=N.NativeRun._new_pipe;native_close=N.NativeRun._close
+                    native_frame=N._frame;native_reap=N._reap
+                    def event_until(wanted):
+                        received=set();deadline=time.monotonic()+1
+                        while not set(wanted)<=received:
+                            if not S._until(events_r,deadline):raise AssertionError('pipe stimulus not confirmed')
+                            raw=os.read(events_r,1)
+                            if not raw:raise AssertionError('pipe stimulus EOF')
+                            received.add(raw.decode('ascii'))
+                        return received
+                    def new_pipe(self):
+                        pair=native_pipe(self);pairs.append(pair)
+                        if pipe_case and len(pairs) in (4,6,7):fcntl.fcntl(pair[1],fcntl.F_SETPIPE_SZ,4096)
+                        return pair
+                    def close(self,*fds):
+                        if pipe_case and not pipe_setup[0] and len(pairs)==7:
+                            pipe_setup[0]=True
+                            selected={'held_stdout':5,'held_stderr':6,'held_report':3,'full_report':3}.get(case)
+                            if selected is not None:
+                                held.append(os.dup(pairs[selected][1]));observed.append(os.dup(pairs[selected][0]))
+                        return native_close(self,*fds)
+                    def reaping(child):
+                        native_reap(child)
+                        if pipe_case and case.startswith('held_') and os.getpid()!=observer and child.rc==0:
+                            if os.write(201,b'R')!=1:raise AssertionError('reap witness lost')
+                    def framing(fd,deadline,deathfds=()):
+                        if case=='full_report' and os.getpid()==observer and len(pairs)==7 and run.go:
+                            event_until('F');pipe_stimulus['final_write_eagain']=True
+                        return native_frame(fd,deadline,deathfds)
                     native_ack=N.NativeRun._ack;native_go=N.NativeRun._go
                     native_emit=N._emit;native_retain=N.NativeRun._retain
                     native_entry=N._native_entry;native_read=N.os.read
-                    native_supervisor=N._native_supervisor;fragment_fd=[None]
+                    native_supervisor=N._native_supervisor;fragment_fd=[None];stderr_fd=[None]
                     native_exec=N.os.execve
                     def execute(fd,argv,env):
                         if case=='exec_failure':raise OSError('owned exec fault')
@@ -197,6 +250,7 @@ class NativeControls(unittest.TestCase):
                             if eofs[0]==3:late[0]=True
                     def supervise(*args):
                         fragment_fd[0]=args[5]
+                        stderr_fd[0]=args[7]
                         return native_supervisor(*args)
                     def ack(self,fd):
                         if case=='s_before_ack':kill(self.s)
@@ -206,6 +260,23 @@ class NativeControls(unittest.TestCase):
                     def go(self,fd):
                         if case=='owner_loss':kill(self.o)
                         native_go(self,fd)
+                        if case in ('full_stdout','full_stderr'):
+                            event_until('FE')
+                            stream=self._proof_r if case=='full_stdout' else self._error_r
+                            count=array.array('i',[0]);fcntl.ioctl(stream,termios.FIONREAD,count,True)
+                            capacity=fcntl.fcntl(stream,fcntl.F_GETPIPE_SZ)
+                            if capacity!=4096 or count[0]!=capacity:raise AssertionError('pipe not actually full')
+                            if S._ready(self.h.pidfd):raise AssertionError('full-pipe H already exited')
+                            pipe_stimulus.update(full=True,capacity=capacity,queued=count[0],h_live=True,consumer_stalled=True)
+                        if case=='full_report':
+                            os.set_blocking(held[0],False);total=0
+                            while True:
+                                try:total+=os.write(held[0],b'X'*4096)
+                                except BlockingIOError:break
+                            capacity=fcntl.fcntl(held[0],fcntl.F_GETPIPE_SZ)
+                            count=array.array('i',[0]);fcntl.ioctl(observed[0],termios.FIONREAD,count,True)
+                            if total!=capacity or capacity!=4096 or count[0]!=capacity:raise AssertionError('report not full')
+                            pipe_stimulus.update(full=True,capacity=capacity,queued=count[0])
                         if loss:
                             if not select.select([phase_r],[],[],1)[0] or os.read(phase_r,1)!=b'B':
                                 raise AssertionError('actual native phase not reached')
@@ -231,6 +302,17 @@ class NativeControls(unittest.TestCase):
                         if value['kind']=='witness' and case=='bad_witness':value=dict(value,nonce='wrong')
                         if value['kind']=='final' and case=='missing_final':os._exit(91)
                         if value['kind']=='final' and case=='bad_final':value=dict(value,helper_reaped='true')
+                        if value['kind']=='final' and case in ('duplicate_final','trailing_final','partial_final'):
+                            raw=json.dumps(value,sort_keys=True,separators=(',',':')).encode()+b'\n'
+                            raw=raw*2 if case=='duplicate_final' else raw+b'X' if case=='trailing_final' else raw[:len(raw)//2]
+                            if len(raw)>512 or os.write(fd,raw)!=len(raw):raise AssertionError('FINAL fault write')
+                            return
+                        if value['kind']=='final' and case=='full_report':
+                            try:native_emit(fd,value)
+                            except BlockingIOError:
+                                if os.write(201,b'F')!=1:raise AssertionError('report fault witness')
+                                raise
+                            else:raise AssertionError('full report accepted FINAL write')
                         return native_emit(fd,value)
                     def entry(gate,output,error,b,cutoff):
                         if case in ('s_after_g','stderr','partial','overcap'):
@@ -244,6 +326,12 @@ class NativeControls(unittest.TestCase):
                             while True:signal.pause()
                         native_entry(gate,output,error,b,cutoff)
                     def fragmented(fd,size):
+                        if case in ('full_stdout','full_stderr') and os.getpid()!=observer:
+                            selected=fragment_fd[0] if case=='full_stdout' else stderr_fd[0]
+                            if fd==selected:
+                                if os.write(201,b'E')!=1:raise AssertionError('consumer stall witness')
+                                native_read(202,1)
+                                raise AssertionError('consumer barrier released')
                         return native_read(fd,min(size,1)) if case=='fragmented_reads' and fd==fragment_fd[0] else native_read(fd,size)
                     # SQLite writer lock is held only in this fresh fixture R.
                     lock=None
@@ -255,8 +343,10 @@ class NativeControls(unittest.TestCase):
                              mock.patch.object(N,'_native_entry',side_effect=entry),mock.patch.object(N.os,'read',side_effect=fragmented), \
                              mock.patch.object(N,'_native_supervisor',side_effect=supervise),mock.patch.object(N,'_eof',side_effect=eof), \
                              mock.patch.object(N.time,'monotonic',side_effect=clock),mock.patch.object(N.os,'execve',side_effect=execute), \
-                             mock.patch.object(S,'_close_except',side_effect=closing),mock.patch.object(N,'_close_except',side_effect=closing):
-                            run=N.NativeRun(issuer,binding.attempt_ref,bundle,3.5 if case in ('stall_ack','hang') else 8)
+                             mock.patch.object(S,'_close_except',side_effect=closing),mock.patch.object(N,'_close_except',side_effect=closing), \
+                             mock.patch.object(N.NativeRun,'_new_pipe',new_pipe),mock.patch.object(N.NativeRun,'_close',close), \
+                             mock.patch.object(N,'_frame',side_effect=framing),mock.patch.object(N,'_reap',side_effect=reaping):
+                            run=N.NativeRun(issuer,binding.attempt_ref,bundle,3.5 if case in ('stall_ack','hang',*PIPE_CASES) else 8)
                             result=run.run()
                             if case=='reuse':
                                 try:run.run()
@@ -266,6 +356,15 @@ class NativeControls(unittest.TestCase):
                             try:issuer.reserve(binding.attempt_ref)
                             except P.Hold:pass
                             else:raise AssertionError('duplicate reservation')
+                        if case.startswith('held_'):
+                            event_until('R');pipe_stimulus['s_reap_observed']=True
+                            if S._ready(observed[0]):raise AssertionError('retained writer unexpectedly reached EOF')
+                            pipe_stimulus['eof_before_release']=False
+                            os.close(held.pop())
+                            if not S._until(observed[0],time.monotonic()+0.2) or os.read(observed[0],1)!=b'':
+                                raise AssertionError('EOF absent after test writer release')
+                            pipe_stimulus['eof_after_release']=True
+                        for fd in (*held,*observed):os.close(fd)
                     finally:
                         if lock is not None:lock.rollback();lock.close()
                     try:os.waitpid(-1,os.WNOHANG)
@@ -276,6 +375,9 @@ class NativeControls(unittest.TestCase):
                         if not all(stimulus.values()):raise AssertionError('loss stimulus incomplete')
                         value['native_loss_stimulus']=dict(phase=LOSS_CASES[case][0],order=LOSS_CASES[case][1],**stimulus)
                         for fd in (phase_r,phase_w,block_r,block_w,198,199):os.close(fd)
+                    if pipe_case:
+                        value['pipe_stimulus']=pipe_stimulus
+                        for fd in (events_r,events_w,stall_r,stall_w,201,202):os.close(fd)
                     issuer.close()
                     for fd in (rootfd,claimfd,helperfd,jobfd,ctxfd,dummy_r,dummy_w):os.close(fd)
                     raw=json.dumps(value,sort_keys=True).encode()+b'\n'
@@ -371,6 +473,27 @@ class NativeControls(unittest.TestCase):
     def test_both_loss_native_first_frame_supervisor_first(self):self.native_both_loss('first_frame','so')
     def test_both_loss_native_complete_prefix_owner_first(self):self.native_both_loss('complete_prefix','os')
     def test_both_loss_native_complete_prefix_supervisor_first(self):self.native_both_loss('complete_prefix','so')
+
+    def held_writer(self,stream):
+        r,c=self.trial('held_'+stream)
+        self.assertEqual(r['state'],'UNKNOWN');self.assertEqual(r['reason'],'STOP_UNCONFIRMED')
+        self.assertTrue(r['helper_exit_observed']);self.assertEqual(r['actors_reaped'],2)
+        self.assertEqual(c,1)
+        if stream=='report':
+            self.assertTrue(r['original_final']);self.assertEqual(r['helper_reaped_by'],'S')
+            self.assertTrue(r['stdout_eof']);self.assertTrue(r['stderr_eof'])
+        else:
+            self.assertFalse(r['original_final']);self.assertIsNone(r['helper_reaped_by'])
+            self.assertIsNone(r['stdout_eof'] if stream=='stdout' else r['stderr_eof'])
+    def test_reaped_native_h_with_retained_stdout_writer_has_no_eof(self):self.held_writer('stdout')
+    def test_reaped_native_h_with_retained_stderr_writer_has_no_eof(self):self.held_writer('stderr')
+    def test_valid_final_without_report_eof_cannot_publish_success(self):self.held_writer('report')
+    def test_actual_full_stdout_and_stalled_consumer_are_bounded(self):self.negative('full_stdout',True)
+    def test_actual_full_stderr_and_stalled_consumer_are_bounded(self):self.negative('full_stderr',True)
+    def test_actual_full_report_refuses_final_write(self):self.negative('full_report',True)
+    def test_duplicate_native_final_rejected(self):self.negative('duplicate_final',True)
+    def test_trailing_native_final_rejected(self):self.negative('trailing_final',True)
+    def test_partial_native_final_rejected(self):self.negative('partial_final',True)
     def test_hash_manifest(self):
         m=json.loads((SOURCE/'observer-native-hashes.json').read_bytes())
         for entry in m['source']+m['pinned_dependencies']:

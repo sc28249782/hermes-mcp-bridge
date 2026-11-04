@@ -8,13 +8,13 @@
     },
     {
       "path": "acceptance/handoff/opencode/test_observer_native.py",
-      "bytes": 26544,
-      "sha256": "2d707929b2736e426c095479426fc4ee93de1c26ab8a79f056812d7d9ad883b0"
+      "bytes": 35849,
+      "sha256": "d5ba2bff55f99f75b41c8803508cbe6984ea1a1e05bf0a53797c10427200bb45"
     },
     {
       "path": ".github/workflows/opencode_observer_native.yml",
       "bytes": 1955,
-      "sha256": "50b56f6e0fd3996a9b3cc109edf35dcbd43837d62ed46a86ffe79a11c36007b4"
+      "sha256": "5e6c6c228463050535baf0eb6616a4d00fab6d708203b47307e5a9788a6c622c"
     }
   ],
   "pinned_dependencies": [
