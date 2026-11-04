@@ -6,6 +6,11 @@ Parent `bc6525608731128f6cd12d3d22630b1308e0c4c4` ได้รับ operator-su
 round-11 APPROVE ตามข้อความที่ผู้ใช้ส่งมา ไม่ใช่ GitHub review submission
 ไม่มี timestamp ของ review จึงไม่เติมเอง. Candidate นี้รอ independent review
 
+Docs-only follow-up: operator-supplied round-12 APPROVE ณ source head
+`256c5e40570a11b45422fe20c0a9b050e7166da4` ยอมรับ package 5 ตาม scope ที่รีวิว
+พร้อม nonblocking interpreter note ด้านล่าง; ไม่ใช่ GitHub review submission
+และไม่เปลี่ยน source/runtime/manifest หรือยกระดับ OA/B acceptance
+
 ข้อแก้ความคลาดเคลื่อนของ round-11: สี่ phases ของ package 4 คือ native
 nonreading / SQLite read lock / first frame / complete three-frame prefix
 ทุก loss schedule อยู่หลัง G ไม่ใช่ก่อน/ระหว่าง ACK หรือหลัง original FINAL
@@ -82,6 +87,8 @@ Fraction T0+45 / maximum20 และ native capture alarm1s เดิมไม�
 ไม่มี fresh timer ที่ handoff/cleanup, no numeric-PID/PGID signal หรือ fallback
 
 ## 4. หลักฐานที่วัดและ OA disposition
+
+**Interpreter scope ของ controls ชุดนี้: ตรวจรับบน Python 3.12/3.14 เท่านั้น; Python 3.11 ไม่รับประกัน — reviewer รายงาน Python 3.11.15 compile ไม่ผ่าน (`SyntaxError: too many statically nested blocks` ใน `test_observer_native.py`); เป็น operator-supplied evidence ไม่ใช่ผล reproduce ใหม่ของ author และไม่ใช่ข้อจำกัดที่อ้างครอบ bridge ทั้งโครงการ.**
 
 Author-local Python 3.12.14, Linux x86_64/SQLite 3.45.1, umask 022:
 **53/53 OK, exit0**, ResourceWarning-as-error, ไม่มี skip
