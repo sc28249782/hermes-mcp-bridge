@@ -21,6 +21,37 @@ ROOT=Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(ROOT))
 from acceptance.handoff.opencode import observer_native as N,observer_preflight as P,observer_startup as S
 SOURCE=Path(__file__).resolve().parent
+LOSS_PHASES=('nonreading','read_lock','first_frame','complete_prefix')
+LOSS_CASES={f'both_{phase}_{order}':(phase,order)
+            for phase in LOSS_PHASES for order in ('os','so')}
+
+
+def loss_shim(phase):
+    """TEST ONLY: actual C phase barrier; no extra actor or source mutation.
+
+    198 is the private phase write end, 199 a never-released read barrier.
+    They are explicitly retained only by test hooks. read_lock keeps the native
+    1-second alarm; other barriers have no fresh native alarm or source timer.
+    """
+    preamble='#define _GNU_SOURCE\n#include <unistd.h>\n#include <string.h>\n'
+    preamble+='static ssize_t fixture_write(int,const void*,size_t);\n'
+    preamble+='#define write fixture_write\n#define main accepted_main\n'
+    if phase=='read_lock':preamble+='#define OC_CONTROL_BUILD\n'
+    preamble+='#include "'+str(SOURCE/'oc_snapshot_vfs.c')+'"\n#undef main\n#undef write\n'
+    barrier='static void phase_ready(void){if(write(198,"B",1)!=1)_exit(93);char c;if(read(199,&c,1)!=1)_exit(94);_exit(95);}\n'
+    notify='static ssize_t fixture_write(int f,const void*p,size_t n){'
+    if phase=='read_lock':
+        notify+='if(f==2&&n==18&&!memcmp(p,"CONTROL_READ_LOCK\\n",18)){phase_ready();}'
+    notify+='ssize_t r=write(f,p,n);'
+    if phase=='first_frame':notify+='if(f==1&&n>4&&r==(ssize_t)n)phase_ready();'
+    notify+='return r;}\n'
+    main='int main(int n,char**v){signal(SIGTERM,SIG_IGN);'
+    if phase=='nonreading':main+='phase_ready();'
+    if phase=='read_lock':main+='releasefd=199;'
+    main+='int r=accepted_main(n,v);if(r)return r;'
+    if phase=='complete_prefix':main+='phase_ready();'
+    main+='return 0;}\n'
+    return preamble+barrier+notify+main
 
 
 def setting():
@@ -77,6 +108,15 @@ class NativeControls(unittest.TestCase):
             subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-O2',str(shim),
                 '/lib/x86_64-linux-gnu/libsqlite3.so.0','-o',str(target)],check=True,capture_output=True,timeout=20)
             target.chmod(0o700);cls.helpers[name]=target
+        for phase in LOSS_PHASES:
+            shim=Path(cls.build.name)/(phase+'.c');target=Path(cls.build.name)/phase
+            shim.write_text(loss_shim(phase))
+            result=subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-O2',str(shim),
+                '/lib/x86_64-linux-gnu/libsqlite3.so.0','-o',str(target)],capture_output=True,timeout=20)
+            if result.returncode:raise AssertionError(result.stderr.decode())
+            target.chmod(0o700)
+            for case,(selected,_) in LOSS_CASES.items():
+                if selected==phase:cls.helpers[case]=target
         facts=subprocess.run([str(cls.helper),'--build-facts'],capture_output=True,check=True,timeout=2)
         if not facts.stdout.startswith(b'SQLite=3.45.1\n'):raise AssertionError('unsupported native SQLite fixture build')
         print(json.dumps({'kind':'offline-native-build','source_sha256':hashlib.sha256((SOURCE/'oc_snapshot_vfs.c').read_bytes()).hexdigest(),
@@ -127,6 +167,18 @@ class NativeControls(unittest.TestCase):
                     if case=='oracle_binding':binding=replace(binding,dossier_sha256='a'*64)
                     if case=='helper_hash':bundle=replace(bundle,helper_sha256='a'*64)
                     issuer.register(binding,dummy_r)
+                    # Test-private inherited descriptors; normal source keeps
+                    # none of these. No watchdog/observer process is added.
+                    loss=case in LOSS_CASES
+                    phase_r=phase_w=block_r=block_w=None
+                    if loss:
+                        phase_r,phase_w=os.pipe2(os.O_CLOEXEC)
+                        block_r,block_w=os.pipe2(os.O_CLOEXEC)
+                        os.dup2(phase_w,198,inheritable=True);os.dup2(block_r,199,inheritable=True)
+                    original_close=S._close_except
+                    def closing(keep):
+                        return original_close((*keep,198,199) if loss else keep)
+                    stimulus={'phase_seen':False,'both_exited':False,'h_live_after_loss':False}
                     native_ack=N.NativeRun._ack;native_go=N.NativeRun._go
                     native_emit=N._emit;native_retain=N.NativeRun._retain
                     native_entry=N._native_entry;native_read=N.os.read
@@ -154,6 +206,22 @@ class NativeControls(unittest.TestCase):
                     def go(self,fd):
                         if case=='owner_loss':kill(self.o)
                         native_go(self,fd)
+                        if loss:
+                            if not select.select([phase_r],[],[],1)[0] or os.read(phase_r,1)!=b'B':
+                                raise AssertionError('actual native phase not reached')
+                            if S._ready(self.h.pidfd):raise AssertionError('H exited before loss stimulus')
+                            stimulus['phase_seen']=True
+                            actors={'o':self.o,'s':self.s}
+                            # Back-to-back retained-pidfd sends, with no reap/
+                            # wait between them. Both deaths precede return to R.
+                            for role in LOSS_CASES[case][1]:
+                                signal.pidfd_send_signal(actors[role].pidfd,signal.SIGKILL)
+                            cutoff=time.monotonic()+1
+                            for child in (self.o,self.s):
+                                if not S._until(child.pidfd,cutoff):raise AssertionError('O/S loss not confirmed')
+                            stimulus['both_exited']=True
+                            if S._ready(self.h.pidfd):raise AssertionError('H already stopped at adoption boundary')
+                            stimulus['h_live_after_loss']=True
                     def retain(self,witness):
                         if case=='s_before_retain':kill(self.s)
                         if case=='pidfd_failure':
@@ -186,7 +254,8 @@ class NativeControls(unittest.TestCase):
                              mock.patch.object(N.NativeRun,'_retain',retain),mock.patch.object(N,'_emit',side_effect=emit), \
                              mock.patch.object(N,'_native_entry',side_effect=entry),mock.patch.object(N.os,'read',side_effect=fragmented), \
                              mock.patch.object(N,'_native_supervisor',side_effect=supervise),mock.patch.object(N,'_eof',side_effect=eof), \
-                             mock.patch.object(N.time,'monotonic',side_effect=clock),mock.patch.object(N.os,'execve',side_effect=execute):
+                             mock.patch.object(N.time,'monotonic',side_effect=clock),mock.patch.object(N.os,'execve',side_effect=execute), \
+                             mock.patch.object(S,'_close_except',side_effect=closing),mock.patch.object(N,'_close_except',side_effect=closing):
                             run=N.NativeRun(issuer,binding.attempt_ref,bundle,3.5 if case in ('stall_ack','hang') else 8)
                             result=run.run()
                             if case=='reuse':
@@ -203,6 +272,10 @@ class NativeControls(unittest.TestCase):
                     except ChildProcessError:no_children=True
                     else:raise AssertionError('fixture child remains')
                     value={'outcome':asdict(result),'no_children':no_children,'claims':len(list(claim.iterdir()))}
+                    if loss:
+                        if not all(stimulus.values()):raise AssertionError('loss stimulus incomplete')
+                        value['native_loss_stimulus']=dict(phase=LOSS_CASES[case][0],order=LOSS_CASES[case][1],**stimulus)
+                        for fd in (phase_r,phase_w,block_r,block_w,198,199):os.close(fd)
                     issuer.close()
                     for fd in (rootfd,claimfd,helperfd,jobfd,ctxfd,dummy_r,dummy_w):os.close(fd)
                     raw=json.dumps(value,sort_keys=True).encode()+b'\n'
@@ -283,6 +356,21 @@ class NativeControls(unittest.TestCase):
     def test_late_publication_cannot_publish_fixture_success(self):
         r,_=self.trial('late_publication');self.assertTrue(r['original_final'])
         self.assertEqual(r['state'],'UNKNOWN');self.assertEqual(r['reason'],'BUDGET_EXHAUSTED')
+
+    def native_both_loss(self,phase,order):
+        r,c=self.negative(f'both_{phase}_{order}',True)
+        self.assertEqual(r['state'],'UNKNOWN');self.assertEqual(r['actors_reaped'],2)
+        self.assertEqual(r['helper_reaped_by'],'R');self.assertIs(r['helper_exit_observed'],True)
+        self.assertIs(r['stdout_eof'],True);self.assertIs(r['stderr_eof'],True)
+        self.assertEqual(c,1);self.assertNotIn('FINAL',r['trace'])
+    def test_both_loss_nonreading_owner_first(self):self.native_both_loss('nonreading','os')
+    def test_both_loss_nonreading_supervisor_first(self):self.native_both_loss('nonreading','so')
+    def test_both_loss_native_read_lock_owner_first(self):self.native_both_loss('read_lock','os')
+    def test_both_loss_native_read_lock_supervisor_first(self):self.native_both_loss('read_lock','so')
+    def test_both_loss_native_first_frame_owner_first(self):self.native_both_loss('first_frame','os')
+    def test_both_loss_native_first_frame_supervisor_first(self):self.native_both_loss('first_frame','so')
+    def test_both_loss_native_complete_prefix_owner_first(self):self.native_both_loss('complete_prefix','os')
+    def test_both_loss_native_complete_prefix_supervisor_first(self):self.native_both_loss('complete_prefix','so')
     def test_hash_manifest(self):
         m=json.loads((SOURCE/'observer-native-hashes.json').read_bytes())
         for entry in m['source']+m['pinned_dependencies']:

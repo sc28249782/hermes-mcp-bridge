@@ -286,4 +286,3 @@ class NativeRun(S.Startup):
         return NativeOutcome(state, reason, tuple(self.trace), consumed, self.go, self.final, self.known,
                        exit_observed, reaper, stdout_eof, stderr_eof,
                        sum(c.rc is not None for c in (self.o, self.s)))
-
