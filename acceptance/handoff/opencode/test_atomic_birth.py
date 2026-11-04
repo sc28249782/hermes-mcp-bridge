@@ -38,7 +38,8 @@ class AtomicControls(unittest.TestCase):
             production_feasible=False),sort_keys=True),flush=True)
 
     def trial(self,case):
-        start=time.monotonic_ns();t0=start-(46_000_000_000 if case=='deadline_guard' else 0)
+        start=time.monotonic_ns();t0=min(start-46_000_000_000,-46_000_000_000) if case=='deadline_guard' else start
+        if case=='deadline_guard':self.assertLess(t0,0)  # deterministic signed-origin regression
         r=subprocess.run([str(self.binary),case,str(t0)],stdin=subprocess.DEVNULL,
                          capture_output=True,timeout=12,env={'LANG':'C','LC_ALL':'C','PATH':''})
         self.assertLess(time.monotonic_ns()-start,8_000_000_000)

@@ -47,7 +47,7 @@ consume status, discover targets or repair candidate cleanup.
 ## 3. Preregistered stimuli and actual local outcomes
 
 Expected outcomes were asserted separately from actual records. Local final run:
-16/16 OK, Python 3.12.14, umask 022, ResourceWarning-as-error, no skips, 2.253 s.
+16/16 OK, Python 3.12.14, umask 022, ResourceWarning-as-error, no skips.
 There are 14 isolated process cases, one source policy check and one manifest check.
 Strict cc C11/Wall/Wextra/Werror/O2 compilation succeeded. This count is not PB
 acceptance or evidence that all kernel interruption schedules have been exercised.
@@ -110,7 +110,12 @@ Development history: initial strict compile caught misleading indentation; fixed
 before tests. Initial test execution lacked the not-yet-generated new manifest;
 that run was not a final pass. The final run above includes matching pins. Historical
 broad local baseline NOT PASS remains unchanged; no broad local rerun is claimed.
-CI at the new commit must be recorded separately in the PR body; old CI is not
+First published head c5649b4b passed local16 and CI3.12 but CI3.14 failed the
+expired-T0 case: negative monotonic origin input was read by strtoull and rejected
+as malformed (exit2 instead of expected budget rejection exit6). The fix uses
+signed integer nanoseconds/strtoll, with deterministic negative expired-T0 regression; assertions and 8/20/45/3 budgets are unchanged.
+This failed first-head run is not relabeled as a pass.
+CI at the final new commit must be recorded separately in the PR body; old CI is not
 relabeled as evidence for this source. Warning gates concern component logs, not
 third-party Actions deprecation notices.
 

@@ -21,24 +21,24 @@
 #error "This source is an owned Linux x86_64 fixture only"
 #endif
 
-#define SEC UINT64_C(1000000000)
-static uint64_t deadline,cutoff;
+#define SEC INT64_C(1000000000)
+static int64_t deadline,cutoff;
 static volatile sig_atomic_t noticed;
 static int tracked_helper=-1,helper_signals;
 static void expired(int n){(void)n;_exit(89);}
 static void notice(int n){(void)n;noticed=1;}
-static uint64_t now(void){struct timespec t;if(clock_gettime(CLOCK_MONOTONIC,&t))_exit(90);return (uint64_t)t.tv_sec*SEC+(uint64_t)t.tv_nsec;}
-static int arm(uint64_t end){
- uint64_t n=now();if(n>=end)return 0;uint64_t us=(end-n)/1000;if(!us)return 0;
+static int64_t now(void){struct timespec t;if(clock_gettime(CLOCK_MONOTONIC,&t))_exit(90);return (int64_t)t.tv_sec*SEC+(int64_t)t.tv_nsec;}
+static int arm(int64_t end){
+ int64_t n=now();if(n>=end)return 0;int64_t us=(end-n)/1000;if(!us)return 0;
  struct itimerval t={0};t.it_value.tv_sec=(time_t)(us/1000000);t.it_value.tv_usec=(suseconds_t)(us%1000000);
  struct sigaction a={0};a.sa_handler=expired;sigemptyset(&a.sa_mask);
  return !sigaction(SIGALRM,&a,NULL)&&!setitimer(ITIMER_REAL,&t,NULL);
 }
 static int limits(void){struct rlimit as={268435456,268435456},core={0,0},fds={64,64};return !setrlimit(RLIMIT_AS,&as)&&!setrlimit(RLIMIT_CORE,&core)&&!setrlimit(RLIMIT_NOFILE,&fds);}
 static void close_except(int a,int b,int c){for(int fd=3;fd<64;fd++)if(fd!=a&&fd!=b&&fd!=c)close(fd);}
-static int ready(int fd,uint64_t end){
+static int ready(int fd,int64_t end){
  struct pollfd p={fd,POLLIN,0};
- for(;;){uint64_t n=now();int ms=n>=end?0:(int)((end-n)/1000000);int r=poll(&p,1,ms);
+ for(;;){int64_t n=now();int ms=n>=end?0:(int)((end-n)/1000000);int r=poll(&p,1,ms);
   if(r<0&&errno==EINTR){if(now()>=end)return 0;continue;}
   return r>0&&(p.revents&(POLLIN|POLLHUP));}
 }
@@ -54,10 +54,10 @@ static int reap_exact(int fd,int *repeatable,int *consumed){
  return *consumed;
 }
 static int stop_set(int *fds,int count,int *done,int *repeatable,int *consumed){
- int signals[]={SIGTERM,SIGKILL};uint64_t waits[]={SEC/5,SEC};
+ int signals[]={SIGTERM,SIGKILL};int64_t waits[]={SEC/5,SEC};
  for(int phase=0;phase<2;phase++){
   for(int i=0;i<count;i++)if(fds[i]>=0&&!done[i]&&!send_owned(fds[i],signals[phase]))return 0;
-  uint64_t end=now()+waits[phase];if(end>deadline)end=deadline;
+  int64_t end=now()+waits[phase];if(end>deadline)end=deadline;
   for(int i=0;i<count;i++)if(fds[i]>=0&&!done[i]&&ready(fds[i],end))done[i]=reap_exact(fds[i],&repeatable[i],&consumed[i]);
   int all=1;for(int i=0;i<count;i++)if(fds[i]>=0&&!done[i])all=0;if(all)return 1;
  }
@@ -114,8 +114,8 @@ static int harness_no_children(void){
 static int valid_case(const char *m){const char *cases[]={"normal","forget_pid","r_loss","r_loss_forget_pid","signal_flag","early_exit","bad_copyout","fd_exhaustion","erase_copyout","close_copyout","sigchld_ignore","sigchld_nocldwait","repeat_slot","deadline_guard"};for(unsigned i=0;i<sizeof(cases)/sizeof(*cases);i++)if(!strcmp(m,cases[i]))return 1;return 0;}
 int main(int argc,char **argv){
  if(argc!=3||!valid_case(argv[1]))return 2;
- char *end;errno=0;unsigned long long input=strtoull(argv[2],&end,10);if(errno||!*argv[2]||*end)return 2;
- uint64_t t0=(uint64_t)input,ta=now();if(t0>UINT64_MAX-45*SEC||ta>UINT64_MAX-20*SEC)return 2;
+ char *end;errno=0;long long input=strtoll(argv[2],&end,10);if(errno||!*argv[2]||*end)return 2;
+ int64_t t0=(int64_t)input,ta=now();if(t0>INT64_MAX-45*SEC||ta>INT64_MAX-20*SEC)return 2;
  const char *mode=argv[1],*availability="NOT_PROBED",*status="HOLD",*kernel_error="NONE";
  int sig_ok=0,case_ran=0,kernel_copyout=0,attempts=0,r_reaped=0,diag_used=0,diag_live=0,diag_reaped=0,diag_eof=0;
  int no_children=0,all_clean=0,slot_repeat_denied=0;
@@ -123,8 +123,8 @@ int main(int argc,char **argv){
  int diag_fd=-1,original_erased=-1;
  struct slot r={.pidfd=-1},h={.pidfd=-1};struct outcome result={0},frozen={0};
  int done[2]={0,0},rep[2]={0,0},cons[2]={0,0};
- uint64_t outer=t0+45*SEC;deadline=ta+8*SEC;if(deadline>outer)deadline=outer;
- cutoff=deadline>=3*SEC?deadline-3*SEC:0;
+ int64_t outer=t0+45*SEC;deadline=ta+8*SEC;if(deadline>outer)deadline=outer;
+ cutoff=deadline-3*SEC;
  if(!limits())return 3;
  struct sigaction setup={0},actual={0};setup.sa_handler=SIG_DFL;sigemptyset(&setup.sa_mask);
  if(!strcmp(mode,"sigchld_ignore"))setup.sa_handler=SIG_IGN;
@@ -212,7 +212,7 @@ finish:
   int list[]={gate[0],gate[1],out[0],out[1],err[0],err[1],event[0],event[1],r.pidfd,h.pidfd,diag_fd,original_erased};
   for(unsigned i=0;i<sizeof(list)/sizeof(*list);i++)if(list[i]>=0)close(list[i]);
  }
- uint64_t ended=now();int in_budget=ended<deadline;
+ int64_t ended=now();int in_budget=ended<deadline;
  printf("{\"status\":\"%s\",\"availability\":\"%s\",\"kernel_error\":\"%s\",\"case_exercised\":%s,\"kernel_copyout_observed\":%s,\"pid_return_used_for_target\":false,\"pid_return_discarded\":%s,\"candidate_helper_signal_calls\":%d,\"sigchld_verified\":%s,\"signal_seen\":%s,\"create_calls\":%d,\"slot_repeat_denied\":%s,\"r_reaped\":%s,\"candidate\":{\"binding_known\":%s,\"helper_reaped\":%s,\"wnowait_repeatable\":%s,\"wait_consumed\":%s,\"stdout_eof\":%s,\"stderr_eof\":%s,\"cleanup_confirmed\":%s,\"unknown_creation\":%s,\"production_feasible\":false,\"profile_selected\":false,\"capture_allowed\":false,\"authorizes_actions\":false,\"dev_observed\":false,\"goal_verified\":false},\"diagnostic\":{\"used\":%s,\"h_live_before\":%s,\"exact_reap\":%s,\"both_eof\":%s},\"no_children\":%s,\"within_original_deadline\":%s,\"elapsed_ms\":%llu,\"full_atomicity_proven\":false}\n",
  status,availability,kernel_error,json_bool(case_ran),json_bool(kernel_copyout),json_bool(h.discarded),helper_signals,json_bool(sig_ok),json_bool(noticed),attempts,json_bool(slot_repeat_denied),json_bool(r_reaped),json_bool(result.known),json_bool(result.reaped),json_bool(result.wnowait),json_bool(result.consumed),json_bool(result.stdout_eof==1),json_bool(result.stderr_eof==1),json_bool(result.confirmed),json_bool(result.unknown),json_bool(diag_used),json_bool(diag_live),json_bool(diag_reaped),json_bool(diag_eof),json_bool(no_children),json_bool(in_budget),(unsigned long long)((ended-ta)/1000000));
  return no_children&&in_budget?0:6;

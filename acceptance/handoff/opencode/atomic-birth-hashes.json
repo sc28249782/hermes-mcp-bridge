@@ -4,13 +4,13 @@
   "source": [
     {
       "path": "acceptance/handoff/opencode/atomic_birth_probe.c",
-      "bytes": 13426,
-      "sha256": "81f42f3bc2f3ed7a3452732da2339179b8da12ab4f361d9aa80c33b4b6fc68eb"
+      "bytes": 13380,
+      "sha256": "714b957cb7398be5d1a2a2a050abc756680b3d8a26fd094e8b9b1a276ef5f7ae"
     },
     {
       "path": "acceptance/handoff/opencode/test_atomic_birth.py",
-      "bytes": 9612,
-      "sha256": "c9537cc6017bdb88197a79826aa4a503c05b7e4e17f365ef8a07b2fd47bda87d"
+      "bytes": 9733,
+      "sha256": "3e23b4f16d86f4d32d0e47eff593a9e894014636fea4b320522e124de6abfeb4"
     },
     {
       "path": ".github/workflows/opencode_atomic_birth.yml",
