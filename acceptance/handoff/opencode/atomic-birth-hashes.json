@@ -1,0 +1,50 @@
+{
+  "kind": "owned-inert-kernel-pidfd-copyout-feasibility",
+  "primitive": "clone3_CLONE_PIDFD_only_no_fallback",
+  "source": [
+    {
+      "path": "acceptance/handoff/opencode/atomic_birth_probe.c",
+      "bytes": 13426,
+      "sha256": "81f42f3bc2f3ed7a3452732da2339179b8da12ab4f361d9aa80c33b4b6fc68eb"
+    },
+    {
+      "path": "acceptance/handoff/opencode/test_atomic_birth.py",
+      "bytes": 9612,
+      "sha256": "c9537cc6017bdb88197a79826aa4a503c05b7e4e17f365ef8a07b2fd47bda87d"
+    },
+    {
+      "path": ".github/workflows/opencode_atomic_birth.yml",
+      "bytes": 2464,
+      "sha256": "cc462775147a5f9cc9c61b33250681a01e1b0e83934012ab01b18c9d3dc06a17"
+    }
+  ],
+  "pinned_dependencies": [
+    {
+      "path": "docs/OPENCODE-HANDOFF-PREENROLLED-BROKER-CONTRACT-TH.md",
+      "bytes": 24871,
+      "sha256": "51a97f268c445d964a11c130351ac0d95488cbbc5c85ee129a2e3f040ca24ef0"
+    },
+    {
+      "path": "docs/OPENCODE-HANDOFF-BIRTH-FEASIBILITY-REVIEW-TH.md",
+      "bytes": 15370,
+      "sha256": "e925f6898e6542eb1f86104f2aca4d529173dfd9b55c5296ed8117ad89166de9"
+    }
+  ],
+  "sigchld_policy": {
+    "handler": "SIG_DFL",
+    "rejected": [
+      "SIG_IGN",
+      "SA_NOCLDWAIT"
+    ]
+  },
+  "wait_evidence": [
+    "P_PIDFD",
+    "WNOWAIT_twice",
+    "consume_once",
+    "ECHILD_after_consume"
+  ],
+  "full_atomicity_proven": false,
+  "production_feasible": false,
+  "authorizes_actions": false,
+  "dev_observed": false
+}
