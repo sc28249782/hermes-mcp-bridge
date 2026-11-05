@@ -34,3 +34,4 @@ jobs:
           /usr/bin/python3 -W error::ResourceWarning test_l1_admission_model.py -v
           /usr/bin/python3 -W error::ResourceWarning test_l1_retained_launcher.py -v
           /usr/bin/python3 -W error::ResourceWarning test_l1_retained_fd_exec.py -v
+          /usr/bin/python3 -W error::ResourceWarning test_l1_retained_admission.py -v
