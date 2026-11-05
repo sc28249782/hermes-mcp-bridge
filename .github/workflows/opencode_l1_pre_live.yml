@@ -1,0 +1,36 @@
+name: OpenCode L1 pre-live controls
+
+on:
+  pull_request:
+    branches: [main]
+    paths: ['acceptance/handoff/opencode/**', '.github/workflows/opencode_l1_pre_live.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Strict source build and controls without H
+        working-directory: acceptance/handoff/opencode
+        env:
+          REVIEW_HEAD: ${{ github.event.pull_request.head.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$REVIEW_HEAD"
+          scratch="$(mktemp -d)"
+          trap 'rm -rf "$scratch"' EXIT
+          cc -std=c11 -Wall -Wextra -Werror -O2 l1_retained_attempt.c test_l1_retained_attempt.c -o "$scratch/attempt"
+          cc -std=c11 -Wall -Wextra -Werror -O2 l1_retained_attempt.c l1_retained_owner.c l1_retained_helper.c test_l1_retained_readiness.c -o "$scratch/readiness"
+          "$scratch/attempt"
+          "$scratch/readiness"
+          /usr/bin/python3 -W error::ResourceWarning test_l1_admission_model.py -v
+          /usr/bin/python3 -W error::ResourceWarning test_l1_retained_launcher.py -v
+          /usr/bin/python3 -W error::ResourceWarning test_l1_retained_fd_exec.py -v
