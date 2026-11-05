@@ -1,0 +1,19 @@
+{
+  "kind": "ci-runtime-binding-facts",
+  "schema": 1,
+  "source_head": "2006ae2040a334b88ad2855c275b5f232ca29e02",
+  "workflow_run": 41425613884,
+  "run_attempt": 1,
+  "job_id": 125211375519,
+  "facts": {
+    "filesystem_magic": 61267,
+    "kernel": "7.0.0-1017-azure",
+    "machine": "x86_64",
+    "os": "linux",
+    "python": "3.12.15",
+    "sqlite": "3.45.1",
+    "temporary_filesystem_magic": 61267
+  },
+  "evaluation_arms_executed": 0,
+  "scope": "CI metadata snapshot only; not authentication/approval, not an evaluation result"
+}

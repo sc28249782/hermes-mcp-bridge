@@ -1,0 +1,132 @@
+name: S24 fixture artifact
+
+on:
+  pull_request:
+    branches: [main]
+    paths: ['acceptance/s24/**', '.github/workflows/s24_fixture.yml']
+  push:
+    branches: [main]
+    paths: ['acceptance/s24/**', '.github/workflows/s24_fixture.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  fixture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: 02d7e8bb1e1902ca33a574ab904a6e5b0f441785
+          path: .s24-candidate
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -r .s24-candidate/requirements-lock.txt
+      - name: Revised pinned candidate suite and shutdown warning gate
+        working-directory: .s24-candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -W error::ResourceWarning -B -m unittest discover -s tests -v 2>&1 | tee "$RUNNER_TEMP/s24-suite.log"
+          if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-suite.log"; then exit 1; else test "$?" -eq 1; fi
+      - name: Focused section 22 and shutdown warning gate
+        working-directory: .s24-candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -W error::ResourceWarning -B -m unittest discover -s tests -p test_context_binding_unresolved.py -v 2>&1 | tee "$RUNNER_TEMP/s24-focused.log"
+          if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-focused.log"; then exit 1; else test "$?" -eq 1; fi
+      - name: Artifact checks including actual SDK stdio and negative controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -W error::ResourceWarning -B acceptance/s24/test_fixture.py --candidate .s24-candidate -v 2>&1 | tee "$RUNNER_TEMP/s24-artifact.log"
+          if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-artifact.log"; then exit 1; else test "$?" -eq 1; fi
+      - name: Offline parent IPC contract and negative controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -W error::ResourceWarning -B acceptance/s24/test_parent_contract.py --candidate .s24-candidate -v 2>&1 | tee "$RUNNER_TEMP/s24-parent-contract.log"
+          if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-parent-contract.log"; then exit 1; else test "$?" -eq 1; fi
+      - name: Offline identity and discovery contract controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -W error::ResourceWarning -B acceptance/s24/test_identity_contract.py --candidate .s24-candidate -v 2>&1 | tee "$RUNNER_TEMP/s24-identity-contract.log"
+          if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-identity-contract.log"; then exit 1; else test "$?" -eq 1; fi
+      - name: Manifest-only inactive metadata peer controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -W error::ResourceWarning -B acceptance/s24/test_route_prebind.py -v 2>&1 | tee "$RUNNER_TEMP/s24-route-prebind.log"
+          if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-route-prebind.log"; then exit 1; else test "$?" -eq 1; fi
+      - name: Private preparation inventory and negative controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -W error::ResourceWarning -B acceptance/s24/test_prebind_inventory.py -v 2>&1 | tee "$RUNNER_TEMP/s24-prebind-inventory.log"
+          if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-prebind-inventory.log"; then exit 1; else test "$?" -eq 1; fi
+      - name: Offline inventory controller and direct-child controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -W error::ResourceWarning -B acceptance/s24/test_inventory_control.py -v 2>&1 | tee "$RUNNER_TEMP/s24-inventory-control.log"
+          if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-inventory-control.log"; then exit 1; else test "$?" -eq 1; fi
+      - name: Offline owned-child watchdog and recorder
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -W error::ResourceWarning -B acceptance/s24/test_owned_child.py --candidate .s24-candidate -v 2>&1 | tee "$RUNNER_TEMP/s24-owned-child.log"
+          if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-owned-child.log"; then exit 1; else test "$?" -eq 1; fi
+      - name: Read-only guest resource observation controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -W error::ResourceWarning -B acceptance/s24/test_guest_observer.py -v 2>&1 | tee "$RUNNER_TEMP/s24-guest-observer.log"
+          if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-guest-observer.log"; then exit 1; else test "$?" -eq 1; fi
+      - name: Offline single-use launch admission controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -W error::ResourceWarning -B acceptance/s24/test_launch_admission.py -v 2>&1 | tee "$RUNNER_TEMP/s24-launch-admission.log"
+          if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-launch-admission.log"; then exit 1; else test "$?" -eq 1; fi
+      - name: Shared-key observer message and stdio peer controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -W error::ResourceWarning -B acceptance/s24/test_observer_channel.py -v 2>&1 | tee "$RUNNER_TEMP/s24-observer-channel.log"
+          if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-observer-channel.log"; then exit 1; else test "$?" -eq 1; fi
+      - name: Independent supervised fixture lifecycle controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -W error::ResourceWarning -B acceptance/s24/test_supervised_stdio.py --candidate .s24-candidate -v 2>&1 | tee "$RUNNER_TEMP/s24-supervised-stdio.log"
+          if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-supervised-stdio.log"; then exit 1; else test "$?" -eq 1; fi
+      - name: Offline integration lifecycle and evidence controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -W error::ResourceWarning -B acceptance/s24/test_integration.py --candidate .s24-candidate -v 2>&1 | tee "$RUNNER_TEMP/s24-integration.log"
+          if grep -En 'ResourceWarning:|Exception ignored while finalizing database' "$RUNNER_TEMP/s24-integration.log"; then exit 1; else test "$?" -eq 1; fi
+
+  host-memory:
+    runs-on: windows-2022
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Windows local memory sampler and negative controls
+        shell: pwsh
+        run: |
+          & ./acceptance/s24/Test-HostMemory.ps1

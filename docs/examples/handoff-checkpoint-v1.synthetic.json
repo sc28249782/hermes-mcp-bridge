@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "payload": {
+    "checkpoint_id": "checkpoint_fixture_001",
+    "chain_id": "chain_fixture_001",
+    "generation": 1,
+    "parent_sha256": null,
+    "created_at": "2026-11-02T00:00:00Z",
+    "writer_id": "writer_fixture_001",
+    "task": {
+      "goal_ref": "goal_fixture_001",
+      "criteria_refs": [
+        "criteria_fixture_001"
+      ],
+      "pending_step_refs": [
+        "step_fixture_002"
+      ],
+      "next_action": "hold"
+    },
+    "repository": {
+      "full_name": "sc28249782/hermes-mcp-bridge",
+      "branch": "fixture/handoff-example",
+      "commit_sha": "93e9601f74b3e0bc1d963d65635d82f7083eca8a",
+      "worktree_state": "unknown",
+      "dirty_manifest_ref": null,
+      "workspace_policy_ref": "policy_fixture_001"
+    },
+    "backend": {
+      "name": "codex",
+      "provider_ref": null,
+      "workspace_ref": "workspace_fixture_001",
+      "request_id": null,
+      "job_id": null,
+      "session_id": null,
+      "context_id": null,
+      "input_ref": "input_fixture_001",
+      "input_fingerprint_ref": null
+    },
+    "lifecycle": {
+      "observation": "submission_unknown",
+      "native_status": null,
+      "observed_at": null
+    },
+    "authorization": {
+      "authority_ref": null,
+      "scope_refs": [],
+      "snapshot_state": "unknown",
+      "expires_at": null,
+      "authorizes_actions": false
+    },
+    "evidence": [],
+    "verification": {
+      "acceptance_profile_ref": "profile_fixture_001",
+      "verdict": "unverified",
+      "evidence_ids": []
+    },
+    "lessons": [
+      {
+        "lesson_ref": "lesson_fixture_001",
+        "applicability_profile_ref": "profile_fixture_001",
+        "version_ref": "lesson_version_fixture_001"
+      }
+    ],
+    "attempts": {
+      "logical_submit_attempts": 1,
+      "observation_attempts": 0,
+      "retry_policy_ref": "retry_fixture_no_codex_replay"
+    },
+    "last_error": "JOB_ID_UNKNOWN",
+    "last_reconciliation": "not_attempted"
+  },
+  "payload_sha256": "c6167e2cebf2ce24cb99208b7deba3a581e2d6e993568bec903bab67cb84cf73"
+}

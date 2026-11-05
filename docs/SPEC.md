@@ -208,6 +208,10 @@ Context lifecycle change-control checkpoint (21 October 2026): the operator appr
 
 Nonclosed binding outcome change-control checkpoint (22 October 2026): after external review APPROVED the [nonclosed binding ack/recovery decision packet](CONTEXT-BINDING-ACK-RECOVERY-PROPOSAL-TH.md) at head `2730f224516eb32b2717e1293cec986e2a185941`, the operator selected option ข — an additive unresolved-binding outcome after a successful backend acknowledgement. The approval is recorded verbatim in the packet checkpoint. The approval covers the scope choice only; it does not approve the exact outcome value, the note wording, the final normative text, implementation, release, or deployment. The proposed [section 22](#22-context-binding-unresolved-proposed) amendment is opened as a stacked draft PR that depends on PR #77 and uses the reviewed head of the packet branch as its base. Deployed v1.2.8 behavior is unchanged: section 21.2 remains the full requirement, and a non-closed binding failure still returns the existing whole-request error. Implementation requires section 14 review and merge of both PR #77 and the section 22 amendment first.
 
+Missing terminal record change-control proposal (22 October 2026): the operator selected option ข of the [decision packet](MISSING-TERMINAL-DISPOSITION-PROPOSAL-TH.md), authorizing design only. The proposed [section 23](#23-missing-terminal-operational-disposition-proposed) and [operations procedure](OPERATIONS-TH.md#missing-terminal-manual-disposition-proposed) are pending section 14 review and merge. They do not adjudicate the historical run, change current gates, authorize maintenance, or close acceptance.
+
+Shared-host synthetic acceptance proposal (23 October 2026): the operator agreed to draft a route that treats the operator-controlled host and its management authority as trusted test infrastructure. Proposed [section 24](#24-shared-host-synthetic-acceptance-proposed) explicitly changes the two-way host-isolation prerequisite of the PR #84/#85 design for a separately approved future §22 test plan only. It does not weaken section 23 case-disposition evidence, authorize the old Dev stop/switch, or approve any setup or acceptance run. Exact normative text and operational scope remain subject to section 14 review and separate operator decisions.
+
 ## 15. MCP Events capability gate (deferred — no assigned release; BLOCKED)
 
 This section is a future requirement, originally planned as the v1.2.4 target requirement; it is now deferred with no assigned release and remains blocked at the subscription gate. The released v1.2.3 bridge has no MCP Events capability, subscription state, callback sender, or event delivery.
@@ -552,3 +556,115 @@ Gates checkpoint (22 October 2026, after the runtime merge): PR #79 merged at ma
 Gates correction (22 October 2026): the acceptance status in the preceding authoring checkpoint is superseded. The first attempt omitted the Hermes per-run quiescence check. A later current-API probe confirmed terminal outcomes for 8 of 25 registered runs (5 completed, 2 cancelled, 1 failed); 17 returned HTTP 404. A 404 is not itself terminal proof and does not imply that all 17 runs are active. The repeat was blocked before stopping or switching Dev. Dev was already restored and parent-verified at the baseline. Overall acceptance remains HOLD until the missing evidence is resolved and a correctly gated repeat is completed; a later probe or document review cannot retroactively satisfy the first preflight. No release or deployment is assigned.
 
 Diagnosis checkpoint (22 October 2026): the missing-run evidence was refined to 24 supported terminal dispositions (8 current API confirmations and 16 prior positive terminal observations retained by the Bridge contract) and one unresolved run (cached running, current HTTP 404, no matching durable terminal evidence found). The 17 HTTP 404 responses must not be presented as 17 active or wholly unverified runs. The cause of the missing authority rows remains unknown. Acceptance remains HOLD, with no repeat or runtime change; the first preflight is not retroactively satisfied. See the updated acceptance record.
+
+## 23. Missing terminal record — manual operational disposition (PROPOSED — not effective)
+
+<a id="23-missing-terminal-operational-disposition-proposed"></a>
+
+The operator selected option ข of the [decision packet](MISSING-TERMINAL-DISPOSITION-PROPOSAL-TH.md) on 22 October 2026. That choice authorizes this design proposal only. This section is not effective until section 14 review and the required merges pass. It does not adjudicate a run, authorize maintenance, close PR #80 acceptance, or change any released runtime.
+
+### 23.1 Scope and separate meanings
+
+- This proposal defines a manual operations procedure only. It adds no backend status, MCP field, tool, CLI command, schema, automatic recovery, or programmatic approval reader.
+- A disposition MUST keep `task_outcome=unknown`. It MUST NOT assert completed, failed, cancelled, successful recovery, absence of past effects, or a Hermes `unknown_exit`.
+- The proposed disposition label is `maintenance_only_unknown_outcome`. It means only that one identified maintenance scope can be considered after the evidence and local approval gates below pass.
+- Sections 11 and 12 remain unchanged: original rows and terminal observations MUST be preserved; restart MUST NOT resubmit work or convert an unverified outcome into completed.
+- Existing approved maintenance plans and their unknown-job gates remain in force. A new plan MUST explicitly adopt this section after it becomes effective; this section MUST NOT silently override a prior plan or retroactively validate a missed preflight.
+
+### 23.2 Evidence floor — all conditions required
+
+1. The dossier MUST bind the exact backend instance, authority generation or equivalent identity, run/request registration, and maintenance target. A session title, recency, PID without start identity, or an uncorrelated authority store MUST NOT establish ownership.
+2. Positive evidence MUST establish that the identified execution cannot dispatch, resume, recover, or replay under any authority that can still act on it. An authoritative retirement/revocation record bound to that execution, or a verified lifetime-bounded execution contract with matching lifecycle records, can support this condition. A missing authority row, a gateway restart, or an HTTP 404 alone cannot.
+3. Evidence MUST cover every worker, child, detached process, remote operation, and other writer the run could start within the relevant scope. It MUST establish both ownership coverage and cessation. A process-table absence or an empty group without proof of complete containment MUST NOT establish this condition.
+4. Uncovered execution, an active writer, an unknown ownership edge, or an authority capable of recovery MUST keep the disposition blocked. No cancellation, forced status rewrite, purge, or restart is authorized to manufacture the required evidence.
+5. Evidence provenance, observation times, source version, and limitations MUST be recorded. The reviewer MUST separate observations from inferences and MUST NOT infer a lost-record cause from store sequence or process start time.
+6. The original registry, cached observations, and available snapshots MUST remain unchanged. A separate dossier MAY reference private copies; it MUST NOT insert a replacement backend terminal result.
+
+The two evidence families in items 2–3 are requirements, not claims that the installed Hermes can supply them. If a complete authority or writer inventory cannot be established, the outcome of this procedure is HOLD.
+
+### 23.3 Dossier, local approval, and one-use control
+
+- The private dossier MUST contain a unique decision ID, exact run/request and backend identities, `task_outcome=unknown`, the proposed disposition label, one maintenance plan ID, exact targets/actions, candidate revision and expected configuration/state identities, evidence references/digests, limitations, and explicit observation times with timezone.
+- A final dossier MUST be frozen before approval. Its digest MUST be SHA-256 of its exact UTF-8 file bytes, including whitespace and final newline; no normalization or canonicalization is implied.
+- Local approval MUST be performed by the operator in the local terminal after personally checking the dossier and evidence floor. A separate private approval record MUST bind the decision ID, dossier digest, exact maintenance scope, the operator's literal decision, actual approval time with timezone, and an explicit expiry.
+- The approval window MUST be at most 3,600 seconds from the recorded local approval time. At or after expiry it is invalid. Unknown or unreliable time, missing provenance, a digest mismatch, or an altered scope MUST keep HOLD.
+- A digest detects dossier changes; it does not authenticate a person. The operator MUST verify the approval live and personally perform the approved maintenance. An agent MUST NOT create the human approval, treat a file's presence as approval, or execute a gate transition by consuming this receipt.
+- Immediately before acting, the operator MUST revalidate authority/ownership/cessation, the entire backend inventory, target/configuration identity, the approval window, and the absence of an earlier use. New work or changed evidence invalidates the decision.
+- The operator MUST record one-use consumption in a separate durable private record before the first state-changing action. A missing or uncertain consumption record, crash, failed action, or restoration failure MUST NOT permit automatic retry; a new dossier/decision is required.
+- Dossier, approval, and consumption records MUST stay private (files 0600, containing directory 0700). Public records MUST contain only redacted scope, aggregate evidence, disposition, and limits; no run/request IDs, prompts, outputs, credentials, or private paths.
+- These records are manual evidence, not a new executable approval format. Automated enforcement or agent execution requires a separate section 14 amendment, implementation review, and acceptance.
+
+### 23.4 Maintenance and acceptance boundaries
+
+- Even a valid disposition does not itself pass the full maintenance preflight. Every other registered job and writer MUST be accounted for under the explicitly approved plan before stop/switch.
+- Control jobs MUST finish or hand off before the process they depend on is stopped. Exact process/start identity and post-quiescence backup rules remain unchanged.
+- This procedure authorizes no cancellation, replay, resubmission, registry rewrite, or release/deployment. Runtime maintenance is limited to the operator's separately approved exact scope.
+- Any later synthetic acceptance attempt MUST have its own full preflight and record. It MUST retain the first attempt's incomplete preflight history. Review, approval, or disposition MUST NOT retroactively turn that attempt into PASS.
+- The currently unresolved historical run has not met this proposed evidence floor. PR #80 remains HOLD; selecting option ข or merging this draft does not change that fact.
+
+### 23.5 Review and verification matrix
+
+| Case | Required result |
+| --- | --- |
+| 404, age, closed context, gateway restart, or PID absence alone | HOLD; no terminal inference or maintenance |
+| Prior positive terminal observation under the existing terminal contract | Use existing terminal evidence rules; do not fabricate a missing-record disposition |
+| Authority revocation without complete writer coverage, or complete writer coverage without authority cessation | HOLD |
+| Wrong identity/scope, edited dossier, missing/forged approval provenance, expired approval, or uncertain clock | HOLD |
+| Used decision, uncertain consumption, crash, new job, changed target, or incomplete inventory | HOLD; no automatic retry |
+| Complete evidence, live local approval, valid unused decision, and fresh full preflight | Eligible only for operator-performed maintenance in the exact scope; task outcome stays unknown |
+
+This is a proposed manual review matrix, not an executed test or an implementation claim.
+
+### 23.6 Change-control gates
+
+- The decision packet and this SPEC/operations amendment MUST pass their required review and merge before this policy can be used.
+- A case-specific evidence review, explicit local operator decision, and separately approved maintenance plan MUST follow. None is authorized by the design-scope choice.
+- Runtime automation, new approval tooling, schema/API changes, release, deployment, and any acceptance repeat remain separate decisions. No release is assigned.
+
+
+Review/merge checkpoint (22 October 2026): PR #81 merged at `6af7c0b`; PR #82 passed external amendment review at `87abd958`, final main-target section 14 verification, and exact-head CI run `39787772426` before the operator authorized its merge at `3f1aab78`. The review/merge prerequisite in section 23.6 is closed; the PROPOSED wording above preserves the authoring stage. The [initial evidence assessment](MISSING-TERMINAL-EVIDENCE-ASSESSMENT-TH.md) does not establish the case-specific evidence floor. The unresolved run and PR #80 remain HOLD. No disposition, maintenance, acceptance repeat, or runtime action is approved by this checkpoint.
+
+
+## 24. Operator-controlled shared-host synthetic acceptance (PROPOSED — not effective)
+
+<a id="24-shared-host-synthetic-acceptance-proposed"></a>
+
+This proposal defines a limited alternative evidence route for section 22. It changes the prerequisite in the PR #84/#85 design that historical authorities cannot control the test management plane. That change is explicit and requires section 14 review and merge. Directional agreement is recorded in the [proposal checkpoint](S22-SHARED-HOST-ACCEPTANCE-PROPOSAL-TH.md); it is not approval of these requirements or an executable plan.
+
+### 24.1 Trust model and claim limits
+
+- The operator-controlled host, host administrators, hypervisor management plane, and operator actions MAY be treated as trusted infrastructure for one separately approved synthetic test plan. A guest MUST NOT be claimed isolated from that authority.
+- This assumption does not prove historical execution cessation, absence of accidental interference, or absence of effects. The unresolved registration MUST remain unknown; PR #80 and the first attempt's missed preflight remain HOLD.
+- The original design's requirement to prove that historical host authorities cannot access test resources is replaced, for this proposed route only, by explicit shared-authority disclosure and the integrity/observation gates below. This replacement MUST NOT be presented as satisfying the original two-way-isolation requirement.
+- The scope MUST remain candidate Bridge/server/ContextRegistry behavior with synthetic Hermes transport and stub Codex/Hands. No real backend task, native execution, human approval bypass, new MCP tool, runtime contract change, or production acceptance is authorized.
+- Compromised host management, a known active unaccounted writer to test resources, or inability to observe required test integrity MUST keep this route HOLD. Trust is not evidence that a writer is absent.
+
+### 24.2 Resource and authority boundaries
+
+- A reviewed plan MUST identify the guest, candidate revision, fixture state, controller, every test worker/writer, ports, logs, connector route, authentication scope, and shared host/management dependencies. The shared authority MUST be recorded as an assumption, not omitted from the map.
+- Guest resources MUST be newly designated. Original production/Dev state, workload registrations, configuration, credentials and authority stores MUST NOT be copied, reset, migrated or retargeted. No host mounts, shared writable folders, clipboard transfer, drag-and-drop or inherited agent credentials may be part of the test data path.
+- The future test connector MUST be separately identified and authenticated. Existing production/Dev tunnel targets and profiles MUST NOT be changed. SSH reachability or a host-key match alone does not prove connector readiness or isolation.
+- Before activation, the operator MUST review known historical work and shared resources, retain unresolved outcomes and record potential interference and inspection limits. The historical unresolved registration does not have to be adjudicated to evaluate this new fixture route, but MUST NOT be represented as ceased, contained, safe, or unable to write.
+- This is an explicit alternative to requiring complete cessation of historical host execution before a new fixture-only attempt. It applies only while no original runtime/state is stopped, switched, restored, rewritten or used as test stimulus. Every actual test worker/writer MUST still be fully inventoried and quiesced under the new plan.
+- Normal control-job registration/audit writes MUST be disclosed separately from acceptance stimulus. A control job MUST finish or hand off before stopping its dependent process. No host or original-runtime shutdown is authorized.
+
+### 24.3 Preflight, integrity and bounded operation
+
+- The executable plan MUST pin the candidate and fixture harness, verify source identity, and run required offline checks before activation. Section 22.5 coverage requirements remain unchanged; unit evidence and live observations MUST be distinguished.
+- Fresh preflight MUST inventory every backend and writer of the new fixture. Stubs MUST have no native task-spawn path. Shared resource/management assumptions and known unrelated work MUST be disclosed; an empty fixture registry MUST NOT be used to claim global quiescence.
+- The plan MUST specify resource budgets, duration, controller lifetime, integrity observations, stop conditions, exact stop targets and evidence capture. It MUST NOT stop or restart original production/Dev services to obtain resources.
+- Candidate/harness identity and fixture state MUST be checked before and after the run, with live integrity/row-state/backend-call observations at the points required by the matrix. Unexpected writes, identifier/counter drift, unexplained identity changes, unexpected backend activity, an unaccounted writer, or insufficient observations MUST produce HOLD.
+- Expected fixture mutations MUST be distinguishable from unexplained changes. Passing observations establish only the recorded checks under the trust assumption; they MUST NOT prove continuous absence of host interference.
+- Resource exhaustion, inability to preserve original runtime continuity, or an unclear cleanup target MUST stop the attempt at HOLD. Cleanup MUST target only the approved test resources after their writers quiesce. Evidence MUST be preserved privately; destruction or deletion requires its own explicit scope.
+- SSH authentication, connector credentials, provisioning and host configuration changes require a separately approved plan and the applicable local approval path. No password, private key or credential may be placed in public evidence or task prompts.
+
+### 24.4 Acceptance and change-control gates
+
+- This amendment MUST pass section 14 review and merge before this alternative route is used. Existing sections 11–12, section 23 case-disposition floors and original stop/switch gates remain unchanged.
+- After merge, the operator MUST separately approve an exact shared-host setup/acceptance plan. Directional agreement, document merge, capability checks, guest installation or fingerprint matching do not approve activation.
+- A completed attempt MUST receive an independent evidence review and explicit operator acceptance before it closes the scoped synthetic acceptance gate of section 22. Its record MUST name this shared-host trust model and every residual limitation.
+- A scoped PASS under this route MUST NOT be described as isolated-host, real-backend, native, production, full-quiescence or historical-disposition acceptance. PR #80 MUST remain a separate held historical record; no retroactive PASS is permitted.
+- Release scope, release readiness and deployment remain separate decisions. Their reviews MUST explicitly consider the limited acceptance claim; no release is assigned.
+
+
+Review/merge checkpoint (23 October 2026): PR #86 passed the operator-supplied section 14 review at `5d47c68`, exact-head CI `39942529086`, and merged at `51a35d1acba59a3d354e6d6a91463015dc8a8c0d` on operator instruction. The amendment review/merge prerequisite is closed; the PROPOSED wording above preserves the authoring stage. The [shared-host setup/acceptance plan](S22-SHAREDHOST-SETUP-ACCEPTANCE-PLAN-TH.md) is pending review and separate operator scope. No setup, activation, acceptance or historical disposition is approved by this checkpoint; PR #80 remains HOLD.

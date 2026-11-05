@@ -11,7 +11,7 @@ existing error.
 """
 from pathlib import Path
 from copy import deepcopy
-from contextlib import contextmanager
+from contextlib import closing, contextmanager
 import sqlite3
 import tempfile
 import unittest
@@ -259,7 +259,7 @@ class TestBindingUnresolvedOutcome(unittest.TestCase):
         job_id = "codex_" + "a" * 32
 
         def persist_then_raise(*args, **kwargs):
-            with sqlite3.connect(job_store) as db:
+            with closing(sqlite3.connect(job_store)) as db, db:
                 db.execute("CREATE TABLE jobs (job_id TEXT PRIMARY KEY, status TEXT)")
                 db.execute("INSERT INTO jobs VALUES (?, ?)", (job_id, "queued"))
             raise CodexError("start failed after durable rows")
@@ -270,7 +270,7 @@ class TestBindingUnresolvedOutcome(unittest.TestCase):
                     self._tool("codex_submit_task")(prompt="fixture", workspace=WORKSPACE, context_id=cid2)
                 bind.assert_not_called()
             submit.assert_called_once()
-        with sqlite3.connect(job_store) as db:
+        with closing(sqlite3.connect(job_store)) as db, db:
             self.assertEqual(db.execute("SELECT job_id, status FROM jobs").fetchall(),
                              [(job_id, "queued")])
         self.assertIsNone(self.contexts.status(cid2)["codex_job_id"])

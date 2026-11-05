@@ -1,4 +1,5 @@
 import json
+from contextlib import closing
 from pathlib import Path
 import sys
 import tempfile
@@ -209,7 +210,7 @@ class TestBridge(unittest.TestCase):
         self.b.client.close()
         dbpath = Path(self.tmp.name)/'runs.sqlite3'
         import sqlite3
-        with sqlite3.connect(dbpath) as db:
+        with closing(sqlite3.connect(dbpath)) as db, db:
             db.execute('DROP TABLE runs')
             db.execute('CREATE TABLE runs (request_id TEXT PRIMARY KEY, fingerprint TEXT NOT NULL, created REAL NOT NULL, run_id TEXT UNIQUE, session_id TEXT, result TEXT)')
         self.b=Bridge('http://127.0.0.1:8642','test-secret-123',Path(self.tmp.name),httpx.MockTransport(self.fake),self.model_config)
