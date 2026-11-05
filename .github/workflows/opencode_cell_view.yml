@@ -1,0 +1,56 @@
+name: OpenCode cell view offline controls
+
+on:
+  pull_request:
+    branches: [main]
+    paths: ['acceptance/handoff/opencode/**', 'docs/OPENCODE-HANDOFF-*.md', '.github/workflows/opencode_cell_view.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Probe only owned inert E H fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha }}'
+          umask 022
+          probe_log="$RUNNER_TEMP/opencode-cell-view.log"
+          set +e
+          python -W error::ResourceWarning -I -S -B acceptance/handoff/opencode/test_cell_view.py > "$probe_log" 2>&1
+          probe_exit=$?
+          set -e
+          cat "$probe_log"
+          python -I -S -B - "$probe_log" "$probe_exit" <<'PY'
+          from pathlib import Path
+          import json,re,sys
+          raw=Path(sys.argv[1]).read_bytes()
+          markers=[m.decode() for m in (b'ResourceWarning',b'Exception ignored',b'Traceback') if m in raw]
+          complete=(re.findall(rb'^Ran (\d+) tests? in ',raw,re.M)==[b'14']
+                    and re.search(rb'^OK\s*$',raw,re.M) is not None
+                    and re.search(rb'\bskipped\b',raw,re.I) is None)
+          rows=[json.loads(line[line.index(b'{'):]) for line in raw.splitlines() if b'\"kind\": \"cell-view-result\"' in line]
+          assert len(rows)==12,'missing cell/view classification records'
+          support=sum(r['availability']=='SUPPORTED' for r in rows)
+          unsupported=sum(r['availability']=='UNSUPPORTED' for r in rows)
+          print(json.dumps({'supported_cases':support,'unsupported_cases':unsupported,
+                            'all_kernel_cases_exercised':unsupported==0,'full_atomicity_proven':False}))
+          print(json.dumps({'probe_exit':int(sys.argv[2]),'complete_without_skips':complete,
+                            'warning_markers':markers,'dev_observed':False,'authorizes_actions':False}))
+          assert sys.argv[2]=='0' and complete and not markers,'cell/view controls failed'
+          PY

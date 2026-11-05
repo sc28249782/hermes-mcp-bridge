@@ -1,0 +1,43 @@
+{
+  "kind": "owned-offline-same-E-cell-view-subset",
+  "source": [
+    {
+      "path": "acceptance/handoff/opencode/cell_view_probe.c",
+      "bytes": 13920,
+      "sha256": "8faec1343df0913dd3722257404ba8549c43400ac7c5ede99345a22419fd5032"
+    },
+    {
+      "path": "acceptance/handoff/opencode/test_cell_view.py",
+      "bytes": 8219,
+      "sha256": "713592ee9fba6cea4788c1f2efa1303927a33105011ce0873b77d6583bce6659"
+    },
+    {
+      "path": ".github/workflows/opencode_cell_view.yml",
+      "bytes": 2443,
+      "sha256": "b0aa29ea9c4b8bd0345a67575c418a87d42763ad1691a1f76756ab56a8f17947"
+    }
+  ],
+  "pinned_dependencies": [
+    {
+      "path": "acceptance/handoff/opencode/atomic_birth_probe.c",
+      "bytes": 13380,
+      "sha256": "714b957cb7398be5d1a2a2a050abc756680b3d8a26fd094e8b9b1a276ef5f7ae"
+    },
+    {
+      "path": "docs/OPENCODE-HANDOFF-SLOT-METADATA-CONTRACT-TH.md",
+      "bytes": 16871,
+      "sha256": "6e8022da29f56848af22c39941cb6e1016d17fcf1d7de4a811f195ef1a0fe87c"
+    }
+  ],
+  "helper_pidfds": 1,
+  "work_actors": [
+    "E",
+    "H"
+  ],
+  "bootstrap": "B",
+  "production_feasible": false,
+  "full_sm_acceptance": false,
+  "profile_selected": false,
+  "authorizes_actions": false,
+  "dev_observed": false
+}
