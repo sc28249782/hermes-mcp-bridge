@@ -4,8 +4,7 @@
 `7fcb3f39dfaa3fcf2535fafe5104f425cf72bc00`.
 เอกสารนี้เป็น delivery 4 ตาม
 [แผนทดลอง §5](HANDOFF-RECOVERY-EXPERIMENT-PLAN-TH.md#5-evidence-receipt-and-staged-exit):
-ปรับภาพรวมจากหลักฐานหลัง merge; ยังต้องรีวิว/สั่ง merge เอกสารรอบนี้แยก
-ไม่เพิ่ม source, controls, trial, runtime adapter หรือเลข E
+เอกสาร delivery 4 merge ผ่าน [#116](https://github.com/sc28249782/hermes-mcp-bridge/pull/116) แล้ว
 
 ## 1. สิ่งที่ส่งมอบและสถานะ
 
@@ -14,7 +13,7 @@
 | 1 | design/schema/checklist/preregistration | [#113](https://github.com/sc28249782/hermes-mcp-bridge/pull/113) merged `53c37737f242e87d55cea1cf525977d0202a2b01` |
 | 2 | standalone offline validator, private SQLite store, advisory planner, 26 source controls | [#114](https://github.com/sc28249782/hermes-mcp-bridge/pull/114) merged `d0b8ed91544f0ad0957ab892faa54854f1f282e7` |
 | 3 | frozen harness/profiles/schedules, development และ heldout อย่างละครั้ง | [#115](https://github.com/sc28249782/hermes-mcp-bridge/pull/115) merged `7fcb3f39dfaa3fcf2535fafe5104f425cf72bc00`; ผลสอง split ผ่าน independent review ที่ operator ส่งในแชต |
-| 4 | ปรับ design/checklist/ROADMAP และบันทึก disposition จากผลจริง | เอกสารรอบนี้: docs-only candidate รอรีวิว; ไม่ใช่ Dev pilot |
+| 4 | ปรับ design/checklist/ROADMAP และบันทึก disposition จากผลจริง | [#116](https://github.com/sc28249782/hermes-mcp-bridge/pull/116) merged |
 
 Operator สั่ง merge stack ด้วยข้อความ “อนุมัติตามเสนอ” หลังผล heldout ผ่านรีวิว
 ไม่มี exact timestamp ในข้อความ จึงไม่สร้างเวลาเพิ่ม การอนุมัตินี้ไม่ใช่ scope ของ runtime pilot
@@ -80,14 +79,13 @@ Source controls, preparation controls และ corpus arm-trials เป็น�
 | design/schema ผ่านรีวิวและ merge | COMPLETE — delivery 1 |
 | offline source/control ผ่านรีวิวและ merge | COMPLETE — delivery 2 |
 | frozen development/heldout พร้อม receipt และ independent result review | COMPLETE — delivery 3; tie ยอมรับได้ตามแผน |
-| current docs สอดคล้องผลจริงและ merge state | PRESENT ใน delivery 4 candidate นี้; รอรีวิว/merge |
+| current docs สอดคล้องผลจริงและ merge state | COMPLETE — delivery 4 merged via #116 |
 | actual backend Facts collector, current authority, capability/ownership | OPEN — ไม่มี production collector/admission ใน package |
 | Dev pilot และ native status/result/side-effect proof | NOT RUN / NOT AUTHORIZED โดยงานรอบนี้ |
 | public tool/config/runtime integration | NOT IMPLEMENTED; ไม่มี replay/submit/cancel/resume dispatcher |
 | release/deployment | ไม่ได้ขอ version ใหม่หรือเริ่ม release |
 
-ข้อเสนอ disposition: ปิด work package ที่ระดับ **reviewed offline component + evaluation**
-เมื่อ delivery 4 ผ่านรีวิว/merge; ไม่เพิ่มการทดลองใหม่เพียงเพราะผลเสมอ
+Work package ปิดที่ระดับ **reviewed offline component + evaluation** หลัง #116 merge.
 Component ยังไม่ถูก hook เข้า bridge และไม่พร้อมประกาศ runtime recovery feature
 Facts ที่ถูกส่งให้ planner ต้องมี trusted current collector; checkpoint/Decision ไม่เป็น authority
 
@@ -104,23 +102,23 @@ Facts ที่ถูกส่งให้ planner ต้องมี trusted cu
 5. Independent goal verifier และ success/HOLD oracle ของ backend นั้น
 6. Finite action proposal ที่รีวิว exact source และ operator อนุมัติแยกจาก source acceptance
 
-ไม่มีการเลือก backend, model, route หรือ live IDs ในเอกสารนี้
+การเลือก backend, model, route และ live IDs สำหรับ runtime ใช้ scope แยกตามหลักฐานของงานนั้น
 ไม่เพิ่ม Codex request-ID shim, ไม่แก้ native uncertainty/terminal rows และไม่ยืม scope จาก S24
 การพักงาน offline ไม่ได้ unpark J0; operator ต้องเลือกว่าจะเตรียม pilot แยกหรือกลับ J0
 ห้ามถือว่า “ทำขั้นถัดไป” รอบนี้ให้สิทธิ์ provision/activate เพิ่มจาก gates ที่มีอยู่
 
 ## 6. ตำแหน่งบน ROADMAP และ final release
 
-Handoff deliveries 1–3 รวม main แล้ว; delivery 4 เป็นเอกสารปิดชุดนี้
-ไม่ใช่ S24 R1/R2 หรือ Local Hands execution milestone
+Handoff deliveries 1–4 รวม main แล้วผ่าน #113–#116 ในขอบเขต offline component และ evaluation.
 [S24 delivery/closure map](S24-DELIVERY-CLOSURE-TH.md) ยังคงเป็นแผน A → B → C:
 A: pre-R1 source/private bindings → B: finite R1/R2 metadata acquisition →
 C: Phase B acceptance, release decision/preparation/signing/publication และ deployment decision
 โดย C6 deployment เป็นการอนุมัติแยกจาก release
 ไม่ได้ปิดแถวใดหรือเปลี่ยน scope จากการ merge handoff
 
-J0 parked; #112 draft `84b1ec3e0149be847d4f9d57ff095e6c1c190991`;
-R1 NOT AUTHORIZED / R2 HOLD; #80/#96 และ A6/A7 ไม่เปลี่ยน
+J0 PAUSED. #112 ปิดโดยเก็บหลักฐานที่ `e7142cf7` ตาม [บันทึกพัก](S24-J0-PAUSE-DISPOSITION-TH.md).
+R1 NOT AUTHORIZED. R2 HOLD. §22 acceptance HOLD.
+[Draft #117](https://github.com/sc28249782/hermes-mcp-bridge/pull/117) ติดตาม OpenCode observation แยกต่างหาก. OC18 NOT RUN.
 Recorded release/deployment ล่าสุดคือ signed v1.2.8 (22 ตุลาคม 2026) ตาม
 [release status](RELEASE-STATUS-TH.md); รอบนี้ไม่ได้ตรวจ production สด
 Hands v1.3.0 ยัง deferred ตาม capability gate เดิม ไม่มี final-release date/version ใหม่

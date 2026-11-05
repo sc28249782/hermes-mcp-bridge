@@ -4,12 +4,12 @@
 สถานะ: **J0 PAUSED / NOT READY — R1 NOT AUTHORIZED / R2 HOLD**
 
 เอกสารนี้ย้ายเฉพาะสถานะพักและเงื่อนไขกลับมาทำต่อเข้าสู่ main เพื่อให้ ROADMAP
-ตรงกับ [draft #112](https://github.com/sc28249782/hermes-mcp-bridge/pull/112) โดยไม่รวม source,
+ตรงกับ [PR #112](https://github.com/sc28249782/hermes-mcp-bridge/pull/112) โดยไม่รวม source,
 workflow, runtime integration หรือ private receipts จาก draft นั้น
 
 ## หลักฐานและขอบเขต
 
-Exact retained draft head: `e7142cf71792475af9375140df39acd55944d8d1`.
+Exact retained branch head: `e7142cf71792475af9375140df39acd55944d8d1`.
 [Original operator pause record](https://github.com/sc28249782/hermes-mcp-bridge/blob/e7142cf71792475af9375140df39acd55944d8d1/acceptance/s24/observed/J0-ROUTE-PAUSE.md)
 คงข้อความเดิม “รับผลตามที่เสนอ แล้วทำขั้นตอนต่อไปได้” และไม่มี exact timestamp.
 [Prerequisite packet](https://github.com/sc28249782/hermes-mcp-bridge/blob/e7142cf71792475af9375140df39acd55944d8d1/acceptance/s24/observed/J0-BOOTSTRAP-PREREQUISITES.md)
@@ -36,11 +36,8 @@ route ที่ผ่าน review/bindings ของตนแยกต่าง
 และ finite action approval ก่อน execution. ไม่มีการแทน image/ref/main หรือเลือก
 route ใหม่โดยอัตโนมัติจากผล CI, bare hash หรือคำสั่งทำขั้นถัดไปทั่วไป
 
-ข้อเสนอ ณ รอบนี้: เก็บ #112 ไว้เป็น frozen draft ที่ head เดิม ระหว่างรีวิวเอกสาร
-นี้. หากตัดสินใจพักระยะยาว หลังบันทึกสถานะเข้า main แล้วจึงพิจารณา close หรือ
-supersede เป็นคำสั่งแยก โดยรักษา branch/head/source/receipts และลิงก์หลักฐานครบ.
-การ close/supersede จะเป็น disposition ของ WIP ไม่ใช่ acceptance PASS; ไม่ merge
-ทั้ง #112 เพื่อเก็บบันทึก pause
+Operator อนุมัติปิด #112 หลัง #118 merge แล้ว เก็บ branch และหลักฐานไว้ที่ `e7142cf7`.
+สถานะ acceptance ยังคง HOLD ตามเงื่อนไขข้างต้น ดู [บันทึกการปิด PR](https://github.com/sc28249782/hermes-mcp-bridge/pull/112#issuecomment-6650529366).
 
 ไม่มี new probe/VM/host/API/credential/source/runtime/activation/release/deployment
 ในชุดนี้. [S24 delivery milestones](S24-DELIVERY-CLOSURE-TH.md) ยังคงเกณฑ์ A/B/C

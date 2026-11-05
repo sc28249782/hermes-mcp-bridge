@@ -1,5 +1,7 @@
 # คู่มือเชิงเทคนิค: สถาปัตยกรรมและกลไก Hermes MCP Bridge v1.0.1
 
+Production ตาม [บันทึก deployment](V1.2.8-DEPLOYMENT-TH.md) ใช้ signed v1.2.8 ตั้งแต่ 22 ตุลาคม 2026. เนื้อหาด้านล่างบันทึกสถาปัตยกรรมหรือข้อจำกัดตามรุ่นที่ระบุในแต่ละ checkpoint. สำหรับ contract ปัจจุบันดู [SPEC](SPEC.md).
+
 ## v1.2.7 released checkpoint
 
 Source เตรียม 1.2.7/v1.2.7 ด้วย reviewed build input `07ec0069b952f08a49adbd0ec778c204f85ee282`. เพิ่ม Context P1 aggregate/local preview ตาม §20 และ Codex raw read fix ตาม §19.3; [preparation record](V1.2.7-RELEASE-PREP-TH.md) แยก source/extracted evidence จาก signed release. Production คง v1.2.6. ฐานสถาปัตยกรรมและ checkpoint เก่าด้านล่างเป็นประวัติตามเวลาที่ระบุ.

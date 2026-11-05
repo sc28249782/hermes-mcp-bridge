@@ -3,23 +3,24 @@
 ## Current J0 disposition — 5 November 2026
 
 [J0 route pause and retained evidence](S24-J0-PAUSE-DISPOSITION-TH.md) records the
-operator-accepted pause at frozen draft #112 `e7142cf7`. J0 PAUSED / NOT READY;
+operator-accepted pause. #112 is closed with its branch retained at `e7142cf7`. J0 PAUSED / NOT READY;
 5 consumed / 4 digest matches, E12 UNKNOWN; all 18 rows OPEN, A1–A7 incomplete.
 R1 NOT AUTHORIZED / R2 HOLD. Resume only with independently accepted authenticated
 seed and explicit resumption, or a separately reviewed selected alternate route.
-This status supersedes earlier route/count snapshots only; all gates stay in place.
-No probe, invocation six, source import, activation, release or deployment.
+Use this checkpoint for current route status and attempt counts. The acceptance criteria are in the S24 delivery plan.
 
-## Current handoff closure — 2 November 2026
+[#96](https://github.com/sc28249782/hermes-mcp-bridge/pull/96) records Phase A readiness for the reviewed artifact. [#80](https://github.com/sc28249782/hermes-mcp-bridge/pull/80) records historical Dev evidence with §22 acceptance HOLD. [#118](https://github.com/sc28249782/hermes-mcp-bridge/pull/118) records the J0 pause. #110 is merged.
 
-Design #113 and offline/evaluation #114–#115 are merged; main checkpoint
+## Handoff closure and OpenCode observation
+
+Offline deliveries #113–#116 are merged. Evaluation checkpoint
 `7fcb3f39dfaa3fcf2535fafe5104f425cf72bc00`. Development and heldout each completed
 200 arm-trials once; shared-contract outcomes tie, with no candidate outcome gain
 demonstrated. Both experiment jobs are disabled; source/protocol/receipts remain frozen.
 [Current disposition and delivery-4 closure criteria](HANDOFF-OFFLINE-CLOSURE-TH.md)
-map the completed offline work, current docs candidate and remaining runtime gates.
+map completed offline work and runtime gates. [Draft #117](https://github.com/sc28249782/hermes-mcp-bridge/pull/117) covers OpenCode observation and feasibility. OC18 is NOT RUN.
 No new evaluation, Dev pilot, J0 activation, release or deployment is authorized.
-J0 parked; R1 NOT AUTHORIZED / R2 HOLD; #112/#80/#96/private bindings unchanged.
+J0 PAUSED. R1 NOT AUTHORIZED. R2 HOLD. See the current J0 disposition above.
 The following dated handoff/preparation paragraphs retain their proposal-time
 statements; this current checkpoint supersedes their handoff merge/run status only.
 Existing S24/Hands capability and release gates elsewhere remain unchanged.
@@ -58,16 +59,16 @@ change or release scope is claimed. Design/schema review precedes a small offlin
 validator/store/planner PR; backend adapters and runtime pilot need separate scope.
 
 Main `93e9601` contains merged #107–#111. The earlier #110/count snapshot below
-is historical. Current S24 evidence remains on draft [#112](https://github.com/sc28249782/hermes-mcp-bridge/pull/112)
+is historical. At this historical checkpoint, S24 evidence was on draft [#112](https://github.com/sc28249782/hermes-mcp-bridge/pull/112)
 at `84b1ec3e`: four consumed archive invocations, three recorded matching digests,
 latest actual HOLD/BACKSLASH, no completed catalog; V2 design not selected.
 J0 is parked during this handoff work. R1 NOT AUTHORIZED / R2 HOLD, #80/#96,
 private bindings, signed v1.2.8 release/deployment record and Hands v1.3 deferral
 remain unchanged; no production probe, inventory attempt, merge or deployment.
 
-## Current delivery checkpoint — S24 (30 October 2026)
+## Historical S24 delivery checkpoint — 30 October 2026
 
-The [S24 delivery and closure overview](S24-DELIVERY-CLOSURE-TH.md) is the current milestone map. PRs #107–#109 are merged; #110 remains a draft local-handshake control increment, not operational acceptance. The merged observed suite has 40 tests; #110 CI has 43. Counts do not measure release readiness. R1 is PENDING_BINDINGS / NOT AUTHORIZED; R2 and operational Phase B remain HOLD.
+The [S24 delivery and closure overview](S24-DELIVERY-CLOSURE-TH.md) records the milestone map. PRs #107–#109 are merged; #110 remains a draft local-handshake control increment, not operational acceptance. The merged observed suite has 40 tests; #110 CI has 43. Counts do not measure release readiness. R1 is PENDING_BINDINGS / NOT AUTHORIZED; R2 and operational Phase B remain HOLD.
 
 Complete the existing #110 review, then consolidate remaining R1 observer integration, control coverage and exact-source review into one work package. The overview separates pre-R1 source/private bindings, finite R1/R2 metadata evidence, Phase B acceptance and release/deployment decisions. It neither relaxes approved controls nor grants any execution scope. Earlier dated checkpoints below remain historical.
 
@@ -221,7 +222,7 @@ Follow-up status (not blockers; scoped separately from the hard gate above):
 
 Scoped work and proposals awaiting decisions:
 
-- Context P1 scope approved by the operator on 20 October 2026 at 15:57:29 +07 after PR #57 review/merge. [SPEC §20](SPEC.md#20-context-p1--v127-target-scope-approved-released) defines the warning and read-only-preview amendment for review before implementation. PR #58 merged the reviewed amendment at `64eb0a1` before implementation. PR #59 passed operator-supplied external APPROVE at `b7ff97a` and merged at `5685e11`, with [synthetic acceptance](CONTEXT-P1-ACCEPTANCE-TH.md). [Scoped live Dev aggregate acceptance and restoration](CONTEXT-P1-DEV-ACCEPTANCE-TH.md) passed at candidate `27030bb` on 20 October 2026; the operator supplied external APPROVE for PR #61 at `6d93808`, merged at `4513b30`. Dedicated read-only mount testing remains unperformed. P1 is unreleased/undeployed; P2 apply/delete remains deferred pending lifecycle/concurrency design. [Decision and scope](CONTEXT-RETENTION-SCOPE-TH.md). This concerns metadata rows, not ChatGPT/model token history. (21 October 2026 checkpoint note: P1 shipped in v1.2.7 and was deployed on 21 October 2026; see the [deployment checkpoint](#deployment-checkpoint-21-october-2026) above.)
+- Context P1 scope approved by the operator on 20 October 2026 at 15:57:29 +07 after PR #57 review/merge. [SPEC §20](SPEC.md#20-context-p1--v127-target-scope-approved-released) defines the warning and read-only-preview amendment for review before implementation. PR #58 merged the reviewed amendment at `64eb0a1` before implementation. PR #59 passed operator-supplied external APPROVE at `b7ff97a` and merged at `5685e11`, with [synthetic acceptance](CONTEXT-P1-ACCEPTANCE-TH.md). [Scoped live Dev aggregate acceptance and restoration](CONTEXT-P1-DEV-ACCEPTANCE-TH.md) passed at candidate `27030bb` on 20 October 2026; the operator supplied external APPROVE for PR #61 at `6d93808`, merged at `4513b30`. Dedicated read-only mount testing remains unperformed. P1 is unreleased/undeployed; P2 apply/delete remains deferred pending lifecycle/concurrency design. [Decision and scope](CONTEXT-RETENTION-SCOPE-TH.md). This concerns metadata rows, not ChatGPT/model token history. (21 October 2026 checkpoint note: P1 shipped in v1.2.7 and was deployed on 21 October 2026; see the [deployment checkpoint](V1.2.7-DEPLOYMENT-TH.md) above.)
 - Context P2 lifecycle/concurrency design proposal (21 October 2026): [CONTEXT-P2-LIFECYCLE-DESIGN-TH.md](CONTEXT-P2-LIFECYCLE-DESIGN-TH.md) proposes close/bind/submit linearization, reconciliation after backend acceptance, and the deferred P2 apply/delete boundary. It is a proposal pending review — not an implementation authorization — and it does not change P1 values, tools, schema, or discovery counts.
 - Context lifecycle decision packet (21 October 2026): [CONTEXT-LIFECYCLE-DECISION-PROPOSAL-TH.md](CONTEXT-LIFECYCLE-DECISION-PROPOSAL-TH.md) records recommendations with alternatives for the five open §9 decisions and DRAFT (not-effective) amendment wording, including the additive binding-outcome field proposal. It is pending operator decision and a separate SPEC §14 amendment PR; nothing in it is implemented, approved, or effective, P2 apply/delete remains deferred, and P1 values/discovery labels (27 default / 28 health-only / 33 execution) stay unchanged.
 - Context lifecycle SPEC amendment (21 October 2026): the operator approved D1–D5 as recommended (recorded in the decision packet after the PR #68 merge at `926a362`). The approved contract is recorded as [SPEC §21](SPEC.md#21-context-lifecycle--closed-binding-outcome-approved-design-implementation-not-started) (conditional registry mutation with commit linearization, unchanged close/bind errors, and the additive `context_binding` closed-rejection submit outcome). The amendment is proposed for section 14 review in this PR; implementation is not started and requires that review to merge first. No release is assigned, P2 apply/delete remains deferred, and P1 values/schema1/discovery counts are unchanged.

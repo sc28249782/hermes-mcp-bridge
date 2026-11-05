@@ -3,14 +3,15 @@
 ## Current J0 disposition — 5 November 2026
 
 [J0 route pause and retained evidence](S24-J0-PAUSE-DISPOSITION-TH.md) records the
-operator-accepted pause at frozen draft #112 `e7142cf7`. J0 PAUSED / NOT READY;
+operator-accepted pause. #112 is closed with its branch retained at `e7142cf7`. J0 PAUSED / NOT READY;
 5 consumed / 4 digest matches, E12 UNKNOWN; all 18 rows OPEN, A1–A7 incomplete.
 R1 NOT AUTHORIZED / R2 HOLD. Resume only with independently accepted authenticated
 seed and explicit resumption, or a separately reviewed selected alternate route.
-This status supersedes earlier route/count snapshots only; all gates stay in place.
-No probe, invocation six, source import, activation, release or deployment.
+Use this checkpoint for current route status and attempt counts. The acceptance criteria are in the S24 delivery plan.
 
-วันที่ตรวจสถานะ: 30 ตุลาคม 2026 (Asia/Bangkok)
+[#96](https://github.com/sc28249782/hermes-mcp-bridge/pull/96) records Phase A readiness for the reviewed artifact. [#80](https://github.com/sc28249782/hermes-mcp-bridge/pull/80) records historical Dev evidence with §22 acceptance HOLD. [#118](https://github.com/sc28249782/hermes-mcp-bridge/pull/118) records the J0 pause. #110 is merged.
+
+Checkpoint ประวัติ วันที่ตรวจสถานะ: 30 ตุลาคม 2026 (Asia/Bangkok)
 ฐานที่ตรวจ: main `d839b74eeaa4460aa7e14ca9b8012f3f4bb73d09`
 สถานะ: **SOURCE/INTEGRATION IN PROGRESS — R1 NOT AUTHORIZED / R2 HOLD**
 
@@ -19,7 +20,7 @@ VM/host/API/plugin action และไม่กำหนดเลขรุ่น
 เมื่อขัดกับ SPEC หรือ approved design ให้ HOLD และ review ตาม §14 ก่อนใช้
 ประวัติในเอกสารเดิมยังคงอยู่; checkpoint นี้แยกสถานะปัจจุบันจากข้อความในอดีต
 
-## 1. เป้าหมายและตำแหน่งปัจจุบัน
+## 1. เป้าหมายและสถานะ ณ 30 ตุลาคม 2026
 
 Release ล่าสุดคือ v1.2.8 (22 ตุลาคม 2026); deployment record ล่าสุดระบุ production
 อัปเกรดเป็น signed v1.2.8 เมื่อ 22 ตุลาคม 2026 โดย signed v1.2.7 เป็น rollback baseline รุ่นเก่า
@@ -60,7 +61,7 @@ CI/reviewer/operator evidence ต้องแยก attribution เสมอ ไ
 A1–A5 รวมเป็น **หนึ่ง R1 observer integration work package** ต่อเนื่อง ไม่เปิด PR
 ตามจำนวน tests ที่เพิ่ม ใช้ draft integration PR เดียวจนถึงเกณฑ์ส่งรีวิว
 แยก PR เมื่อขอบเขตความเชื่อถือ/SPEC/authorization เปลี่ยนและจำเป็นต่อการ review
-#110 ที่เปิดอยู่ให้จบรอบ review ก่อนเริ่ม source increment ถัดไป; เอกสารนี้ไม่สั่ง merge
+ใช้สถานะพัก J0 ด้านบนเพื่อกำหนดงานถัดไปของ A1–A7.
 
 การย้ายแถวเป็น later-stage หรือ supplemental ต้องมีเหตุผลอ้าง approved scope
 และ explicit reviewer disposition; หากเป็น normative change ต้องผ่าน §14

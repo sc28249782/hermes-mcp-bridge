@@ -2,7 +2,7 @@
 
 วันที่: 20 ตุลาคม 2026.
 สถานะ: **P1 ผ่าน external implementation review และ merge แล้ว; unreleased และ undeployed**.
-Contract: [SPEC §20](SPEC.md#20-context-p1--v127-target-scope-approved-unreleased).
+Contract: [SPEC §20](SPEC.md#20-context-p1--v127-target-scope-approved-released).
 SPEC ผ่าน review และ merge ใน PR #58 ที่ `64eb0a1` ก่อน implementation ใน PR #59.
 บันทึกนี้เป็น maintainer automation ไม่ใช่ external review.
 
