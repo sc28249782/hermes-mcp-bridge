@@ -3,11 +3,11 @@
 เอกสารนี้อธิบาย bridge ที่เชื่อม ChatGPT ผ่าน Secure MCP Tunnel ไปยัง Hermes Agent ที่ทำงานอยู่ใน WSL2 โดยใช้ Hermes Runs API แบบ HTTP
 
 รุ่นอ้างอิง: Hermes Agent v0.21.1, commit `8d79c2ff`  
-Bridge: `hermes-mcp-bridge-v1.2.6` (GPG signature verified; GitHub badge `no_user`)
+Bridge สำหรับติดตั้งตามคู่มือนี้คือ signed `v1.2.8`.
 
-สถานะ source ปัจจุบัน: released stamp `1.2.7/v1.2.7`, embedded build input `07ec0069b952f08a49adbd0ec778c204f85ee282`; v1.2.7 เผยแพร่ผ่าน signed tag ที่ `625ea117aa693f577872638a6353b1408fb405aa` แล้ว. คำสั่งติดตั้ง release ในเอกสารนี้ยังอ้าง signed v1.2.6 และ production checkpoint เป็น v1.2.6 เพราะ deployment decision รวมตัวเลือกไม่อัปเกรดยังรอ operator. ทดสอบ release ใหม่ใน checkout/venv แยกโดยไม่ copy config/state/credentials ของ deployment. ดู [release record](V1.2.7-RELEASE-RECORD-TH.md), [candidate preparation](V1.2.7-RELEASE-PREP-TH.md) และ [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)
+Production ตาม [บันทึก deployment](V1.2.8-DEPLOYMENT-TH.md) ใช้ signed v1.2.8 ตั้งแต่ 22 ตุลาคม 2026. สำหรับการอัปเกรด deployment เดิม ให้ใช้ [คู่มืออัปเกรด](UPGRADE-TH.md).
 
-ปรับปรุงล่าสุด: 20 ตุลาคม 2026
+หลักฐาน signed tag และ release assets อยู่ใน [release record](V1.2.8-RELEASE-RECORD-TH.md).
 
 ## 1. ภาพรวมและขอบเขต
 
@@ -112,7 +112,7 @@ Bridge บังคับ API URL เป็น `http://127.0.0.1:PORT` เท่
 
 ## 4. ติดตั้ง bridge
 
-แตก ZIP ไปยัง path Linux ที่ไม่มีช่องว่าง เช่น:
+ดาวน์โหลด `hermes-mcp-bridge-v1.2.8.zip` และ `SHA256SUMS` จาก [GitHub Release v1.2.8](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.8) ลงโฟลเดอร์บ้านใน WSL แล้วแตก ZIP ไปยัง path Linux ที่ไม่มีช่องว่าง.
 
 1. เปลี่ยนไปที่ home directory:
 
@@ -130,12 +130,12 @@ Bridge บังคับ API URL เป็น `http://127.0.0.1:PORT` เท่
 3. แตก ZIP:
 
    ```bash
-   unzip hermes-mcp-bridge-v1.2.6.zip
+   unzip hermes-mcp-bridge-v1.2.8.zip
    ```
 4. เข้า directory ที่แตกได้:
 
    ```bash
-   cd ~/hermes-mcp-bridge-v1.2.6
+   cd ~/hermes-mcp-bridge-v1.2.8
    ```
 5. ติดตั้ง:
 
@@ -271,7 +271,7 @@ GET /v1/capabilities 200 OK
 1. เข้า directory ที่ติดตั้ง bridge:
 
    ```bash
-   cd ~/hermes-mcp-bridge-v1.2.6
+   cd ~/hermes-mcp-bridge-v1.2.8
    ```
 
 2. บันทึก key:
@@ -307,7 +307,7 @@ bash tunnel.sh init tunnel_YOUR_ID --force
 ให้คง terminal เดิมไว้ แล้วเปิด terminal อีกหน้าหนึ่งใน directory ของ instance เดียวกันเพื่อตรวจ doctor:
 
 ```bash
-cd ~/hermes-mcp-bridge-v1.2.6
+cd ~/hermes-mcp-bridge-v1.2.8
 ```
 
 ตรวจ profile ด้วย wrapper:

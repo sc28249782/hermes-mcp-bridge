@@ -76,3 +76,20 @@ The receipt contains selected input/artifact identities, dependency/evidence has
 This record is ready for independent evidence review; it does not itself accept Phase A or close the scoped section 22 synthetic acceptance gate.
 Phase B remains HOLD: no new route/connector/credentials, live fixture activation or stimulus was performed. Reviewed live adapter/control implementation, completed private B bindings and separate scoped approval remain required.
 PR #80 remains a separate held historical record. No historical disposition, real-backend/native/production/full-quiescence/host-isolation/continuous-no-interference or exactly-once claim is made. Release/signing/publication/deployment remain separate.
+
+<a id="s24-phase-a-operator-acceptance"></a>
+
+## Operator Phase A readiness acceptance — 24 October 2026
+
+The operator-supplied independent review of PR #94 at `ba5a0b134428902d267d33e54ac80250ec52c1b2` approved the evidence attribution and limits. PR #94 merged at `7e28518a475616e4b1f95cba884141dc96a924b8`.
+After PR #95 merged at `2c34e47cef4330067bb5ad2f87cbdd8fcbd134d4`, the operator explicitly accepted Phase A readiness with this complete message, verbatim:
+
+> ยอมรับ Phase A readiness ตาม record #94
+
+No exact approval timestamp was supplied; none is invented. The date above identifies this documentary checkpoint.
+Current disposition: **PHASE A READINESS ACCEPTED — guest/artifact preparation only** for the selected candidate and reviewed artifact in section 2, with all evidence attribution and limitations in this record retained.
+This checkpoint supersedes only the earlier pending-review/pending-acceptance status for the fresh continuity round. The original warnings, failed CI and first selected-input round's PENDING receipt remain historical evidence. No private receipt or historical result is rewritten.
+The review cited above covers its exact head; this later acceptance note was not in that reviewed tree. This note records the operator's statement and adds no new measurement, guest filesystem inspection or connector observation.
+The previous execution window remains historical. This acceptance authorizes no new guest execution, installation, authentication, profile/connector setup or B activation.
+The scoped section 22 synthetic acceptance gate remains HOLD until a completed Phase B attempt, independent evidence review and explicit operator acceptance of that attempt. Follow the [Phase B source and approval sequence](S22-PHASE-B-ADAPTER-CONTROL-PLAN-TH.md#7-separate-provisioning-and-activation-gates).
+PR #80 remains HOLD. Historical disposition, release, signing/publication and deployment remain separate decisions.

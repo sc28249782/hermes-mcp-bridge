@@ -1,8 +1,8 @@
-# Hermes MCP Bridge — released v1.2.8 (ยังไม่ deploy) / production signed v1.2.7
+# Hermes MCP Bridge — v1.2.8
 
 ## v1.2.8 — released (22 October 2026)
 
-Scope ได้รับอนุมัติแล้ว. อัปเดตสถานะ (22 ตุลาคม 2026): v1.2.8 เผยแพร่แล้วผ่าน signed tag `v1.2.8` (object `bb2f076bb3fd665950551ca613abb6ce6fb8f809`, peeled commit `1ae159031a53e4e5359fd39e61b2748159149a52`) และ [GitHub Release](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.8) พร้อม ZIP/SHA256SUMS ที่ตรวจหลังดาวน์โหลดฝั่ง maintainer และ external fresh-input audit ผ่าน (APPROVE ที่ PR #74 head `cddcdb5`). รวม SPEC §21 context-lifecycle delta. ยังไม่ deployed; production คง signed v1.2.7. ดู [release record](V1.2.8-RELEASE-RECORD-TH.md), [preparation record](V1.2.8-RELEASE-PREP-TH.md) และ [scope decision](V1.2.8-RELEASE-DECISION-PROPOSAL-TH.md).
+Scope ได้รับอนุมัติแล้ว. อัปเดตสถานะ (22 ตุลาคม 2026): v1.2.8 เผยแพร่แล้วผ่าน signed tag `v1.2.8` (object `bb2f076bb3fd665950551ca613abb6ce6fb8f809`, peeled commit `1ae159031a53e4e5359fd39e61b2748159149a52`) และ [GitHub Release](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.8) พร้อม ZIP/SHA256SUMS ที่ตรวจหลังดาวน์โหลดฝั่ง maintainer และ external fresh-input audit ผ่าน (APPROVE ที่ PR #74 head `cddcdb5`). รวม SPEC §21 context-lifecycle delta. Production ตาม [บันทึก deployment](V1.2.8-DEPLOYMENT-TH.md) ใช้ signed v1.2.8 ตั้งแต่ 22 ตุลาคม 2026. ดู [release record](V1.2.8-RELEASE-RECORD-TH.md), [preparation record](V1.2.8-RELEASE-PREP-TH.md) และ [scope decision](V1.2.8-RELEASE-DECISION-PROPOSAL-TH.md).
 
 ## v1.2.7 — released (20 October 2026); deployed 21 October 2026
 
@@ -10,7 +10,7 @@ Scope ได้รับอนุมัติแล้ว. Source stamp เป�
 
 ## Signed v1.2.6 และ historical checkpoints
 
-ข้อความ candidate v1.2.6 ด้านล่างเป็นบันทึกก่อน publication ของรุ่นนั้น; ไม่ใช่ stamp ปัจจุบันของ candidate v1.2.7.
+ข้อความ candidate v1.2.6 ด้านล่างเป็นบันทึกก่อน publication ของรุ่นนั้น; ดูสถานะรุ่นปัจจุบันด้านบน.
 
 Release checkpoint (20 ตุลาคม 2026): v1.2.6 เผยแพร่แล้วพร้อม ZIP/SHA256SUMS ที่ตรวจหลังดาวน์โหลด. GPG signature ผ่าน; GitHub badge เป็น `no_user`. Production เป็น v1.2.5 ตอนตรวจหลัง publication. Operator อนุมัติ deployment แยกเมื่อ 13:52:34 +07 และอัปเกรดเป็น v1.2.6 แล้วในวันเดียวกัน. ดู [deployment record](V1.2.6-DEPLOYMENT-TH.md) สำหรับ acceptance และข้อจำกัด. ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md). Checkpoint เกี่ยวกับ candidate ด้านล่างเป็นบันทึกก่อน publication.
 
@@ -26,11 +26,11 @@ Operations: [OPERATIONS-TH.md](OPERATIONS-TH.md)
 จุดเริ่มต้นของโครงการ: [Project origin](PROJECT-ORIGIN.md)
 
 จัดทำสำหรับ Hermes Agent v0.21.1, commit `8d79c2ff` ที่ผู้ใช้ยืนยัน
-วันที่ปรับปรุง: 20 ตุลาคม 2026 — v1.2.6 released; signed tag และ release assets ผ่านการตรวจแล้ว
+คู่มือนี้ใช้ release v1.2.8.
 
 หมายเหตุ (18 ตุลาคม 2026): released v1.2.4 เผยแพร่แล้วผ่าน signed tag (ZIP ตรวจแล้วจากการดาวน์โหลดจริง; ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)) โดยเพิ่ม OpenCode health adapter แบบ disabled by default และ legacy stdio discovery guard ขณะนั้นคู่มือแนะนำติดตั้ง released v1.2.4 การอัปเกรด deployment ที่ผลิตจริงเป็นดุลยพินิจของ operator (ยังรัน v1.2.3 เดิมได้)
 
-หมายเหตุ (19 ตุลาคม 2026): เผยแพร่ **v1.2.5** แล้ว พร้อม signed tag และ ZIP/SHA256SUMS ที่ตรวจหลังดาวน์โหลด คู่มือปัจจุบันใช้ v1.2.5; ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md) สำหรับ checksum และ provenance; production deployment อัปเกรดเป็น v1.2.5 แล้วเมื่อ 19 ตุลาคม 2026 (ตรวจ identity/health/discovery แบบ read-only ผ่าน production plugin; ขอบเขตหลักฐานอยู่ใน RELEASE-STATUS-TH.md)
+หมายเหตุ (19 ตุลาคม 2026): เผยแพร่ **v1.2.5** แล้ว พร้อม signed tag และ ZIP/SHA256SUMS ที่ตรวจหลังดาวน์โหลด คู่มือ ณ วันนั้นใช้ v1.2.5. ดู [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md) สำหรับ checksum และ provenance; production deployment อัปเกรดเป็น v1.2.5 แล้วเมื่อ 19 ตุลาคม 2026 (ตรวจ identity/health/discovery แบบ read-only ผ่าน production plugin; ขอบเขตหลักฐานอยู่ใน RELEASE-STATUS-TH.md)
 
 ตัวกลางนี้ทำให้ ChatGPT ส่งงานให้ Hermes ที่รันอยู่บนเครื่องคุณ แล้วตรวจสถานะ อ่านผล และขอหยุดงานได้
 ใช้ Runs API เดียวกับที่ `hermes peer run/status/stop` เรียก แต่เรียก HTTP โดยตรง
@@ -54,13 +54,13 @@ Operations: [OPERATIONS-TH.md](OPERATIONS-TH.md)
 - ยังต้องสร้าง tunnel ใน OpenAI Platform, ติดตั้ง tunnel-client และเชื่อม Plugin
 - v1.2.1 ผ่าน regression 63/63 โดยใช้ project `.venv/bin/python` พร้อม `-W error::ResourceWarning`, shellcheck และ Bash syntax; Live Acceptance ผ่าน Hermes context ข้าม ChatGPT chat, Codex metadata-only binding, closed-context denial และ audit redaction
 - v1.2.3 ผ่าน 75 regression tests, WSL2 worker-supervision acceptance และ independent review
-- v1.2.4 ผ่าน 129 regression tests รวม stdio-guard และ packaging tests, live tunnel acceptance แบบ bounded PASS บน Dev route และการตรวจ release assets หลังดาวน์โหลด (ดู [TESTING.md](TESTING.md) และ [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)) ผลข้างต้นเป็นหลักฐาน v1.2.4; สำหรับติดตั้งปัจจุบันใช้ release v1.2.6 ในหัวข้อถัดไป
+- v1.2.4 ผ่าน 129 regression tests รวม stdio-guard และ packaging tests, live tunnel acceptance แบบ bounded PASS บน Dev route และการตรวจ release assets หลังดาวน์โหลด (ดู [TESTING.md](TESTING.md) และ [RELEASE-STATUS-TH.md](RELEASE-STATUS-TH.md)) ผลข้างต้นเป็นหลักฐาน v1.2.4; สำหรับติดตั้งปัจจุบันใช้ release v1.2.8 ในหัวข้อถัดไป
 
 อัปเกรดจาก bridge รุ่นก่อนใช้ [UPGRADE-TH.md](UPGRADE-TH.md) ก่อนเริ่ม tunnel รุ่นใหม่ โดยเฉพาะหากต้องการเก็บ session/state เดิม
 
 ## 1. ติดตั้งตัวกลางใน WSL2
 
-ดาวน์โหลดทั้ง `hermes-mcp-bridge-v1.2.6.zip` และ `SHA256SUMS` จาก [GitHub Release v1.2.6](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.6) แล้ววางทั้งสองไฟล์ไว้ในโฟลเดอร์บ้านของผู้ใช้ใน WSL เช่น:
+ดาวน์โหลด `hermes-mcp-bridge-v1.2.8.zip` และ `SHA256SUMS` จาก [GitHub Release v1.2.8](https://github.com/sc28249782/hermes-mcp-bridge/releases/tag/v1.2.8) แล้ววางทั้งสองไฟล์ในโฟลเดอร์บ้านของผู้ใช้ใน WSL
 
 ```text
 ~
@@ -84,12 +84,12 @@ Operations: [OPERATIONS-TH.md](OPERATIONS-TH.md)
 3. แตก ZIP:
 
    ```bash
-   unzip hermes-mcp-bridge-v1.2.6.zip
+   unzip hermes-mcp-bridge-v1.2.8.zip
    ```
 4. เข้า directory ที่แตกได้:
 
    ```bash
-   cd ~/hermes-mcp-bridge-v1.2.6
+   cd ~/hermes-mcp-bridge-v1.2.8
    ```
 5. ติดตั้ง:
 
@@ -115,7 +115,7 @@ Operations: [OPERATIONS-TH.md](OPERATIONS-TH.md)
 1. เข้า directory ของ deployment นั้น:
 
    ```bash
-   cd ~/hermes-mcp-bridge-v1.2.6
+   cd ~/hermes-mcp-bridge-v1.2.8
    ```
 2. ซ่อม pip ใน venv เดิม:
 
@@ -252,7 +252,7 @@ Hermes ยังคงใช้ provider/model และการคิดค่
 1. เข้า directory ของ bridge ที่จะเชื่อมต่อ:
 
    ```bash
-   cd ~/hermes-mcp-bridge-v1.2.6
+   cd ~/hermes-mcp-bridge-v1.2.8
    ```
 
 2. บันทึก OpenAI Platform runtime key ซึ่งเป็นคนละตัวกับ Hermes `API_SERVER_KEY`:
@@ -297,7 +297,7 @@ Hermes ยังคงใช้ provider/model และการคิดค่
 เข้า directory ของ instance เดิม:
 
 ```bash
-cd ~/hermes-mcp-bridge-v1.2.6
+cd ~/hermes-mcp-bridge-v1.2.8
 ```
 
 ตรวจ doctor ผ่าน wrapper:

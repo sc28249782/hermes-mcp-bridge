@@ -3,7 +3,7 @@
 วันที่: 20 ตุลาคม 2026.
 สถานะ: **operator อนุมัติ P1 scope แล้วเมื่อ 20 ตุลาคม 2026 เวลา 15:57:29 +07**.
 PR #57 ผ่าน external review ที่ `a38d319` และ merge แล้วที่ `6c85432`. Operator ตอบ “ยืนยัน” ต่อคำขอ merge และอนุมัติ P1 ตามค่าที่เสนอ.
-Contract สำหรับ implementation review อยู่ใน [SPEC §20](SPEC.md#20-context-p1--v127-target-scope-approved-unreleased).
+Contract สำหรับ implementation review อยู่ใน [SPEC §20](SPEC.md#20-context-p1--v127-target-scope-approved-released).
 Source baseline: `e24fa3eec00fd9d1f5d0e38561fb2d044346bc72`.
 Checkpoint หลัง merge SPEC §20 ใน PR #58 (`64eb0a1`): PR #59 เพิ่ม P1 candidate สำหรับ review. ยังไม่มี release หรือ deployment ของ P1; signed v1.2.6 ยังไม่มี config/CLI/fields ใหม่นี้.
 

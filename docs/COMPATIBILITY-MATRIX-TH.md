@@ -1,6 +1,6 @@
-# Compatibility matrix — v1.2.8 candidate / released v1.2.7 production baseline
+# Compatibility matrix — signed v1.2.8
 
-Candidate v1.2.8 contains only the SPEC §21 context-lifecycle delta (registry mutations, typed closed rejection, one-row observe guard, §21.2 submit outcome fields). Stamp/build input are 1.2.8/v1.2.8/`887436f359683f0215f1993d7cb0c9035ec93571`; publication/deployment are pending. No component, permission, schema-version or discovery-count change is required; the Python 3.12/3.14 CI matrix and the existing interpreter guidance are unchanged. Production baseline is signed v1.2.7, deployed 21 October 2026.
+Released v1.2.8 includes the SPEC §21 context lifecycle delta. The stamp and embedded build input are 1.2.8/v1.2.8/`887436f359683f0215f1993d7cb0c9035ec93571`. Verification covers Python 3.12 and 3.14. Configuration schema is 1 and discovery counts are 27 default, 28 with OpenCode health enabled and 33 with execution enabled. The [deployment record](V1.2.8-DEPLOYMENT-TH.md) records signed v1.2.8 in production since 22 October 2026. See the [release record](V1.2.8-RELEASE-RECORD-TH.md) for artifact verification.
 
 # Compatibility history — released v1.2.7 and signed v1.2.6 baseline
 

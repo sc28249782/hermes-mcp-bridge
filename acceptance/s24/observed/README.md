@@ -1,5 +1,7 @@
 # Observed inventory source — draft CI validation
 
+This page describes the observed inventory source checkpoint. See [J0 disposition](../../../docs/S24-J0-PAUSE-DISPOSITION-TH.md) for the current status and the retained evidence from closed PR #112.
+
 Status: **SOURCE CANDIDATE / NO OPERATOR EXECUTION SCOPE / R1 INCOMPLETE / R2 HOLD**.
 
 The original inventory controller/helper remain unchanged. These separately named

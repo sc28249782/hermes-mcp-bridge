@@ -1,5 +1,16 @@
 # Roadmap
 
+## Current J0 disposition — 5 November 2026
+
+[J0 route pause and retained evidence](S24-J0-PAUSE-DISPOSITION-TH.md) records the
+operator-accepted pause. #112 is closed with its branch retained at `e7142cf7`. J0 PAUSED / NOT READY;
+5 consumed / 4 digest matches, E12 UNKNOWN; all 18 rows OPEN, A1–A7 incomplete.
+R1 NOT AUTHORIZED / R2 HOLD. Resume only with independently accepted authenticated
+seed and explicit resumption, or a separately reviewed selected alternate route.
+Use this checkpoint for current route status and attempt counts. The acceptance criteria are in the S24 delivery plan.
+
+[#96](https://github.com/sc28249782/hermes-mcp-bridge/pull/96) records Phase A readiness for the reviewed artifact. [#80](https://github.com/sc28249782/hermes-mcp-bridge/pull/80) records historical Dev evidence with §22 acceptance HOLD. [#118](https://github.com/sc28249782/hermes-mcp-bridge/pull/118) records the J0 pause. #110 is merged.
+
 ## OpenCode handoff integration design — 3 November 2026
 
 Operator explicitly selected a separate [OpenCode passive observation design](OPENCODE-HANDOFF-INTEGRATION-DESIGN-TH.md).
@@ -11,7 +22,7 @@ other job rows. No submit/replay/cancel/resume, health/model/provider call or
 public MCP/config/runtime integration. SQLite capture, authority/context and
 verifier semantics must be source-reviewed before any separately approved pilot.
 
-This is a design/source-analysis candidate on main, independent of draft #112.
+This design/source-analysis candidate is tracked separately in draft #117.
 [J0 pause record at e7142cf7](https://github.com/sc28249782/hermes-mcp-bridge/blob/e7142cf71792475af9375140df39acd55944d8d1/acceptance/s24/observed/J0-ROUTE-PAUSE.md)
 remains effective; the new explicit selection authorizes this design only, not
 J0 resumption or any action/merge/release. All S24 eighteen rows remain OPEN;
@@ -19,17 +30,16 @@ R1 NOT AUTHORIZED / R2 HOLD. Handoff offline deliveries remain closed with tied
 outcomes; the old preparation/resumption/count notes below remain historical.
 No new evaluation, pilot or installed capability is claimed.
 
+## Handoff closure and OpenCode observation
 
-## Current handoff closure — 2 November 2026
-
-Design #113 and offline/evaluation #114–#115 are merged; main checkpoint
+Offline deliveries #113–#116 are merged. Evaluation checkpoint
 `7fcb3f39dfaa3fcf2535fafe5104f425cf72bc00`. Development and heldout each completed
 200 arm-trials once; shared-contract outcomes tie, with no candidate outcome gain
 demonstrated. Both experiment jobs are disabled; source/protocol/receipts remain frozen.
 [Current disposition and delivery-4 closure criteria](HANDOFF-OFFLINE-CLOSURE-TH.md)
-map the completed offline work, current docs candidate and remaining runtime gates.
+map completed offline work and runtime gates. [Draft #117](https://github.com/sc28249782/hermes-mcp-bridge/pull/117) covers OpenCode observation and feasibility. OC18 is NOT RUN.
 No new evaluation, Dev pilot, J0 activation, release or deployment is authorized.
-J0 parked; R1 NOT AUTHORIZED / R2 HOLD; #112/#80/#96/private bindings unchanged.
+J0 PAUSED. R1 NOT AUTHORIZED. R2 HOLD. See the current J0 disposition above.
 The following dated handoff/preparation paragraphs retain their proposal-time
 statements; this current checkpoint supersedes their handoff merge/run status only.
 Existing S24/Hands capability and release gates elsewhere remain unchanged.
@@ -68,16 +78,16 @@ change or release scope is claimed. Design/schema review precedes a small offlin
 validator/store/planner PR; backend adapters and runtime pilot need separate scope.
 
 Main `93e9601` contains merged #107–#111. The earlier #110/count snapshot below
-is historical. Current S24 evidence remains on draft [#112](https://github.com/sc28249782/hermes-mcp-bridge/pull/112)
+is historical. At this historical checkpoint, S24 evidence was on draft [#112](https://github.com/sc28249782/hermes-mcp-bridge/pull/112)
 at `84b1ec3e`: four consumed archive invocations, three recorded matching digests,
 latest actual HOLD/BACKSLASH, no completed catalog; V2 design not selected.
 J0 is parked during this handoff work. R1 NOT AUTHORIZED / R2 HOLD, #80/#96,
 private bindings, signed v1.2.8 release/deployment record and Hands v1.3 deferral
 remain unchanged; no production probe, inventory attempt, merge or deployment.
 
-## Current delivery checkpoint — S24 (30 October 2026)
+## Historical S24 delivery checkpoint — 30 October 2026
 
-The [S24 delivery and closure overview](S24-DELIVERY-CLOSURE-TH.md) is the current milestone map. PRs #107–#109 are merged; #110 remains a draft local-handshake control increment, not operational acceptance. The merged observed suite has 40 tests; #110 CI has 43. Counts do not measure release readiness. R1 is PENDING_BINDINGS / NOT AUTHORIZED; R2 and operational Phase B remain HOLD.
+The [S24 delivery and closure overview](S24-DELIVERY-CLOSURE-TH.md) records the milestone map. PRs #107–#109 are merged; #110 remains a draft local-handshake control increment, not operational acceptance. The merged observed suite has 40 tests; #110 CI has 43. Counts do not measure release readiness. R1 is PENDING_BINDINGS / NOT AUTHORIZED; R2 and operational Phase B remain HOLD.
 
 Complete the existing #110 review, then consolidate remaining R1 observer integration, control coverage and exact-source review into one work package. The overview separates pre-R1 source/private bindings, finite R1/R2 metadata evidence, Phase B acceptance and release/deployment decisions. It neither relaxes approved controls nor grants any execution scope. Earlier dated checkpoints below remain historical.
 
@@ -231,7 +241,7 @@ Follow-up status (not blockers; scoped separately from the hard gate above):
 
 Scoped work and proposals awaiting decisions:
 
-- Context P1 scope approved by the operator on 20 October 2026 at 15:57:29 +07 after PR #57 review/merge. [SPEC §20](SPEC.md#20-context-p1--v127-target-scope-approved-released) defines the warning and read-only-preview amendment for review before implementation. PR #58 merged the reviewed amendment at `64eb0a1` before implementation. PR #59 passed operator-supplied external APPROVE at `b7ff97a` and merged at `5685e11`, with [synthetic acceptance](CONTEXT-P1-ACCEPTANCE-TH.md). [Scoped live Dev aggregate acceptance and restoration](CONTEXT-P1-DEV-ACCEPTANCE-TH.md) passed at candidate `27030bb` on 20 October 2026; the operator supplied external APPROVE for PR #61 at `6d93808`, merged at `4513b30`. Dedicated read-only mount testing remains unperformed. P1 is unreleased/undeployed; P2 apply/delete remains deferred pending lifecycle/concurrency design. [Decision and scope](CONTEXT-RETENTION-SCOPE-TH.md). This concerns metadata rows, not ChatGPT/model token history. (21 October 2026 checkpoint note: P1 shipped in v1.2.7 and was deployed on 21 October 2026; see the [deployment checkpoint](#deployment-checkpoint-21-october-2026) above.)
+- Context P1 scope approved by the operator on 20 October 2026 at 15:57:29 +07 after PR #57 review/merge. [SPEC §20](SPEC.md#20-context-p1--v127-target-scope-approved-released) defines the warning and read-only-preview amendment for review before implementation. PR #58 merged the reviewed amendment at `64eb0a1` before implementation. PR #59 passed operator-supplied external APPROVE at `b7ff97a` and merged at `5685e11`, with [synthetic acceptance](CONTEXT-P1-ACCEPTANCE-TH.md). [Scoped live Dev aggregate acceptance and restoration](CONTEXT-P1-DEV-ACCEPTANCE-TH.md) passed at candidate `27030bb` on 20 October 2026; the operator supplied external APPROVE for PR #61 at `6d93808`, merged at `4513b30`. Dedicated read-only mount testing remains unperformed. P1 is unreleased/undeployed; P2 apply/delete remains deferred pending lifecycle/concurrency design. [Decision and scope](CONTEXT-RETENTION-SCOPE-TH.md). This concerns metadata rows, not ChatGPT/model token history. (21 October 2026 checkpoint note: P1 shipped in v1.2.7 and was deployed on 21 October 2026; see the [deployment checkpoint](V1.2.7-DEPLOYMENT-TH.md) above.)
 - Context P2 lifecycle/concurrency design proposal (21 October 2026): [CONTEXT-P2-LIFECYCLE-DESIGN-TH.md](CONTEXT-P2-LIFECYCLE-DESIGN-TH.md) proposes close/bind/submit linearization, reconciliation after backend acceptance, and the deferred P2 apply/delete boundary. It is a proposal pending review — not an implementation authorization — and it does not change P1 values, tools, schema, or discovery counts.
 - Context lifecycle decision packet (21 October 2026): [CONTEXT-LIFECYCLE-DECISION-PROPOSAL-TH.md](CONTEXT-LIFECYCLE-DECISION-PROPOSAL-TH.md) records recommendations with alternatives for the five open §9 decisions and DRAFT (not-effective) amendment wording, including the additive binding-outcome field proposal. It is pending operator decision and a separate SPEC §14 amendment PR; nothing in it is implemented, approved, or effective, P2 apply/delete remains deferred, and P1 values/discovery labels (27 default / 28 health-only / 33 execution) stay unchanged.
 - Context lifecycle SPEC amendment (21 October 2026): the operator approved D1–D5 as recommended (recorded in the decision packet after the PR #68 merge at `926a362`). The approved contract is recorded as [SPEC §21](SPEC.md#21-context-lifecycle--closed-binding-outcome-approved-design-implementation-not-started) (conditional registry mutation with commit linearization, unchanged close/bind errors, and the additive `context_binding` closed-rejection submit outcome). The amendment is proposed for section 14 review in this PR; implementation is not started and requires that review to merge first. No release is assigned, P2 apply/delete remains deferred, and P1 values/schema1/discovery counts are unchanged.
@@ -245,6 +255,7 @@ Scoped work and proposals awaiting decisions:
 - Nonclosed binding ack/recovery decision packet (22 October 2026): [CONTEXT-BINDING-ACK-RECOVERY-PROPOSAL-TH.md](CONTEXT-BINDING-ACK-RECOVERY-PROPOSAL-TH.md) proposes alternatives for the nonclosed binding error gap left open by SPEC §21.2 — preserve the existing error with documented manual recovery (recommended, narrowest) versus an additive explicit nonclosed binding outcome after a successful backend acknowledgement only. It is a **PROPOSAL awaiting operator decisions**; no SPEC change, implementation, schema migration, or release/deploy is authorized by it, and the deferred gaps (submit admission, crash-between-submit-and-bind, uncertain replay, durable intents, P2 prune, Hands, Events) remain deferred.
 - Unresolved binding outcome SPEC amendment (22 October 2026): after the packet above passed external APPROVE at head `2730f224516eb32b2717e1293cec986e2a185941`, the operator selected option ข (verbatim approval and no-timestamp disclosure in the [packet checkpoint](CONTEXT-BINDING-ACK-RECOVERY-PROPOSAL-TH.md)). [SPEC section 22](SPEC.md#22-context-binding-unresolved-proposed) is opened as a PROPOSED amendment in a stacked draft PR that depends on PR #77: a scoped `binding_unresolved` outcome after a successful backend acknowledgement, with an ordered catch policy and an explicit residual gap. It is **PROPOSED pending section 14 review and merge of both PRs**; deployed v1.2.8 behavior is unchanged; no implementation, release, or deployment is authorized.
 - Unresolved binding outcome runtime implementation (22 October 2026): the SPEC §22 amendment passed section 14 review and merged via PR #78 at main `4ed8765` together with the PR #77 merge `e18d0d4`. The runtime implementation is pending review in a runtime PR: the ordered, closed catch policy wraps only the registry binding call (`closed_rejected` unchanged; `sqlite3.OperationalError` and `ContextError` become `binding_unresolved` with the exact note and the full backend acknowledgement preserved), with the deterministic §22.5 matrix in `tests/test_context_binding_unresolved.py`. Status: implemented, pending review; not released, not deployed; no acceptance is claimed and no release is assigned; the residual gap and deferred gaps stay unchanged. Evidence: [TESTING.md](TESTING.md#unreleased--unresolved-binding-outcome-after-acceptance-spec-22).
+- Unresolved binding outcome scoped Dev acceptance (22 October 2026): the runtime implementation merged via PR #79 at main `71dcae67cbfa6f0b953ab8d81198d073d202ed2a` (review head `44f3bacc`, external APPROVE) and the scoped synthetic Dev acceptance was performed on the real Dev tunnel with a test-only fixture over the candidate's production code paths (mock-transport Hermes, stub Codex/Hands, no tools added); a parent connector verified the live 7-label matrix on both backends, counters 8/8, and the argv-verified restore to the Dev baseline `1.2.4`/`e7add7e`. The acceptance is mock-backend evidence pending external review, not real-backend acceptance. Status: overall acceptance HOLD — the first attempt omitted Hermes per-run quiescence verification; a repeat was blocked before stop/switch after 8/25 API-confirmed terminal outcomes and 17 HTTP 404 responses. Later diagnosis supports 24 terminal dispositions (8 current API + 16 prior positive observations), leaving one unresolved run; no repeat was activated and the cause of missing authority rows is unknown. Functional observations of the first attempt do not close the gate. Not released, not deployed; no release is assigned; the excluded-class, uncertain-replay, submit-admission/crash gaps, P2 apply/delete, Hands, and Events stay open. Evidence classes and limits: [CONTEXT-BINDING-DEV-ACCEPTANCE-TH.md](CONTEXT-BINDING-DEV-ACCEPTANCE-TH.md) and [TESTING.md](TESTING.md#scoped-synthetic-dev-acceptance--22-ตุลาคม-2026-spec-22).
 
 - Missing terminal record disposition proposal (22 October 2026): [MISSING-TERMINAL-DISPOSITION-PROPOSAL-TH.md](MISSING-TERMINAL-DISPOSITION-PROPOSAL-TH.md) records two operator choices: keep HOLD, or authorize a separate SPEC/operations design for a scoped operational disposition while the task outcome remains unknown. It uses the existing diagnosis in draft PR #80 (24 runs with terminal evidence / 1 unresolved); no new probe or runtime action is performed. The proposal does not adjudicate a run, change a gate, authorize acceptance, or approve implementation. PR #80 remains HOLD; the operator choice is pending.
 
@@ -369,6 +380,8 @@ Optional follow-ups, lower priority:
 - SPEC §24 Phase A evidence (23 October 2026): [S22-SHAREDHOST-PHASE-A-READINESS-TH.md](S22-SHAREDHOST-PHASE-A-READINESS-TH.md) reports selected-input guest 234/7/10 OK, unchanged warning gates, resource thresholds checked and a separate private 0600 receipt ready for independent review. Original warning/failed-CI history and the first two-blob pending round remain evidence. Production/Dev observations are discrete before/after health/identity only; no continuous process continuity or full-quiescence claim. This checkpoint grants no Phase A acceptance, B activation, release or deployment; PR #80 remains HOLD.
 
 - SPEC §24 Phase B source-design proposal (24 October 2026): [S22-PHASE-B-ADAPTER-CONTROL-PLAN-TH.md](S22-PHASE-B-ADAPTER-CONTROL-PLAN-TH.md) specifies route capability proof, actual connector adapter, 44 ordered matrix checkpoints, observations, finite exact-identity control and read-only stopped-state verification. No implementation, capability success, Phase A acceptance, provisioning or B activation is claimed; all original gates and PR #80 HOLD remain.
+
+- SPEC §24 Phase A readiness acceptance (24 October 2026): The [operator acceptance checkpoint](S22-SHAREDHOST-PHASE-A-READINESS-TH.md#s24-phase-a-operator-acceptance) records the complete message `ยอมรับ Phase A readiness ตาม record #94`, with no invented exact approval timestamp. Phase A guest/artifact readiness is accepted for candidate `02d7e8bb1e1902ca33a574ab904a6e5b0f441785` and reviewed artifact `e7be0cc4e84b820eb8c7ac541325672d0f892fb2`. Earlier pending-acceptance wording remains history; this checkpoint does not relabel the first pending round or add measurements. B source work remains subject to exact-delta review; setup/activation requires separate scope. The scoped section 22 gate and PR #80 remain HOLD; release/deployment remain separate.
 
 - SPEC §24 Phase B source increment 1 (24 October 2026): [offline parent contract](../acceptance/s24/PARENT-CONTRACT.md) adds a data-only, one-use matrix runner with bounded frames/trace, ordered checkpoints and negative controls. Results are labeled offline-ipc-contract. Candidate/manifest/fixture stay unchanged; the real connector adapter, collectors, independent guest supervisor and operational stop/receipt implementation remain outstanding. This is not a complete B implementation or activation approval; scoped section 22 and PR #80 remain HOLD.
 
