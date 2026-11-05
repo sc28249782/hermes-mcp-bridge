@@ -20,6 +20,12 @@ fault after retained pidfd recorded known binding/cleanup-only, not unknown H.
 The supplied `-V`/`WSIGCHLD` suggestion was ambiguous and is not assigned invented
 semantics. This package instead records concrete SIGCHLD and waitid evidence.
 
+
+Round-18 checkpoint: operator-supplied APPROVE AS FEASIBILITY EVIDENCE at
+`0fc6b01fc6c87dac3e5fccf6f96d5e35b289f6c3`; PB02/PB03 remain PARTIAL.
+This docs-only follow-up clarifies the scope of the existing no_children oracle;
+it does not record a GitHub review submission or a new local runtime result.
+
 ## 2. Files and fixed actors
 
 - [Owned C fixture](../acceptance/handoff/opencode/atomic_birth_probe.c)
@@ -43,6 +49,17 @@ all exact reaps use P_PIDFD. There is no numeric-PID/PGID signal, scan, pidfd_op
 legacy clone/fork fallback, retry, respawn, arbitrary target or helper executable.
 P_ALL occurs once only as a test no-children oracle expecting ECHILD; it does not
 consume status, discover targets or repair candidate cleanup.
+
+Scope of `no_children=true`: harness_no_children runs inside the isolated fixture
+E and observes waitid(P_ALL, WEXITED|WNOHANG|WNOWAIT) returning ECHILD at that
+point. It covers E's own waitable children only, after any separately recorded
+test-only diagnostic cleanup. B's subprocess wait/reap confirms its exact E child
+terminated; it is not an independent census of R/H or other host processes.
+Neither fact proves host-wide absence of orphans, escaped/reparented descendants,
+or cleanup after E itself dies. No host inventory/scan is performed. This scope
+applies to every case and every machine running this fixture; it does not expand
+when no_children=true is emitted. Stop, exact reap, pipe EOF and production
+containment remain separate evidence; no PB/EC/OA/B4 acceptance changes.
 
 ## 3. Preregistered stimuli and actual local outcomes
 
