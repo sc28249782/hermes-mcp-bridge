@@ -162,3 +162,7 @@ The [adapter/control plan](S22-PHASE-B-ADAPTER-CONTROL-PLAN-TH.md) defines imple
 ## Phase A readiness acceptance checkpoint — 24 October 2026
 
 The [operator acceptance checkpoint](S22-SHAREDHOST-PHASE-A-READINESS-TH.md#s24-phase-a-operator-acceptance) records the complete message `ยอมรับ Phase A readiness ตาม record #94`, with no invented exact approval timestamp. Phase A guest/artifact readiness is accepted for candidate `02d7e8bb1e1902ca33a574ab904a6e5b0f441785` and reviewed artifact `e7be0cc4e84b820eb8c7ac541325672d0f892fb2`. Earlier pending-acceptance wording remains history; this checkpoint does not relabel the first pending round or add measurements. B source work remains subject to exact-delta review; setup/activation requires separate scope. The scoped section 22 gate and PR #80 remain HOLD; release/deployment remain separate.
+
+## Metadata prebinding stage proposal — 25 October 2026
+
+The [staged plan](S24-METADATA-PREBIND-PLAN-TH.md) pins the reviewed permanently inactive peer at `70eca6dc` and proposes separate read-only inventory, inactive preparation and one bounded metadata attempt. It remains NOT EXECUTION-READY: compatibility disposition, any required §14 amendment, guest/private bindings, client/asset verification, observers/stop controls and separate operator scopes are open. No setup, credentials, client start, namespace, candidate discovery, B acceptance or original-runtime action is approved. Historical text and PR #80 HOLD remain unchanged.

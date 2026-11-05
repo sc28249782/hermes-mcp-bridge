@@ -1,0 +1,296 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:hermes:handoff-checkpoint:v1",
+  "title": "Proposed metadata-only handoff checkpoint v1; no action authority",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "payload": {"$ref": "#/$defs/payload"},
+    "payload_sha256": {"$ref": "#/$defs/sha256"}
+  },
+  "required": ["schema_version", "payload", "payload_sha256"],
+  "$defs": {
+    "ref": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$", "maxLength": 128},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "time": {"type": "string", "format": "date-time", "maxLength": 40},
+    "nullable_ref": {"anyOf": [{"$ref": "#/$defs/ref"}, {"type": "null"}]},
+    "nullable_sha": {"anyOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]},
+    "refs": {"type": "array", "items": {"$ref": "#/$defs/ref"}, "maxItems": 32, "uniqueItems": true},
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "goal_ref": {"$ref": "#/$defs/ref"},
+        "criteria_refs": {"$ref": "#/$defs/refs"},
+        "pending_step_refs": {"$ref": "#/$defs/refs"},
+        "next_action": {
+          "enum": [
+            "inspect_metadata",
+            "reconcile_original",
+            "observe_original",
+            "retrieve_evidence",
+            "verify_goal",
+            "hold",
+            "done"
+          ]
+        }
+      },
+      "required": ["goal_ref", "criteria_refs", "pending_step_refs", "next_action"]
+    },
+    "repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "full_name": {"type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$", "maxLength": 257},
+        "branch": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$", "maxLength": 128},
+        "commit_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "worktree_state": {"enum": ["clean", "dirty", "unknown"]},
+        "dirty_manifest_ref": {"$ref": "#/$defs/nullable_ref"},
+        "workspace_policy_ref": {"$ref": "#/$defs/nullable_ref"}
+      },
+      "required": ["full_name", "branch", "commit_sha", "worktree_state", "dirty_manifest_ref", "workspace_policy_ref"]
+    },
+    "backend": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {"enum": ["hermes", "codex", "opencode", "local_hands", "none"]},
+        "provider_ref": {"$ref": "#/$defs/nullable_ref"},
+        "workspace_ref": {"$ref": "#/$defs/nullable_ref"},
+        "request_id": {"$ref": "#/$defs/nullable_ref"},
+        "job_id": {"$ref": "#/$defs/nullable_ref"},
+        "session_id": {"$ref": "#/$defs/nullable_ref"},
+        "context_id": {"$ref": "#/$defs/nullable_ref"},
+        "input_ref": {"$ref": "#/$defs/nullable_ref"},
+        "input_fingerprint_ref": {"$ref": "#/$defs/nullable_ref"}
+      },
+      "required": [
+        "name",
+        "provider_ref",
+        "workspace_ref",
+        "request_id",
+        "job_id",
+        "session_id",
+        "context_id",
+        "input_ref",
+        "input_fingerprint_ref"
+      ]
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "observation": {
+          "enum": [
+            "unsubmitted",
+            "submission_unknown",
+            "submitted",
+            "running",
+            "cancel_requested",
+            "terminal_observed",
+            "reconciliation_required"
+          ]
+        },
+        "native_status": {
+          "anyOf": [
+            {
+              "enum": [
+                "pending_local_approval",
+                "queued",
+                "pending",
+                "started",
+                "running",
+                "waiting_for_approval",
+                "completed",
+                "failed",
+                "cancelled",
+                "denied",
+                "expired",
+                "timed_out",
+                "permission_required",
+                "unknown_exit",
+                "unknown"
+              ]
+            },
+            {"type": "null"}
+          ]
+        },
+        "observed_at": {"anyOf": [{"$ref": "#/$defs/time"}, {"type": "null"}]}
+      },
+      "required": ["observation", "native_status", "observed_at"]
+    },
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "authority_ref": {"$ref": "#/$defs/nullable_ref"},
+        "scope_refs": {"$ref": "#/$defs/refs"},
+        "snapshot_state": {"enum": ["unknown", "denied", "expired", "reported_active"]},
+        "expires_at": {"anyOf": [{"$ref": "#/$defs/time"}, {"type": "null"}]},
+        "authorizes_actions": {"const": false}
+      },
+      "required": ["authority_ref", "scope_refs", "snapshot_state", "expires_at", "authorizes_actions"]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {"$ref": "#/$defs/ref"},
+        "kind": {
+          "enum": [
+            "backend_status",
+            "terminal_record",
+            "result_snapshot",
+            "artifact",
+            "verifier_report",
+            "authorization",
+            "workspace_binding"
+          ]
+        },
+        "sha256": {"$ref": "#/$defs/nullable_sha"},
+        "size_bytes": {"anyOf": [{"type": "integer", "minimum": 0, "maximum": 9007199254740991}, {"type": "null"}]},
+        "verified_at": {"anyOf": [{"$ref": "#/$defs/time"}, {"type": "null"}]},
+        "verifier_ref": {"$ref": "#/$defs/nullable_ref"},
+        "verdict": {"enum": ["unverified", "verified", "rejected", "unavailable"]}
+      },
+      "required": ["evidence_id", "kind", "sha256", "size_bytes", "verified_at", "verifier_ref", "verdict"],
+      "allOf": [
+        {
+          "if": {"properties": {"verdict": {"const": "verified"}}},
+          "then": {
+            "properties": {
+              "sha256": {"$ref": "#/$defs/sha256"},
+              "size_bytes": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
+              "verified_at": {"$ref": "#/$defs/time"},
+              "verifier_ref": {"$ref": "#/$defs/ref"}
+            }
+          }
+        }
+      ]
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "acceptance_profile_ref": {"$ref": "#/$defs/ref"},
+        "verdict": {"enum": ["unverified", "verified", "rejected", "unavailable"]},
+        "evidence_ids": {"$ref": "#/$defs/refs"}
+      },
+      "required": ["acceptance_profile_ref", "verdict", "evidence_ids"]
+    },
+    "lesson": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "lesson_ref": {"$ref": "#/$defs/ref"},
+        "applicability_profile_ref": {"$ref": "#/$defs/ref"},
+        "version_ref": {"$ref": "#/$defs/ref"}
+      },
+      "required": ["lesson_ref", "applicability_profile_ref", "version_ref"]
+    },
+    "attempts": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "logical_submit_attempts": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
+        "observation_attempts": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
+        "retry_policy_ref": {"$ref": "#/$defs/ref"}
+      },
+      "required": ["logical_submit_attempts", "observation_attempts", "retry_policy_ref"]
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "checkpoint_id": {"$ref": "#/$defs/ref"},
+        "chain_id": {"$ref": "#/$defs/ref"},
+        "generation": {"type": "integer", "minimum": 1, "maximum": 9007199254740991},
+        "parent_sha256": {"$ref": "#/$defs/nullable_sha"},
+        "created_at": {"$ref": "#/$defs/time"},
+        "writer_id": {"$ref": "#/$defs/ref"},
+        "task": {"$ref": "#/$defs/task"},
+        "repository": {"$ref": "#/$defs/repository"},
+        "backend": {"$ref": "#/$defs/backend"},
+        "lifecycle": {"$ref": "#/$defs/lifecycle"},
+        "authorization": {"$ref": "#/$defs/authorization"},
+        "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}, "maxItems": 32, "uniqueItems": true},
+        "verification": {"$ref": "#/$defs/verification"},
+        "lessons": {"type": "array", "items": {"$ref": "#/$defs/lesson"}, "maxItems": 16, "uniqueItems": true},
+        "attempts": {"$ref": "#/$defs/attempts"},
+        "last_error": {
+          "anyOf": [
+            {
+              "enum": [
+                "INVALID_CHECKPOINT",
+                "CHECKSUM_MISMATCH",
+                "UNSUPPORTED_SCHEMA",
+                "STALE_GENERATION",
+                "BINDING_MISMATCH",
+                "MISSING_DOSSIER",
+                "AUTHORITY_UNAVAILABLE",
+                "AUTHORITY_EXPIRED",
+                "AUTHORITY_OUT_OF_SCOPE",
+                "JOB_ID_UNKNOWN",
+                "BACKEND_UNAVAILABLE",
+                "RECONCILIATION_REQUIRED",
+                "EVIDENCE_MISSING",
+                "EVIDENCE_MISMATCH",
+                "VERIFIER_REJECTED",
+                "CONCURRENT_UPDATE",
+                "STORE_UNAVAILABLE",
+                "BUDGET_EXHAUSTED"
+              ]
+            },
+            {"type": "null"}
+          ]
+        },
+        "last_reconciliation": {
+          "enum": [
+            "not_attempted",
+            "matching_original",
+            "unknown",
+            "binding_mismatch",
+            "authority_blocked",
+            "evidence_rejected"
+          ]
+        }
+      },
+      "required": [
+        "checkpoint_id",
+        "chain_id",
+        "generation",
+        "parent_sha256",
+        "created_at",
+        "writer_id",
+        "task",
+        "repository",
+        "backend",
+        "lifecycle",
+        "authorization",
+        "evidence",
+        "verification",
+        "lessons",
+        "attempts",
+        "last_error",
+        "last_reconciliation"
+      ],
+      "allOf": [
+        {
+          "if": {"properties": {"generation": {"const": 1}}},
+          "then": {"properties": {"parent_sha256": {"type": "null"}}},
+          "else": {"properties": {"parent_sha256": {"$ref": "#/$defs/sha256"}}}
+        },
+        {
+          "if": {"properties": {"verification": {"properties": {"verdict": {"const": "verified"}}}}},
+          "then": {
+            "properties": {
+              "lifecycle": {"properties": {"observation": {"const": "terminal_observed"}}},
+              "verification": {"properties": {"evidence_ids": {"minItems": 1}}}
+            }
+          }
+        }
+      ]
+    }
+  }
+}

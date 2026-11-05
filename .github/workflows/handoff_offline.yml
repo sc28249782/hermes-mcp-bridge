@@ -1,0 +1,48 @@
+name: Handoff offline source controls
+
+on:
+  pull_request:
+    branches: [main]
+    paths: ['acceptance/handoff/**', 'docs/schemas/handoff-checkpoint-v1.schema.json', 'docs/examples/handoff-checkpoint-v1.synthetic.json', '.github/workflows/handoff_offline.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  offline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Standalone validator store planner and owned fixtures only
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha }}'
+          umask 022
+          offline_log="$RUNNER_TEMP/handoff-offline.log"
+          set +e
+          python -W error::ResourceWarning -I -S -B -m unittest discover -s acceptance/handoff -p 'test_*.py' -v > "$offline_log" 2>&1
+          offline_exit=$?
+          set -e
+          cat "$offline_log"
+          python -I -S -B - "$offline_log" "$offline_exit" <<'PY'
+          from pathlib import Path
+          import json,re,sys
+          raw=Path(sys.argv[1]).read_bytes()
+          markers=[m.decode() for m in (b'ResourceWarning',b'Exception ignored',b'Traceback') if m in raw]
+          complete=re.findall(rb'^Ran (\d+) tests? in ',raw,re.M)==[b'26'] and re.search(rb'^OK\s*$',raw,re.M) is not None
+          print(json.dumps({'offline_exit':int(sys.argv[2]),'complete_without_skips':complete,'warning_markers':markers,'runtime_adapter_calls':0}))
+          assert sys.argv[2]=='0' and complete and not markers,'offline source controls failed'
+          print('Handoff source controls: 26 passed; no live backend or paired evaluation')
+          PY

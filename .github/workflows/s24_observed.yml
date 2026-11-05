@@ -1,0 +1,64 @@
+name: S24 observed offline controls
+
+on:
+  pull_request:
+    branches: [main]
+    paths: ['acceptance/s24/observed/**', '.github/workflows/s24_observed.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  observed-linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Exact head, mandatory adoption and post-exit warning gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha }}'
+          umask 022
+          python -B acceptance/s24/observed/run_ci_controls.py
+
+  observed-windows:
+    runs-on: windows-2022
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: PowerShell parser and offline controls
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ((git rev-parse HEAD) -cne '${{ github.event.pull_request.head.sha }}') { throw 'exact head mismatch' }
+          $PSVersionTable.PSVersion.ToString()
+          $log = Join-Path $env:RUNNER_TEMP 's24-observed-windows-offline.log'
+          & pwsh -NoLogo -NoProfile -NonInteractive -File ./acceptance/s24/observed/Test-WindowsOffline.ps1 *> $log
+          $code = $LASTEXITCODE
+          $text = Get-Content -LiteralPath $log -Raw
+          Write-Output $text
+          if ($code -ne 0 -or $text -notmatch 'Windows offline controls: 14 checks passed;') { throw 'offline controls failed' }
+      - name: Disposable Windows process controls
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $log = Join-Path $env:RUNNER_TEMP 's24-observed-windows-process.log'
+          & pwsh -NoLogo -NoProfile -NonInteractive -File ./acceptance/s24/observed/Test-WindowsProcesses.ps1 *> $log
+          $code = $LASTEXITCODE
+          $text = Get-Content -LiteralPath $log -Raw
+          Write-Output $text
+          if ($code -ne 0 -or $text -notmatch 'Windows process controls: 9 checks passed;') { throw 'process controls failed' }

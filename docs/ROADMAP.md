@@ -1,5 +1,68 @@
 # Roadmap
 
+## Current handoff closure — 2 November 2026
+
+Design #113 and offline/evaluation #114–#115 are merged; main checkpoint
+`7fcb3f39dfaa3fcf2535fafe5104f425cf72bc00`. Development and heldout each completed
+200 arm-trials once; shared-contract outcomes tie, with no candidate outcome gain
+demonstrated. Both experiment jobs are disabled; source/protocol/receipts remain frozen.
+[Current disposition and delivery-4 closure criteria](HANDOFF-OFFLINE-CLOSURE-TH.md)
+map the completed offline work, current docs candidate and remaining runtime gates.
+No new evaluation, Dev pilot, J0 activation, release or deployment is authorized.
+J0 parked; R1 NOT AUTHORIZED / R2 HOLD; #112/#80/#96/private bindings unchanged.
+The following dated handoff/preparation paragraphs retain their proposal-time
+statements; this current checkpoint supersedes their handoff merge/run status only.
+Existing S24/Hands capability and release gates elsewhere remain unchanged.
+
+## Handoff paired-evaluation preparation — 2 November 2026
+
+Reviewed #114 candidate `c953b6f4` remains draft/unmerged. A separate stacked
+[harness/profile/schedule candidate](../acceptance/handoff/evaluation/README.md)
+prepares frozen source/config inputs and 200 schedules / 400 proposed arm-trials.
+CI performs preparation/oracle controls only; neither corpus arm nor heldout
+measurement has run. Comparator is an explicit scripted client reference, not
+native baseline runtime/human performance; checkpoint-specific faults are separate.
+Independent harness/runtime/profile review precedes a finite development run.
+No candidate tuning/merge, auto-heldout action, runtime pilot or S24 attempt.
+J0 parked; R1 NOT AUTHORIZED / R2 HOLD; #112 and private bindings unchanged.
+
+## Handoff offline source candidate — 2 November 2026
+
+Design #113 merged at `53c37737` after review/operator approval. The next separate
+[source candidate](../acceptance/handoff/README.md) adds a standalone validator,
+private immutable SQLite store and advisory planner with 26 offline source
+controls. No bridge/MCP/CLI/config/backend adapter is wired; no paired recovery
+trial or measured gain is claimed. Independent exact-source review precedes the
+frozen evaluation harness and any separately scoped Dev pilot. The design-stage
+statements below preserve their original checkpoint. J0 stays parked; S24 #112,
+R1 NOT AUTHORIZED / R2 HOLD, private bindings/release/deployment remain unchanged.
+
+## Handoff/checkpoint priority — 2 November 2026 (design only)
+
+Operator requested the attached verifiable-handoff work before returning to J0.
+[Gap analysis/design/schema](HANDOFF-CHECKPOINT-DESIGN-TH.md),
+[preregistered recovery experiment plan](HANDOFF-RECOVERY-EXPERIMENT-PLAN-TH.md)
+and [session checklist](HANDOFF-SESSION-CHECKLIST-TH.md) are a separate design candidate.
+No runtime implementation, experiment gain, Dev pilot, tool/config/approval-policy
+change or release scope is claimed. Design/schema review precedes a small offline
+validator/store/planner PR; backend adapters and runtime pilot need separate scope.
+
+Main `93e9601` contains merged #107–#111. The earlier #110/count snapshot below
+is historical. Current S24 evidence remains on draft [#112](https://github.com/sc28249782/hermes-mcp-bridge/pull/112)
+at `84b1ec3e`: four consumed archive invocations, three recorded matching digests,
+latest actual HOLD/BACKSLASH, no completed catalog; V2 design not selected.
+J0 is parked during this handoff work. R1 NOT AUTHORIZED / R2 HOLD, #80/#96,
+private bindings, signed v1.2.8 release/deployment record and Hands v1.3 deferral
+remain unchanged; no production probe, inventory attempt, merge or deployment.
+
+## Current delivery checkpoint — S24 (30 October 2026)
+
+The [S24 delivery and closure overview](S24-DELIVERY-CLOSURE-TH.md) is the current milestone map. PRs #107–#109 are merged; #110 remains a draft local-handshake control increment, not operational acceptance. The merged observed suite has 40 tests; #110 CI has 43. Counts do not measure release readiness. R1 is PENDING_BINDINGS / NOT AUTHORIZED; R2 and operational Phase B remain HOLD.
+
+Complete the existing #110 review, then consolidate remaining R1 observer integration, control coverage and exact-source review into one work package. The overview separates pre-R1 source/private bindings, finite R1/R2 metadata evidence, Phase B acceptance and release/deployment decisions. It neither relaxes approved controls nor grants any execution scope. Earlier dated checkpoints below remain historical.
+
+Latest published release remains v1.2.8; the recorded production deployment is the signed v1.2.8 deployment of 22 October 2026. No new release version/date is assigned. Local Hands v1.3.0 stays deferred at its terminal-status/subscription capability gate; S24 completion alone does not release it.
+
 ## Approved maintenance target — v1.2.7 (released)
 
 [Scope decision](V1.2.7-RELEASE-DECISION-TH.md) records operator approval at 18:47:56 +07 on 20 October 2026 for the reviewed Codex read-ahead fix and Context P1. Preparation, final-target signing/publication and production deployment require their separate steps. [Release preparation](V1.2.7-RELEASE-PREP-TH.md) stamps candidate 1.2.7/v1.2.7 with reviewed input `07ec0069b952f08a49adbd0ec778c204f85ee282`. Production remains signed v1.2.6; no signed tag/publication/deployment is performed. Dedicated read-only mount evidence and the existing P2/Hands/Events boundaries remain as documented.
@@ -288,3 +351,41 @@ Optional follow-ups, lower priority:
 - SPEC §24 Phase B source-design proposal (24 October 2026): [S22-PHASE-B-ADAPTER-CONTROL-PLAN-TH.md](S22-PHASE-B-ADAPTER-CONTROL-PLAN-TH.md) specifies route capability proof, actual connector adapter, 44 ordered matrix checkpoints, observations, finite exact-identity control and read-only stopped-state verification. No implementation, capability success, Phase A acceptance, provisioning or B activation is claimed; all original gates and PR #80 HOLD remain.
 
 - SPEC §24 Phase A readiness acceptance (24 October 2026): The [operator acceptance checkpoint](S22-SHAREDHOST-PHASE-A-READINESS-TH.md#s24-phase-a-operator-acceptance) records the complete message `ยอมรับ Phase A readiness ตาม record #94`, with no invented exact approval timestamp. Phase A guest/artifact readiness is accepted for candidate `02d7e8bb1e1902ca33a574ab904a6e5b0f441785` and reviewed artifact `e7be0cc4e84b820eb8c7ac541325672d0f892fb2`. Earlier pending-acceptance wording remains history; this checkpoint does not relabel the first pending round or add measurements. B source work remains subject to exact-delta review; setup/activation requires separate scope. The scoped section 22 gate and PR #80 remain HOLD; release/deployment remain separate.
+
+- SPEC §24 Phase B source increment 1 (24 October 2026): [offline parent contract](../acceptance/s24/PARENT-CONTRACT.md) adds a data-only, one-use matrix runner with bounded frames/trace, ordered checkpoints and negative controls. Results are labeled offline-ipc-contract. Candidate/manifest/fixture stay unchanged; the real connector adapter, collectors, independent guest supervisor and operational stop/receipt implementation remain outstanding. This is not a complete B implementation or activation approval; scoped section 22 and PR #80 remain HOLD.
+
+- SPEC §24 Phase B source increment 2 (24 October 2026): [offline identity/discovery contract](../acceptance/s24/IDENTITY-CONTRACT.md) adds a separate 27-tool schema baseline, inherited-stamp/source-pin distinctions and bounded cursor-linked data validation with 13 offline checks. Actual SDK results remain decoded offline evidence, not raw wire or connector proof. New-route invocation remains HOLD; no original namespace fallback, guest action, setup or activation. Candidate/fixture and increment 1 stay unchanged; scoped section 22 and PR #80 remain HOLD.
+
+- SPEC §24 route feasibility (24 October 2026): [assessment](S22-PHASE-B-ROUTE-FEASIBILITY-TH.md) confirms the documented general product path but retains actual namespace/invocation, capture, observer and lifecycle gates. Offline #97/#98 contracts are not route proof. No setup/activation, guest action or gate closure; PR #80 remains HOLD.
+
+- SPEC §24 Phase B source increment 3 (24 October 2026): [offline direct-child control/byte recorder](../acceptance/s24/OWNED-CHILD.md) adds pidfd-bound leader control, finite lease/window and private bounded pipe evidence with thirteen new tests. This is not a complete guest/cohort supervisor or Work-route proof; development procfs/PID mismatch remains failed evidence, with dedicated CI required. Candidate/fixture/#97/#98 stay unchanged; setup/activation, scoped section 22 and PR #80 remain HOLD.
+
+- SPEC §24 Phase B source increment 4 (24 October 2026): [read-only guest observer](../acceptance/s24/GUEST-OBSERVER.md) adds bounded kernel/filesystem observations and twelve controls. Guest-only limits do not supply host RAM, complete writer coverage or checkpoint PASS. Known development procfs mismatch remains failed evidence; CI is required. Existing candidate/fixture/contracts/control stay unchanged; no guest deployment, setup/activation or gate closure. PR #80 remains HOLD.
+
+- SPEC §24 Phase B source increment 5 (24 October 2026): [single-use launch admission](../acceptance/s24/LAUNCH-ADMISSION.md) adds a durable fixed-name claim before one injected callback, with no stale recovery or automatic retry. This is a cooperative local control, not a launcher, global lock, supervisor or approval token. Candidate/fixture/earlier increments stay unchanged; actual route/host observations, authenticated bindings, outer/cohort control and stopped-writer proof remain required. No setup/activation or gate closure; PR #80 remains HOLD.
+
+- SPEC §24 Phase B source increment 6 (24 October 2026): [read-only Windows memory sampler](../acceptance/s24/HOST-MEMORY.md) adds a local CIM reading and twelve proposed Windows CI controls. This does not authenticate the host or provide runtime continuity, freshness transport, a HOLD latch or complete checkpoint PASS. Prior inputs/components stay unchanged; private bindings, route/control integration and all B gates remain open. No operator-host execution or setup/activation is authorized; PR #80 remains HOLD.
+
+- SPEC §24 integration work package (25 October 2026): [single integration track](../acceptance/s24/INTEGRATION.md) connects one-use admission, actual offline SDK identity/matrix, joined observer data with a HOLD latch, private evidence and post-stop state comparison. This is work in progress, not operational B readiness. Keep remaining route/collectors/outer-cohort control and stopped-writer work on this integration PR; no helper-only completion claim. Original inputs/components and PR #80 HOLD stay unchanged; no setup/activation or scoped gate closure.
+
+- SPEC §24 integration message delta (25 October 2026): the [same integration work package](../acceptance/s24/INTEGRATION.md#shared-key-observation-message-delta) now binds shared-key MACs, per-stage nonces/order and local round-trip age to host observer data and the private trace. This proves only scoped message-key possession in offline controls, not the actual host, protected carrier, approval or completed B transport. Keep actual collectors/route/outer-cohort work on #104; all operational gates and PR #80 HOLD remain.
+
+- SPEC §24 integration supervisor delta (25 October 2026): the [same integration work package](../acceptance/s24/INTEGRATION.md#independent-direct-fixture-supervisor-delta) adds a separate fixture-only owner/lease supervisor with exact pidfd stop, a parent-death TERM/startup barrier and owner-bound local control. Full client/observer/descendant/external-writer coverage is still HOLD; a leader stop is not full quiescence or B readiness. No original runtime/VM/setup/activation action; PR #80 stays HOLD.
+
+- 25 October 2026 — PR #104 WIP adds exact offline proxy RPC frame capture/correlation, paired-response stop gate and eight negative/storage controls (supervisor20, coordinator17). Candidate/fixture/manifests remain unchanged; actual Work route, complete cohort, operational B and scoped §22 acceptance remain HOLD. [Integration scope](../acceptance/s24/INTEGRATION.md#offline-rpc-frame-correlation-delta).
+
+- 25 October 2026 — PR #104 WIP joins signed host/continuity/inventory observations at every checkpoint with separate role keys and one unchanged freshness budget; channel23/coordinator21 source controls remain offline injected evidence. Actual collectors/carriers, Work route and complete cohort remain HOLD. [Checkpoint integration](../acceptance/s24/INTEGRATION.md#signed-continuity-and-inventory-checkpoint-integration).
+
+- 25 October 2026 — PR #104 WIP connects a read-only known-leader collector to signed inventory at checkpoints; coordinator26 source controls distinguish real CI-local controller/supervisor/fixture observations from injected inputs. Complete writer coverage and operational B remain HOLD. [Collector scope](../acceptance/s24/INTEGRATION.md#read-only-known-leader-inventory-collector).
+
+- 25 October 2026 — PR #104 WIP proposes a permanently inactive manifest-only metadata peer, with 10 offline SDK/negative controls. It cannot start a fixture or pass candidate identity; staged-plan compatibility, exact setup/activation scope and actual Work route remain HOLD. [Prebinding proposal](../acceptance/s24/INTEGRATION.md#proposed-manifest-only-prebinding-route).
+
+- 25 October 2026 — [S24 metadata prebinding stage plan](S24-METADATA-PREBIND-PLAN-TH.md) proposes R0/R1/R2 scopes with pinned peer/client metadata, 30-second peer and 120-second attempt bounds. Plan review only; compatibility/private bindings/asset bytes/observers/stop proof/operator scope remain OPEN. No provisioning, activation, B acceptance or release is authorized.
+
+- 25 October 2026 — [R0/R1 preparation record](S24-PREBIND-R0-R1-RECORD-TH.md#s24-prebind-r0-r1-preparation-record) records scoped inactive preparation after PR #104 merge. The operator reports a new tunnel, runtime credential and private profile; complete bindings and independent evidence review remain open. Next work resolves those methods before any separately approved R2 attempt. No activation, scoped §22 gate closure or release decision; PR #80 stays HOLD and #96 remains separate/unmerged.
+
+- 25 October 2026 — The [metadata binding work package](S24-METADATA-BINDING-WORK-PACKAGE-TH.md#s24-metadata-binding-work-package) follows merged PR #105 with one coordinated authority/environment/continuity/resource/cohort/stop closure plan. Current fields and metadata control remain incomplete; later source and private review stay in the same work package. No new guest window, R2 or Phase B approval; PR #80 stays HOLD and #96 remains separate/unmerged.
+
+- 25 October 2026 — The same [metadata binding work package](S24-METADATA-BINDING-WORK-PACKAGE-TH.md#s24-metadata-binding-work-package) adds a private inventory helper, 22 offline controls and a proposed combined acquisition scope. Exact source review and completed invocation/control bindings still precede any separately approved guest/host run. Controller/real collectors/authority/complete writer closure remain open; R2/Phase B and PR #80 remain HOLD.
+
+- 26 October 2026 — PR #106 continues with [one-worker inventory control and 33 offline controls](../acceptance/s24/INVENTORY-CONTROL.md). Exact reviewed inventory and earlier sources/pins stay unchanged. Development adoption remains blocked by procfs/PID mismatch; mandatory Linux CI and independent exact-head review are required. Complete metadata cohort/authority/private bindings stay open. No VM run, merge, R1 completion, R2, Phase B, release or deployment approval.
