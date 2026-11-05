@@ -1,5 +1,15 @@
 # Roadmap
 
+## Current J0 disposition — 5 November 2026
+
+[J0 route pause and retained evidence](S24-J0-PAUSE-DISPOSITION-TH.md) records the
+operator-accepted pause at frozen draft #112 `e7142cf7`. J0 PAUSED / NOT READY;
+5 consumed / 4 digest matches, E12 UNKNOWN; all 18 rows OPEN, A1–A7 incomplete.
+R1 NOT AUTHORIZED / R2 HOLD. Resume only with independently accepted authenticated
+seed and explicit resumption, or a separately reviewed selected alternate route.
+This status supersedes earlier route/count snapshots only; all gates stay in place.
+No probe, invocation six, source import, activation, release or deployment.
+
 ## Current handoff closure — 2 November 2026
 
 Design #113 and offline/evaluation #114–#115 are merged; main checkpoint
