@@ -235,12 +235,20 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - name: Validate frozen inputs and inspect typed CI runtime facts only
+      - name: Validate frozen inputs and run offline preparation controls
         shell: bash
+        env:
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha }}'
-          python -W error::ResourceWarning -I -S -B acceptance/handoff/evaluation/harness.py validate
+          test "$(git rev-parse HEAD)" = "$PR_HEAD"
+          scratch=$(mktemp -d "$RUNNER_TEMP/handoff-preparation.XXXXXXXX")
+          trap 'rm -rf -- "$scratch"' EXIT
+          python -I -S -B acceptance/handoff/evaluation/prepare_ci.py "$PR_HEAD" "$scratch"
+          (
+            cd "$scratch/copy"
+            python -W error::ResourceWarning -I -S -B acceptance/handoff/evaluation/harness.py validate
+          )
           python -I -S -B - "$RUNNER_TEMP" <<'PY'
           import importlib.util,json,sys
           from pathlib import Path
@@ -249,15 +257,16 @@ jobs:
           module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
           print(json.dumps({'runtime_facts':module.runtime_facts(sys.argv[1]),'evaluation_arms_executed':0},sort_keys=True))
           PY
-      - name: Inherited candidate and preparation controls; never run either corpus arm
-        shell: bash
-        run: |
-          set -euo pipefail
-          preparation_log="$RUNNER_TEMP/handoff-preparation-controls.log"
+          preparation_log="$scratch/controls.log"
+          echo 'Scope: current PR checkout, offline source controls'
           set +e
           python -W error::ResourceWarning -I -S -B -m unittest discover -s acceptance/handoff -p 'test_*.py' -v > "$preparation_log" 2>&1
           candidate_exit=$?
-          python -W error::ResourceWarning -I -S -B -m unittest discover -s acceptance/handoff/evaluation -p 'test_*.py' -v >> "$preparation_log" 2>&1
+          echo "Scope: isolated PR copy, frozen SPEC, preparation controls" >> "$preparation_log"
+          (
+            cd "$scratch/copy"
+            python -W error::ResourceWarning -I -S -B -m unittest discover -s acceptance/handoff/evaluation -p 'test_*.py' -v
+          ) >> "$preparation_log" 2>&1
           preparation_exit=$?
           set -e
           cat "$preparation_log"
