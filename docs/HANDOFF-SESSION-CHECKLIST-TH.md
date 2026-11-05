@@ -1,19 +1,12 @@
 # Session handoff / recovery checklist — v1
 
-## Current handoff checkpoint — 2 November 2026
+## Current handoff checkpoint — 5 November 2026
 
-Repo main `7fcb3f39dfaa3fcf2535fafe5104f425cf72bc00`: #113/#114/#115 merged;
-standalone offline validator/store/planner and both frozen evaluation splits complete.
-Development/heldout each have 200 recorded arm-trials; shared-contract outcomes tie.
-[Current closure/disposition](HANDOFF-OFFLINE-CLOSURE-TH.md) is the delivery-4 docs
-candidate; its review/merge remains separate. No bridge tool/runtime recovery feature,
-production Facts collector or live-backend recovery acceptance is supplied.
+Deliveries #113–#116 are merged. Development and heldout each recorded 200 arm-trials with tied shared-contract outcomes. See [offline closure and receipts](HANDOFF-OFFLINE-CLOSURE-TH.md).
 
-For the next session: refresh main/PR states; read the closure and immutable receipt
-references; retain both disabled jobs and consumed trial budgets; propose only the
-next reviewed scope. Do not auto-run a pilot or unpark J0. R1 NOT AUTHORIZED / R2 HOLD;
-#112/#80/#96 and private A6/A7 remain unchanged. The manual checklist still applies;
-the initial design-era checkpoint at the end is historical, not current remote state.
+[Draft #117](https://github.com/sc28249782/hermes-mcp-bridge/pull/117) tracks OpenCode observation. OC18 is NOT RUN. The [J0 pause record](S24-J0-PAUSE-DISPOSITION-TH.md) tracks closed PR #112 and evidence retained at `e7142cf7`. R1 NOT AUTHORIZED. R2 HOLD.
+
+For the next session, refresh main and PR states, read the immutable receipts, and carry forward the consumed trial budgets and current approval boundaries. The checklist and initial checkpoint below retain their original context.
 
 ## Original manual checklist and initial checkpoint
 

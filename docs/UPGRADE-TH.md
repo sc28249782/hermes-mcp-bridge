@@ -4,7 +4,9 @@
 
 Released v1.2.8 รวมเฉพาะ SPEC §21 context-lifecycle delta. Signed tag `v1.2.8` (object `bb2f076bb3fd665950551ca613abb6ce6fb8f809`, peeled commit `1ae159031a53e4e5359fd39e61b2748159149a52`) ผ่าน cryptographic verification ด้วย fingerprint `C4E9AFA9C97FC94CA2448E9218BDAEA561529B86` (GitHub badge `verified: false`/`no_user` บันทึกแยก); release assets สร้างจาก signed tag และผ่าน post-download verification ฝั่ง maintainer; external fresh-input audit ผ่าน (APPROVE ที่ PR #74 head `cddcdb5`). Source stamp `1.2.8/v1.2.8` embedded build input `887436f359683f0215f1993d7cb0c9035ec93571` — ไม่ใช่ final tag commit. Historical checkpoint (ก่อน deployment วันที่ 22 ตุลาคม 2026): production คง signed v1.2.7 ที่ deploy แล้วเมื่อ 21 ตุลาคม 2026. Deployment checkpoint (22 ตุลาคม 2026): operator อนุมัติ merge และ deployment ด้วย option ก ในแชต («merge และ ก: deploy v1.2.8 ตามแผนและผ่านทุก gate»); deployment v1.2.8 ดำเนินการสำเร็จตามแผนและ parent ยืนยัน live identity/health ผ่าน production connector แล้ว ดู [deployment record](V1.2.8-DEPLOYMENT-TH.md); ข้อความ historical checkpoint ข้างต้นคงไว้เป็นบันทึกก่อน deployment.
 
-## จาก v1.2.6 เป็น v1.2.7 — released; rollout ต้องได้รับอนุมัติแยก
+สำหรับ rollout v1.2.8 ให้อ้าง [แผน deployment และ rollback ของ v1.2.8](V1.2.8-DEPLOYMENT-DECISION-TH.md) ร่วมกับ [release runbook](RELEASE-RUNBOOK-TH.md) และใช้ approval สำหรับ deployment รอบนั้น
+
+## จาก v1.2.6 เป็น v1.2.7 — ขั้นตอนอ้างอิงตามรุ่น
 
 ส่วนนี้เป็นแผนอัปเกรดจาก [v1.2.7 released](V1.2.7-RELEASE-RECORD-TH.md). Source stamp เป็น 1.2.7/v1.2.7, embedded build input `07ec0069b952f08a49adbd0ec778c204f85ee282`. Signed release และ assets เผยแพร่แล้ว และ external fresh-input audit ผ่าน. ยังไม่มี deployment approval; deployment decision รวมตัวเลือกไม่อัปเกรดยังรอ operator. อย่าแก้ directory ของ production v1.2.6. (หมายเหตุ 21 ตุลาคม 2026: operator อนุมัติและ deployment v1.2.7 ดำเนินการสำเร็จแล้ว ดู [deployment record](V1.2.7-DEPLOYMENT-TH.md); ข้อความนี้คงไว้เป็นบันทึกก่อน deployment.)
 
@@ -18,7 +20,7 @@ Released v1.2.8 รวมเฉพาะ SPEC §21 context-lifecycle delta. Sign
 8. Preview เป็น local-only และไม่มี apply/delete. SQLite mode=ro อาจใช้ locks/sidecars; ไม่ใช่ no-filesystem-effects guarantee. ไม่ลด native/chat token history. Codex raw reads คง byte cap เดิม แต่ไม่คืน prefetched data หลัง truncate แทน error.
 9. หากผิด target หรือ acceptance ไม่ผ่าน ให้ห้ามเริ่มงานใหม่, ตรวจงานที่กำลังรันก่อนหยุด instance, คืน original v1.2.6 launch แล้วตรวจ identity/health อีกครั้ง. ห้าม state-merge/replay. บันทึก deployment decision/ผลจริงแยกจาก release verification.
 
-## Codex result read-ahead fix — shipped in v1.2.7, not deployed
+## Historical pre-deployment checkpoint — Codex result read-ahead fix in v1.2.7
 
 (หมายเหตุ 21 ตุลาคม 2026: v1.2.7 deploy แล้ว ดู [deployment record](V1.2.7-DEPLOYMENT-TH.md); หัวข้อนี้คงไว้เป็นบันทึกก่อน deployment.)
 
@@ -38,7 +40,7 @@ Codex result ของ snapshot เกิน 8,388,608 bytes จะ fail พร�
 Tool count และ binaries ไม่เปลี่ยน.
 อย่าแก้ directory ของ deployment เดิมเพื่อเปิดรุ่นใหม่ระหว่างงานที่ยังรันอยู่.
 
-release ที่เผยแพร่ล่าสุดคือ v1.2.7 (20 ตุลาคม 2026) — ดูขั้นตอนท้ายเอกสาร หัวข้อ "จาก X เป็น Y" ด้านล่างเป็นบันทึกประวัติรายรุ่นคงไว้ตามเดิม
+บันทึกช่วงนี้อ้าง release v1.2.7 (20 ตุลาคม 2026) — ดูขั้นตอนท้ายเอกสาร หัวข้อ "จาก X เป็น Y" ด้านล่างเป็นบันทึกประวัติรายรุ่นคงไว้ตามเดิม
 
 v1.2.5 เผยแพร่แล้ว พร้อม signed tag และ ZIP/SHA256SUMS ที่ตรวจหลังดาวน์โหลด; OpenCode execution ปิดโดยค่าเริ่มต้น การอัปเกรดไม่สลับ production หรือตั้ง permission ให้อัตโนมัติ.
 

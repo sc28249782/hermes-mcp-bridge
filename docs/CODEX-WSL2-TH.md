@@ -1,5 +1,7 @@
 # Codex/WSL2 แบบควบคุมสิทธิ์ — v1.0.1
 
+Production ตาม [บันทึก deployment](V1.2.8-DEPLOYMENT-TH.md) ใช้ signed v1.2.8 ตั้งแต่ 22 ตุลาคม 2026. เนื้อหาด้านล่างบันทึกสถาปัตยกรรมหรือข้อจำกัดตามรุ่นที่ระบุในแต่ละ checkpoint. สำหรับ contract ปัจจุบันดู [SPEC](SPEC.md).
+
 ## v1.2.7 released checkpoint
 
 Candidate รวม raw result reads แบบ unbuffered เพื่อ enforce snapshot budget เดิมของ §19.3. Cap 8,388,608 bytes, read chunk 65,536 bytes, ownership/approval/decoding/pagination เดิมคงอยู่. ไม่รับรอง immutable snapshot หรือการตรวจ overwrite ทุกแบบ. ดู [release preparation](V1.2.7-RELEASE-PREP-TH.md). ยังไม่ released/deployed; production คง v1.2.6 และ model/workspace permissions ไม่เปลี่ยน. จำนวน tools ยุค v1.0.1 ด้านล่างเป็น historical baseline.

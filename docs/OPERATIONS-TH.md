@@ -177,7 +177,7 @@ adapter ถูกรวมแล้วใน released v1.2.4 (PR #34) ซึ่�
 
 ส่วน execution ตาม SPEC.md section 18 เผยแพร่ใน signed v1.2.5 แล้ว (v1.2.4 ยังคงเป็น
 health-only ตามประวัติ) โค้ดรวมผ่าน PR #40 และ release preparation ผ่าน PR #41.
-การเปิด execution ต้องเป็นการเลือก config โดย operator. Production checkpoint ล่าสุดเป็น v1.2.6 หลัง operator อนุมัติ deployment แยกเมื่อ 20 ตุลาคม 2026. Config คงเดิมและ OpenCode execution ยังคงเป็น opt-in. ดู [deployment record](V1.2.6-DEPLOYMENT-TH.md). หลักการสำหรับ
+การเปิด execution ต้องเป็นการเลือก config โดย operator. Checkpoint วันที่ 20 ตุลาคม 2026 บันทึก production v1.2.6 หลัง operator อนุมัติ deployment แยกเมื่อ 20 ตุลาคม 2026. Config คงเดิมและ OpenCode execution ยังคงเป็น opt-in. ดู [deployment record](V1.2.6-DEPLOYMENT-TH.md). หลักการสำหรับ
 operator: เปิดด้วย `opencode.execution.enabled=true` พร้อม `opencode.enabled` +
 `opencode.binary`, `allowed_workspaces` (canonical absolute path) และ `allowed_models`
 (เช่น `opencode-go/glm-5.3-flash`) ไม่ว่าง; จำกัดด้วย `max_prompt_chars`,
@@ -230,7 +230,7 @@ Preview ไม่ลบ row และไม่มี apply option. SQLite อา
 
 ### v1.2.7 target scope checkpoint
 
-Operator อนุมัติ [scope v1.2.7](V1.2.7-RELEASE-DECISION-TH.md) เมื่อ 20 ตุลาคม 2026 เวลา 18:47:56 +07. Scope รวม Codex read-ahead fix และ Context P1; ยังไม่ released/deployed. Production checkpoint ล่าสุดยังเป็น signed v1.2.6. Scope approval ไม่ใช่การอนุมัติ upgrade; ให้รอ release preparation, signed assets และ deployment decision แยก.
+Operator อนุมัติ [scope v1.2.7](V1.2.7-RELEASE-DECISION-TH.md) เมื่อ 20 ตุลาคม 2026 เวลา 18:47:56 +07. Scope รวม Codex read-ahead fix และ Context P1; ยังไม่ released/deployed. ณ checkpoint ก่อน release วันที่ 20 ตุลาคม 2026 production ใช้ signed v1.2.6. Scope approval ไม่ใช่การอนุมัติ upgrade; ให้รอ release preparation, signed assets และ deployment decision แยก.
 
 ## PROPOSED — disposition เมื่อ terminal record หาย (ยังใช้ปฏิบัติการไม่ได้)
 

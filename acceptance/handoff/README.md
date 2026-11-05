@@ -1,5 +1,7 @@
 # Handoff offline package — delivery 2
 
+Offline deliveries #113–#116 are merged. See [offline closure and receipts](../../docs/HANDOFF-OFFLINE-CLOSURE-TH.md) for the evaluation result and the current boundary. The source candidate checkpoint below documents the standalone component.
+
 ## Current merged status — 2 November 2026
 
 #114 merged at `d0b8ed91544f0ad0957ab892faa54854f1f282e7`; evaluation #115 merged

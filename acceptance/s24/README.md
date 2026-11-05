@@ -1,5 +1,7 @@
 # SPEC 24 Phase A fixture artifact
 
+For current S24 status, including the accepted Phase A readiness record and the paused J0 route, see [J0 disposition](../../docs/S24-J0-PAUSE-DISPOSITION-TH.md). The preparation status below describes this fixture checkpoint.
+
 Status: **revised input preparation for review; guest execution scope pending; Phase A incomplete; no Phase B approval**.
 Prepared candidate: `02d7e8bb1e1902ca33a574ab904a6e5b0f441785`.
 Original candidate: `71dcae67cbfa6f0b953ab8d81198d073d202ed2a` (preserve its checkout and evidence).
