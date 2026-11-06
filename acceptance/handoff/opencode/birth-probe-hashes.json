@@ -1,0 +1,40 @@
+{
+  "kind": "owned-inert-fork-pidfd-birth-feasibility",
+  "source": [
+    {
+      "path": "acceptance/handoff/opencode/birth_probe.py",
+      "bytes": 9279,
+      "sha256": "0086d5ab4fe12501252f996c6152036912c1efd6d0d9c932a55563b48c1f0338"
+    },
+    {
+      "path": "acceptance/handoff/opencode/test_birth_probe.py",
+      "bytes": 12212,
+      "sha256": "5708046518770fe01ee43f3018b52b41077d1d532998228d06a790b3e35266c2"
+    },
+    {
+      "path": ".github/workflows/opencode_birth_probe.yml",
+      "bytes": 1931,
+      "sha256": "b7916ec20300b7428842edab0cc5aaf291cd43d2ce516448e1829247356fc7e8"
+    }
+  ],
+  "pinned_dependencies": [
+    {
+      "path": "acceptance/handoff/opencode/observer_startup.py",
+      "bytes": 18034,
+      "sha256": "1c46328ee4b96b4d7d2b2c82a80260204c91f41d34413c856499b9f4813076f8"
+    },
+    {
+      "path": "acceptance/handoff/opencode/observer_preflight.py",
+      "bytes": 10851,
+      "sha256": "1580395addd0dbf209d24eb281f5f7bb4820e4a6f57730b24662d81790afc126"
+    },
+    {
+      "path": "docs/OPENCODE-HANDOFF-PREENROLLED-BROKER-CONTRACT-TH.md",
+      "bytes": 24871,
+      "sha256": "51a97f268c445d964a11c130351ac0d95488cbbc5c85ee129a2e3f040ca24ef0"
+    }
+  ],
+  "production_feasible": false,
+  "authorizes_actions": false,
+  "dev_observed": false
+}

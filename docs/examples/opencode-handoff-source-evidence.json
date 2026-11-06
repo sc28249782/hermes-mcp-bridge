@@ -1,0 +1,27 @@
+{
+  "kind": "opencode-handoff-design-source-evidence",
+  "schema": 1,
+  "base_main": "d7515c5fb4e33b41f81a8535fb06a0ea2cd72255",
+  "runtime_observed": false,
+  "dev_backend_called": false,
+  "source_sha256": {
+    "opencode_tasks.py": "abdcaba0a8df0477000e2e4717e209a637d258e9ce79574e03103a810a52433a",
+    "opencode_worker.py": "12cb290499618a22f8c5d243b1090b58fbdf9db8666c90b00229b0aef4af455b",
+    "opencode_core.py": "d5c0e75db747d48f165276100e2ea59539c50b0da2384b6a2fc4a5d02348d1e6",
+    "acceptance/handoff/checkpoint.py": "b3f2b58aa939340c043f4999868b5c9989db6f7ad7b5dee74762fbd0eb4ab5ed",
+    "docs/schemas/handoff-checkpoint-v1.schema.json": "3dc3f73a5d67f859c2f779e1f8bc9c49831420a4044f71de5f09aa71c241fadf",
+    "tests/test_opencode_tasks.py": "59b2f1ba3f357b7e34e180012075bddab31c587d76d4fca9330e01f754db5ccf"
+  },
+  "spec_reference": {
+    "path": "docs/SPEC.md",
+    "revision": "d7515c5fb4e33b41f81a8535fb06a0ea2cd72255",
+    "sections": [
+      "14",
+      "18",
+      "21",
+      "22",
+      "24"
+    ],
+    "executed": false
+  }
+}

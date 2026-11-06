@@ -1,0 +1,29 @@
+{
+  "kind": "opencode-handoff-source-contract-evidence",
+  "schema": 1,
+  "input_reviewed_head": "7fb2088f3fb312438cbc70e47c33160a985818db",
+  "contexts_source": {
+    "repository_path": "contexts.py",
+    "revision": "7fb2088f3fb312438cbc70e47c33160a985818db",
+    "sha256": "dab9aab464b3090464efccc7e156c298bfe1eb51deb43f00d3b8514c1a0fb5e0",
+    "opencode_binding_column_present": false
+  },
+  "mechanism_references": [
+    "https://www.sqlite.org/vfs.html",
+    "https://www.sqlite.org/c3ref/io_methods.html",
+    "https://www.sqlite.org/lockingv3.html",
+    "https://www.sqlite.org/c3ref/c_open_autoproxy.html",
+    "https://www.sqlite.org/wal.html"
+  ],
+  "reference_check_date": "2026-11-03",
+  "selected_capture": "proposed read-only VFS shim with retained main-DB descriptor and standard unix SQLite read transaction",
+  "shared_lock_contention_requires_review": true,
+  "capture_implemented": false,
+  "capture_tested": false,
+  "facts_adapter_implemented": false,
+  "dev_observed": false,
+  "backend_calls": 0,
+  "controls_executed": 0,
+  "pilot_authorized": false,
+  "j0_resumed": false
+}

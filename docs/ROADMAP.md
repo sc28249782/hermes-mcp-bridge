@@ -11,6 +11,25 @@ Use this checkpoint for current route status and attempt counts. The acceptance 
 
 [#96](https://github.com/sc28249782/hermes-mcp-bridge/pull/96) records Phase A readiness for the reviewed artifact. [#80](https://github.com/sc28249782/hermes-mcp-bridge/pull/80) records historical Dev evidence with §22 acceptance HOLD. [#118](https://github.com/sc28249782/hermes-mcp-bridge/pull/118) records the J0 pause. #110 is merged.
 
+## OpenCode handoff integration design — 3 November 2026
+
+Operator explicitly selected a separate [OpenCode passive observation design](OPENCODE-HANDOFF-INTEGRATION-DESIGN-TH.md).
+Proposed first profile observes ONE known original completed Dev job, constructs
+trusted Facts after current authority/dossier/identity checks and independently
+verifies original goal evidence, then invokes only the pure advisory planner.
+No native status/result/recent calls: their existing reconciliation can mutate
+other job rows. No submit/replay/cancel/resume, health/model/provider call or
+public MCP/config/runtime integration. SQLite capture, authority/context and
+verifier semantics must be source-reviewed before any separately approved pilot.
+
+This design/source-analysis candidate is tracked separately in draft #117.
+[J0 pause record at e7142cf7](https://github.com/sc28249782/hermes-mcp-bridge/blob/e7142cf71792475af9375140df39acd55944d8d1/acceptance/s24/observed/J0-ROUTE-PAUSE.md)
+remains effective; the new explicit selection authorizes this design only, not
+J0 resumption or any action/merge/release. All S24 eighteen rows remain OPEN;
+R1 NOT AUTHORIZED / R2 HOLD. Handoff offline deliveries remain closed with tied
+outcomes; the old preparation/resumption/count notes below remain historical.
+No new evaluation, pilot or installed capability is claimed.
+
 ## Handoff closure and OpenCode observation
 
 Offline deliveries #113–#116 are merged. Evaluation checkpoint

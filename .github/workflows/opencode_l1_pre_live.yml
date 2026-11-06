@@ -34,3 +34,8 @@ jobs:
           /usr/bin/python3 -W error::ResourceWarning test_l1_admission_model.py -v
           /usr/bin/python3 -W error::ResourceWarning test_l1_retained_launcher.py -v
           /usr/bin/python3 -W error::ResourceWarning test_l1_retained_fd_exec.py -v
+          /usr/bin/python3 -W error::ResourceWarning test_l1_retained_admission.py -v
+          /usr/bin/python3 -W error::ResourceWarning test_l1_broker_ready.py -v
+          cc -std=c11 -Wall -Wextra -Werror -O2 l1_broker_lifecycle.c test_l1_broker_lifecycle.c -o "$scratch/broker"
+          "$scratch/broker"
+          /usr/bin/python3 -W error::ResourceWarning test_l1_broker_integration.py -v

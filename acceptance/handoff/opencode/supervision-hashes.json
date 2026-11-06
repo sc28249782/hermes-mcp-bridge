@@ -1,0 +1,99 @@
+{
+  "kind": "b4-fixture-source-review-identity",
+  "source": [
+    {
+      "path": "acceptance/handoff/opencode/supervision.py",
+      "bytes": 12808,
+      "sha256": "888503a095420ccebb4ce23e6bcbbbd84733d06557faafbf391abf7131ccf4fb"
+    },
+    {
+      "path": "acceptance/handoff/opencode/test_supervision.py",
+      "bytes": 20611,
+      "sha256": "232d34834f97778b98cd27eaefd3ff317400f001b50973798b7b22097d7153b2"
+    },
+    {
+      "path": ".github/workflows/opencode_supervision_source.yml",
+      "bytes": 1894,
+      "sha256": "4e5992d5d182206f20a8ef1e6a307ff80a778f9049a754c8a24f7c4a27ce4c44"
+    }
+  ],
+  "unchanged_dependencies": [
+    {
+      "path": "acceptance/handoff/opencode/baseline.py",
+      "sha256": "18058cf6d007ccb9529f07a73bc15445ed8cebc264c30a4176701ec1105542c6",
+      "bytes": 1538
+    },
+    {
+      "path": "acceptance/handoff/opencode/batch.py",
+      "sha256": "64a64cef5c1b7199cbff0b388e3d51766396372775c19ab893136de2821dfe69",
+      "bytes": 4704
+    },
+    {
+      "path": "acceptance/handoff/opencode/facts.py",
+      "sha256": "82f0eb50ea232cb781376981b05a77d0fd637a4bc2605f05e3acc6e26c312bd4",
+      "bytes": 13975
+    },
+    {
+      "path": "acceptance/handoff/opencode/fixtures.py",
+      "sha256": "4078ce004eea69e8f46b4e054a4fbd990963de4cc919e1bc211796eae2805364",
+      "bytes": 7226
+    },
+    {
+      "path": "acceptance/handoff/opencode/owner.py",
+      "sha256": "9c37bc1aceed0a46e9822b0ae11b92009265aa6e2642bbf6b8c8b2b7797a76db",
+      "bytes": 5145
+    },
+    {
+      "path": "acceptance/handoff/opencode/test_observation.py",
+      "sha256": "435c5a94e878a0fca98561cbdc46e12269d4e6d6d04e54ce9ecaac5a48d8e593",
+      "bytes": 25639
+    },
+    {
+      "path": "acceptance/handoff/opencode/oc_snapshot_vfs.c",
+      "sha256": "330c76cf5ab2320d5985e8e941c57f8c518ae99c0f6f7ed1910de91beac8b11b",
+      "bytes": 17565
+    },
+    {
+      "path": "acceptance/handoff/opencode/native_schema.h",
+      "sha256": "6cbf52d8d1c2f6be65c844fb7471f9f1ca2f8776756c31ba66c3bfe1c5d3c86a",
+      "bytes": 1042
+    },
+    {
+      "path": "acceptance/handoff/opencode/sqlite_abi.h",
+      "sha256": "ff42e0f87f12e34d8183bdd98eea11efc377208653eca8d6246bc51d269ed2a2",
+      "bytes": 4420
+    },
+    {
+      "path": ".github/workflows/opencode_handoff_source.yml",
+      "sha256": "1793ff6e3681d406aae25b7a6e3aa21b3ef031260875388f80046cdb376abdb8",
+      "bytes": 2150
+    },
+    {
+      "path": "acceptance/handoff/checkpoint.py",
+      "sha256": "b3f2b58aa939340c043f4999868b5c9989db6f7ad7b5dee74762fbd0eb4ab5ed",
+      "bytes": 11894
+    },
+    {
+      "path": "acceptance/handoff/store.py",
+      "sha256": "d5106483892ea9ae4832204bdfd9c446013b44e1894e21d5f8614fe245806c97",
+      "bytes": 8781
+    },
+    {
+      "path": "docs/schemas/handoff-checkpoint-v1.schema.json",
+      "sha256": "3dc3f73a5d67f859c2f779e1f8bc9c49831420a4044f71de5f09aa71c241fadf",
+      "bytes": 10621
+    },
+    {
+      "path": "opencode_tasks.py",
+      "sha256": "abdcaba0a8df0477000e2e4717e209a637d258e9ce79574e03103a810a52433a",
+      "bytes": 16706
+    },
+    {
+      "path": "contexts.py",
+      "sha256": "dab9aab464b3090464efccc7e156c298bfe1eb51deb43f00d3b8514c1a0fb5e0",
+      "bytes": 7135
+    }
+  ],
+  "dev_observed": false,
+  "authorizes_actions": false
+}

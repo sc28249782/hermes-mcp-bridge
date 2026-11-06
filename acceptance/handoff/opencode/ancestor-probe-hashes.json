@@ -1,0 +1,40 @@
+{
+  "kind": "owned-inert-ancestor-feasibility-source",
+  "source": [
+    {
+      "path": "acceptance/handoff/opencode/ancestor_probe.py",
+      "bytes": 11103,
+      "sha256": "fa2f8a275feaefdc673d3a199bb4aa9afd6ee70d3073bde823f24547b4d3cb82"
+    },
+    {
+      "path": "acceptance/handoff/opencode/test_ancestor_probe.py",
+      "bytes": 11976,
+      "sha256": "6ea19f376259efa81f3ee91d3b5a91eb21de7cd365e626dcbc2df7e90516ba68"
+    },
+    {
+      "path": ".github/workflows/opencode_ancestor_probe.yml",
+      "bytes": 1945,
+      "sha256": "fcf529ab2dfaf7d4918b3fa2f53557b4e91809091962933829c6430ad5a2e713"
+    }
+  ],
+  "pinned_dependencies": [
+    {
+      "path": "acceptance/handoff/opencode/observer_startup.py",
+      "bytes": 18034,
+      "sha256": "1c46328ee4b96b4d7d2b2c82a80260204c91f41d34413c856499b9f4813076f8"
+    },
+    {
+      "path": "acceptance/handoff/opencode/observer_preflight.py",
+      "bytes": 10851,
+      "sha256": "1580395addd0dbf209d24eb281f5f7bb4820e4a6f57730b24662d81790afc126"
+    },
+    {
+      "path": "docs/OPENCODE-HANDOFF-OA07-CONTAINMENT-DESIGN-TH.md",
+      "bytes": 25491,
+      "sha256": "2c59905001779d7aaf7c5ad35f2d6a6a2e571ac8a6ee68da835d2d26ea0fdc59"
+    }
+  ],
+  "production_feasible": false,
+  "authorizes_actions": false,
+  "dev_observed": false
+}

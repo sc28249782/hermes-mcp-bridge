@@ -1,0 +1,50 @@
+name: OpenCode supervisor-loss offline controls
+
+on:
+  pull_request:
+    branches: [main]
+    paths: ['acceptance/handoff/opencode/**', 'docs/OPENCODE-HANDOFF-*.md', '.github/workflows/opencode_supervisor_loss.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  supervisor-loss:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Kill only disposable supervisors and reap owned fixture descendants
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha }}'
+          umask 022
+          loss_log="$RUNNER_TEMP/opencode-supervisor-loss.log"
+          set +e
+          python -W error::ResourceWarning -I -S -B acceptance/handoff/opencode/test_supervisor_loss.py > "$loss_log" 2>&1
+          loss_exit=$?
+          set -e
+          cat "$loss_log"
+          python -I -S -B - "$loss_log" "$loss_exit" <<'PY'
+          from pathlib import Path
+          import json,re,sys
+          raw=Path(sys.argv[1]).read_bytes()
+          markers=[m.decode() for m in (b'ResourceWarning',b'Exception ignored',b'Traceback') if m in raw]
+          complete=(re.findall(rb'^Ran (\d+) tests? in ',raw,re.M)==[b'9']
+                    and re.search(rb'^OK\s*$',raw,re.M) is not None
+                    and re.search(rb'\bskipped\b',raw,re.I) is None)
+          print(json.dumps({'supervisor_loss_exit':int(sys.argv[2]),'complete_without_skips':complete,
+                            'warning_markers':markers,'dev_observed':False,'authorizes_actions':False}))
+          assert sys.argv[2]=='0' and complete and not markers,'supervisor-loss controls failed'
+          PY
